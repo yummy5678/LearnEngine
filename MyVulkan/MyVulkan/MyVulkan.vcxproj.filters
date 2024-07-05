@@ -39,7 +39,7 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="VulkanValidation.h">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

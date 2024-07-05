@@ -1,4 +1,4 @@
-#define GLFW_INCLUDE_VULKAN
+//#define GLFW_INCLUDE_VULKAN
 
 #include <stdexcept>
 #include <vector>

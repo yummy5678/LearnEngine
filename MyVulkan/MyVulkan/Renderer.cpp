@@ -9,7 +9,7 @@ VulkanRenderer::VulkanRenderer()
 
 int VulkanRenderer::init(GameWindow renderWindow)
 {
-	window = renderWindow.getWindowPointer();
+	window = renderWindow.getWindowPointer(); //ウィンドウのポインタのセット
 
 	try {
 		createInstance();
@@ -20,6 +20,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		createSwapChain();
 	}
 	catch (const std::runtime_error& e) {
+		//エラーメッセージ受け取り
 		printf("ERROR: %s\n", e.what());
 		return EXIT_FAILURE;
 	}
@@ -50,263 +51,335 @@ VulkanRenderer::~VulkanRenderer()
 
 void VulkanRenderer::createInstance()
 {
+
+	// エラーチェック
 	if (validationEnabled && !checkValidationLayerSupport())
 	{
 		throw std::runtime_error("Required Validation Layers not supported!");
 	}
 
-	// Information about the application itself
-	// Most data here doesn't affect the program and is for developer convenience
+	// アプリケーションの情報を初期化
+	// ここは好きな値を書き込む
 	VkApplicationInfo appInfo = {};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "Vulkan App";					// Custom name of the application
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);		// Custom version of the application
-	appInfo.pEngineName = "No Engine";							// Custom engine name
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);			// Custom engine version
-	appInfo.apiVersion = VK_API_VERSION_1_0;					// The Vulkan Version
+	appInfo.pApplicationName = "Vulkan App";                     // アプリケーションの名前
+	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);       // アプリケーションのバージョン名 
+	appInfo.pEngineName = "No Engine";                           // エンジンの名前
+	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);            // エンジンのバージョン名
+	appInfo.apiVersion = VK_API_VERSION_1_0;                     // Vulkan APIのバージョン
 
-	// Creation information for a VkInstance (Vulkan Instance)
-	VkInstanceCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	createInfo.pApplicationInfo = &appInfo;
+	/*/////////////////////
+	* インスタンスの作成
+	*//////////////////////
+	VkInstanceCreateInfo instCreateInfo = {};
+	instCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;	// インスタンスのタイプ
+	instCreateInfo.pNext;											// 拡張機能の情報 
+	instCreateInfo.flags;											// インスタンスの作成フラグ 
+	instCreateInfo.pApplicationInfo = &appInfo;						// アプリケーション情報へのポインタ
+	instCreateInfo.enabledLayerCount;								// 有効にするレイヤーの数 
+	instCreateInfo.ppEnabledLayerNames;								// 有効にするレイヤーの名前の配列 
+	instCreateInfo.enabledExtensionCount;							// 有効にする拡張機能の数 
+	instCreateInfo.ppEnabledExtensionNames;							// 有効にする拡張機能の名前の配列 
 
-	// Create list to hold instance extensions
+
+	// インスタンス拡張機能のリストを作成する
 	std::vector<const char*> instanceExtensions = std::vector<const char*>();
 
-	// Set up extensions Instance will use
-	uint32_t glfwExtensionCount = 0;				// GLFW may require multiple extensions
-	const char** glfwExtensions;					// Extensions passed as array of cstrings, so need pointer (the array) to pointer (the cstring)
+	// インスタンスが使用する拡張機能を設定する
+	uint32_t glfwExtensionCount = 0;                    // GLFWは複数の拡張機能を要求する場合がある
+	const char** glfwExtensions;                        // 拡張機能はC文字列の配列として渡されるため、ポインタ（配列）のポインタ（C文字列）が必要
 
-	// Get GLFW extensions
+	// GLFWの拡張機能を取得する
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-	// Add GLFW extensions to list of extensions
+	// GLFWの拡張機能をリストに追加する
 	for (size_t i = 0; i < glfwExtensionCount; i++)
 	{
 		instanceExtensions.push_back(glfwExtensions[i]);
 	}
 
-	// If validation enabled, add extension to report validation debug info
+	// バリデーションが有効な場合、検証用のデバッグ情報拡張機能を追加する
 	if (validationEnabled)
 	{
 		instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	}
 
-	// Check Instance Extensions supported...
+	// インスタンスが必要とする拡張機能がサポートされているか確認する
 	if (!checkInstanceExtensionSupport(&instanceExtensions))
 	{
-		throw std::runtime_error("VkInstance does not support required extensions!");
+		//throw std::runtime_error("VkInstance does not support required extensions!");
+		throw std::runtime_error("VkInstance は必要な拡張機能をサポートしていません！");
 	}
 
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size());
-	createInfo.ppEnabledExtensionNames = instanceExtensions.data();
+	// 有効な拡張機能の数と名前の配列を設定する
+	instCreateInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size());
+	instCreateInfo.ppEnabledExtensionNames = instanceExtensions.data();
 
+	// バリデーションが有効な場合、有効なレイヤーの数と名前の配列を設定する
 	if (validationEnabled)
 	{
-		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-		createInfo.ppEnabledLayerNames = validationLayers.data();
+		//有効な場合
+		instCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		instCreateInfo.ppEnabledLayerNames = validationLayers.data();
 	}
 	else
 	{
-		createInfo.enabledLayerCount = 0;
-		createInfo.ppEnabledLayerNames = nullptr;
+		//無効な場合
+		instCreateInfo.enabledLayerCount = 0;
+		instCreateInfo.ppEnabledLayerNames = nullptr;
 	}
 
+	// インスタンスを作成する
+	VkResult result = vkCreateInstance(&instCreateInfo, nullptr, &instance);
 
-	// Create instance
-	VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
-
+	//インスタンスの作成に失敗した場合のエラーメッセージ
 	if (result != VK_SUCCESS)
 	{
-		throw std::runtime_error("Failed to create a Vulkan Instance!");
+		//throw std::runtime_error("Failed to create a Vulkan Instance!");
+		throw std::runtime_error("Vulkan インスタンスの作成に失敗しました！");
 	}
 }
 
 void VulkanRenderer::createDebugCallback()
 {
-	// Only create callback if validation enabled
+	// バリデーションが有効な場合のみコールバックを作成する
 	if (!validationEnabled) return;
 
+	// デバッグレポートコールバックの作成情報を初期化する
 	VkDebugReportCallbackCreateInfoEXT callbackCreateInfo = {};
-	callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-	callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;	// Which validation reports should initiate callback
-	callbackCreateInfo.pfnCallback = debugCallback;												// Pointer to callback function itself
+	callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;				// デバッグレポートコールバックの作成情報の構造体のタイプを指定
+	callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;		// 呼び出しを開始するバリデーションレポートの種類
+	callbackCreateInfo.pfnCallback = debugCallback;													// コールバック関数へのポインタ
 
-	// Create debug callback with custom create function
+	// カスタムの作成関数を使用してデバッグコールバックを作成する
 	VkResult result = CreateDebugReportCallbackEXT(instance, &callbackCreateInfo, nullptr, &callback);
 	if (result != VK_SUCCESS)
 	{
-		throw std::runtime_error("Failed to create Debug Callback!");
+		//throw std::runtime_error("Failed to create Debug Callback!");
+		throw std::runtime_error("デバッグコールバックの作成に失敗しました！");
 	}
 }
 
 void VulkanRenderer::createLogicalDevice()
 {
-	//Get the queue family indices for the chosen Physical Device
+	// 選択した物理デバイスのキューファミリーインデックスを取得する
 	QueueFamilyIndices indices = getQueueFamilies(mainDevice.physicalDevice);
 
-	// Vector for queue creation information, and set for family indices
+	// キュー作成情報用のベクターとファミリーインデックス用のセットを準備する
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 	std::set<int> queueFamilyIndices = { indices.graphicsFamily, indices.presentationFamily };
 
-	// Queues the logical device needs to create and info to do so
+	// ロジカルデバイスで作成する必要があるキューとその情報を設定する
 	for (int queueFamilyIndex : queueFamilyIndices)
 	{
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;						// The index of the family to create a queue from
-		queueCreateInfo.queueCount = 1;												// Number of queues to create
-		float priority = 1.0f;
-		queueCreateInfo.pQueuePriorities = &priority;								// Vulkan needs to know how to handle multiple queues, so decide priority (1 = highest priority)
+		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;                        // キューを作成するファミリーのインデックス
+		queueCreateInfo.queueCount = 1;                                             // 作成するキューの数
+		float priority = 1.0f;														// 優先度
+		queueCreateInfo.pQueuePriorities = &priority;                               // Vulkanは複数のキューをどのように扱うかを知る必要があるため、優先度を指定する (1が最高優先度)
 
 		queueCreateInfos.push_back(queueCreateInfo);
 	}
 
-	// Information to create logical device (sometimes called "device")
+	// ロジカルデバイスを作成するための情報を設定する
 	VkDeviceCreateInfo deviceCreateInfo = {};
 	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());		// Number of Queue Create Infos
-	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();								// List of queue create infos so device can create required queues
-	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());	// Number of enabled logical device extensions
-	deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();							// List of enabled logical device extensions
+	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());       // キュー作成情報の数
+	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();                                 // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
+	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());      // 有効なロジカルデバイス拡張機能の数
+	deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();                           // 有効なロジカルデバイス拡張機能のリスト
 
-	// Physical Device Features the Logical Device will be using
+	// ロジカルデバイスが使用する物理デバイスの機能
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 
-	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;			// Physical Device features Logical Device will use
+	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;            // ロジカルデバイスが使用する物理デバイスの機能
 
-	// Create the logical device for the given physical device
+	// 指定された物理デバイスに対してロジカルデバイスを作成する
 	VkResult result = vkCreateDevice(mainDevice.physicalDevice, &deviceCreateInfo, nullptr, &mainDevice.logicalDevice);
 	if (result != VK_SUCCESS)
 	{
-		throw std::runtime_error("Failed to create a Logical Device!");
+		throw std::runtime_error("ロジカルデバイスの作成に失敗しました！");
 	}
 
-	// Queues are created at the same time as the device...
-	// So we want handle to queues
-	// From given logical device, of given Queue Family, of given Queue Index (0 since only one queue), place reference in given VkQueue
+	// キューはデバイスと同時に作成されるため
+	// キューへのハンドルを取得する
+	// 指定されたロジカルデバイスから、指定されたキューファミリーの指定されたキューインデックス（0は唯一のキューなので0）、指定されたVkQueueへの参照を置く
 	vkGetDeviceQueue(mainDevice.logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
 	vkGetDeviceQueue(mainDevice.logicalDevice, indices.presentationFamily, 0, &presentationQueue);
 }
 
 void VulkanRenderer::createSurface()
 {
-	// Create Surface (creates a surface create info struct, runs the create surface function, returns result)
+	// サーフェスを作成する（サーフェス作成情報構造体を作成し、サーフェス作成関数を実行し、結果を返す）
 	VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
 
 	if (result != VK_SUCCESS)
 	{
-		throw std::runtime_error("Failed to create a surface!");
+		throw std::runtime_error("サーフェスの作成に失敗しました！");
 	}
 }
 
+
 void VulkanRenderer::createSwapChain()
 {
-	// Get Swap Chain details so we can pick best settings
+	// Swap Chainの詳細を取得して最適な設定を選択する
 	SwapChainDetails swapChainDetails = getSwapChainDetails(mainDevice.physicalDevice);
 
-	// Find optimal surface values for our swap chain
+	// Swap Chainの最適なSurfaceフォーマットを選択する
 	VkSurfaceFormatKHR surfaceFormat = chooseBestSurfaceFormat(swapChainDetails.formats);
+
+	// Swap Chainの最適なプレゼンテーションモードを選択する
 	VkPresentModeKHR presentMode = chooseBestPresentationMode(swapChainDetails.presentationModes);
+
+	// Swap Chainの最適なExtent（サイズ）を選択する
 	VkExtent2D extent = chooseSwapExtent(swapChainDetails.surfaceCapabilities);
 
-	// How many images are in the swap chain? Get 1 more than the minimum to allow triple buffering
+	// Swap Chainに含まれる画像の数を決定する
 	uint32_t imageCount = swapChainDetails.surfaceCapabilities.minImageCount + 1;
 
-	// If imageCount higher than max, then clamp down to max
-	// If 0, then limitless
+	// もしimageCountがmaxを超えていたらmaxに制限する
 	if (swapChainDetails.surfaceCapabilities.maxImageCount > 0
 		&& swapChainDetails.surfaceCapabilities.maxImageCount < imageCount)
 	{
 		imageCount = swapChainDetails.surfaceCapabilities.maxImageCount;
 	}
 
-	// Creation information for swap chain
-	VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
-	swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	swapChainCreateInfo.surface = surface;														// Swapchain surface
-	swapChainCreateInfo.imageFormat = surfaceFormat.format;										// Swapchain format
-	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;								// Swapchain colour space
-	swapChainCreateInfo.presentMode = presentMode;												// Swapchain presentation mode
-	swapChainCreateInfo.imageExtent = extent;													// Swapchain image extents
-	swapChainCreateInfo.minImageCount = imageCount;												// Minimum images in swapchain
-	swapChainCreateInfo.imageArrayLayers = 1;													// Number of layers for each image in chain
-	swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;						// What attachment images will be used as
-	swapChainCreateInfo.preTransform = swapChainDetails.surfaceCapabilities.currentTransform;	// Transform to perform on swap chain images
-	swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;						// How to handle blending images with external graphics (e.g. other windows)
-	swapChainCreateInfo.clipped = VK_TRUE;														// Whether to clip parts of image not in view (e.g. behind another window, off screen, etc)
 
-	// Get Queue Family Indices
+	/*//////////////////////////
+	* スワップチェインの作成
+	*///////////////////////////
+	VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
+	swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;					// スワップチェインのタイプ
+	swapChainCreateInfo.surface = surface;														// スワップチェインの対象となるSurface
+	swapChainCreateInfo.imageFormat = surfaceFormat.format;										// スワップチェインの画像フォーマット
+	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;								// スワップチェインのカラースペース
+	swapChainCreateInfo.presentMode = presentMode;												// スワップチェインのプレゼンテーションモード
+	swapChainCreateInfo.imageExtent = extent;													// スワップチェインの画像のサイズ
+	swapChainCreateInfo.minImageCount = imageCount;												// スワップチェイン内の最小画像数
+	swapChainCreateInfo.imageArrayLayers = 1;													// 画像の配列レイヤー数
+	swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;						// 画像がどのように使用されるか
+	swapChainCreateInfo.preTransform = swapChainDetails.surfaceCapabilities.currentTransform;	// Swapchain画像に対して行う変換
+	swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;						// 外部グラフィックスとのブレンディングの扱い方
+	swapChainCreateInfo.clipped = VK_TRUE;														// 画面外の部分をクリップするかどうか
+
+	// キューファミリーインデックスを取得する
 	QueueFamilyIndices indices = getQueueFamilies(mainDevice.physicalDevice);
 
-	// If Graphics and Presentation families are different, then swapchain must let images be shared between families
+	// グラフィクスファミリーとプレゼンテーションファミリーが異なる場合、画像をファミリー間で共有する必要がある
 	if (indices.graphicsFamily != indices.presentationFamily)
 	{
-		// Queues to share between
+		// 異なる場合
+		// 共有するキューの指定
 		uint32_t queueFamilyIndices[] = {
-			(uint32_t)indices.graphicsFamily,
-			(uint32_t)indices.presentationFamily
+			static_cast<uint32_t>(indices.graphicsFamily),
+			static_cast<uint32_t>(indices.presentationFamily)
 		};
 
-		swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;		// Image share handling
-		swapChainCreateInfo.queueFamilyIndexCount = 2;							// Number of queues to share images between
-		swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;			// Array of queues to share between
+		swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;		// 画像共有のモード
+		swapChainCreateInfo.queueFamilyIndexCount = 2;							// 画像を共有するキューの数
+		swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;			// 画像を共有するキューの配列
 	}
 	else
 	{
-		swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		swapChainCreateInfo.queueFamilyIndexCount = 0;
-		swapChainCreateInfo.pQueueFamilyIndices = nullptr;
+		// 同じだった場合
+		swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;		// 画像共有のモード
+		swapChainCreateInfo.queueFamilyIndexCount = 0;							// 画像を共有するキューの数
+		swapChainCreateInfo.pQueueFamilyIndices = nullptr;						// 画像を共有するキューの配列
 	}
 
-	// IF old swap chain been destroyed and this one replaces it, then link old one to quickly hand over responsibilities
+	// 古いSwapchainが破棄され、新しいSwapchainが置き換えられる場合、旧Swapchainをリンクして責任を迅速に引き継ぐ
 	swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	// Create Swapchain
+	// Swapchainを作成する
 	VkResult result = vkCreateSwapchainKHR(mainDevice.logicalDevice, &swapChainCreateInfo, nullptr, &swapchain);
 	if (result != VK_SUCCESS)
 	{
-		throw std::runtime_error("Failed to create a Swapchain!");
+		throw std::runtime_error("Swapchainの作成に失敗しました！");
 	}
 
-	// Store for later reference
+	// 後で参照するために保存する
 	swapChainImageFormat = surfaceFormat.format;
 	swapChainExtent = extent;
 
-	// Get swap chain images (first count, then values)
-	uint32_t swapChainImageCount;
+	// Swapchainの画像を取得する（数を取得し、値を取得する）
+	uint32_t swapChainImageCount;	//スワップチェインの画像数
 	vkGetSwapchainImagesKHR(mainDevice.logicalDevice, swapchain, &swapChainImageCount, nullptr);
 	std::vector<VkImage> images(swapChainImageCount);
 	vkGetSwapchainImagesKHR(mainDevice.logicalDevice, swapchain, &swapChainImageCount, images.data());
 
 	for (VkImage image : images)
 	{
-		// Store image handle
+		// 画像ハンドルを保存する
 		SwapchainImage swapChainImage = {};
 		swapChainImage.image = image;
 		swapChainImage.imageView = createImageView(image, swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 
-		// Add to swapchain image list
+		// Swapchain画像リストに追加する
 		swapChainImages.push_back(swapChainImage);
 	}
 }
 
+void VulkanRenderer::createGraphicsPipeline()
+{
+	// シェーダーのSPIR-Vコードを読み込む
+	auto vertexShaderCode = readFile("Shaders/vert.spv");
+	auto fragmentShaderCode = readFile("Shaders/frag.spv");
+
+	// シェーダーモジュールの作成
+	VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
+	VkShaderModule fragmentShaderModule = createShaderModule(fragmentShaderCode);
+
+	// -- シェーダーステージの作成情報 --
+	// 頂点シェーダーステージの作成情報
+	VkPipelineShaderStageCreateInfo vertexShaderCreateInfo = {};
+	vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;	// 頂点シェーダーステージ作成情報の構造体タイプを設定
+	vertexShaderCreateInfo.pNext = nullptr;												// この構造体を拡張する構造体へのポインタ
+	vertexShaderCreateInfo.flags = 0;													// シェーダ ステージの生成方法を指定するVkPipelineShaderStageCreateFlagBitsのビットマスク
+	vertexShaderCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;							// シェーダーステージの種類
+	vertexShaderCreateInfo.module = vertexShaderModule;									// 使用するシェーダーモジュール
+	vertexShaderCreateInfo.pName = "main";												// シェーダーのエントリーポイント名
+
+	// フラグメントシェーダーステージの作成情報
+	VkPipelineShaderStageCreateInfo fragmentShaderCreateInfo = {};
+	fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;	// フラグメントシェーダーステージ作成情報の構造体タイプを設定
+	fragmentShaderCreateInfo.pNext = nullptr;												// この構造体を拡張する構造体へのポインタ
+	fragmentShaderCreateInfo.flags = 0;														// シェーダ ステージの生成方法を指定するVkPipelineShaderStageCreateFlagBitsのビットマスク
+	fragmentShaderCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;							// シェーダーステージの種類
+	fragmentShaderCreateInfo.module = fragmentShaderModule;									// 使用するシェーダーモジュール
+	fragmentShaderCreateInfo.pName = "main";												// シェーダーのエントリーポイント名
+
+
+	// シェーダーステージ作成情報を配列に格納
+	// グラフィックスパイプラインの作成情報にはシェーダーステージ作成情報の配列が必要
+	VkPipelineShaderStageCreateInfo shaderStages[] = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
+
+	// パイプラインの作成
+
+	// パイプラインが作成された後にはシェーダーモジュールは不要になるため破棄する
+	vkDestroyShaderModule(mainDevice.logicalDevice, fragmentShaderModule, nullptr);
+	vkDestroyShaderModule(mainDevice.logicalDevice, vertexShaderModule, nullptr);
+}
+
+
+
 void VulkanRenderer::getPhysicalDevice()
 {
-	// Enumerate Physical devices the vkInstance can access
+	// vkInstanceがアクセスできる物理デバイスを列挙する
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
-	// If no devices available, then none support Vulkan!
+	// 利用可能なデバイスがない場合
 	if (deviceCount == 0)
 	{
-		throw std::runtime_error("Can't find GPUs that support Vulkan Instance!");
+		throw std::runtime_error("VulkanをサポートするGPUが見つかりません！");
 	}
 
-	// Get list of Physical Devices
+	// 物理デバイスのリストを取得する
 	std::vector<VkPhysicalDevice> deviceList(deviceCount);
 	vkEnumeratePhysicalDevices(instance, &deviceCount, deviceList.data());
 
+	// 適切なデバイスが見つかるまでループする
 	for (const auto& device : deviceList)
 	{
 		if (checkDeviceSuitable(device))
@@ -317,22 +390,24 @@ void VulkanRenderer::getPhysicalDevice()
 	}
 }
 
+
 bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* checkExtensions)
 {
-	// Need to get number of extensions to create array of correct size to hold extensions
+	// Vulkanのインスタンスがサポートする利用可能な拡張機能の数を取得する
 	uint32_t extensionCount = 0;
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
-	// Create a list of VkExtensionProperties using count
+	// 利用可能な拡張機能の情報を保持するためのVkExtensionPropertiesのリストを作成する
 	std::vector<VkExtensionProperties> extensions(extensionCount);
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-	// Check if given extensions are in list of available extensions
+	// 指定された拡張機能が利用可能な拡張機能リストに含まれているかチェックする
 	for (const auto& checkExtension : *checkExtensions)
 	{
 		bool hasExtension = false;
 		for (const auto& extension : extensions)
 		{
+			// 拡張機能名が一致するかどうかをstrcmpで比較する
 			if (strcmp(checkExtension, extension.extensionName) == 0)
 			{
 				hasExtension = true;
@@ -340,37 +415,41 @@ bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* che
 			}
 		}
 
+		// 指定された拡張機能が見つからない場合はfalseを返す
 		if (!hasExtension)
 		{
 			return false;
 		}
 	}
 
+	// すべての指定された拡張機能が見つかった場合はtrueを返す
 	return true;
 }
 
+
 bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
-	// Get device extension count
+	// デバイスがサポートする拡張機能の数を取得する
 	uint32_t extensionCount = 0;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-	// If no extensions found, return failure
+	// もし拡張機能が見つからない場合、失敗としてfalseを返す
 	if (extensionCount == 0)
 	{
 		return false;
 	}
 
-	// Populate list of extensions
+	// 拡張機能の情報を保持するためのVkExtensionPropertiesのリストを作成する
 	std::vector<VkExtensionProperties> extensions(extensionCount);
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, extensions.data());
 
-	// Check for extension
+	// デバイスが必要とする拡張機能がサポートされているかチェックする
 	for (const auto& deviceExtension : deviceExtensions)
 	{
 		bool hasExtension = false;
 		for (const auto& extension : extensions)
 		{
+			// 拡張機能名が一致するかどうかをstrcmpで比較する
 			if (strcmp(deviceExtension, extension.extensionName) == 0)
 			{
 				hasExtension = true;
@@ -378,36 +457,41 @@ bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device)
 			}
 		}
 
+		// 必要な拡張機能が見つからない場合はfalseを返す
 		if (!hasExtension)
 		{
 			return false;
 		}
 	}
 
+	// すべての必要な拡張機能が見つかった場合はtrueを返す
 	return true;
 }
 
+
 bool VulkanRenderer::checkValidationLayerSupport()
 {
-	// Get number of validation layers to create vector of appropriate size
+	// バリデーションレイヤーの数を取得し、適切なサイズのベクターを作成する
 	uint32_t validationLayerCount;
 	vkEnumerateInstanceLayerProperties(&validationLayerCount, nullptr);
 
-	// Check if no validation layers found AND we want at least 1 layer
+	// もしバリデーションレイヤーが見つからない場合かつ少なくとも1つのレイヤーが必要な場合はfalseを返す
 	if (validationLayerCount == 0 && validationLayers.size() > 0)
 	{
 		return false;
 	}
 
+	// 利用可能なレイヤーの情報を保持するためのVkLayerPropertiesのリストを作成する
 	std::vector<VkLayerProperties> availableLayers(validationLayerCount);
 	vkEnumerateInstanceLayerProperties(&validationLayerCount, availableLayers.data());
 
-	// Check if given Validation Layer is in list of given Validation Layers
+	// 指定されたバリデーションレイヤーが利用可能なレイヤーリストに含まれているかチェックする
 	for (const auto& validationLayer : validationLayers)
 	{
 		bool hasLayer = false;
 		for (const auto& availableLayer : availableLayers)
 		{
+			// レイヤー名が一致するかどうかをstrcmpで比較する
 			if (strcmp(validationLayer, availableLayer.layerName) == 0)
 			{
 				hasLayer = true;
@@ -415,73 +499,85 @@ bool VulkanRenderer::checkValidationLayerSupport()
 			}
 		}
 
+		// 指定されたバリデーションレイヤーが見つからない場合はfalseを返す
 		if (!hasLayer)
 		{
 			return false;
 		}
 	}
 
+	// すべての指定されたバリデーションレイヤーが見つかった場合はtrueを返す
 	return true;
 }
+
 
 bool VulkanRenderer::checkDeviceSuitable(VkPhysicalDevice device)
 {
 	/*
-	// Information about the device itself (ID, name, type, vendor, etc)
+	// デバイス自体に関する情報 (ID、名前、タイプ、ベンダーなど)
 	VkPhysicalDeviceProperties deviceProperties;
 	vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
-	// Information about what the device can do (geo shader, tess shader, wide lines, etc)
+	// デバイスの機能に関する情報 (ジオメトリシェーダー、テッセレーションシェーダー、ワイドラインなど)
 	VkPhysicalDeviceFeatures deviceFeatures;
 	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 	*/
 
+	// キューファミリーのインデックスを取得する
 	QueueFamilyIndices indices = getQueueFamilies(device);
 
+	// デバイスが必要とする拡張機能をサポートしているか確認する
 	bool extensionsSupported = checkDeviceExtensionSupport(device);
 
+	// Swapchainが有効かどうかを確認する
 	bool swapChainValid = false;
 	if (extensionsSupported)
 	{
+		// 特定の物理デバイスに対するSwap Chainの詳細を取得する
 		SwapChainDetails swapChainDetails = getSwapChainDetails(device);
+
+		// Swap Chainの有効性を確認する。プレゼンテーションモードが空でなく、フォーマットも空でない場合に有効とみなす。
 		swapChainValid = !swapChainDetails.presentationModes.empty() && !swapChainDetails.formats.empty();
+
 	}
 
+	// デバイスが適合しているかを確認する
 	return indices.isValid() && extensionsSupported && swapChainValid;
 }
+
 
 QueueFamilyIndices VulkanRenderer::getQueueFamilies(VkPhysicalDevice device)
 {
 	QueueFamilyIndices indices;
 
-	// Get all Queue Family Property info for the given device
+	// 物理デバイスに対するすべてのキューファミリープロパティ情報を取得する
 	uint32_t queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
 	std::vector<VkQueueFamilyProperties> queueFamilyList(queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyList.data());
 
-	// Go through each queue family and check if it has at least 1 of the required types of queue
+	// 各キューファミリーを調べ、必要なタイプのキューを少なくとも1つ持っているかどうかを確認する
 	int i = 0;
 	for (const auto& queueFamily : queueFamilyList)
 	{
-		// First check if queue family has at least 1 queue in that family (could have no queues)
-		// Queue can be multiple types defined through bitfield. Need to bitwise AND with VK_QUEUE_*_BIT to check if has required type
+		// まず、キューファミリーが少なくとも1つのキューを持っているか確認する（キューがない可能性もある）
+		// キューはビットフィールドで複数のタイプを定義することができる。VK_QUEUE_*_BITとビットごとのAND演算を行い、必要なタイプを持っているか確認する
 		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
 		{
-			indices.graphicsFamily = i;		// If queue family is valid, then get index
+			indices.graphicsFamily = i;		// キューファミリーが有効であれば、そのインデックスを取得する
 		}
 
-		// Check if Queue Family supports presentation
+		// キューファミリーがプレゼンテーションをサポートしているか確認する
 		VkBool32 presentationSupport = false;
 		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport);
-		// Check if queue is presentation type (can be both graphics and presentation)
+		// キューがプレゼンテーションタイプであるかどうかを確認する（グラフィックスとプレゼンテーションの両方になり得る）
 		if (queueFamily.queueCount > 0 && presentationSupport)
 		{
 			indices.presentationFamily = i;
 		}
 
-		// Check if queue family indices are in a valid state, stop searching if so
+		// キューファミリーのインデックスが有効な状態にあるかどうかを確認し、そうであれば検索を停止する
 		if (indices.isValid())
 		{
 			break;
@@ -493,19 +589,20 @@ QueueFamilyIndices VulkanRenderer::getQueueFamilies(VkPhysicalDevice device)
 	return indices;
 }
 
+
 SwapChainDetails VulkanRenderer::getSwapChainDetails(VkPhysicalDevice device)
 {
 	SwapChainDetails swapChainDetails;
 
 	// -- CAPABILITIES --
-	// Get the surface capabilities for the given surface on the given physical device
+	// 特定の物理デバイスとサーフェスに対する表面のキャビティを取得する
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &swapChainDetails.surfaceCapabilities);
 
 	// -- FORMATS --
 	uint32_t formatCount = 0;
 	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
 
-	// If formats returned, get list of formats
+	// フォーマットが返された場合、フォーマットのリストを取得する
 	if (formatCount != 0)
 	{
 		swapChainDetails.formats.resize(formatCount);
@@ -516,7 +613,7 @@ SwapChainDetails VulkanRenderer::getSwapChainDetails(VkPhysicalDevice device)
 	uint32_t presentationCount = 0;
 	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount, nullptr);
 
-	// If presentation modes returned, get list of presentation modes
+	// プレゼンテーションモードが返された場合、プレゼンテーションモードのリストを取得する
 	if (presentationCount != 0)
 	{
 		swapChainDetails.presentationModes.resize(presentationCount);
@@ -526,18 +623,19 @@ SwapChainDetails VulkanRenderer::getSwapChainDetails(VkPhysicalDevice device)
 	return swapChainDetails;
 }
 
-// Best format is subjective, but ours will be:
-// format		:	VK_FORMAT_R8G8B8A8_UNORM (VK_FORMAT_B8G8R8A8_UNORM as backup)
-// colorSpace	:	VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
+
+// ベストなフォーマットの選択は主観的ですが、通常以下のようにします:
+// format     :   VK_FORMAT_R8G8B8A8_UNORM (バックアップとして VK_FORMAT_B8G8R8A8_UNORM)
+// colorSpace :   VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
 VkSurfaceFormatKHR VulkanRenderer::chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats)
 {
-	// If only 1 format available and is undefined, then this means ALL formats are available (no restrictions)
+	// フォーマットが1つだけあり、未定義の場合、すべてのフォーマットが利用可能とみなす（制限なし）
 	if (formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED)
 	{
 		return { VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
 	}
 
-	// If restricted, search for optimal format
+	// 制限されている場合、最適なフォーマットを探す
 	for (const auto& format : formats)
 	{
 		if ((format.format == VK_FORMAT_R8G8B8A8_UNORM || format.format == VK_FORMAT_B8G8R8A8_UNORM)
@@ -547,13 +645,17 @@ VkSurfaceFormatKHR VulkanRenderer::chooseBestSurfaceFormat(const std::vector<VkS
 		}
 	}
 
-	// If can't find optimal format, then just return first format
+	// 最適なフォーマットが見つからない場合、最初のフォーマットを返す
 	return formats[0];
 }
 
+
 VkPresentModeKHR VulkanRenderer::chooseBestPresentationMode(const std::vector<VkPresentModeKHR> presentationModes)
 {
-	// Look for Mailbox presentation mode
+	// メールボックス（Mailbox）プレゼンテーションモードを探す
+	// メールボックスモードは、バッファのスワップ処理を行う際に、最新のフレームのみを保持し、古いフレームを破棄するため、
+	// レンダリングの遅延を最小限に抑えることができます。
+	// もしメールボックスモードが利用可能であれば、それを選択します。
 	for (const auto& presentationMode : presentationModes)
 	{
 		if (presentationMode == VK_PRESENT_MODE_MAILBOX_KHR)
@@ -562,31 +664,65 @@ VkPresentModeKHR VulkanRenderer::chooseBestPresentationMode(const std::vector<Vk
 		}
 	}
 
-	// If can't find, use FIFO as Vulkan spec says it must be present
+	// メールボックスモードが見つからない場合、Vulkan 仕様により FIFO モードを使用することが保証されています。
+	// FIFO モードは、キューに溜まったフレームを順番に処理するため、レンダリングの安定性が保たれますが、
+	// レイテンシは比較的高くなる場合があります。
 	return VK_PRESENT_MODE_FIFO_KHR;
 }
 
+// VkPresentModeKHR	: それぞれのモードについての解説(ChatGPTで作成)
+// 
+//  VK_PRESENT_MODE_IMMEDIATE_KHR		即時モード: 垂直同期なしで画面更新が即座に行われる。                
+// 即座に反応性の高い描画を求める場合に適しています。
+// 例えば、リアルタイムの操作に対して遅延を最小限に抑えたい場合や、応答速度が重要なアプリケーションに適しています。
+// 
+//  VK_PRESENT_MODE_MAILBOX_KHR			メールボックスモード: フレームバッファの交換が新しいフレームに切り替わるたびに行われる。
+// フレームレートが安定しており、最新のフレームをすぐに描画する必要がある場合に適しています。
+// 例えば、ゲームなどで描画遅延を最小限に抑えたい場合に利用されます。
+// 
+//  VK_PRESENT_MODE_FIFO_KHR			FIFOモード: フレームバッファの交換がV-Syncと同期され、次のV-Blankまで待機する。
+// 最も一般的なモードで、フレームバッファの交換がV-Syncに同期され、画面のティアリング（画面の切れ目）を防ぐために使用されます。
+// 安定した描画が求められる多くのアプリケーションで利用されます。
+// 
+//  VK_PRESENT_MODE_FIFO_RELAXED_KHR	FIFOリラックスモード: V-Syncが有効な場合は通常のFIFOモードと同じで、V-Syncが無効な場合は即座にバッファが交換される。
+// V-Syncがオフの場合や、可変フレームレート（VRR）をサポートするディスプレイでの使用が推奨されます。
+// 動的なフレームレートの変化に対応する必要がある場合に役立ちます。
+// 
+//	VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR 需要リフレッシュ共有モード: 特定のリフレッシュ要求に基づいて画面更新が行われる。
+// 需要に応じて画面更新を行うことで、省電力モードでの使用が想定されています。
+// バッテリー駆動のデバイスや省電力を重視するモバイルデバイスで有効です。
+// 
+//  VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR 連続リフレッシュ共有モード: 連続的なリフレッシュ要求に基づいて画面更新が行われる。
+// VR（仮想現実）やAR（拡張現実）アプリケーションなど、連続的な高速なリフレッシュが必要な場面で利用されます。
+// 低遅延でのリアルタイムな描画が求められる環境に適しています。
+
+
+
+
+
+
 VkExtent2D VulkanRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities)
 {
-	// If current extent is at numeric limits, then extent can vary. Otherwise, it is the size of the window.
+	// 現在の extent が数値の限界にある場合、extent は変化する可能性があります。それ以外の場合はウィンドウのサイズになります。
 	if (surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 	{
+		// 数値の限界でない場合、現在の extent を返します。
 		return surfaceCapabilities.currentExtent;
 	}
 	else
 	{
-		// If value can vary, need to set manually
+		// extent が変化する場合は手動で設定する必要があります。
 
-		// Get window size
+		// ウィンドウのサイズを取得します
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
 
-		// Create new extent using window size
+		// ウィンドウサイズを使用して新しい extent を作成します
 		VkExtent2D newExtent = {};
 		newExtent.width = static_cast<uint32_t>(width);
 		newExtent.height = static_cast<uint32_t>(height);
 
-		// Surface also defines max and min, so make sure within boundaries by clamping value
+		// Surface は最大および最小の extent を定義していますので、値が境界内にあることを確認するためにクランプします
 		newExtent.width = std::max(surfaceCapabilities.minImageExtent.width, std::min(surfaceCapabilities.maxImageExtent.width, newExtent.width));
 		newExtent.height = std::max(surfaceCapabilities.minImageExtent.height, std::min(surfaceCapabilities.maxImageExtent.height, newExtent.height));
 
@@ -594,32 +730,62 @@ VkExtent2D VulkanRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surf
 	}
 }
 
+
 VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
 {
+	// 画像ビュー作成情報の初期化
 	VkImageViewCreateInfo viewCreateInfo = {};
-	viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	viewCreateInfo.image = image;											// Image to create view for
-	viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;						// Type of image (1D, 2D, 3D, Cube, etc)
-	viewCreateInfo.format = format;											// Format of image data
-	viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;			// Allows remapping of rgba components to other rgba values
+	viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;		 // 画像ビュー作成情報の構造体タイプを設定
+	viewCreateInfo.image = image;                                            // View を作成するための Image
+	viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;                         // Image の種類 (1D, 2D, 3D, Cube など)
+	viewCreateInfo.format = format;                                          // Image データのフォーマット
+	viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;             // RGBA コンポーネントを他の RGBA 値にリマップすることができます
 	viewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
 	viewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
 	viewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 
-	// Subresources allow the view to view only a part of an image
-	viewCreateInfo.subresourceRange.aspectMask = aspectFlags;				// Which aspect of image to view (e.g. COLOR_BIT for viewing colour)
-	viewCreateInfo.subresourceRange.baseMipLevel = 0;						// Start mipmap level to view from
-	viewCreateInfo.subresourceRange.levelCount = 1;							// Number of mipmap levels to view
-	viewCreateInfo.subresourceRange.baseArrayLayer = 0;						// Start array level to view from
-	viewCreateInfo.subresourceRange.layerCount = 1;							// Number of array levels to view
+	// Subresource は Image の一部だけを表示するための設定です
+	viewCreateInfo.subresourceRange.aspectMask = aspectFlags;                 // Image のどの面を表示するか (例: COLOR_BIT は色を表示するため)
+	viewCreateInfo.subresourceRange.baseMipLevel = 0;                         // 表示を開始する Mipmap レベル
+	viewCreateInfo.subresourceRange.levelCount = 1;                           // 表示する Mipmap レベルの数
+	viewCreateInfo.subresourceRange.baseArrayLayer = 0;                       // 表示を開始する配列レベル
+	viewCreateInfo.subresourceRange.layerCount = 1;                           // 表示する配列レベルの数
 
-	// Create image view and return it
-	VkImageView imageView;
+	// Image View を作成し、そのハンドルを返します
+	VkImageView imageView;  // Image View のハンドルを保持する変数を宣言します
+
+	// vkCreateImageView 関数を使用して Image View を作成します
+	// mainDevice.logicalDevice: Image View を作成するための論理デバイス
+	// &viewCreateInfo: Image View の作成に必要な情報が格納された構造体へのポインタ
+	// nullptr: カスタムのアロケーターを使用しないためのオプション (通常は nullptr を指定します)
+	// &imageView: 作成された Image View のハンドルを受け取る変数へのポインタ
 	VkResult result = vkCreateImageView(mainDevice.logicalDevice, &viewCreateInfo, nullptr, &imageView);
+
+	// vkCreateImageView の結果が成功ではない場合、エラーをスローします
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create an Image View!");
 	}
 
+	// 作成した Image View のハンドルを返します
 	return imageView;
+}
+
+VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
+{
+	// シェーダーモジュール作成情報の設定
+	VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
+	shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;		// 構造体のタイプを設定
+	shaderModuleCreateInfo.codeSize = code.size();									// コードのサイズを指定
+	shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());	// コードのポインタをuint32_tポインタにキャストして設定
+
+	// シェーダーモジュールの作成
+	VkShaderModule shaderModule;
+	VkResult result = vkCreateShaderModule(mainDevice.logicalDevice, &shaderModuleCreateInfo, nullptr, &shaderModule);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("シェーダーモジュールの作成に失敗しました！");
+	}
+
+	return shaderModule;
 }

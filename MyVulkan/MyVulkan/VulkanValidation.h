@@ -7,7 +7,8 @@ const bool validationEnabled = true;
 // List of validation layers to use
 // VK_LAYER_LUNARG_standard_validation = All standard validation layers
 const std::vector<const char*> validationLayers = {
-	"VK_LAYER_LUNARG_standard_validation"
+	//"VK_LAYER_LUNARG_standard_validation"
+	"VK_LAYER_KHRONOS_validation"
 };
 
 // Callback function for validation debugging (will be called when validation information record)

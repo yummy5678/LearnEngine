@@ -1,6 +1,7 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
+//#define GLFW_INCLUDE_VULKAN
+#include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <vector>
@@ -27,13 +28,21 @@ private:
 
 	// Vulkan Components
 	VkInstance instance;
+
+	//コールバック
 	VkDebugReportCallbackEXT callback;
+
+	//メインデバイス
 	struct {
 		VkPhysicalDevice physicalDevice;
 		VkDevice logicalDevice;
 	} mainDevice;
+
+	//キュー
 	VkQueue graphicsQueue;
 	VkQueue presentationQueue;
+
+	//スワップチェイン
 	VkSurfaceKHR surface;
 	VkSwapchainKHR swapchain;
 	std::vector<SwapchainImage> swapChainImages;
@@ -44,11 +53,14 @@ private:
 
 	// Vulkan Functions
 	// - Create Functions
+	//インスタンスの作成
 	void createInstance();
+	//
 	void createDebugCallback();
 	void createLogicalDevice();
 	void createSurface();
 	void createSwapChain();
+	void createGraphicsPipeline();///////////////////////////////////
 
 	// - Get Functions
 	void getPhysicalDevice();
@@ -71,6 +83,6 @@ private:
 
 	// -- Create Functions
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-
+	VkShaderModule createShaderModule(const std::vector<char>& code);/////////////////////////////////////
 };
 
