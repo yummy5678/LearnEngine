@@ -1,12 +1,12 @@
 #pragma once
 
-//#define GLFW_INCLUDE_VULKAN
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <array>
 
 #include "GameWindow.h"
 #include "Utilities.h"
@@ -47,20 +47,27 @@ private:
 	VkSwapchainKHR swapchain;
 	std::vector<SwapchainImage> swapChainImages;
 
+	// - Pipeline
+	VkPipeline graphicsPipeline;
+	VkPipelineLayout pipelineLayout;
+	VkRenderPass renderPass;
+
 	// - Utility
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
+
+
 
 	// Vulkan Functions
 	// - Create Functions
 	//インスタンスの作成
 	void createInstance();
-	//
 	void createDebugCallback();
 	void createLogicalDevice();
 	void createSurface();
 	void createSwapChain();
-	void createGraphicsPipeline();///////////////////////////////////
+	void createRenderPass();////////////////////////////////
+	void createGraphicsPipeline();
 
 	// - Get Functions
 	void getPhysicalDevice();

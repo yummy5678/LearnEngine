@@ -18,6 +18,8 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		getPhysicalDevice();
 		createLogicalDevice();
 		createSwapChain();
+		createRenderPass();
+		createGraphicsPipeline();
 	}
 	catch (const std::runtime_error& e) {
 		//エラーメッセージ受け取り
@@ -30,6 +32,9 @@ int VulkanRenderer::init(GameWindow renderWindow)
 
 void VulkanRenderer::cleanup()
 {
+	vkDestroyPipeline(mainDevice.logicalDevice, graphicsPipeline, nullptr);
+	vkDestroyPipelineLayout(mainDevice.logicalDevice, pipelineLayout, nullptr);
+	vkDestroyRenderPass(mainDevice.logicalDevice, renderPass, nullptr);
 	for (auto image : swapChainImages)
 	{
 		vkDestroyImageView(mainDevice.logicalDevice, image.imageView, nullptr);
@@ -43,6 +48,7 @@ void VulkanRenderer::cleanup()
 	}
 	vkDestroyInstance(instance, nullptr);
 }
+
 
 
 VulkanRenderer::~VulkanRenderer()
@@ -335,7 +341,7 @@ void VulkanRenderer::createGraphicsPipeline()
 	VkPipelineShaderStageCreateInfo vertexShaderCreateInfo = {};
 	vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;	// 頂点シェーダーステージ作成情報の構造体タイプを設定
 	vertexShaderCreateInfo.pNext = nullptr;												// この構造体を拡張する構造体へのポインタ
-	vertexShaderCreateInfo.flags = 0;													// シェーダ ステージの生成方法を指定するVkPipelineShaderStageCreateFlagBitsのビットマスク
+	vertexShaderCreateInfo.flags;														// シェーダ ステージの生成方法を指定するVkPipelineShaderStageCreateFlagBitsのビットマスク(調べたけどよく分からなかった)
 	vertexShaderCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;							// シェーダーステージの種類
 	vertexShaderCreateInfo.module = vertexShaderModule;									// 使用するシェーダーモジュール
 	vertexShaderCreateInfo.pName = "main";												// シェーダーのエントリーポイント名
@@ -344,7 +350,7 @@ void VulkanRenderer::createGraphicsPipeline()
 	VkPipelineShaderStageCreateInfo fragmentShaderCreateInfo = {};
 	fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;	// フラグメントシェーダーステージ作成情報の構造体タイプを設定
 	fragmentShaderCreateInfo.pNext = nullptr;												// この構造体を拡張する構造体へのポインタ
-	fragmentShaderCreateInfo.flags = 0;														// シェーダ ステージの生成方法を指定するVkPipelineShaderStageCreateFlagBitsのビットマスク
+	fragmentShaderCreateInfo.flags;															// シェーダ ステージの生成方法を指定するVkPipelineShaderStageCreateFlagBitsのビットマスク
 	fragmentShaderCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;							// シェーダーステージの種類
 	fragmentShaderCreateInfo.module = fragmentShaderModule;									// 使用するシェーダーモジュール
 	fragmentShaderCreateInfo.pName = "main";												// シェーダーのエントリーポイント名
@@ -670,6 +676,7 @@ VkPresentModeKHR VulkanRenderer::chooseBestPresentationMode(const std::vector<Vk
 	return VK_PRESENT_MODE_FIFO_KHR;
 }
 
+#pragma region VkPresentModeKHR解説
 // VkPresentModeKHR	: それぞれのモードについての解説(ChatGPTで作成)
 // 
 //  VK_PRESENT_MODE_IMMEDIATE_KHR		即時モード: 垂直同期なしで画面更新が即座に行われる。                
@@ -695,7 +702,7 @@ VkPresentModeKHR VulkanRenderer::chooseBestPresentationMode(const std::vector<Vk
 //  VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR 連続リフレッシュ共有モード: 連続的なリフレッシュ要求に基づいて画面更新が行われる。
 // VR（仮想現実）やAR（拡張現実）アプリケーションなど、連続的な高速なリフレッシュが必要な場面で利用されます。
 // 低遅延でのリアルタイムな描画が求められる環境に適しています。
-
+#pragma endregion
 
 
 
@@ -769,6 +776,78 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkIm
 
 	// 作成した Image View のハンドルを返します
 	return imageView;
+}
+
+void VulkanRenderer::createRenderPass()
+{
+	// レンダーパスのカラーアタッチメント
+	VkAttachmentDescription colourAttachment = {};						// カラーアタッチメントの設定を格納する構造体
+	colourAttachment.format = swapChainImageFormat;						// アタッチメントに使用するフォーマットを設定
+	colourAttachment.samples = VK_SAMPLE_COUNT_1_BIT;					// マルチサンプリング用のサンプル数を設定
+	colourAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;				// レンダリング前にアタッチメントをクリアする設定
+	colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;			// レンダリング後にアタッチメントを保存する設定
+	colourAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;	// ステンシルバッファを使用しないため無視
+	colourAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE; // ステンシルバッファを使用しないため無視
+
+	// フレームバッファデータはイメージとして保存されるが、特定の操作に最適なように異なるデータレイアウトを与えることができる
+	colourAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;		// レンダーパス開始前のイメージデータレイアウトを未定義に設定
+	colourAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // レンダーパス後のイメージデータレイアウトをプレゼント用に設定
+
+	// アタッチメント参照は、renderPassCreateInfoに渡されるアタッチメントリスト内のインデックスを参照するアタッチメントインデックスを使用する
+	VkAttachmentReference colourAttachmentReference = {};							// カラーアタッチメントの参照を格納する構造体
+	colourAttachmentReference.attachment = 0;										// アタッチメントリストの最初のアタッチメントを指す
+	colourAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;	// 最適なカラーアタッチメントレイアウトを設定
+
+	// レンダーパスが使用する特定のサブパスに関する情報
+	VkSubpassDescription subpass = {};								// サブパスの設定を格納する構造体を初期化
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;	// グラフィックスパイプラインにバインドするサブパスを設定
+	subpass.colorAttachmentCount = 1;								// カラーアタッチメントの数を設定
+	subpass.pColorAttachments = &colourAttachmentReference;			// カラーアタッチメントの参照を設定
+
+	// サブパス依存関係を使用してレイアウト遷移が発生するタイミングを決定する必要がある
+	std::array<VkSubpassDependency, 2> subpassDependencies;			// サブパスの依存関係を格納する配列を初期化
+
+	// VK_IMAGE_LAYOUT_UNDEFINEDからVK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMALへの変換
+	// 遷移は以下の後に発生しなければならない
+	subpassDependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;					// 外部サブパスからの依存関係を設定
+	subpassDependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT; // パイプラインの最終段階からの依存関係を設定
+	subpassDependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;			// メモリ読み取りアクセスの依存関係を設定
+	// しかし以下の前に発生しなければならない
+	subpassDependencies[0].dstSubpass = 0;  // 最初のサブパスへの依存関係を設定
+	subpassDependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;	// カラーアタッチメント出力ステージへの依存関係を設定
+	subpassDependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |			// カラーアタッチメントの読み書きアクセスの依存関係を設定
+											VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;  
+	subpassDependencies[0].dependencyFlags = 0;												// 追加の依存関係フラグを設定
+
+	// VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMALからVK_IMAGE_LAYOUT_PRESENT_SRC_KHRへの変換
+	// 遷移は以下の後に発生しなければならない
+	subpassDependencies[1].srcSubpass = 0;  // 最初のサブパスからの依存関係を設定
+	subpassDependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;	// カラーアタッチメント出力ステージからの依存関係を設定
+	subpassDependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |			// カラーアタッチメントの読み書きアクセスの依存関係を設定
+											VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;  
+	// しかし以下の前に発生しなければならない
+	subpassDependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;								// 外部サブパスへの依存関係を設定
+	subpassDependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;				// パイプラインの最終段階への依存関係を設定
+	subpassDependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;						// メモリ読み取りアクセスの依存関係を設定
+	subpassDependencies[1].dependencyFlags = 0;												// 追加の依存関係フラグを設定
+
+	// レンダーパスの作成情報
+	VkRenderPassCreateInfo renderPassCreateInfo = {};										// レンダーパスの作成情報を格納する構造体を初期化
+	renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;					// 構造体の型を設定
+	renderPassCreateInfo.attachmentCount = 1;												// アタッチメントの数を設定
+	renderPassCreateInfo.pAttachments = &colourAttachment;									// カラーアタッチメントの参照を設定
+	renderPassCreateInfo.subpassCount = 1;													// サブパスの数を設定
+	renderPassCreateInfo.pSubpasses = &subpass;												// サブパスの参照を設定
+	renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());  // サブパス依存関係の数を設定
+	renderPassCreateInfo.pDependencies = subpassDependencies.data();						// サブパス依存関係の参照を設定
+
+	// レンダーパスを作成
+	VkResult result = vkCreateRenderPass(mainDevice.logicalDevice, &renderPassCreateInfo, nullptr, &renderPass); 
+	if (result != VK_SUCCESS)  
+	{
+		// 作成に失敗した場合
+		throw std::runtime_error("Render Passの作成に失敗しました！");  // エラーメッセージをスロー
+	}
 }
 
 VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
