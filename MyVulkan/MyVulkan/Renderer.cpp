@@ -20,6 +20,10 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		createSwapChain();
 		createRenderPass();
 		createGraphicsPipeline();
+		createFramebuffers();
+		createCommandPool();
+		createCommandBuffers();
+		recordCommands();
 	}
 	catch (const std::runtime_error& e) {
 		//エラーメッセージ受け取り
@@ -32,6 +36,12 @@ int VulkanRenderer::init(GameWindow renderWindow)
 
 void VulkanRenderer::cleanup()
 {
+	vkDestroyCommandPool(mainDevice.logicalDevice, graphicsCommandPool, nullptr);
+	for (auto framebuffer : swapChainFramebuffers)
+	{
+		vkDestroyFramebuffer(mainDevice.logicalDevice, framebuffer, nullptr);
+	}
+
 	vkDestroyPipeline(mainDevice.logicalDevice, graphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(mainDevice.logicalDevice, pipelineLayout, nullptr);
 	vkDestroyRenderPass(mainDevice.logicalDevice, renderPass, nullptr);
@@ -332,42 +342,310 @@ void VulkanRenderer::createGraphicsPipeline()
 	auto vertexShaderCode = readFile("Shaders/vert.spv");
 	auto fragmentShaderCode = readFile("Shaders/frag.spv");
 
-	// シェーダーモジュールの作成
+	// シェーダーモジュールを作成する
 	VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
 	VkShaderModule fragmentShaderModule = createShaderModule(fragmentShaderCode);
 
-	// -- シェーダーステージの作成情報 --
+	// -- シェーダーステージ作成情報 --
 	// 頂点シェーダーステージの作成情報
 	VkPipelineShaderStageCreateInfo vertexShaderCreateInfo = {};
-	vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;	// 頂点シェーダーステージ作成情報の構造体タイプを設定
-	vertexShaderCreateInfo.pNext = nullptr;												// この構造体を拡張する構造体へのポインタ
-	vertexShaderCreateInfo.flags;														// シェーダ ステージの生成方法を指定するVkPipelineShaderStageCreateFlagBitsのビットマスク(調べたけどよく分からなかった)
-	vertexShaderCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;							// シェーダーステージの種類
-	vertexShaderCreateInfo.module = vertexShaderModule;									// 使用するシェーダーモジュール
-	vertexShaderCreateInfo.pName = "main";												// シェーダーのエントリーポイント名
+	vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vertexShaderCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;				// シェーダーステージの種類
+	vertexShaderCreateInfo.module = vertexShaderModule;						// 使用するシェーダーモジュール
+	vertexShaderCreateInfo.pName = "main";									// エントリーポイント
 
 	// フラグメントシェーダーステージの作成情報
 	VkPipelineShaderStageCreateInfo fragmentShaderCreateInfo = {};
-	fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;	// フラグメントシェーダーステージ作成情報の構造体タイプを設定
-	fragmentShaderCreateInfo.pNext = nullptr;												// この構造体を拡張する構造体へのポインタ
-	fragmentShaderCreateInfo.flags;															// シェーダ ステージの生成方法を指定するVkPipelineShaderStageCreateFlagBitsのビットマスク
-	fragmentShaderCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;							// シェーダーステージの種類
-	fragmentShaderCreateInfo.module = fragmentShaderModule;									// 使用するシェーダーモジュール
-	fragmentShaderCreateInfo.pName = "main";												// シェーダーのエントリーポイント名
-
+	fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	fragmentShaderCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;				// シェーダーステージの種類
+	fragmentShaderCreateInfo.module = fragmentShaderModule;						// 使用するシェーダーモジュール
+	fragmentShaderCreateInfo.pName = "main";									// エントリーポイント
 
 	// シェーダーステージ作成情報を配列に格納
-	// グラフィックスパイプラインの作成情報にはシェーダーステージ作成情報の配列が必要
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
 
-	// パイプラインの作成
 
-	// パイプラインが作成された後にはシェーダーモジュールは不要になるため破棄する
+	// -- 頂点入力 (TODO: リソースが作成されたら頂点の説明を追加する) --
+	VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {};
+	vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertexInputCreateInfo.vertexBindingDescriptionCount = 0;
+	vertexInputCreateInfo.pVertexBindingDescriptions = nullptr;			// 頂点バインディングの説明 (データの間隔やストライド情報)
+	vertexInputCreateInfo.vertexAttributeDescriptionCount = 0;
+	vertexInputCreateInfo.pVertexAttributeDescriptions = nullptr;		// 頂点属性の説明 (データフォーマットやバインド先/元)
+
+
+	// -- 入力アセンブリ --
+	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
+	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;		// 頂点をアセンブルする基本図形の種類
+	inputAssembly.primitiveRestartEnable = VK_FALSE;					// "strip" トポロジーを上書きして新しいプリミティブを開始することを許可するか
+
+
+	// -- ビューポート & シザー --
+	// ビューポート情報の構造体を作成
+	VkViewport viewport = {};
+	viewport.x = 0.0f;									// x 開始座標
+	viewport.y = 0.0f;									// y 開始座標
+	viewport.width = (float)swapChainExtent.width;		// ビューポートの幅
+	viewport.height = (float)swapChainExtent.height;	// ビューポートの高さ
+	viewport.minDepth = 0.0f;							// フレームバッファの最小深度
+	viewport.maxDepth = 1.0f;							// フレームバッファの最大深度
+
+	// シザー情報の構造体を作成
+	VkRect2D scissor = {};
+	scissor.offset = { 0,0 };							// 使用する領域のオフセット
+	scissor.extent = swapChainExtent;					// 使用する領域の範囲とオフセットから開始
+
+	VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {};
+	viewportStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewportStateCreateInfo.viewportCount = 1;
+	viewportStateCreateInfo.pViewports = &viewport;
+	viewportStateCreateInfo.scissorCount = 1;
+	viewportStateCreateInfo.pScissors = &scissor;
+
+
+	// -- ダイナミックステート --
+	// 有効にするダイナミックステート
+	//std::vector<VkDynamicState> dynamicStateEnables;
+	//dynamicStateEnables.push_back(VK_DYNAMIC_STATE_VIEWPORT);	// ダイナミックビューポート: vkCmdSetViewport(commandbuffer, 0, 1, &viewport); でコマンドバッファ内でリサイズ可能
+	//dynamicStateEnables.push_back(VK_DYNAMIC_STATE_SCISSOR);	// ダイナミックシザー: vkCmdSetScissor(commandbuffer, 0, 1, &scissor); でコマンドバッファ内でリサイズ可能
+
+	//// ダイナミックステートの作成情報
+	//VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = {};
+	//dynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	//dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
+	//dynamicStateCreateInfo.pDynamicStates = dynamicStateEnables.data();
+
+
+	// -- ラスタライザ --
+	VkPipelineRasterizationStateCreateInfo rasterizerCreateInfo = {};
+	rasterizerCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	rasterizerCreateInfo.depthClampEnable = VK_FALSE;			// フラグメントが近接/遠隔平面を超えた場合にクリップ (デフォルト) または平面にクランプするかを変更
+	rasterizerCreateInfo.rasterizerDiscardEnable = VK_FALSE;	// データを破棄しラスタライザをスキップするかどうか。フレームバッファ出力なしのパイプラインにのみ適している
+	rasterizerCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;	// 頂点間のポイントの塗りつぶし方法
+	rasterizerCreateInfo.lineWidth = 1.0f;						// 描画時の線の太さ
+	rasterizerCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;		// 三角形のどの面をカリングするか
+	rasterizerCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;	// 前面を決定するための巻き方向
+	rasterizerCreateInfo.depthBiasEnable = VK_FALSE;			// フラグメントに深度バイアスを追加するか (シャドウマッピングで "影アクネ" を防ぐのに有効)
+
+
+	// -- マルチサンプリング --
+	VkPipelineMultisampleStateCreateInfo multisamplingCreateInfo = {};
+	multisamplingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multisamplingCreateInfo.sampleShadingEnable = VK_FALSE;					// マルチサンプルシェーディングを有効にするかどうか
+	multisamplingCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;	// フラグメントごとに使用するサンプル数
+
+
+	// -- ブレンディング --
+	// ブレンディングは、書き込まれる新しい色と古い値をどのようにブレンドするかを決定する
+
+	// ブレンドアタッチメントステート (ブレンディングの処理方法)
+	VkPipelineColorBlendAttachmentState colourState = {};
+	colourState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT	// ブレンディングを適用する色
+		| VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	colourState.blendEnable = VK_TRUE;													// ブレンディングを有効にするかどうか
+
+	// ブレンディングは方程式を使用: (srcColorBlendFactor * 新しい色) colorBlendOp (dstColorBlendFactor * 古い色)
+	colourState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+	colourState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+	colourState.colorBlendOp = VK_BLEND_OP_ADD;
+
+	// 要約: (VK_BLEND_FACTOR_SRC_ALPHA * 新しい色) + (VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA * 古い色)
+	// (新しい色のアルファ * 新しい色) + ((1 - 新しい色のアルファ) * 古い色)
+
+	colourState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	colourState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+	colourState.alphaBlendOp = VK_BLEND_OP_ADD;
+	// 要約: (1 * 新しいアルファ) + (0 * 古いアルファ) = 新しいアルファ
+
+	VkPipelineColorBlendStateCreateInfo colourBlendingCreateInfo = {};
+	colourBlendingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	colourBlendingCreateInfo.logicOpEnable = VK_FALSE;				// 計算の代わりに論理演算を使用するかどうか
+	colourBlendingCreateInfo.attachmentCount = 1;
+	colourBlendingCreateInfo.pAttachments = &colourState;
+
+
+	// -- パイプラインレイアウト (TODO: 将来のディスクリプタセットレイアウトを適用する) --
+	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
+	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipelineLayoutCreateInfo.setLayoutCount = 0;
+	pipelineLayoutCreateInfo.pSetLayouts = nullptr;
+	pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+	pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+
+	// パイプラインレイアウトを作成
+	VkResult result = vkCreatePipelineLayout(mainDevice.logicalDevice, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("パイプラインレイアウトの作成に失敗しました！");
+	}
+
+
+	// -- 深度ステンシルテスト --
+	// TODO: 深度ステンシルテストの設定
+
+
+	// -- グラフィックスパイプラインの作成 --
+	VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
+	pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipelineCreateInfo.stageCount = 2;									// シェーダーステージの数
+	pipelineCreateInfo.pStages = shaderStages;							// シェーダーステージのリスト
+	pipelineCreateInfo.pVertexInputState = &vertexInputCreateInfo;		// すべての固定機能パイプラインステート
+	pipelineCreateInfo.pInputAssemblyState = &inputAssembly;
+	pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
+	pipelineCreateInfo.pDynamicState = nullptr;
+	pipelineCreateInfo.pRasterizationState = &rasterizerCreateInfo;
+	pipelineCreateInfo.pMultisampleState = &multisamplingCreateInfo;
+	pipelineCreateInfo.pColorBlendState = &colourBlendingCreateInfo;
+	pipelineCreateInfo.pDepthStencilState = nullptr;
+	pipelineCreateInfo.layout = pipelineLayout;							// パイプラインが使用するパイプラインレイアウト
+	pipelineCreateInfo.renderPass = renderPass;							// パイプラインが互換性のあるレンダーパスの説明
+	pipelineCreateInfo.subpass = 0;										// パイプラインで使用するサブパス
+
+	// パイプラインの派生: 最適化のために相互に派生する複数のパイプラインを作成できる
+	pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;              // 派生元の既存のパイプライン...
+	pipelineCreateInfo.basePipelineIndex = -1;                           // または作成中のパイプラインのインデックス (複数作成する場合)
+
+	// グラフィックスパイプラインを作成
+	result = vkCreateGraphicsPipelines(mainDevice.logicalDevice, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &graphicsPipeline);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("グラフィックスパイプラインの作成に失敗しました！");
+	}
+
+	//パイプラインの作成後に不要になったシェーダーモジュールを破棄
 	vkDestroyShaderModule(mainDevice.logicalDevice, fragmentShaderModule, nullptr);
 	vkDestroyShaderModule(mainDevice.logicalDevice, vertexShaderModule, nullptr);
 }
 
+///////////////////////////////////////////////////////////////
+void VulkanRenderer::createFramebuffers()
+{
+	// スワップチェインの画像数に合わせてフレームバッファの数をリサイズする
+	swapChainFramebuffers.resize(swapChainImages.size());
 
+	// 各スワップチェイン画像に対してフレームバッファを作成する
+	for (size_t i = 0; i < swapChainFramebuffers.size(); i++)
+	{
+		// VkImageViewの確認
+		if (swapChainImages[i].imageView == VK_NULL_HANDLE)
+		{
+			throw std::runtime_error("ImageViewが無効です！");
+		}
+
+		// フレームバッファに添付するイメージビューの配列を作成する
+		std::array<VkImageView, 1> attachments = {
+			swapChainImages[i].imageView
+		};
+
+		// フレームバッファの作成に必要な情報を設定する
+		VkFramebufferCreateInfo framebufferCreateInfo = {};
+		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferCreateInfo.renderPass = renderPass;                                     // フレームバッファが使用されるレンダーパスのレイアウト
+		framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		framebufferCreateInfo.pAttachments = attachments.data();                           // 添付するイメージビューのリスト (レンダーパスと1:1対応)
+		framebufferCreateInfo.width = swapChainExtent.width;                                // フレームバッファの幅
+		framebufferCreateInfo.height = swapChainExtent.height;                              // フレームバッファの高さ
+		framebufferCreateInfo.layers = 1;                                                    // フレームバッファのレイヤー数
+
+		// フレームバッファを作成する
+		VkResult result = vkCreateFramebuffer(mainDevice.logicalDevice, &framebufferCreateInfo, nullptr, &swapChainFramebuffers[i]);
+		if (result != VK_SUCCESS)
+		{
+			throw std::runtime_error("フレームバッファの作成に失敗しました！");
+		}
+	}
+}
+
+void VulkanRenderer::createCommandPool()
+{
+	// デバイスからキューファミリーのインデックスを取得する
+	QueueFamilyIndices queueFamilyIndices = getQueueFamilies(mainDevice.physicalDevice);
+
+	// コマンドプールの作成に必要な情報を設定する
+	VkCommandPoolCreateInfo poolInfo = {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;   // このコマンドプールが使用するキューファミリータイプ
+
+	// グラフィックスキューファミリー用のコマンドプールを作成する
+	VkResult result = vkCreateCommandPool(mainDevice.logicalDevice, &poolInfo, nullptr, &graphicsCommandPool);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("コマンドプールの作成に失敗しました！");
+	}
+}
+
+void VulkanRenderer::createCommandBuffers()
+{
+	// コマンドバッファの数をフレームバッファごとにリサイズする
+	commandBuffers.resize(swapChainFramebuffers.size());
+
+	// コマンドバッファを割り当てるための情報を設定する
+	VkCommandBufferAllocateInfo cbAllocInfo = {};
+	cbAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	cbAllocInfo.commandPool = graphicsCommandPool;                                  // コマンドバッファを割り当てるコマンドプール
+	cbAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;                            // コマンドバッファのレベル (PRIMARY: 直接キューに送信するバッファ)
+	cbAllocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());  // 割り当てるコマンドバッファの数
+
+	// コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
+	VkResult result = vkAllocateCommandBuffers(mainDevice.logicalDevice, &cbAllocInfo, commandBuffers.data());
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("コマンドバッファの割り当てに失敗しました！");
+	}
+}
+
+
+void VulkanRenderer::recordCommands()
+{
+	// 各コマンドバッファの開始方法に関する情報
+	VkCommandBufferBeginInfo bufferBeginInfo = {};
+	bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	bufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;   // バッファが再使用可能であることを示すフラグ
+
+	// レンダーパスを開始するための情報 (グラフィカルなアプリケーションの場合のみ必要)
+	VkRenderPassBeginInfo renderPassBeginInfo = {};
+	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassBeginInfo.renderPass = renderPass;                             // 開始するレンダーパス
+	renderPassBeginInfo.renderArea.offset = { 0, 0 };                        // レンダーパスの開始位置 (ピクセル単位)
+	renderPassBeginInfo.renderArea.extent = swapChainExtent;                 // レンダーパスを実行する領域のサイズ (offsetから始まる)
+	VkClearValue clearValues[] = {
+		{0.6f, 0.65f, 0.4, 1.0f}                                            // クリアする値のリスト (TODO: 深度アタッチメントのクリア値)
+	};
+	renderPassBeginInfo.pClearValues = clearValues;                          // クリアする値のリスト
+	renderPassBeginInfo.clearValueCount = 1;
+
+	for (size_t i = 0; i < commandBuffers.size(); i++)
+	{
+		renderPassBeginInfo.framebuffer = swapChainFramebuffers[i];          // 使用するフレームバッファを設定する
+
+		// コマンドバッファの記録を開始する
+		VkResult result = vkBeginCommandBuffer(commandBuffers[i], &bufferBeginInfo);
+		if (result != VK_SUCCESS)
+		{
+			throw std::runtime_error("コマンドバッファの記録の開始に失敗しました！");
+		}
+
+		// レンダーパスを開始する
+		vkCmdBeginRenderPass(commandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		// 使用するパイプラインをバインドする
+		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);	//ここでエラー
+
+		// パイプラインを実行する
+		vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+
+		// レンダーパスを終了する
+		vkCmdEndRenderPass(commandBuffers[i]);
+
+		// コマンドバッファの記録を終了する
+		result = vkEndCommandBuffer(commandBuffers[i]);
+		if (result != VK_SUCCESS)
+		{
+			throw std::runtime_error("コマンドバッファの記録の終了に失敗しました！");
+		}
+	}
+}
 
 void VulkanRenderer::getPhysicalDevice()
 {
@@ -780,73 +1058,71 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkIm
 
 void VulkanRenderer::createRenderPass()
 {
-	// レンダーパスのカラーアタッチメント
-	VkAttachmentDescription colourAttachment = {};						// カラーアタッチメントの設定を格納する構造体
-	colourAttachment.format = swapChainImageFormat;						// アタッチメントに使用するフォーマットを設定
-	colourAttachment.samples = VK_SAMPLE_COUNT_1_BIT;					// マルチサンプリング用のサンプル数を設定
-	colourAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;				// レンダリング前にアタッチメントをクリアする設定
-	colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;			// レンダリング後にアタッチメントを保存する設定
-	colourAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;	// ステンシルバッファを使用しないため無視
-	colourAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE; // ステンシルバッファを使用しないため無視
+	// Colour attachment of render pass
+	VkAttachmentDescription colourAttachment = {};
+	colourAttachment.format = swapChainImageFormat;						// Format to use for attachment
+	colourAttachment.samples = VK_SAMPLE_COUNT_1_BIT;					// Number of samples to write for multisampling
+	colourAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;				// Describes what to do with attachment before rendering
+	colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;			// Describes what to do with attachment after rendering
+	colourAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;	// Describes what to do with stencil before rendering
+	colourAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;	// Describes what to do with stencil after rendering
 
-	// フレームバッファデータはイメージとして保存されるが、特定の操作に最適なように異なるデータレイアウトを与えることができる
-	colourAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;		// レンダーパス開始前のイメージデータレイアウトを未定義に設定
-	colourAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // レンダーパス後のイメージデータレイアウトをプレゼント用に設定
+	// Framebuffer data will be stored as an image, but images can be given different data layouts
+	// to give optimal use for certain operations
+	colourAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;			// Image data layout before render pass starts
+	colourAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;		// Image data layout after render pass (to change to)
 
-	// アタッチメント参照は、renderPassCreateInfoに渡されるアタッチメントリスト内のインデックスを参照するアタッチメントインデックスを使用する
-	VkAttachmentReference colourAttachmentReference = {};							// カラーアタッチメントの参照を格納する構造体
-	colourAttachmentReference.attachment = 0;										// アタッチメントリストの最初のアタッチメントを指す
-	colourAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;	// 最適なカラーアタッチメントレイアウトを設定
+	// Attachment reference uses an attachment index that refers to index in the attachment list passed to renderPassCreateInfo
+	VkAttachmentReference colourAttachmentReference = {};
+	colourAttachmentReference.attachment = 0;
+	colourAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-	// レンダーパスが使用する特定のサブパスに関する情報
-	VkSubpassDescription subpass = {};								// サブパスの設定を格納する構造体を初期化
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;	// グラフィックスパイプラインにバインドするサブパスを設定
-	subpass.colorAttachmentCount = 1;								// カラーアタッチメントの数を設定
-	subpass.pColorAttachments = &colourAttachmentReference;			// カラーアタッチメントの参照を設定
+	// Information about a particular subpass the Render Pass is using
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;		// Pipeline type subpass is to be bound to
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colourAttachmentReference;
 
-	// サブパス依存関係を使用してレイアウト遷移が発生するタイミングを決定する必要がある
-	std::array<VkSubpassDependency, 2> subpassDependencies;			// サブパスの依存関係を格納する配列を初期化
+	// Need to determine when layout transitions occur using subpass dependencies
+	std::array<VkSubpassDependency, 2> subpassDependencies;
 
-	// VK_IMAGE_LAYOUT_UNDEFINEDからVK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMALへの変換
-	// 遷移は以下の後に発生しなければならない
-	subpassDependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;					// 外部サブパスからの依存関係を設定
-	subpassDependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT; // パイプラインの最終段階からの依存関係を設定
-	subpassDependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;			// メモリ読み取りアクセスの依存関係を設定
-	// しかし以下の前に発生しなければならない
-	subpassDependencies[0].dstSubpass = 0;  // 最初のサブパスへの依存関係を設定
-	subpassDependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;	// カラーアタッチメント出力ステージへの依存関係を設定
-	subpassDependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |			// カラーアタッチメントの読み書きアクセスの依存関係を設定
-											VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;  
-	subpassDependencies[0].dependencyFlags = 0;												// 追加の依存関係フラグを設定
+	// Conversion from VK_IMAGE_LAYOUT_UNDEFINED to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	// Transition must happen after...
+	subpassDependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;						// Subpass index (VK_SUBPASS_EXTERNAL = Special value meaning outside of renderpass)
+	subpassDependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;		// Pipeline stage
+	subpassDependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;				// Stage access mask (memory access)
+	// But must happen before...
+	subpassDependencies[0].dstSubpass = 0;
+	subpassDependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	subpassDependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	subpassDependencies[0].dependencyFlags = 0;
 
-	// VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMALからVK_IMAGE_LAYOUT_PRESENT_SRC_KHRへの変換
-	// 遷移は以下の後に発生しなければならない
-	subpassDependencies[1].srcSubpass = 0;  // 最初のサブパスからの依存関係を設定
-	subpassDependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;	// カラーアタッチメント出力ステージからの依存関係を設定
-	subpassDependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |			// カラーアタッチメントの読み書きアクセスの依存関係を設定
-											VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;  
-	// しかし以下の前に発生しなければならない
-	subpassDependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;								// 外部サブパスへの依存関係を設定
-	subpassDependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;				// パイプラインの最終段階への依存関係を設定
-	subpassDependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;						// メモリ読み取りアクセスの依存関係を設定
-	subpassDependencies[1].dependencyFlags = 0;												// 追加の依存関係フラグを設定
 
-	// レンダーパスの作成情報
-	VkRenderPassCreateInfo renderPassCreateInfo = {};										// レンダーパスの作成情報を格納する構造体を初期化
-	renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;					// 構造体の型を設定
-	renderPassCreateInfo.attachmentCount = 1;												// アタッチメントの数を設定
-	renderPassCreateInfo.pAttachments = &colourAttachment;									// カラーアタッチメントの参照を設定
-	renderPassCreateInfo.subpassCount = 1;													// サブパスの数を設定
-	renderPassCreateInfo.pSubpasses = &subpass;												// サブパスの参照を設定
-	renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());  // サブパス依存関係の数を設定
-	renderPassCreateInfo.pDependencies = subpassDependencies.data();						// サブパス依存関係の参照を設定
+	// Conversion from VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+	// Transition must happen after...
+	subpassDependencies[1].srcSubpass = 0;
+	subpassDependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	subpassDependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;;
+	// But must happen before...
+	subpassDependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+	subpassDependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	subpassDependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+	subpassDependencies[1].dependencyFlags = 0;
 
-	// レンダーパスを作成
-	VkResult result = vkCreateRenderPass(mainDevice.logicalDevice, &renderPassCreateInfo, nullptr, &renderPass); 
-	if (result != VK_SUCCESS)  
+	// Create info for Render Pass
+	VkRenderPassCreateInfo renderPassCreateInfo = {};
+	renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassCreateInfo.attachmentCount = 1;
+	renderPassCreateInfo.pAttachments = &colourAttachment;
+	renderPassCreateInfo.subpassCount = 1;
+	renderPassCreateInfo.pSubpasses = &subpass;
+	renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
+	renderPassCreateInfo.pDependencies = subpassDependencies.data();
+
+	VkResult result = vkCreateRenderPass(mainDevice.logicalDevice, &renderPassCreateInfo, nullptr, &renderPass);
+	if (result != VK_SUCCESS)
 	{
-		// 作成に失敗した場合
-		throw std::runtime_error("Render Passの作成に失敗しました！");  // エラーメッセージをスロー
+		throw std::runtime_error("Failed to create a Render Pass!");
 	}
 }
 
