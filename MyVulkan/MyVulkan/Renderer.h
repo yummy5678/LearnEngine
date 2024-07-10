@@ -1,6 +1,7 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+//#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <vector>
@@ -19,6 +20,7 @@ public:
 	VulkanRenderer();
 
 	int init(GameWindow renderWindow);
+	void draw();
 	void cleanup();
 
 	~VulkanRenderer();
@@ -26,16 +28,20 @@ public:
 private:
 	GLFWwindow* window;
 
+	int currentFrame = 0;
+
 	// Vulkan Components
-	VkInstance instance;
+	//VkInstance instance;
+	vk::UniqueInstance instance;
 
 	//コールバック
 	VkDebugReportCallbackEXT callback;
 
 	//メインデバイス
 	struct {
-		VkPhysicalDevice physicalDevice;
-		VkDevice logicalDevice;
+		VkPhysicalDevice physicalDevice;	//物理デバイス(ただの構造体なので破棄の必要はない)
+		//VkDevice logicalDevice;
+		vk::UniqueDevice logicalDevice;		//論理デバイス
 	} mainDevice;
 
 	//キュー
@@ -46,8 +52,8 @@ private:
 	VkSurfaceKHR surface;
 	VkSwapchainKHR swapchain;
 	std::vector<SwapchainImage> swapChainImages;
-	std::vector<VkFramebuffer> swapChainFramebuffers;//////////////////
-	std::vector<VkCommandBuffer> commandBuffers;/////////////////
+	std::vector<VkFramebuffer> swapChainFramebuffers;
+	std::vector<VkCommandBuffer> commandBuffers;
 
 	// - Pipeline
 	VkPipeline graphicsPipeline;
@@ -55,30 +61,38 @@ private:
 	VkRenderPass renderPass;
 
 	// - Pools
-	VkCommandPool graphicsCommandPool;///////////////////////
+	VkCommandPool graphicsCommandPool;
 
 	// - Utility
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 
-
+	// - Synchronisation///////////////////////////////////////////
+	std::vector<VkSemaphore> imageAvailable;
+	std::vector<VkSemaphore> renderFinished;
+	std::vector<VkFence>	 drawFences;
 
 	// Vulkan Functions
 	// - Create Functions
 	//インスタンスの作成
 	void createInstance();
+
+	//デバイスの作成
 	void createDebugCallback();
 	void createLogicalDevice();
+
+
 	void createSurface();
 	void createSwapChain();
 	void createRenderPass();
 	void createGraphicsPipeline();
-	void createFramebuffers();//////////////////////////////
-	void createCommandPool();///////////////////////////////
-	void createCommandBuffers();////////////////////////////
+	void createFramebuffers();
+	void createCommandPool();
+	void createCommandBuffers();
+	void createSynchronisation();////////////////////////////////
 
 	// - Record Functions
-	void recordCommands();////////////////////////////
+	void recordCommands();
 
 	// - Get Functions
 	void getPhysicalDevice();
@@ -101,6 +115,6 @@ private:
 
 	// -- Create Functions
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-	VkShaderModule createShaderModule(const std::vector<char>& code);/////////////////////////////////////
+	VkShaderModule createShaderModule(const std::vector<char>& code);
 };
 

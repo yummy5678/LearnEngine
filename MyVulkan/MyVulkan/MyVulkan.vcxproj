@@ -130,16 +130,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Device.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="SwapChain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Device.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="SwapChain.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="VulkanValidation.h" />
   </ItemGroup>
