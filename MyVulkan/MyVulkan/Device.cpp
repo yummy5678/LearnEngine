@@ -1,110 +1,29 @@
 #include "Device.h"
 
-LogicalDevice::LogicalDevice()
+vk::PhysicalDevice DeviceUtility::getPhysicalDevice(vk::Instance& instance, VkSurfaceKHR surface)
 {
-}
 
-LogicalDevice::~LogicalDevice()
-{
-}
+	vk::PhysicalDevice physicalDevice;	//物理デバイス
 
-void LogicalDevice::create()
-{
-	// 選択した物理デバイスのキューファミリーインデックスを取得する
-	QueueFamilyIndices indices = getQueueFamilies(mainDevice.physicalDevice);
-
-	// キュー作成情報用のベクターとファミリーインデックス用のセットを準備する
-	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<int> queueFamilyIndices = { indices.graphicsFamily, indices.presentationFamily };
-
-	// 論理デバイスで作成する必要があるキューとその情報を設定する
-	for (int queueFamilyIndex : queueFamilyIndices)
-	{
-		VkDeviceQueueCreateInfo queueCreateInfo = {};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;                        // キューを作成するファミリーのインデックス
-		queueCreateInfo.queueCount = 1;                                             // 作成するキューの数
-		float priority = 1.0f;														// 優先度
-		queueCreateInfo.pQueuePriorities = &priority;                               // Vulkanは複数のキューをどのように扱うかを知る必要があるため、優先度を指定する (1が最高優先度)
-
-		queueCreateInfos.push_back(queueCreateInfo);
-	}
-
-	// 論理デバイスを作成するための情報を設定する
-	VkDeviceCreateInfo deviceCreateInfo = {};
-	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());       // キュー作成情報の数
-	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();                                 // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
-	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());      // 有効なロジカルデバイス拡張機能の数
-	deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();                           // 有効なロジカルデバイス拡張機能のリスト
-
-	// 論理デバイスが使用する物理デバイスの機能
-	VkPhysicalDeviceFeatures deviceFeatures = {};
-
-	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;            // ロジカルデバイスが使用する物理デバイスの機能
-
-	// 指定された物理デバイスに対してロジカルデバイスを作成する
-	VkResult result = vkCreateDevice(mainDevice.physicalDevice, &deviceCreateInfo, nullptr, &mainDevice.logicalDevice);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("ロジカルデバイスの作成に失敗しました！");
-	}
-
-	// キューはデバイスと同時に作成されるため
-	// キューへのハンドルを取得する
-	// 指定されたロジカルデバイスから、指定されたキューファミリーの指定されたキューインデックス（0は唯一のキューなので0）、指定されたVkQueueへの参照を置く
-	vkGetDeviceQueue(mainDevice.logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
-	vkGetDeviceQueue(mainDevice.logicalDevice, indices.presentationFamily, 0, &presentationQueue);
-
-}
-
-VkDevice LogicalDevice::get()
-{
-	return device.get();
-}
-
-void LogicalDevice::createLogicalDevice()
-{
 	//インスタンスから物理デバイスを取得
-	std::vector<vk::PhysicalDevice> physicalDevices = instance->enumeratePhysicalDevices();
+	std::vector<vk::PhysicalDevice> physicalDevices = instance.enumeratePhysicalDevices();
 
 	// 適切なデバイスが見つかるまでループする
 	for (const auto& device : physicalDevices)
 	{
-		if (checkDeviceSuitable(device))
+		if (checkDeviceSuitable(device, surface))
 		{
 			// 適切なデバイスが見つかった
-			physicalDevice = device;
-			return;
+			return device;
 		}
 	}
 
 	// 利用可能なデバイスがない場合
 	throw std::runtime_error("VulkanをサポートするGPUが見つかりません！");
-
+	return vk::PhysicalDevice();
 }
 
-void LogicalDevice::getPhysicalDevice()
-{
-	//インスタンスから物理デバイスを取得
-	std::vector<vk::PhysicalDevice> physicalDevices = instance->enumeratePhysicalDevices();
-
-	// 適切なデバイスが見つかるまでループする
-	for (const auto& device : physicalDevices)
-	{
-		if (checkDeviceSuitable(device))
-		{
-			// 適切なデバイスが見つかった
-			physicalDevice = device;
-			return;
-		}
-	}
-
-	// 利用可能なデバイスがない場合
-	throw std::runtime_error("VulkanをサポートするGPUが見つかりません！");
-}
-
-bool LogicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device)
+bool DeviceUtility::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
 	// デバイスがサポートする拡張機能の数を取得する
 	uint32_t extensionCount = 0;
@@ -145,10 +64,10 @@ bool LogicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device)
 	return true;
 }
 
-/// <summary>
-/// 指定された物理デバイスが Vulkan レンダラーに適しているかどうかを確認する
-/// </summary>
-bool LogicalDevice::checkDeviceSuitable(VkPhysicalDevice device)
+
+
+
+bool DeviceUtility::checkDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
 	/*
 	// デバイス自体に関する情報 (ID、名前、タイプ、ベンダーなど)
@@ -161,7 +80,7 @@ bool LogicalDevice::checkDeviceSuitable(VkPhysicalDevice device)
 	*/
 
 	// キューファミリーのインデックスを取得する
-	QueueFamilyIndices indices = getQueueFamilies(device);
+	QueueFamilyIndices indices = QueueUtility::getQueueFamilies(device,surface);
 
 	// デバイスが必要とする拡張機能をサポートしているか確認する
 	bool extensionsSupported = checkDeviceExtensionSupport(device);
@@ -171,7 +90,7 @@ bool LogicalDevice::checkDeviceSuitable(VkPhysicalDevice device)
 	if (extensionsSupported)
 	{
 		// 特定の物理デバイスに対するSwap Chainの詳細を取得する
-		SwapChainDetails swapChainDetails = getSwapChainDetails(device);
+		SwapChainDetails swapChainDetails = SwapChainUtility::getSwapChainDetails(device, surface);
 
 		// Swap Chainの有効性を確認する。プレゼンテーションモードが空でなく、フォーマットも空でない場合に有効とみなす。
 		swapChainValid = !swapChainDetails.presentationModes.empty() && !swapChainDetails.formats.empty();
@@ -180,5 +99,71 @@ bool LogicalDevice::checkDeviceSuitable(VkPhysicalDevice device)
 
 	// デバイスが適合しているかを確認する
 	return indices.isValid() && extensionsSupported && swapChainValid;
+}
 
+
+/// <summary>
+/// 論理デバイスの作成
+/// </summary>
+vk::UniqueDevice DeviceUtility::createLogicalDevice(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface)
+{
+	//論理デバイスの作成に必要なもの
+	//1,使用するデバイスの拡張
+	//2,使用するデバイスのレイヤー
+	//3,デバイスのどのキューを使用するか
+
+
+	vk::UniqueDevice logicalDevice;
+	
+	//キュー
+	VkQueue graphicsQueue;
+	VkQueue presentationQueue;
+
+	// 選択した物理デバイスのキューファミリーインデックスを取得する
+	QueueFamilyIndices queueIndex = QueueUtility::getQueueFamilies(physicalDevice, surface);
+
+	// キュー作成情報用のベクター
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+
+	//ファミリーインデックス用のセット
+	std::set<int> queueFamilyIndices = { queueIndex.graphicsFamily, queueIndex.presentationFamily };
+
+	// 論理デバイスで作成する必要があるキューとその情報を設定する
+	for (int queueFamilyIndex : queueFamilyIndices)
+	{
+		VkDeviceQueueCreateInfo queueCreateInfo = {};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;                        // キューを作成するファミリーのインデックス
+		queueCreateInfo.queueCount = 1;                                             // 作成するキューの数
+		float priority = 1.0f;														// 優先度
+		queueCreateInfo.pQueuePriorities = &priority;                               // Vulkanは複数のキューをどのように扱うかを知る必要があるため、優先度を指定する (1が最高優先度)
+
+		queueCreateInfos.push_back(queueCreateInfo);
+	}
+
+	// 論理デバイスを作成するための情報を設定する
+	VkDeviceCreateInfo deviceCreateInfo = {};
+	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());       // キュー作成情報の数
+	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();                                 // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
+	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());      // 有効なロジカルデバイス拡張機能の数
+	deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();                           // 有効なロジカルデバイス拡張機能のリスト
+
+	// 論理デバイスが使用する物理デバイスの機能
+	VkPhysicalDeviceFeatures deviceFeatures = {};
+
+	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;            // ロジカルデバイスが使用する物理デバイスの機能
+
+	// 指定された物理デバイスに対してロジカルデバイスを作成する
+	logicalDevice = physicalDevice.createDeviceUnique(deviceCreateInfo);
+	if (!logicalDevice)
+	{
+		throw std::runtime_error("ロジカルデバイスの作成に失敗しました！");
+	}
+
+	// キューはデバイスと同時に作成されるため
+	// キューへのハンドルを取得する
+	// 指定されたロジカルデバイスから、指定されたキューファミリーの指定されたキューインデックス（0は唯一のキューなので0）、指定されたVkQueueへの参照を置く
+	vkGetDeviceQueue(logicalDevice.get(), queueIndex.graphicsFamily, 0, &graphicsQueue);
+	vkGetDeviceQueue(logicalDevice.get(), queueIndex.presentationFamily, 0, &presentationQueue);
 }

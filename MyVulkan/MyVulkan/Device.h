@@ -1,40 +1,23 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
-#include "Utilities.h"
+#include <set>
+#include "QueueUtility.h"
+#include "SwapChainUtility.h"
 
-
-class LogicalDevice
-{
-public:
-	LogicalDevice();
-	~LogicalDevice();
-
-	void create();
-	//void draw();
-
-	VkDevice get();
-
-private:
-	vk::UniqueInstance instance;
-
-	//デバイス
-	VkPhysicalDevice physicalDevice;	//物理デバイス(ただの構造体なので破棄の必要はない)
-	vk::UniqueDevice device;		//論理デバイス
-
-	//キュー
-	VkQueue graphicsQueue;
-	VkQueue presentationQueue;
-
-private:
-	//デバイスの作成
-	//void createDebugCallback();
-	void createLogicalDevice();
-
-	// - Get Functions
-	void getPhysicalDevice();
-	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-	bool checkDeviceSuitable(VkPhysicalDevice device);
-	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device);
-
+const std::vector<const char*> deviceExtensions = {
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
+
+namespace DeviceUtility
+{
+
+	//physical
+	vk::PhysicalDevice getPhysicalDevice(vk::Instance& instance, VkSurfaceKHR surface);
+	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+	bool checkDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
+	
+	//logical
+	vk::UniqueDevice createLogicalDevice(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface);
+}
+
 

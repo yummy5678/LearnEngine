@@ -1,8 +1,5 @@
 #include "Renderer.h"
 
-
-
-
 VulkanRenderer::VulkanRenderer()
 {
 }
@@ -14,9 +11,10 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	try {
 		createInstance();
 		createDebugCallback();
-		createSurface();
-		getPhysicalDevice();
-		createLogicalDevice();
+		//createSurface();
+		surface			= SurfaceUtilities::createUnique(instance.get(), window);
+		physicalDevice	= DeviceUtility::getPhysicalDevice(instance.get(), surface.get());
+		logicalDevice   = DeviceUtility::createLogicalDevice(physicalDevice, surface.get());
 		createSwapChain();
 		createRenderPass();
 		createGraphicsPipeline();
@@ -32,63 +30,63 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		return EXIT_FAILURE;
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
-void VulkanRenderer::draw()
-{
-	// -- GET NEXT IMAGE --
-// Wait for given fence to signal (open) from last draw before continuing
-	vkWaitForFences(mainDevice.logicalDevice.get(), 1, &drawFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
-	// Manually reset (close) fences
-	vkResetFences(mainDevice.logicalDevice.get(), 1, &drawFences[currentFrame]);
-
-	// Get index of next image to be drawn to, and signal semaphore when ready to be drawn to
-	uint32_t imageIndex;
-	vkAcquireNextImageKHR(mainDevice.logicalDevice.get(), swapchain, std::numeric_limits<uint64_t>::max(), imageAvailable[currentFrame], VK_NULL_HANDLE, &imageIndex);
-
-	// -- SUBMIT COMMAND BUFFER TO RENDER --
-	// Queue submission information
-	VkSubmitInfo submitInfo = {};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
-	submitInfo.pWaitSemaphores = &imageAvailable[currentFrame];				// List of semaphores to wait on
-	VkPipelineStageFlags waitStages[] = {
-		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
-	};
-	submitInfo.pWaitDstStageMask = waitStages;						// Stages to check semaphores at
-	submitInfo.commandBufferCount = 1;								// Number of command buffers to submit
-	submitInfo.pCommandBuffers = &commandBuffers[imageIndex];		// Command buffer to submit
-	submitInfo.signalSemaphoreCount = 1;							// Number of semaphores to signal
-	submitInfo.pSignalSemaphores = &renderFinished[currentFrame];	// Semaphores to signal when command buffer finishes
-
-	// Submit command buffer to queue
-	VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to submit Command Buffer to Queue!");
-	}
-
-
-	// -- PRESENT RENDERED IMAGE TO SCREEN --
-	VkPresentInfoKHR presentInfo = {};
-	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	presentInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
-	presentInfo.pWaitSemaphores = &renderFinished[currentFrame];			// Semaphores to wait on
-	presentInfo.swapchainCount = 1;											// Number of swapchains to present to
-	presentInfo.pSwapchains = &swapchain;									// Swapchains to present images to
-	presentInfo.pImageIndices = &imageIndex;								// Index of images in swapchains to present
-
-	// Present image
-	result = vkQueuePresentKHR(presentationQueue, &presentInfo);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to present Image!");
-	}
-
-	// Get next frame (use % MAX_FRAME_DRAWS to keep value below MAX_FRAME_DRAWS)
-	currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
-}
+//void VulkanRenderer::draw()
+//{
+//	// -- GET NEXT IMAGE --
+//// Wait for given fence to signal (open) from last draw before continuing
+//	vkWaitForFences(mainDevice.logicalDevice.get(), 1, &drawFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+//	// Manually reset (close) fences
+//	vkResetFences(mainDevice.logicalDevice.get(), 1, &drawFences[currentFrame]);
+//
+//	// Get index of next image to be drawn to, and signal semaphore when ready to be drawn to
+//	uint32_t imageIndex;
+//	vkAcquireNextImageKHR(mainDevice.logicalDevice.get(), swapchain.get(), std::numeric_limits<uint64_t>::max(), imageAvailable[currentFrame], VK_NULL_HANDLE, &imageIndex);
+//
+//	// -- SUBMIT COMMAND BUFFER TO RENDER --
+//	// Queue submission information
+//	VkSubmitInfo submitInfo = {};
+//	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+//	submitInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
+//	submitInfo.pWaitSemaphores = &imageAvailable[currentFrame];				// List of semaphores to wait on
+//	VkPipelineStageFlags waitStages[] = {
+//		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+//	};
+//	submitInfo.pWaitDstStageMask = waitStages;						// Stages to check semaphores at
+//	submitInfo.commandBufferCount = 1;								// Number of command buffers to submit
+//	submitInfo.pCommandBuffers = &commandBuffers[imageIndex];		// Command buffer to submit
+//	submitInfo.signalSemaphoreCount = 1;							// Number of semaphores to signal
+//	submitInfo.pSignalSemaphores = &renderFinished[currentFrame];	// Semaphores to signal when command buffer finishes
+//
+//	// Submit command buffer to queue
+//	VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]);
+//	if (result != VK_SUCCESS)
+//	{
+//		throw std::runtime_error("Failed to submit Command Buffer to Queue!");
+//	}
+//
+//
+//	// -- PRESENT RENDERED IMAGE TO SCREEN --
+//	VkPresentInfoKHR presentInfo = {};
+//	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+//	presentInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
+//	presentInfo.pWaitSemaphores = &renderFinished[currentFrame];			// Semaphores to wait on
+//	presentInfo.swapchainCount = 1;											// Number of swapchains to present to
+//	presentInfo.pSwapchains = &swapchain;									// Swapchains to present images to
+//	presentInfo.pImageIndices = &imageIndex;								// Index of images in swapchains to present
+//
+//	// Present image
+//	result = vkQueuePresentKHR(presentationQueue, &presentInfo);
+//	if (result != VK_SUCCESS)
+//	{
+//		throw std::runtime_error("Failed to present Image!");
+//	}
+//
+//	// Get next frame (use % MAX_FRAME_DRAWS to keep value below MAX_FRAME_DRAWS)
+//	currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
+//}
 
 void VulkanRenderer::cleanup()
 {
@@ -240,7 +238,7 @@ void VulkanRenderer::createLogicalDevice()
 	//3,デバイスのどのキューを使用するか
 
 	// 選択した物理デバイスのキューファミリーインデックスを取得する
-	QueueFamilyIndices queueIndex = getQueueFamilies(mainDevice.physicalDevice);
+	QueueFamilyIndices queueIndex = getQueueFamilies(physicalDevice);
 
 	// キュー作成情報用のベクター
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -275,8 +273,8 @@ void VulkanRenderer::createLogicalDevice()
 	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;            // ロジカルデバイスが使用する物理デバイスの機能
 
 	// 指定された物理デバイスに対してロジカルデバイスを作成する
-	mainDevice.logicalDevice = createDeviceUnique(mainDevice.physicalDevice, &deviceCreateInfo, nullptr, &);
-	if (result != VK_SUCCESS)
+	logicalDevice = physicalDevice.createDeviceUnique(deviceCreateInfo);
+	if (!logicalDevice)
 	{
 		throw std::runtime_error("ロジカルデバイスの作成に失敗しました！");
 	}
@@ -284,26 +282,31 @@ void VulkanRenderer::createLogicalDevice()
 	// キューはデバイスと同時に作成されるため
 	// キューへのハンドルを取得する
 	// 指定されたロジカルデバイスから、指定されたキューファミリーの指定されたキューインデックス（0は唯一のキューなので0）、指定されたVkQueueへの参照を置く
-	vkGetDeviceQueue(mainDevice.logicalDevice.get(), queueIndex.graphicsFamily, 0, &graphicsQueue);
-	vkGetDeviceQueue(mainDevice.logicalDevice.get(), queueIndex.presentationFamily, 0, &presentationQueue);
+	vkGetDeviceQueue(logicalDevice.get(), queueIndex.graphicsFamily, 0, &graphicsQueue);
+	vkGetDeviceQueue(logicalDevice.get(), queueIndex.presentationFamily, 0, &presentationQueue);
 }
 
-void VulkanRenderer::createSurface()
-{
-	// サーフェスを作成する（サーフェス作成情報構造体を作成し、サーフェス作成関数を実行し、結果を返す）
-	VkResult result = glfwCreateWindowSurface(instance.get(), window, nullptr, &surface);
-
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("サーフェスの作成に失敗しました！");
-	}
-}
+//void VulkanRenderer::createSurface()
+//{
+//
+//	VkSurfaceKHR c_surface;
+//	// サーフェスを作成する（サーフェス作成情報構造体を作成し、サーフェス作成関数を実行し、結果を返す）
+//	VkResult result = glfwCreateWindowSurface(instance.get(), window, nullptr, &c_surface);
+//
+//	if (result != VK_SUCCESS)
+//	{
+//		throw std::runtime_error("サーフェスの作成に失敗しました！");
+//	}
+//
+//	// コンストラクタの第二引数で親となるインスタンスの情報を渡す
+//	surface = vk::UniqueSurfaceKHR{ c_surface, instance.get() };
+//}
 
 
 void VulkanRenderer::createSwapChain()
 {
 	// Swap Chainの詳細を取得して最適な設定を選択する
-	SwapChainDetails swapChainDetails = getSwapChainDetails(mainDevice.physicalDevice);
+	SwapChainDetails swapChainDetails = getSwapChainDetails(physicalDevice);
 
 	// Swap Chainの最適なSurfaceフォーマットを選択する
 	VkSurfaceFormatKHR surfaceFormat = chooseBestSurfaceFormat(swapChainDetails.formats);
@@ -330,7 +333,7 @@ void VulkanRenderer::createSwapChain()
 	*///////////////////////////
 	VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
 	swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;					// スワップチェインのタイプ
-	swapChainCreateInfo.surface = surface;														// スワップチェインの対象となるSurface
+	swapChainCreateInfo.surface = surface.get();												// スワップチェインの対象となるSurface
 	swapChainCreateInfo.imageFormat = surfaceFormat.format;										// スワップチェインの画像フォーマット
 	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;								// スワップチェインのカラースペース
 	swapChainCreateInfo.presentMode = presentMode;												// スワップチェインのプレゼンテーションモード
@@ -343,7 +346,7 @@ void VulkanRenderer::createSwapChain()
 	swapChainCreateInfo.clipped = VK_TRUE;														// 画面外の部分をクリップするかどうか
 
 	// キューファミリーインデックスを取得する
-	QueueFamilyIndices indices = getQueueFamilies(mainDevice.physicalDevice);
+	QueueFamilyIndices indices = getQueueFamilies(physicalDevice);
 
 	// グラフィクスファミリーとプレゼンテーションファミリーが異なる場合、画像をファミリー間で共有する必要がある
 	if (indices.graphicsFamily != indices.presentationFamily)
@@ -371,8 +374,8 @@ void VulkanRenderer::createSwapChain()
 	swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
 	// Swapchainを作成する
-	VkResult result = vkCreateSwapchainKHR(mainDevice.logicalDevice, &swapChainCreateInfo, nullptr, &swapchain);
-	if (result != VK_SUCCESS)
+	swapchain = logicalDevice->createSwapchainKHRUnique(swapChainCreateInfo);
+	if (!swapchain)
 	{
 		throw std::runtime_error("Swapchainの作成に失敗しました！");
 	}
@@ -383,9 +386,9 @@ void VulkanRenderer::createSwapChain()
 
 	// Swapchainの画像を取得する（数を取得し、値を取得する）
 	uint32_t swapChainImageCount;	//スワップチェインの画像数
-	vkGetSwapchainImagesKHR(mainDevice.logicalDevice, swapchain, &swapChainImageCount, nullptr);
+	vkGetSwapchainImagesKHR(logicalDevice.get(), swapchain.get(), &swapChainImageCount, nullptr);
 	std::vector<VkImage> images(swapChainImageCount);
-	vkGetSwapchainImagesKHR(mainDevice.logicalDevice, swapchain, &swapChainImageCount, images.data());
+	vkGetSwapchainImagesKHR(logicalDevice.get(), swapchain.get(), &swapChainImageCount, images.data());
 
 	for (VkImage image : images)
 	{
@@ -537,7 +540,7 @@ void VulkanRenderer::createGraphicsPipeline()
 	pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
 
 	// パイプラインレイアウトを作成
-	VkResult result = vkCreatePipelineLayout(mainDevice.logicalDevice, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout);
+	VkResult result = vkCreatePipelineLayout(logicalDevice.get(), &pipelineLayoutCreateInfo, nullptr, &pipelineLayout);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("パイプラインレイアウトの作成に失敗しました！");
@@ -570,15 +573,15 @@ void VulkanRenderer::createGraphicsPipeline()
 	pipelineCreateInfo.basePipelineIndex = -1;                           // または作成中のパイプラインのインデックス (複数作成する場合)
 
 	// グラフィックスパイプラインを作成
-	result = vkCreateGraphicsPipelines(mainDevice.logicalDevice, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &graphicsPipeline);
+	result = vkCreateGraphicsPipelines(logicalDevice.get(), VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &graphicsPipeline);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("グラフィックスパイプラインの作成に失敗しました！");
 	}
 
 	//パイプラインの作成後に不要になったシェーダーモジュールを破棄
-	vkDestroyShaderModule(mainDevice.logicalDevice, fragmentShaderModule, nullptr);
-	vkDestroyShaderModule(mainDevice.logicalDevice, vertexShaderModule, nullptr);
+	vkDestroyShaderModule(logicalDevice.get(), fragmentShaderModule, nullptr);
+	vkDestroyShaderModule(logicalDevice.get(), vertexShaderModule, nullptr);
 }
 
 ///////////////////////////////////////////////////////////////
@@ -612,7 +615,7 @@ void VulkanRenderer::createFramebuffers()
 		framebufferCreateInfo.layers = 1;                                                    // フレームバッファのレイヤー数
 
 		// フレームバッファを作成する
-		VkResult result = vkCreateFramebuffer(mainDevice.logicalDevice, &framebufferCreateInfo, nullptr, &swapChainFramebuffers[i]);
+		VkResult result = vkCreateFramebuffer(logicalDevice.get(), &framebufferCreateInfo, nullptr, &swapChainFramebuffers[i]);
 		if (result != VK_SUCCESS)
 		{
 			throw std::runtime_error("フレームバッファの作成に失敗しました！");
@@ -623,7 +626,7 @@ void VulkanRenderer::createFramebuffers()
 void VulkanRenderer::createCommandPool()
 {
 	// デバイスからキューファミリーのインデックスを取得する
-	QueueFamilyIndices queueFamilyIndices = getQueueFamilies(mainDevice.physicalDevice);
+	QueueFamilyIndices queueFamilyIndices = getQueueFamilies(physicalDevice);
 
 	// コマンドプールの作成に必要な情報を設定する
 	VkCommandPoolCreateInfo poolInfo = {};
@@ -631,7 +634,7 @@ void VulkanRenderer::createCommandPool()
 	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;   // このコマンドプールが使用するキューファミリータイプ
 
 	// グラフィックスキューファミリー用のコマンドプールを作成する
-	VkResult result = vkCreateCommandPool(mainDevice.logicalDevice, &poolInfo, nullptr, &graphicsCommandPool);
+	VkResult result = vkCreateCommandPool(logicalDevice.get(), &poolInfo, nullptr, &graphicsCommandPool);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("コマンドプールの作成に失敗しました！");
@@ -651,7 +654,7 @@ void VulkanRenderer::createCommandBuffers()
 	cbAllocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());  // 割り当てるコマンドバッファの数
 
 	// コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
-	VkResult result = vkAllocateCommandBuffers(mainDevice.logicalDevice, &cbAllocInfo, commandBuffers.data());
+	VkResult result = vkAllocateCommandBuffers(logicalDevice.get(), &cbAllocInfo, commandBuffers.data());
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("コマンドバッファの割り当てに失敗しました！");
@@ -678,9 +681,9 @@ void VulkanRenderer::createSynchronisation()
 	for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
 	{
 		// セマフォとフェンスを作成する
-		if (vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &imageAvailable[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &renderFinished[i]) != VK_SUCCESS ||
-			vkCreateFence(mainDevice.logicalDevice, &fenceCreateInfo, nullptr, &drawFences[i]) != VK_SUCCESS)
+		if (vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &imageAvailable[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &renderFinished[i]) != VK_SUCCESS ||
+			vkCreateFence(logicalDevice.get(), &fenceCreateInfo, nullptr, &drawFences[i]) != VK_SUCCESS)
 		{
 			// 作成に失敗した場合は例外を投げる
 			throw std::runtime_error("Failed to create a Semaphore and/or Fence!");
@@ -755,7 +758,7 @@ void VulkanRenderer::getPhysicalDevice()
 		if (checkDeviceSuitable(device))
 		{
 			// 適切なデバイスが見つかった
-			mainDevice.physicalDevice = device;
+			physicalDevice = device;
 			return;
 		}
 	}
@@ -948,7 +951,7 @@ QueueFamilyIndices VulkanRenderer::getQueueFamilies(VkPhysicalDevice device)
 
 		// キューファミリーがプレゼンテーションをサポートしているか確認する
 		VkBool32 presentationSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport);
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface.get(), &presentationSupport);
 		// キューがプレゼンテーションタイプであるかどうかを確認する（グラフィックスとプレゼンテーションの両方になり得る）
 		if (queueFamily.queueCount > 0 && presentationSupport)
 		{
@@ -974,28 +977,28 @@ SwapChainDetails VulkanRenderer::getSwapChainDetails(VkPhysicalDevice device)
 
 	// -- CAPABILITIES --
 	// 特定の物理デバイスとサーフェスに対する表面のキャビティを取得する
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &swapChainDetails.surfaceCapabilities);
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface.get(), &swapChainDetails.surfaceCapabilities);
 
 	// -- FORMATS --
 	uint32_t formatCount = 0;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface.get(), &formatCount, nullptr);
 
 	// フォーマットが返された場合、フォーマットのリストを取得する
 	if (formatCount != 0)
 	{
 		swapChainDetails.formats.resize(formatCount);
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, swapChainDetails.formats.data());
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface.get(), &formatCount, swapChainDetails.formats.data());
 	}
 
 	// -- PRESENTATION MODES --
 	uint32_t presentationCount = 0;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount, nullptr);
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface.get(), &presentationCount, nullptr);
 
 	// プレゼンテーションモードが返された場合、プレゼンテーションモードのリストを取得する
 	if (presentationCount != 0)
 	{
 		swapChainDetails.presentationModes.resize(presentationCount);
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount, swapChainDetails.presentationModes.data());
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface.get(), &presentationCount, swapChainDetails.presentationModes.data());
 	}
 
 	return swapChainDetails;
@@ -1138,7 +1141,7 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkIm
 	// &viewCreateInfo: Image View の作成に必要な情報が格納された構造体へのポインタ
 	// nullptr: カスタムのアロケーターを使用しないためのオプション (通常は nullptr を指定します)
 	// &imageView: 作成された Image View のハンドルを受け取る変数へのポインタ
-	VkResult result = vkCreateImageView(mainDevice.logicalDevice, &viewCreateInfo, nullptr, &imageView);
+	VkResult result = vkCreateImageView(logicalDevice.get(), &viewCreateInfo, nullptr, &imageView);
 
 	// vkCreateImageView の結果が成功ではない場合、エラーをスローします
 	if (result != VK_SUCCESS)
@@ -1213,7 +1216,7 @@ void VulkanRenderer::createRenderPass()
 	renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
 	renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
-	VkResult result = vkCreateRenderPass(mainDevice.logicalDevice, &renderPassCreateInfo, nullptr, &renderPass);
+	VkResult result = vkCreateRenderPass(logicalDevice.get(), &renderPassCreateInfo, nullptr, &renderPass);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create a Render Pass!");
@@ -1230,7 +1233,7 @@ VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
 
 	// シェーダーモジュールの作成
 	VkShaderModule shaderModule;
-	VkResult result = vkCreateShaderModule(mainDevice.logicalDevice, &shaderModuleCreateInfo, nullptr, &shaderModule);
+	VkResult result = vkCreateShaderModule(logicalDevice.get(), &shaderModuleCreateInfo, nullptr, &shaderModule);
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("シェーダーモジュールの作成に失敗しました！");

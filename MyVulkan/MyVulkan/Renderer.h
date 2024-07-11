@@ -12,18 +12,20 @@
 #include "GameWindow.h"
 #include "Utilities.h"
 #include "VulkanValidation.h"
+#include "Surface.h"
+#include "Device.h"
 
 
 class VulkanRenderer
 {
 public:
 	VulkanRenderer();
+	~VulkanRenderer();
+
 
 	int init(GameWindow renderWindow);
-	void draw();
+	//void draw();
 	void cleanup();
-
-	~VulkanRenderer();
 
 private:
 	GLFWwindow* window;
@@ -38,19 +40,19 @@ private:
 	VkDebugReportCallbackEXT callback;
 
 	//メインデバイス
-	struct {
-		VkPhysicalDevice physicalDevice;	//物理デバイス(ただの構造体なので破棄の必要はない)
+	//struct {
+		vk::PhysicalDevice physicalDevice;	//物理デバイス(ただの構造体なので破棄の必要はない)
 		//VkDevice logicalDevice;
 		vk::UniqueDevice logicalDevice;		//論理デバイス
-	} mainDevice;
+	//} mainDevice;
 
 	//キュー
 	VkQueue graphicsQueue;
 	VkQueue presentationQueue;
 
 	//スワップチェイン
-	VkSurfaceKHR surface;
-	VkSwapchainKHR swapchain;
+	vk::UniqueSurfaceKHR surface;
+	vk::UniqueSwapchainKHR swapchain;
 	std::vector<SwapchainImage> swapChainImages;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	std::vector<VkCommandBuffer> commandBuffers;
@@ -67,7 +69,7 @@ private:
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 
-	// - Synchronisation///////////////////////////////////////////
+	// - Synchronisation
 	std::vector<VkSemaphore> imageAvailable;
 	std::vector<VkSemaphore> renderFinished;
 	std::vector<VkFence>	 drawFences;
@@ -82,14 +84,14 @@ private:
 	void createLogicalDevice();
 
 
-	void createSurface();
+	//void createSurface();
 	void createSwapChain();
 	void createRenderPass();
 	void createGraphicsPipeline();
 	void createFramebuffers();
 	void createCommandPool();
 	void createCommandBuffers();
-	void createSynchronisation();////////////////////////////////
+	void createSynchronisation();
 
 	// - Record Functions
 	void recordCommands();
