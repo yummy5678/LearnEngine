@@ -1,5 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include <set>
+
 
 // キューファミリーのインデックス（場所）（存在する場合）
 //indicesはindexの複数形
@@ -18,6 +20,7 @@ namespace QueueUtility
 {
 	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 
-
+    //計算要求を受け付けるキューを受け取る
+    std::vector< vk::DeviceQueueCreateInfo > getQueueInfos(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface);
 };
 

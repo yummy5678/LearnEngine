@@ -23,6 +23,10 @@ vk::PhysicalDevice DeviceUtility::getPhysicalDevice(vk::Instance& instance, VkSu
 	return vk::PhysicalDevice();
 }
 
+
+/// <summary>
+/// デバイスが必要な拡張機能があるか確認する
+/// </summary>
 bool DeviceUtility::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
 	// デバイスがサポートする拡張機能の数を取得する
@@ -67,7 +71,7 @@ bool DeviceUtility::checkDeviceExtensionSupport(VkPhysicalDevice device)
 
 
 
-bool DeviceUtility::checkDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
+bool DeviceUtility::checkDeviceSuitable(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
 {
 	/*
 	// デバイス自体に関する情報 (ID、名前、タイプ、ベンダーなど)
@@ -80,17 +84,17 @@ bool DeviceUtility::checkDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR su
 	*/
 
 	// キューファミリーのインデックスを取得する
-	QueueFamilyIndices indices = QueueUtility::getQueueFamilies(device,surface);
+	QueueFamilyIndices indices = QueueUtility::getQueueFamilies(physicalDevice,surface);
 
 	// デバイスが必要とする拡張機能をサポートしているか確認する
-	bool extensionsSupported = checkDeviceExtensionSupport(device);
+	bool extensionsSupported = checkDeviceExtensionSupport(physicalDevice);
 
 	// Swapchainが有効かどうかを確認する
 	bool swapChainValid = false;
 	if (extensionsSupported)
 	{
 		// 特定の物理デバイスに対するSwap Chainの詳細を取得する
-		SwapChainDetails swapChainDetails = SwapChainUtility::getSwapChainDetails(device, surface);
+		SwapChainDetails swapChainDetails = SwapChainUtility::getSwapChainDetails(physicalDevice, surface);
 
 		// Swap Chainの有効性を確認する。プレゼンテーションモードが空でなく、フォーマットも空でない場合に有効とみなす。
 		swapChainValid = !swapChainDetails.presentationModes.empty() && !swapChainDetails.formats.empty();
@@ -112,58 +116,25 @@ vk::UniqueDevice DeviceUtility::createLogicalDevice(vk::PhysicalDevice physicalD
 	//2,使用するデバイスのレイヤー
 	//3,デバイスのどのキューを使用するか
 
-
-	vk::UniqueDevice logicalDevice;
-	
-	//キュー
-	VkQueue graphicsQueue;
-	VkQueue presentationQueue;
-
-	// 選択した物理デバイスのキューファミリーインデックスを取得する
-	QueueFamilyIndices queueIndex = QueueUtility::getQueueFamilies(physicalDevice, surface);
-
-	// キュー作成情報用のベクター
-	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-
-	//ファミリーインデックス用のセット
-	std::set<int> queueFamilyIndices = { queueIndex.graphicsFamily, queueIndex.presentationFamily };
-
-	// 論理デバイスで作成する必要があるキューとその情報を設定する
-	for (int queueFamilyIndex : queueFamilyIndices)
-	{
-		VkDeviceQueueCreateInfo queueCreateInfo = {};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;                        // キューを作成するファミリーのインデックス
-		queueCreateInfo.queueCount = 1;                                             // 作成するキューの数
-		float priority = 1.0f;														// 優先度
-		queueCreateInfo.pQueuePriorities = &priority;                               // Vulkanは複数のキューをどのように扱うかを知る必要があるため、優先度を指定する (1が最高優先度)
-
-		queueCreateInfos.push_back(queueCreateInfo);
-	}
+	//計算要求を受け付けるキューを探す
+	auto queueCreateInfos = QueueUtility::getQueueInfos(physicalDevice, surface);
 
 	// 論理デバイスを作成するための情報を設定する
-	VkDeviceCreateInfo deviceCreateInfo = {};
-	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	vk::DeviceCreateInfo deviceCreateInfo = {};
+	//キューの設定
 	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());       // キュー作成情報の数
 	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();                                 // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
+	//拡張機能の設定
 	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());      // 有効なロジカルデバイス拡張機能の数
 	deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();                           // 有効なロジカルデバイス拡張機能のリスト
 
-	// 論理デバイスが使用する物理デバイスの機能
-	VkPhysicalDeviceFeatures deviceFeatures = {};
-
-	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;            // ロジカルデバイスが使用する物理デバイスの機能
-
 	// 指定された物理デバイスに対してロジカルデバイスを作成する
-	logicalDevice = physicalDevice.createDeviceUnique(deviceCreateInfo);
+	vk::UniqueDevice logicalDevice = physicalDevice.createDeviceUnique(deviceCreateInfo);
 	if (!logicalDevice)
 	{
 		throw std::runtime_error("ロジカルデバイスの作成に失敗しました！");
 	}
 
-	// キューはデバイスと同時に作成されるため
-	// キューへのハンドルを取得する
-	// 指定されたロジカルデバイスから、指定されたキューファミリーの指定されたキューインデックス（0は唯一のキューなので0）、指定されたVkQueueへの参照を置く
-	vkGetDeviceQueue(logicalDevice.get(), queueIndex.graphicsFamily, 0, &graphicsQueue);
-	vkGetDeviceQueue(logicalDevice.get(), queueIndex.presentationFamily, 0, &presentationQueue);
+	return logicalDevice;
 }
+

@@ -1,8 +1,9 @@
-//#define GLFW_INCLUDE_VULKAN
+#pragma once
 
 #include <stdexcept>
 #include <vector>
 #include <iostream>
+#include "GraphicsDefine.h"
 #include "GameWindow.h"
 #include "Renderer.h"	//Vulkanのレンダラー処理をまとめている
 
@@ -12,7 +13,7 @@ VulkanRenderer vulkanRenderer;	//レンダラー
 int main()
 {
 	// ウィンドウを作成
-	window.init("Vulkan Window", 800, 600);
+	window.init("Vulkan Window", windowWidth, windowHeight);
 
 	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
 	if (vulkanRenderer.init(window) == EXIT_FAILURE)

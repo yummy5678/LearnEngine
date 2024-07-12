@@ -1,6 +1,5 @@
 #pragma once
 
-//#include <vulkan/vulkan.h>
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
@@ -14,7 +13,8 @@
 #include "VulkanValidation.h"
 #include "Surface.h"
 #include "Device.h"
-
+#include "SwapChainUtility.h"
+#include "RenderPassUtility.h"
 
 class VulkanRenderer
 {
@@ -40,27 +40,24 @@ private:
 	VkDebugReportCallbackEXT callback;
 
 	//メインデバイス
-	//struct {
-		vk::PhysicalDevice physicalDevice;	//物理デバイス(ただの構造体なので破棄の必要はない)
-		//VkDevice logicalDevice;
-		vk::UniqueDevice logicalDevice;		//論理デバイス
-	//} mainDevice;
+	vk::PhysicalDevice physicalDevice;	//物理デバイス(ただの構造体なので破棄の必要はない)
+	vk::UniqueDevice logicalDevice;		//論理デバイス
 
 	//キュー
 	VkQueue graphicsQueue;
 	VkQueue presentationQueue;
 
 	//スワップチェイン
-	vk::UniqueSurfaceKHR surface;
-	vk::UniqueSwapchainKHR swapchain;
-	std::vector<SwapchainImage> swapChainImages;
-	std::vector<VkFramebuffer> swapChainFramebuffers;
-	std::vector<VkCommandBuffer> commandBuffers;
+	vk::UniqueSurfaceKHR			surface;
+	vk::UniqueSwapchainKHR			swapchain;
+	std::vector<SwapchainImage>		swapChainImages;
+	std::vector<VkFramebuffer>		swapChainFramebuffers;
+	std::vector<VkCommandBuffer>	commandBuffers;
 
 	// - Pipeline
 	VkPipeline graphicsPipeline;
 	VkPipelineLayout pipelineLayout;
-	VkRenderPass renderPass;
+	vk::UniqueRenderPass renderPass;
 
 	// - Pools
 	VkCommandPool graphicsCommandPool;
