@@ -1,13 +1,14 @@
 #include "SwapChainUtility.h"
 
 
+
 SwapChainDetails SwapChainUtility::getSwapChainDetails(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
 	SwapChainDetails swapChainDetails;
 
 	// -- CAPABILITIES --
-	// 特定の物理デバイスとサーフェスに対する表面のキャビティを取得する
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &swapChainDetails.surfaceCapabilities);
+    // 特定の物理デバイスとサーフェスに対する表面のキャパビリティを取得する
+    swapChainDetails.surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
 
 	// -- FORMATS --
 	uint32_t formatCount = 0;
@@ -17,7 +18,7 @@ SwapChainDetails SwapChainUtility::getSwapChainDetails(vk::PhysicalDevice physic
 	if (formatCount != 0)
 	{
 		swapChainDetails.formats.resize(formatCount);
-		vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, swapChainDetails.formats.data());
+        swapChainDetails.formats = physicalDevice.getSurfaceFormatsKHR(surface);
 	}
 
 	// -- PRESENTATION MODES --
@@ -28,7 +29,7 @@ SwapChainDetails SwapChainUtility::getSwapChainDetails(vk::PhysicalDevice physic
 	if (presentationCount != 0)
 	{
 		swapChainDetails.presentationModes.resize(presentationCount);
-		vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentationCount, swapChainDetails.presentationModes.data());
+        swapChainDetails.presentationModes = physicalDevice.getSurfacePresentModesKHR(surface);
 	}
 
 	return swapChainDetails;
@@ -38,7 +39,7 @@ SwapChainDetails SwapChainUtility::getSwapChainDetails(vk::PhysicalDevice physic
 /// <summary>
 /// スワップチェインの作成
 /// </summary>
-vk::UniqueSwapchainKHR SwapChainUtility::createSwapchain(vk::Device device, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+vk::UniqueSwapchainKHR SwapChainUtility::createSwapchain(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     // スワップチェインの設定を行う
     // サーフェスの機能を取得
@@ -95,7 +96,7 @@ vk::UniqueSwapchainKHR SwapChainUtility::createSwapchain(vk::Device device, vk::
 
     // スワップチェインを作成する
     // スワップチェインを作成
-    vk::UniqueSwapchainKHR swapchain = device.createSwapchainKHRUnique(createInfo);
+    vk::UniqueSwapchainKHR swapchain = logicalDevice.createSwapchainKHRUnique(createInfo);
     // エラーチェックを行う
     if (!swapchain)
     {
@@ -167,4 +168,116 @@ std::vector<vk::SurfaceFormatKHR> SwapChainUtility::getSurfaceFormats(vk::Physic
 std::vector<vk::PresentModeKHR> SwapChainUtility::getPresentModes(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     return physicalDevice.getSurfacePresentModesKHR(surface);
+}
+
+std::vector<SwapchainImage> SwapChainUtility::createSwapChainImages(vk::Device logicalDevice, vk::SwapchainKHR swapchain)
+{
+    // スワップチェーンを構成するイメージのベクターを取得
+    std::vector<vk::Image> images = logicalDevice.getSwapchainImagesKHR(swapchain);
+
+
+    // Swapchainの画像を格納するベクターを作成
+    std::vector<SwapchainImage> swapChainImages;
+    swapChainImages.reserve(images.size());
+
+    for (vk::Image image : images)
+    {
+        // 画像ハンドルを保存する
+        SwapchainImage swapChainImage = {};
+        swapChainImage.image = image;
+        swapChainImage.imageView = createImageView(logicalDevice, image, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
+
+        // Swapchain画像リストに追加する
+        swapChainImages.push_back(swapChainImage);
+    }
+    return swapChainImages;
+}
+
+vk::ImageView SwapChainUtility::createImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags)
+{
+    // 画像ビュー作成情報の初期化
+    vk::ImageViewCreateInfo imageViewCreateInfo = {};
+    imageViewCreateInfo.image = image;                                            // View を作成するための Image
+    imageViewCreateInfo.viewType = vk::ImageViewType::e2D;                         // Image の種類 (1D, 2D, 3D, Cube など)
+    imageViewCreateInfo.format = format;                                          // Image データのフォーマット
+    imageViewCreateInfo.components.r = vk::ComponentSwizzle::eIdentity;             // RGBA コンポーネントを他の RGBA 値にリマップすることができます
+    imageViewCreateInfo.components.g = vk::ComponentSwizzle::eIdentity;
+    imageViewCreateInfo.components.b = vk::ComponentSwizzle::eIdentity;
+    imageViewCreateInfo.components.a = vk::ComponentSwizzle::eIdentity;
+    
+    // Subresource は Image の一部だけを表示するための設定です
+    imageViewCreateInfo.subresourceRange.aspectMask = aspectFlags;                 // Image のどの面を表示するか (例: COLOR_BIT は色を表示するため)
+    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;                         // 表示を開始する Mipmap レベル
+    imageViewCreateInfo.subresourceRange.levelCount = 1;                           // 表示する Mipmap レベルの数
+    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;                       // 表示を開始する配列レベル
+    imageViewCreateInfo.subresourceRange.layerCount = 1;                           // 表示する配列レベルの数
+
+    // vkCreateImageView 関数を使用して Image View を作成します
+    // mainDevice.logicalDevice: Image View を作成するための論理デバイス
+    // &viewCreateInfo: Image View の作成に必要な情報が格納された構造体へのポインタ
+    // nullptr: カスタムのアロケーターを使用しないためのオプション (通常は nullptr を指定します)
+    // &imageView: 作成された Image View のハンドルを受け取る変数へのポインタ
+    vk::ImageView imageView = logicalDevice.createImageView(imageViewCreateInfo);
+    // vkCreateImageView の結果が成功ではない場合、エラーをスローします
+    if (!imageView)
+    {
+        throw std::runtime_error("Failed to create an Image View!");
+    }
+
+    // 作成した Image View のハンドルを返します
+    return imageView;
+}
+
+std::vector<vk::UniqueFramebuffer> SwapChainUtility::createFramebuffers(vk::Device logicalDevice,std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
+{
+    // logicalDeviceが有効であるか確認
+    if (!logicalDevice)
+    {
+        throw std::runtime_error("logicalDeviceが無効です！");
+    }
+
+    // renderPassが有効であるか確認
+    if (!renderPass)
+    {
+        throw std::runtime_error("renderPassが無効です！");
+    }
+
+    // swapChainImagesが空でないことを確認
+    if (swapChainImages.empty())
+    {
+        throw std::runtime_error("swapChainImagesが空です！");
+    }
+
+    std::vector<vk::UniqueFramebuffer> framebuffers;
+    framebuffers.reserve(swapChainImages.size());
+
+    for (const auto& swapChainImage : swapChainImages)
+    {
+        if (!swapChainImage.imageView)
+        {
+            throw std::runtime_error("ImageViewが無効です！");
+        }
+
+        std::array<vk::ImageView, 1> attachments = { swapChainImage.imageView };
+
+        vk::FramebufferCreateInfo framebufferCreateInfo = {};
+        framebufferCreateInfo.renderPass = renderPass;
+        framebufferCreateInfo.attachmentCount = (uint32_t)attachments.size();
+        framebufferCreateInfo.pAttachments = attachments.data();
+        framebufferCreateInfo.width = extent.width;
+        framebufferCreateInfo.height = extent.height;
+        framebufferCreateInfo.layers = 1;
+
+        // vk::Framebufferを作成する
+        vk::Framebuffer framebuffer = logicalDevice.createFramebuffer(framebufferCreateInfo);
+        if (!framebuffer)
+        {
+            throw std::runtime_error("フレームバッファの作成に失敗しました！");
+        }
+
+        // vk::Framebufferをvk::UniqueFramebufferに変換する
+        framebuffers.push_back(vk::UniqueFramebuffer(framebuffer, logicalDevice));
+    }
+
+    return framebuffers;
 }

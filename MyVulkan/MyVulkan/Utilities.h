@@ -2,15 +2,7 @@
 #pragma warning(disable : 4996)
 #include <fstream>
 
-const int MAX_FRAME_DRAWS = 3;
 
-
-
-
-struct SwapchainImage {
-	VkImage image;
-	VkImageView imageView;
-};
 
 //ƒtƒ@ƒCƒ‹“Ç‚İ‚İŠÖ”
 static std::vector<char> readFile(const std::string& filename)

@@ -2,11 +2,20 @@
 #include <vulkan/vulkan.hpp>
 #include "QueueUtility.h"
 #include "GraphicsDefine.h"
+//#include "Utilities.h"
+
+const int MAX_FRAME_DRAWS = 3;
+
+struct SwapchainImage {
+	vk::Image		image;		// VulkanÇÃíÜÇ≈àµÇ§âÊëú
+	vk::ImageView	imageView;	// âÊëúÉrÉÖÅ[
+};
+
 
 struct SwapChainDetails {
-	VkSurfaceCapabilitiesKHR surfaceCapabilities;		// Surface properties, e.g. image size/extent
-	std::vector<VkSurfaceFormatKHR> formats;			// Surface image formats, e.g. RGBA and size of each colour
-	std::vector<VkPresentModeKHR> presentationModes;	// How images should be presented to screen
+	vk::SurfaceCapabilitiesKHR			surfaceCapabilities;	// Surface properties, e.g. image size/extent
+	std::vector<vk::SurfaceFormatKHR>	formats;				// Surface image formats, e.g. RGBA and size of each colour
+	std::vector<vk::PresentModeKHR>		presentationModes;		// How images should be presented to screen
 };
 
 namespace SwapChainUtility
@@ -29,5 +38,12 @@ namespace SwapChainUtility
 	std::vector<vk::SurfaceFormatKHR> getSurfaceFormats(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 
 	std::vector<vk::PresentModeKHR> getPresentModes(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+
+
+	std::vector<SwapchainImage> createSwapChainImages(vk::Device logicalDevice, vk::SwapchainKHR swapchain);
+
+	vk::ImageView createImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags);
+
+	std::vector<vk::UniqueFramebuffer> createFramebuffers(vk::Device logicalDevice, std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent);
 };
 

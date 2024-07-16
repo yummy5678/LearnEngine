@@ -13,14 +13,14 @@ namespace DeviceUtility
 {
 	//physical
 	//物理デバイスの取得
-	vk::PhysicalDevice getPhysicalDevice(vk::Instance& instance, VkSurfaceKHR surface);
+	vk::PhysicalDevice getPhysicalDevice(vk::Instance& instance, vk::SurfaceKHR surface);
 
 	//拡張機能が使えるかの確認
-	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-	bool checkDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
+	bool checkDeviceExtensionSupport(vk::PhysicalDevice device);
+	bool checkDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface);
 	
 	//logical
-	vk::UniqueDevice createLogicalDevice(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface);
+	vk::UniqueDevice createLogicalDevice(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 }
 
 

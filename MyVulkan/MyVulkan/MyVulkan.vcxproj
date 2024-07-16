@@ -132,10 +132,12 @@
   <ItemGroup>
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="GameWindow.cpp" />
+    <ClCompile Include="GraphicsPipelineUtility.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderPassUtility.cpp" />
+    <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SwapChainUtility.cpp" />
   </ItemGroup>
@@ -146,9 +148,11 @@
     <ClInclude Include="Device.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="GraphicsDefine.h" />
+    <ClInclude Include="GraphicsPipelineUtility.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderPassUtility.h" />
+    <ClInclude Include="ShaderUtility.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="SwapChainUtility.h" />
     <ClInclude Include="Utilities.h" />

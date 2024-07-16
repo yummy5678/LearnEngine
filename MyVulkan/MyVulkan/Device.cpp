@@ -1,6 +1,6 @@
 #include "Device.h"
 
-vk::PhysicalDevice DeviceUtility::getPhysicalDevice(vk::Instance& instance, VkSurfaceKHR surface)
+vk::PhysicalDevice DeviceUtility::getPhysicalDevice(vk::Instance& instance, vk::SurfaceKHR surface)
 {
 
 	vk::PhysicalDevice physicalDevice;	//物理デバイス
@@ -27,7 +27,7 @@ vk::PhysicalDevice DeviceUtility::getPhysicalDevice(vk::Instance& instance, VkSu
 /// <summary>
 /// デバイスが必要な拡張機能があるか確認する
 /// </summary>
-bool DeviceUtility::checkDeviceExtensionSupport(VkPhysicalDevice device)
+bool DeviceUtility::checkDeviceExtensionSupport(vk::PhysicalDevice device)
 {
 	// デバイスがサポートする拡張機能の数を取得する
 	uint32_t extensionCount = 0;
@@ -71,7 +71,7 @@ bool DeviceUtility::checkDeviceExtensionSupport(VkPhysicalDevice device)
 
 
 
-bool DeviceUtility::checkDeviceSuitable(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+bool DeviceUtility::checkDeviceSuitable(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
 	/*
 	// デバイス自体に関する情報 (ID、名前、タイプ、ベンダーなど)
@@ -109,7 +109,7 @@ bool DeviceUtility::checkDeviceSuitable(VkPhysicalDevice physicalDevice, VkSurfa
 /// <summary>
 /// 論理デバイスの作成
 /// </summary>
-vk::UniqueDevice DeviceUtility::createLogicalDevice(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface)
+vk::UniqueDevice DeviceUtility::createLogicalDevice(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
 	//論理デバイスの作成に必要なもの
 	//1,使用するデバイスの拡張

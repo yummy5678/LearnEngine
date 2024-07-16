@@ -15,6 +15,7 @@
 #include "Device.h"
 #include "SwapChainUtility.h"
 #include "RenderPassUtility.h"
+#include "GraphicsPipelineUtility.h"
 
 class VulkanRenderer
 {
@@ -48,23 +49,26 @@ private:
 	VkQueue presentationQueue;
 
 	//スワップチェイン
-	vk::UniqueSurfaceKHR			surface;
-	vk::UniqueSwapchainKHR			swapchain;
-	std::vector<SwapchainImage>		swapChainImages;
-	std::vector<VkFramebuffer>		swapChainFramebuffers;
-	std::vector<VkCommandBuffer>	commandBuffers;
+	vk::UniqueSurfaceKHR				surface;
+	vk::UniqueSwapchainKHR				swapchain;
+	std::vector<SwapchainImage>			swapChainImages;
+	std::vector<vk::UniqueFramebuffer>	swapChainFramebuffers;
+	std::vector<VkCommandBuffer>		commandBuffers;
 
 	// - Pipeline
-	VkPipeline graphicsPipeline;
-	VkPipelineLayout pipelineLayout;
-	vk::UniqueRenderPass renderPass;
+	vk::UniquePipeline			graphicsPipeline;
+	vk::UniquePipelineLayout	pipelineLayout;
+	vk::UniqueRenderPass		renderPass;
 
 	// - Pools
 	VkCommandPool graphicsCommandPool;
 
 	// - Utility
 	VkFormat swapChainImageFormat;
-	VkExtent2D swapChainExtent;
+	vk::Extent2D swapChainExtent = {
+		windowWidth,
+		windowHeight
+	};
 
 	// - Synchronisation
 	std::vector<VkSemaphore> imageAvailable;
@@ -101,11 +105,11 @@ private:
 	bool checkInstanceExtensionSupport(std::vector<const char*>* checkExtensions);
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 	bool checkValidationLayerSupport();
-	bool checkDeviceSuitable(VkPhysicalDevice device);
+	bool checkDeviceSuitable(VkPhysicalDevice device) { return false; };
 
 	// -- Getter Functions
-	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device);
-	SwapChainDetails getSwapChainDetails(VkPhysicalDevice device);
+	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device) { return QueueFamilyIndices{}; };
+	SwapChainDetails getSwapChainDetails(VkPhysicalDevice device) { return SwapChainDetails{}; };
 
 	// -- Choose Functions
 	VkSurfaceFormatKHR chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats);
