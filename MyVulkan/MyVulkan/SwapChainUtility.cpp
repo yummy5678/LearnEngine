@@ -170,7 +170,7 @@ std::vector<vk::PresentModeKHR> SwapChainUtility::getPresentModes(vk::PhysicalDe
     return physicalDevice.getSurfacePresentModesKHR(surface);
 }
 
-std::vector<SwapchainImage> SwapChainUtility::createSwapChainImages(vk::Device logicalDevice, vk::SwapchainKHR swapchain)
+std::vector<SwapchainImage> SwapChainUtility::createSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, vk::SwapchainKHR swapchain)
 {
     // スワップチェーンを構成するイメージのベクターを取得
     std::vector<vk::Image> images = logicalDevice.getSwapchainImagesKHR(swapchain);
@@ -180,13 +180,17 @@ std::vector<SwapchainImage> SwapChainUtility::createSwapChainImages(vk::Device l
     std::vector<SwapchainImage> swapChainImages;
     swapChainImages.reserve(images.size());
 
+    // スワップチェイン作成時に取得したのと同じ情報が欲しい
+    vk::SurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(getSurfaceFormats(physicalDevice, surface));
+
     for (vk::Image image : images)
     {
         // 画像ハンドルを保存する
         SwapchainImage swapChainImage = {};
         swapChainImage.image = image;
-        swapChainImage.imageView = createImageView(logicalDevice, image, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
-
+        //フォーマットはchooseSwapSurfaceFormatで使用したのと同じものでなければならない
+        swapChainImage.imageView = createImageView(logicalDevice, image, surfaceFormat.format, vk::ImageAspectFlagBits::eColor);
+        
         // Swapchain画像リストに追加する
         swapChainImages.push_back(swapChainImage);
     }
@@ -196,7 +200,7 @@ std::vector<SwapchainImage> SwapChainUtility::createSwapChainImages(vk::Device l
 vk::ImageView SwapChainUtility::createImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags)
 {
     // 画像ビュー作成情報の初期化
-    vk::ImageViewCreateInfo imageViewCreateInfo = {};
+    vk::ImageViewCreateInfo imageViewCreateInfo;
     imageViewCreateInfo.image = image;                                            // View を作成するための Image
     imageViewCreateInfo.viewType = vk::ImageViewType::e2D;                         // Image の種類 (1D, 2D, 3D, Cube など)
     imageViewCreateInfo.format = format;                                          // Image データのフォーマット
@@ -228,7 +232,7 @@ vk::ImageView SwapChainUtility::createImageView(vk::Device logicalDevice, vk::Im
     return imageView;
 }
 
-std::vector<vk::UniqueFramebuffer> SwapChainUtility::createFramebuffers(vk::Device logicalDevice,std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
+std::vector<vk::Framebuffer> SwapChainUtility::createFramebuffers(vk::Device logicalDevice,std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
 {
     // logicalDeviceが有効であるか確認
     if (!logicalDevice)
@@ -248,7 +252,7 @@ std::vector<vk::UniqueFramebuffer> SwapChainUtility::createFramebuffers(vk::Devi
         throw std::runtime_error("swapChainImagesが空です！");
     }
 
-    std::vector<vk::UniqueFramebuffer> framebuffers;
+    std::vector<vk::Framebuffer> framebuffers;
     framebuffers.reserve(swapChainImages.size());
 
     for (const auto& swapChainImage : swapChainImages)
@@ -276,7 +280,7 @@ std::vector<vk::UniqueFramebuffer> SwapChainUtility::createFramebuffers(vk::Devi
         }
 
         // vk::Framebufferをvk::UniqueFramebufferに変換する
-        framebuffers.push_back(vk::UniqueFramebuffer(framebuffer, logicalDevice));
+        framebuffers.push_back(framebuffer);
     }
 
     return framebuffers;

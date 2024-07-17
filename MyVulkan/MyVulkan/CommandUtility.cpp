@@ -1,0 +1,149 @@
+#include "CommandUtility.h"
+
+
+/// <summary>
+/// コマンドプールの作成
+/// </summary>
+vk::UniqueCommandPool CommandUtility::createCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+	// デバイスからキューファミリーのインデックスを取得する
+	QueueFamilyIndices queueFamilyIndices = QueueUtility::getQueueFamilies(physicalDevice, surface);
+
+	// コマンドプールの作成に必要な情報を設定する
+	vk::CommandPoolCreateInfo poolInfo = {};
+	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;			// このコマンドプールが使用するキューファミリータイプ
+	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;	// コマンドバッファのリセットを許可する場合はフラグを追加する
+
+	// グラフィックスキューファミリー用のコマンドプールを作成する
+	vk::CommandPool commandPool = logicalDevice.createCommandPool(poolInfo);
+	if (!commandPool)
+	{
+		throw std::runtime_error("コマンドプールの作成に失敗しました！");
+	}
+
+	return vk::UniqueCommandPool(commandPool,logicalDevice);
+}
+
+/// <summary>
+/// コマンドバッファの作成
+/// </summary>
+std::vector<vk::CommandBuffer> CommandUtility::createCommandBuffers(vk::Device logicalDevice, std::vector<vk::Framebuffer> framebuffers, vk::CommandPool commandPool)
+{
+    // エラーチェック: logicalDeviceが有効であるか確認
+    if (!logicalDevice)
+    {
+        throw std::runtime_error("logicalDeviceが無効です！");
+    }
+
+    // エラーチェック: commandPoolが有効であるか確認
+    if (!commandPool)
+    {
+        throw std::runtime_error("commandPoolが無効です！");
+    }
+
+    // エラーチェック: framebuffersが空でないことを確認
+    if (framebuffers.empty())
+    {
+        throw std::runtime_error("framebuffersが空です！");
+    }
+
+    std::vector<vk::CommandBuffer> commandBuffers;
+    commandBuffers.reserve(framebuffers.size()); // 容量を確保
+
+    // コマンドバッファを割り当てるための情報を設定する
+    vk::CommandBufferAllocateInfo cbAllocInfo;
+    cbAllocInfo.commandPool = commandPool;                                 // コマンドバッファを割り当てるコマンドプール
+    cbAllocInfo.level = vk::CommandBufferLevel::ePrimary;                  // コマンドバッファのレベル (PRIMARY: 直接キューに送信するバッファ)
+    cbAllocInfo.commandBufferCount = (uint32_t)framebuffers.size(); // 割り当てるコマンドバッファの数
+
+    // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
+    commandBuffers = logicalDevice.allocateCommandBuffers(cbAllocInfo);
+
+    // エラーチェック: コマンドバッファの割り当てに失敗していないことを確認
+    if (commandBuffers.empty())
+    {
+        throw std::runtime_error("コマンドバッファの割り当てに失敗しました！");
+    }
+
+    return commandBuffers;
+}
+
+void CommandUtility::recordCommands(vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline, std::vector<vk::Framebuffer> framebuffers, std::vector<vk::CommandBuffer> commandBuffers)
+{
+    // 各コマンドバッファの開始方法に関する情報
+    vk::CommandBufferBeginInfo bufferBeginInfo;
+    bufferBeginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse; // バッファが再使用可能であることを示すフラグ
+
+    // レンダーパスを開始するための情報 (グラフィカルなアプリケーションの場合のみ必要)
+    vk::RenderPassBeginInfo renderPassBeginInfo;
+    renderPassBeginInfo.renderPass = renderPass;                             // 開始するレンダーパス
+    renderPassBeginInfo.renderArea.offset = vk::Offset2D{ 0, 0 };              // レンダーパスの開始位置 (ピクセル単位)
+    renderPassBeginInfo.renderArea.extent = extent;                          // レンダーパスを実行する領域のサイズ (offsetから始まる)
+    std::array<vk::ClearValue, 1> clearValues = {
+        vk::ClearValue{std::array<float, 4>{0.6f, 0.65f, 0.4f, 1.0f}}        // クリアする値のリスト
+    };
+    renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassBeginInfo.pClearValues = clearValues.data();                   // クリアする値のリスト
+
+    for (size_t i = 0; i < commandBuffers.size(); i++)
+    {
+        renderPassBeginInfo.framebuffer = framebuffers[i];          // 使用するフレームバッファを設定する
+
+        // コマンドバッファの記録を開始する
+        vk::Result result = commandBuffers[i].begin(&bufferBeginInfo);
+        if (result != vk::Result::eSuccess)
+        {
+            throw std::runtime_error("コマンドバッファの記録の開始に失敗しました！");
+        }
+
+        // レンダーパスを開始する
+        commandBuffers[i].beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
+
+        // 使用するパイプラインをバインドする
+        commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
+
+        // パイプラインを実行する
+        commandBuffers[i].draw(3, 1, 0, 0);
+
+        // レンダーパスを終了する
+        commandBuffers[i].endRenderPass();
+
+        // コマンドバッファの記録を終了する
+        //result = commandBuffers[i].end();
+        commandBuffers[i].end();
+        //if (result != vk::Result::eSuccess)
+        //{
+        //    throw std::runtime_error("コマンドバッファの記録の終了に失敗しました！");
+        //}
+    }
+}
+
+void CommandUtility::createSynchronisation()
+{
+    // MAX_FRAME_DRAWS 分のセマフォとフェンスをリサイズする
+    imageAvailablek.resize(MAX_FRAME_DRAWS);
+    renderFinished.resize(MAX_FRAME_DRAWS);
+    drawFences.resize(MAX_FRAME_DRAWS);
+
+    // セマフォの作成情報を設定する
+    VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    // フェンスの作成情報を設定する
+    VkFenceCreateInfo fenceCreateInfo = {};
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT; // 初期状態でシグナルされた状態のフェンスを作成する
+
+    // MAX_FRAME_DRAWS 分のセマフォとフェンスを作成するループ
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    {
+        // セマフォとフェンスを作成する
+        if (vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &imageAvailable[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &renderFinished[i]) != VK_SUCCESS ||
+            vkCreateFence(logicalDevice.get(), &fenceCreateInfo, nullptr, &drawFences[i]) != VK_SUCCESS)
+        {
+            // 作成に失敗した場合は例外を投げる
+            throw std::runtime_error("Failed to create a Semaphore and/or Fence!");
+        }
+    }
+}

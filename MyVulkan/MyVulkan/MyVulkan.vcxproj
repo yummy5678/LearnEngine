@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CommandUtility.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="GraphicsPipelineUtility.cpp" />
@@ -145,6 +146,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommandUtility.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="GraphicsDefine.h" />

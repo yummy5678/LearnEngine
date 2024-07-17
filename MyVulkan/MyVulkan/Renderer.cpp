@@ -7,7 +7,7 @@ VulkanRenderer::VulkanRenderer()
 int VulkanRenderer::init(GameWindow renderWindow)
 {
 	window = renderWindow.getWindowPointer(); //ウィンドウのポインタのセット
-
+	
 	try {
 		createInstance();
 		createDebugCallback();
@@ -21,11 +21,11 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		pipelineLayout  = GraphicsPipelineUtility::createPipelineLayout(logicalDevice.get());
 		graphicsPipeline = GraphicsPipelineUtility::createGraphicsPipeline(logicalDevice.get(), swapChainExtent, pipelineLayout.get(), renderPass.get());
 
-		swapChainImages = ;//swapChainImagesを作成しておく
+		swapChainImages = SwapChainUtility::createSwapChainImages(logicalDevice.get(),physicalDevice, surface.get(), swapchain.get());//swapChainImagesを作成しておく
 		swapChainFramebuffers = SwapChainUtility::createFramebuffers(logicalDevice.get(), swapChainImages, renderPass.get(), swapChainExtent);
-		createCommandPool();
-		createCommandBuffers();
-		recordCommands();
+		graphicsCommandPool = CommandUtility::createCommandPool(logicalDevice.get(), physicalDevice, surface.get());
+		commandBuffers = CommandUtility::createCommandBuffers(logicalDevice.get(), swapChainFramebuffers, graphicsCommandPool.get());
+		CommandUtility::recordCommands(renderPass.get(), swapChainExtent, graphicsPipeline.get(), swapChainFramebuffers, commandBuffers);
 		createSynchronisation();
 	}
 	catch (const std::runtime_error& e) {
@@ -629,40 +629,40 @@ void VulkanRenderer::createFramebuffers()
 
 void VulkanRenderer::createCommandPool()
 {
-	// デバイスからキューファミリーのインデックスを取得する
-	QueueFamilyIndices queueFamilyIndices = getQueueFamilies(physicalDevice);
+	//// デバイスからキューファミリーのインデックスを取得する
+	//QueueFamilyIndices queueFamilyIndices = getQueueFamilies(physicalDevice);
 
-	// コマンドプールの作成に必要な情報を設定する
-	VkCommandPoolCreateInfo poolInfo = {};
-	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;   // このコマンドプールが使用するキューファミリータイプ
+	//// コマンドプールの作成に必要な情報を設定する
+	//VkCommandPoolCreateInfo poolInfo = {};
+	//poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	//poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;   // このコマンドプールが使用するキューファミリータイプ
 
-	// グラフィックスキューファミリー用のコマンドプールを作成する
-	VkResult result = vkCreateCommandPool(logicalDevice.get(), &poolInfo, nullptr, &graphicsCommandPool);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("コマンドプールの作成に失敗しました！");
-	}
+	//// グラフィックスキューファミリー用のコマンドプールを作成する
+	//VkResult result = vkCreateCommandPool(logicalDevice.get(), &poolInfo, nullptr, &graphicsCommandPool);
+	//if (result != VK_SUCCESS)
+	//{
+	//	throw std::runtime_error("コマンドプールの作成に失敗しました！");
+	//}
 }
 
 void VulkanRenderer::createCommandBuffers()
 {
-	// コマンドバッファの数をフレームバッファごとにリサイズする
-	commandBuffers.resize(swapChainFramebuffers.size());
+	//// コマンドバッファの数をフレームバッファごとにリサイズする
+	//commandBuffers.resize(swapChainFramebuffers.size());
 
-	// コマンドバッファを割り当てるための情報を設定する
-	VkCommandBufferAllocateInfo cbAllocInfo = {};
-	cbAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	cbAllocInfo.commandPool = graphicsCommandPool;                                  // コマンドバッファを割り当てるコマンドプール
-	cbAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;                            // コマンドバッファのレベル (PRIMARY: 直接キューに送信するバッファ)
-	cbAllocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());  // 割り当てるコマンドバッファの数
+	//// コマンドバッファを割り当てるための情報を設定する
+	//VkCommandBufferAllocateInfo cbAllocInfo = {};
+	//cbAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	//cbAllocInfo.commandPool = graphicsCommandPool;                                  // コマンドバッファを割り当てるコマンドプール
+	//cbAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;                            // コマンドバッファのレベル (PRIMARY: 直接キューに送信するバッファ)
+	//cbAllocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());  // 割り当てるコマンドバッファの数
 
-	// コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
-	VkResult result = vkAllocateCommandBuffers(logicalDevice.get(), &cbAllocInfo, commandBuffers.data());
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("コマンドバッファの割り当てに失敗しました！");
-	}
+	//// コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
+	//VkResult result = vkAllocateCommandBuffers(logicalDevice.get(), &cbAllocInfo, commandBuffers.data());
+	//if (result != VK_SUCCESS)
+	//{
+	//	throw std::runtime_error("コマンドバッファの割り当てに失敗しました！");
+	//}
 }
 
 void VulkanRenderer::createSynchronisation()
@@ -699,53 +699,53 @@ void VulkanRenderer::createSynchronisation()
 
 void VulkanRenderer::recordCommands()
 {
-	// 各コマンドバッファの開始方法に関する情報
-	VkCommandBufferBeginInfo bufferBeginInfo = {};
-	bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	bufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;   // バッファが再使用可能であることを示すフラグ
+	//// 各コマンドバッファの開始方法に関する情報
+	//VkCommandBufferBeginInfo bufferBeginInfo = {};
+	//bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	//bufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;   // バッファが再使用可能であることを示すフラグ
 
-	// レンダーパスを開始するための情報 (グラフィカルなアプリケーションの場合のみ必要)
-	VkRenderPassBeginInfo renderPassBeginInfo = {};
-	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassBeginInfo.renderPass = renderPass.get();                             // 開始するレンダーパス
-	renderPassBeginInfo.renderArea.offset = { 0, 0 };                        // レンダーパスの開始位置 (ピクセル単位)
-	renderPassBeginInfo.renderArea.extent = swapChainExtent;                 // レンダーパスを実行する領域のサイズ (offsetから始まる)
-	VkClearValue clearValues[] = {
-		{0.6f, 0.65f, 0.4, 1.0f}                                            // クリアする値のリスト (TODO: 深度アタッチメントのクリア値)
-	};
-	renderPassBeginInfo.pClearValues = clearValues;                          // クリアする値のリスト
-	renderPassBeginInfo.clearValueCount = 1;
+	//// レンダーパスを開始するための情報 (グラフィカルなアプリケーションの場合のみ必要)
+	//VkRenderPassBeginInfo renderPassBeginInfo = {};
+	//renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	//renderPassBeginInfo.renderPass = renderPass.get();                             // 開始するレンダーパス
+	//renderPassBeginInfo.renderArea.offset = { 0, 0 };                        // レンダーパスの開始位置 (ピクセル単位)
+	//renderPassBeginInfo.renderArea.extent = swapChainExtent;                 // レンダーパスを実行する領域のサイズ (offsetから始まる)
+	//VkClearValue clearValues[] = {
+	//	{0.6f, 0.65f, 0.4, 1.0f}                                            // クリアする値のリスト (TODO: 深度アタッチメントのクリア値)
+	//};
+	//renderPassBeginInfo.pClearValues = clearValues;                          // クリアする値のリスト
+	//renderPassBeginInfo.clearValueCount = 1;
 
-	for (size_t i = 0; i < commandBuffers.size(); i++)
-	{
-		renderPassBeginInfo.framebuffer = swapChainFramebuffers[i].get();          // 使用するフレームバッファを設定する
+	//for (size_t i = 0; i < commandBuffers.size(); i++)
+	//{
+	//	renderPassBeginInfo.framebuffer = swapChainFramebuffers[i].get();          // 使用するフレームバッファを設定する
 
-		// コマンドバッファの記録を開始する
-		VkResult result = vkBeginCommandBuffer(commandBuffers[i], &bufferBeginInfo);
-		if (result != VK_SUCCESS)
-		{
-			throw std::runtime_error("コマンドバッファの記録の開始に失敗しました！");
-		}
+	//	// コマンドバッファの記録を開始する
+	//	VkResult result = vkBeginCommandBuffer(commandBuffers[i], &bufferBeginInfo);
+	//	if (result != VK_SUCCESS)
+	//	{
+	//		throw std::runtime_error("コマンドバッファの記録の開始に失敗しました！");
+	//	}
 
-		// レンダーパスを開始する
-		vkCmdBeginRenderPass(commandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	//	// レンダーパスを開始する
+	//	vkCmdBeginRenderPass(commandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		// 使用するパイプラインをバインドする
-		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.get());	//ここでエラー
+	//	// 使用するパイプラインをバインドする
+	//	vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline.get());	//ここでエラー
 
-		// パイプラインを実行する
-		vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+	//	// パイプラインを実行する
+	//	vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
 
-		// レンダーパスを終了する
-		vkCmdEndRenderPass(commandBuffers[i]);
+	//	// レンダーパスを終了する
+	//	vkCmdEndRenderPass(commandBuffers[i]);
 
-		// コマンドバッファの記録を終了する
-		result = vkEndCommandBuffer(commandBuffers[i]);
-		if (result != VK_SUCCESS)
-		{
-			throw std::runtime_error("コマンドバッファの記録の終了に失敗しました！");
-		}
-	}
+	//	// コマンドバッファの記録を終了する
+	//	result = vkEndCommandBuffer(commandBuffers[i]);
+	//	if (result != VK_SUCCESS)
+	//	{
+	//		throw std::runtime_error("コマンドバッファの記録の終了に失敗しました！");
+	//	}
+	//}
 }
 
 /// <summary>
