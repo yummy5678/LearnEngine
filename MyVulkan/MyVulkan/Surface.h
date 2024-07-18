@@ -3,9 +3,9 @@
 #include "Utilities.h"
 #include <GLFW/glfw3.h>
 
-namespace SurfaceUtilities
+namespace VulkanCreate
 {
-	vk::UniqueSurfaceKHR createUnique(vk::Instance& instance, GLFWwindow* window);
+	vk::SurfaceKHR GetWindowSurface(vk::Instance& instance, GLFWwindow* window);
 
 };
 

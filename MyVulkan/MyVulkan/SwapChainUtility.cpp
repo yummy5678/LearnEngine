@@ -2,7 +2,7 @@
 
 
 
-SwapChainDetails SwapChainUtility::getSwapChainDetails(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+SwapChainDetails VulkanUtility::getSwapChainDetails(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
 	SwapChainDetails swapChainDetails;
 
@@ -39,19 +39,19 @@ SwapChainDetails SwapChainUtility::getSwapChainDetails(vk::PhysicalDevice physic
 /// <summary>
 /// スワップチェインの作成
 /// </summary>
-vk::UniqueSwapchainKHR SwapChainUtility::createSwapchain(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+vk::SwapchainCreateInfoKHR VulkanCreate::GetSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     // スワップチェインの設定を行う
     // サーフェスの機能を取得
-    vk::SurfaceCapabilitiesKHR surfaceCapabilities = getSurfaceCapabilities(physicalDevice, surface);
+    vk::SurfaceCapabilitiesKHR surfaceCapabilities = VulkanUtility::getSurfaceCapabilities(physicalDevice, surface);
 
     // スワップチェインの設定
     // 適切なサーフェスフォーマットを選択
-    vk::SurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(getSurfaceFormats(physicalDevice, surface));
+    vk::SurfaceFormatKHR surfaceFormat = VulkanUtility::chooseSwapSurfaceFormat(VulkanUtility::getSurfaceFormats(physicalDevice, surface));
     // 適切なプレゼンテーションモードを選択
-    vk::PresentModeKHR presentMode = chooseSwapPresentMode(getPresentModes(physicalDevice, surface));
+    vk::PresentModeKHR presentMode = VulkanUtility::chooseSwapPresentMode(VulkanUtility::getPresentModes(physicalDevice, surface));
     // スワップチェインのエクステント（幅と高さ）を選択
-    vk::Extent2D extent = chooseSwapExtent(surfaceCapabilities);
+    vk::Extent2D extent = VulkanUtility::chooseSwapExtent(surfaceCapabilities);
 
     // スワップチェインに必要なイメージの数を決定
     uint32_t imageCount = surfaceCapabilities.minImageCount + 1;
@@ -82,7 +82,7 @@ vk::UniqueSwapchainKHR SwapChainUtility::createSwapchain(vk::Device logicalDevic
 
     // グラフィックスキューファミリのインデックスを取得する
     // キューファミリのインデックスを取得
-    QueueFamilyIndices indices = QueueUtility::getQueueFamilies(physicalDevice, surface);
+    QueueFamilyIndices indices = VulkanUtility::GetQueueFamilies(physicalDevice, surface);
     // キューファミリーインデックスの配列を作成
     uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentationFamily };
 
@@ -94,22 +94,23 @@ vk::UniqueSwapchainKHR SwapChainUtility::createSwapchain(vk::Device logicalDevic
         createInfo.pQueueFamilyIndices = queueFamilyIndices;        // キューファミリーインデックスの配列を設定
     }
 
-    // スワップチェインを作成する
-    // スワップチェインを作成
-    vk::UniqueSwapchainKHR swapchain = logicalDevice.createSwapchainKHRUnique(createInfo);
-    // エラーチェックを行う
-    if (!swapchain)
-    {
-        throw std::runtime_error("スワップチェインの作成に失敗しました!");  // エラーが発生した場合は例外を投げる
-    }
+    return createInfo;
+    //// スワップチェインを作成する
+    //// スワップチェインを作成
+    //vk::UniqueSwapchainKHR swapchain = logicalDevice.createSwapchainKHRUnique(createInfo);
+    //// エラーチェックを行う
+    //if (!swapchain)
+    //{
+    //    throw std::runtime_error("スワップチェインの作成に失敗しました!");  // エラーが発生した場合は例外を投げる
+    //}
 
-    return swapchain;  // 作成したスワップチェインを返す
+    //return swapchain;  // 作成したスワップチェインを返す
 }
 
 
 
 // スワップチェインのフォーマットを選択する関数
-vk::SurfaceFormatKHR SwapChainUtility::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
+vk::SurfaceFormatKHR VulkanUtility::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
 {
     for (const auto& availableFormat : availableFormats)
     {
@@ -125,7 +126,7 @@ vk::SurfaceFormatKHR SwapChainUtility::chooseSwapSurfaceFormat(const std::vector
 
 
 // スワップチェインのプレゼントモードを選択する関数
-vk::PresentModeKHR SwapChainUtility::chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
+vk::PresentModeKHR VulkanUtility::chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
 {
     for (const auto& availablePresentMode : availablePresentModes)
     {
@@ -140,7 +141,7 @@ vk::PresentModeKHR SwapChainUtility::chooseSwapPresentMode(const std::vector<vk:
 
 
 // スワップチェインのエクステントを選択する関数
-vk::Extent2D SwapChainUtility::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities)
+vk::Extent2D VulkanUtility::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities)
 {
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
     {
@@ -155,22 +156,22 @@ vk::Extent2D SwapChainUtility::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR
     }
 }
 
-vk::SurfaceCapabilitiesKHR SwapChainUtility::getSurfaceCapabilities(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+vk::SurfaceCapabilitiesKHR VulkanUtility::getSurfaceCapabilities(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     return physicalDevice.getSurfaceCapabilitiesKHR(surface);
 }
 
-std::vector<vk::SurfaceFormatKHR> SwapChainUtility::getSurfaceFormats(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+std::vector<vk::SurfaceFormatKHR> VulkanUtility::getSurfaceFormats(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     return physicalDevice.getSurfaceFormatsKHR(surface);
 }
 
-std::vector<vk::PresentModeKHR> SwapChainUtility::getPresentModes(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+std::vector<vk::PresentModeKHR> VulkanUtility::getPresentModes(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     return physicalDevice.getSurfacePresentModesKHR(surface);
 }
 
-std::vector<SwapchainImage> SwapChainUtility::createSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, vk::SwapchainKHR swapchain)
+std::vector<SwapchainImage> VulkanUtility::createSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, vk::SwapchainKHR swapchain)
 {
     // スワップチェーンを構成するイメージのベクターを取得
     std::vector<vk::Image> images = logicalDevice.getSwapchainImagesKHR(swapchain);
@@ -197,7 +198,7 @@ std::vector<SwapchainImage> SwapChainUtility::createSwapChainImages(vk::Device l
     return swapChainImages;
 }
 
-vk::ImageView SwapChainUtility::createImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags)
+vk::ImageView VulkanUtility::createImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags)
 {
     // 画像ビュー作成情報の初期化
     vk::ImageViewCreateInfo imageViewCreateInfo;
@@ -232,7 +233,7 @@ vk::ImageView SwapChainUtility::createImageView(vk::Device logicalDevice, vk::Im
     return imageView;
 }
 
-std::vector<vk::Framebuffer> SwapChainUtility::createFramebuffers(vk::Device logicalDevice,std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
+std::vector<vk::Framebuffer> VulkanUtility::createFramebuffers(vk::Device logicalDevice,std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
 {
     // logicalDeviceが有効であるか確認
     if (!logicalDevice)

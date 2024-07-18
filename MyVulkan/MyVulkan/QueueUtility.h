@@ -16,11 +16,13 @@ struct QueueFamilyIndices {
     }
 };
 
-namespace QueueUtility
+namespace VulkanCreate
 {
-	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
-
     //計算要求を受け付けるキューを受け取る
-    std::vector< vk::DeviceQueueCreateInfo > getQueueInfos(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface);
-};
+    std::vector< vk::DeviceQueueCreateInfo > GetQueueInfos(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface);
+}
 
+namespace VulkanUtility
+{
+	QueueFamilyIndices GetQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+}

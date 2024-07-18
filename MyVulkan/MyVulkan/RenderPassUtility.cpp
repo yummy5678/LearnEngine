@@ -1,5 +1,5 @@
 #include "RenderPassUtility.h"
-using namespace SwapChainUtility;
+using namespace VulkanUtility;
 
 vk::UniqueRenderPass RenderPassUtility::createRenderPass(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {

@@ -1,6 +1,6 @@
 #include "Device.h"
 
-vk::PhysicalDevice DeviceUtility::getPhysicalDevice(vk::Instance& instance, vk::SurfaceKHR surface)
+vk::PhysicalDevice VulkanCreate::GetPhysicalDevice(vk::Instance& instance, vk::SurfaceKHR surface)
 {
 
 	vk::PhysicalDevice physicalDevice;	//物理デバイス
@@ -11,7 +11,7 @@ vk::PhysicalDevice DeviceUtility::getPhysicalDevice(vk::Instance& instance, vk::
 	// 適切なデバイスが見つかるまでループする
 	for (const auto& device : physicalDevices)
 	{
-		if (checkDeviceSuitable(device, surface))
+		if (VulkanUtility::CheckDeviceSuitable(device, surface))
 		{
 			// 適切なデバイスが見つかった
 			return device;
@@ -23,11 +23,42 @@ vk::PhysicalDevice DeviceUtility::getPhysicalDevice(vk::Instance& instance, vk::
 	return vk::PhysicalDevice();
 }
 
+/// <summary>
+/// 論理デバイスの作成
+/// </summary>
+vk::DeviceCreateInfo VulkanCreate::CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo > queueCreateInfos)
+{
+	//論理デバイスの作成に必要なもの
+	//1,使用するデバイスの拡張
+	//2,使用するデバイスのレイヤー
+	//3,デバイスのどのキューを使用するか
+
+	//計算要求を受け付けるキューを探す
+	//auto queueCreateInfos = VulkanCreate::GetQueueInfos(physicalDevice, surface);
+
+	// 論理デバイスを作成するための情報を設定する
+	vk::DeviceCreateInfo createInfo;
+	//キューの設定
+	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());       // キュー作成情報の数
+	createInfo.pQueueCreateInfos = queueCreateInfos.data();                                 // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
+	//拡張機能の設定
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());      // 有効なロジカルデバイス拡張機能の数
+	createInfo.ppEnabledExtensionNames = deviceExtensions.data();                           // 有効なロジカルデバイス拡張機能のリスト
+
+	// 指定された物理デバイスに対してロジカルデバイスを作成する
+	//vk::UniqueDevice logicalDevice = physicalDevice.createDeviceUnique(deviceCreateInfo);
+	//if (!logicalDevice)
+	//{
+	//	throw std::runtime_error("ロジカルデバイスの作成に失敗しました！");
+	//}
+
+	return createInfo;
+}
 
 /// <summary>
 /// デバイスが必要な拡張機能があるか確認する
 /// </summary>
-bool DeviceUtility::checkDeviceExtensionSupport(vk::PhysicalDevice device)
+bool VulkanUtility::CheckDeviceExtensionSupport(vk::PhysicalDevice device)
 {
 	// デバイスがサポートする拡張機能の数を取得する
 	uint32_t extensionCount = 0;
@@ -71,7 +102,7 @@ bool DeviceUtility::checkDeviceExtensionSupport(vk::PhysicalDevice device)
 
 
 
-bool DeviceUtility::checkDeviceSuitable(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+bool VulkanUtility::CheckDeviceSuitable(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
 	/*
 	// デバイス自体に関する情報 (ID、名前、タイプ、ベンダーなど)
@@ -84,17 +115,17 @@ bool DeviceUtility::checkDeviceSuitable(vk::PhysicalDevice physicalDevice, vk::S
 	*/
 
 	// キューファミリーのインデックスを取得する
-	QueueFamilyIndices indices = QueueUtility::getQueueFamilies(physicalDevice,surface);
+	QueueFamilyIndices indices = VulkanUtility::GetQueueFamilies(physicalDevice,surface);
 
 	// デバイスが必要とする拡張機能をサポートしているか確認する
-	bool extensionsSupported = checkDeviceExtensionSupport(physicalDevice);
+	bool extensionsSupported = CheckDeviceExtensionSupport(physicalDevice);
 
 	// Swapchainが有効かどうかを確認する
 	bool swapChainValid = false;
 	if (extensionsSupported)
 	{
 		// 特定の物理デバイスに対するSwap Chainの詳細を取得する
-		SwapChainDetails swapChainDetails = SwapChainUtility::getSwapChainDetails(physicalDevice, surface);
+		SwapChainDetails swapChainDetails = VulkanUtility::getSwapChainDetails(physicalDevice, surface);
 
 		// Swap Chainの有効性を確認する。プレゼンテーションモードが空でなく、フォーマットも空でない場合に有効とみなす。
 		swapChainValid = !swapChainDetails.presentationModes.empty() && !swapChainDetails.formats.empty();
@@ -106,35 +137,5 @@ bool DeviceUtility::checkDeviceSuitable(vk::PhysicalDevice physicalDevice, vk::S
 }
 
 
-/// <summary>
-/// 論理デバイスの作成
-/// </summary>
-vk::UniqueDevice DeviceUtility::createLogicalDevice(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
-{
-	//論理デバイスの作成に必要なもの
-	//1,使用するデバイスの拡張
-	//2,使用するデバイスのレイヤー
-	//3,デバイスのどのキューを使用するか
 
-	//計算要求を受け付けるキューを探す
-	auto queueCreateInfos = QueueUtility::getQueueInfos(physicalDevice, surface);
-
-	// 論理デバイスを作成するための情報を設定する
-	vk::DeviceCreateInfo deviceCreateInfo = {};
-	//キューの設定
-	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());       // キュー作成情報の数
-	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();                                 // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
-	//拡張機能の設定
-	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());      // 有効なロジカルデバイス拡張機能の数
-	deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();                           // 有効なロジカルデバイス拡張機能のリスト
-
-	// 指定された物理デバイスに対してロジカルデバイスを作成する
-	vk::UniqueDevice logicalDevice = physicalDevice.createDeviceUnique(deviceCreateInfo);
-	if (!logicalDevice)
-	{
-		throw std::runtime_error("ロジカルデバイスの作成に失敗しました！");
-	}
-
-	return logicalDevice;
-}
 

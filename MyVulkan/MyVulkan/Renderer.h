@@ -11,6 +11,7 @@
 #include "GameWindow.h"
 #include "Utilities.h"
 #include "VulkanValidation.h"
+#include "VulkanInstance.h"
 #include "Surface.h"
 #include "Device.h"
 #include "SwapChainUtility.h"

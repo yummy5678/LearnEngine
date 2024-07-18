@@ -7,7 +7,7 @@
 vk::UniqueCommandPool CommandUtility::createCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
 	// デバイスからキューファミリーのインデックスを取得する
-	QueueFamilyIndices queueFamilyIndices = QueueUtility::getQueueFamilies(physicalDevice, surface);
+	QueueFamilyIndices queueFamilyIndices = VulkanUtility::GetQueueFamilies(physicalDevice, surface);
 
 	// コマンドプールの作成に必要な情報を設定する
 	vk::CommandPoolCreateInfo poolInfo = {};
@@ -120,30 +120,30 @@ void CommandUtility::recordCommands(vk::RenderPass renderPass, vk::Extent2D exte
 
 void CommandUtility::createSynchronisation()
 {
-    // MAX_FRAME_DRAWS 分のセマフォとフェンスをリサイズする
-    imageAvailablek.resize(MAX_FRAME_DRAWS);
-    renderFinished.resize(MAX_FRAME_DRAWS);
-    drawFences.resize(MAX_FRAME_DRAWS);
+    //// MAX_FRAME_DRAWS 分のセマフォとフェンスをリサイズする
+    //imageAvailablek.resize(MAX_FRAME_DRAWS);
+    //renderFinished.resize(MAX_FRAME_DRAWS);
+    //drawFences.resize(MAX_FRAME_DRAWS);
 
-    // セマフォの作成情報を設定する
-    VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    //// セマフォの作成情報を設定する
+    //VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+    //semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    // フェンスの作成情報を設定する
-    VkFenceCreateInfo fenceCreateInfo = {};
-    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT; // 初期状態でシグナルされた状態のフェンスを作成する
+    //// フェンスの作成情報を設定する
+    //VkFenceCreateInfo fenceCreateInfo = {};
+    //fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    //fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT; // 初期状態でシグナルされた状態のフェンスを作成する
 
-    // MAX_FRAME_DRAWS 分のセマフォとフェンスを作成するループ
-    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
-    {
-        // セマフォとフェンスを作成する
-        if (vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &imageAvailable[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &renderFinished[i]) != VK_SUCCESS ||
-            vkCreateFence(logicalDevice.get(), &fenceCreateInfo, nullptr, &drawFences[i]) != VK_SUCCESS)
-        {
-            // 作成に失敗した場合は例外を投げる
-            throw std::runtime_error("Failed to create a Semaphore and/or Fence!");
-        }
-    }
+    //// MAX_FRAME_DRAWS 分のセマフォとフェンスを作成するループ
+    //for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    //{
+    //    // セマフォとフェンスを作成する
+    //    if (vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &imageAvailable[i]) != VK_SUCCESS ||
+    //        vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &renderFinished[i]) != VK_SUCCESS ||
+    //        vkCreateFence(logicalDevice.get(), &fenceCreateInfo, nullptr, &drawFences[i]) != VK_SUCCESS)
+    //    {
+    //        // 作成に失敗した場合は例外を投げる
+    //        throw std::runtime_error("Failed to create a Semaphore and/or Fence!");
+    //    }
+    //}
 }

@@ -9,20 +9,39 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	window = renderWindow.getWindowPointer(); //ウィンドウのポインタのセット
 	
 	try {
-		createInstance();
-		createDebugCallback();
-		//createSurface();
-		surface			= SurfaceUtilities::createUnique(instance.get(), window);
-		physicalDevice	= DeviceUtility::getPhysicalDevice(instance.get(), surface.get());
-		logicalDevice   = DeviceUtility::createLogicalDevice(physicalDevice, surface.get());
-		swapchain		= SwapChainUtility::createSwapchain(logicalDevice.get(), physicalDevice, surface.get());
+		//インスタンスの作成
+		auto appInfo =		VulkanCreate::GetApplicationInfo();
+		auto instanceInfo{ VulkanCreate::GetInstanceInfo(appInfo) };//この行でエラー
+		instanceInfo.ppEnabledLayerNames = validationLayers.data();
+		instance = vk::createInstanceUnique(instanceInfo);
+		// インスタンスの作成に失敗した場合のエラーメッセージ
+		if (!instance) {
+			throw std::runtime_error("Vulkanインスタンスの作成に失敗しました！");
+		}
+		//createDebugCallback();
+
+		//サーフェスの作成
+		vk::SurfaceKHR rawSurface = VulkanCreate::GetWindowSurface(instance.get(), window);
+		surface = vk::UniqueSurfaceKHR(rawSurface, instance.get());
+
+		//物理デバイスの作成
+		physicalDevice	= VulkanCreate::GetPhysicalDevice(instance.get(), surface.get());
+
+		//論理デバイスの作成
+		auto queueInfo	= VulkanCreate::GetQueueInfos(physicalDevice, surface.get());
+		auto deviceInfo = VulkanCreate::CreateDeviceInfo(queueInfo);
+		logicalDevice	= physicalDevice.createDeviceUnique(deviceInfo);
+
+		//スワップチェイン
+		auto swapchainInfo = VulkanCreate::GetSwapchainInfo(physicalDevice, surface.get());
+		swapchain		= logicalDevice->createSwapchainKHRUnique(swapchainInfo);
 		
 		renderPass		= RenderPassUtility::createRenderPass(logicalDevice.get(), physicalDevice, surface.get());
 		pipelineLayout  = GraphicsPipelineUtility::createPipelineLayout(logicalDevice.get());
 		graphicsPipeline = GraphicsPipelineUtility::createGraphicsPipeline(logicalDevice.get(), swapChainExtent, pipelineLayout.get(), renderPass.get());
 
-		swapChainImages = SwapChainUtility::createSwapChainImages(logicalDevice.get(),physicalDevice, surface.get(), swapchain.get());//swapChainImagesを作成しておく
-		swapChainFramebuffers = SwapChainUtility::createFramebuffers(logicalDevice.get(), swapChainImages, renderPass.get(), swapChainExtent);
+		swapChainImages = VulkanUtility::createSwapChainImages(logicalDevice.get(),physicalDevice, surface.get(), swapchain.get());//swapChainImagesを作成しておく
+		swapChainFramebuffers = VulkanUtility::createFramebuffers(logicalDevice.get(), swapChainImages, renderPass.get(), swapChainExtent);
 		graphicsCommandPool = CommandUtility::createCommandPool(logicalDevice.get(), physicalDevice, surface.get());
 		commandBuffers = CommandUtility::createCommandBuffers(logicalDevice.get(), swapChainFramebuffers, graphicsCommandPool.get());
 		CommandUtility::recordCommands(renderPass.get(), swapChainExtent, graphicsPipeline.get(), swapChainFramebuffers, commandBuffers);

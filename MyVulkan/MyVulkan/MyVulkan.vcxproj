@@ -105,7 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../Include;../Lib</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,6 +141,7 @@
     <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SwapChainUtility.cpp" />
+    <ClCompile Include="VulkanInstance.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Surface.h" />
     <ClInclude Include="SwapChainUtility.h" />
     <ClInclude Include="Utilities.h" />
+    <ClInclude Include="VulkanInstance.h" />
     <ClInclude Include="VulkanValidation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
