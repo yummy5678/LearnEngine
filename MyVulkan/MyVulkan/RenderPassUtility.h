@@ -2,9 +2,26 @@
 #include <vulkan/vulkan.hpp>
 #include "SwapChainUtility.h"
 
-namespace RenderPassUtility
+namespace VulkanCreate
 {
-	vk::UniqueRenderPass createRenderPass(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	[[nodiscard]] vk::RenderPassCreateInfo GetRenderPassInfo(vk::SwapchainCreateInfoKHR* swapchainInfo);
 
 };
 
+struct RenderPassGenerator
+{
+public:
+	RenderPassGenerator();
+	~RenderPassGenerator();
+
+
+
+private:
+	vk::AttachmentDescription	m_ColorAttachment;
+	vk::AttachmentReference		m_ColorAttachmentRef;
+	vk::SubpassDescription		m_Subpass;
+	std::array<vk::SubpassDependency, 2> m_Dependencies;
+	vk::RenderPassCreateInfo m_RenderPassInfo;
+
+
+};

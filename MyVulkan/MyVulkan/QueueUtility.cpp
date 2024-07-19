@@ -62,8 +62,9 @@ std::vector<vk::DeviceQueueCreateInfo> VulkanCreate::GetQueueInfos(vk::PhysicalD
 	// 論理デバイスで作成する必要があるキューとその情報を設定する
 	for (int queueFamilyIndex : queueFamilyIndices)
 	{
-		VkDeviceQueueCreateInfo queueCreateInfo = {};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		vk::DeviceQueueCreateInfo queueCreateInfo = {};
+		queueCreateInfo.pNext;
+		queueCreateInfo.flags;
 		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;                        // キューを作成するファミリーのインデックス
 		queueCreateInfo.queueCount = 1;                                             // 作成するキューの数
 		float priority = 1.0f;														// 優先度

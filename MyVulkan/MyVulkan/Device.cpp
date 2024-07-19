@@ -2,10 +2,7 @@
 
 vk::PhysicalDevice VulkanCreate::GetPhysicalDevice(vk::Instance& instance, vk::SurfaceKHR surface)
 {
-
-	vk::PhysicalDevice physicalDevice;	//物理デバイス
-
-	//インスタンスから物理デバイスを取得
+	//インスタンスから物理デバイス(GPU)を全て取得
 	std::vector<vk::PhysicalDevice> physicalDevices = instance.enumeratePhysicalDevices();
 
 	// 適切なデバイスが見つかるまでループする
@@ -20,37 +17,27 @@ vk::PhysicalDevice VulkanCreate::GetPhysicalDevice(vk::Instance& instance, vk::S
 
 	// 利用可能なデバイスがない場合
 	throw std::runtime_error("VulkanをサポートするGPUが見つかりません！");
-	return vk::PhysicalDevice();
 }
 
 /// <summary>
 /// 論理デバイスの作成
 /// </summary>
-vk::DeviceCreateInfo VulkanCreate::CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo > queueCreateInfos)
+vk::DeviceCreateInfo VulkanCreate::CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo >* queueCreateInfos)
 {
-	//論理デバイスの作成に必要なもの
-	//1,使用するデバイスの拡張
-	//2,使用するデバイスのレイヤー
-	//3,デバイスのどのキューを使用するか
-
-	//計算要求を受け付けるキューを探す
-	//auto queueCreateInfos = VulkanCreate::GetQueueInfos(physicalDevice, surface);
-
 	// 論理デバイスを作成するための情報を設定する
 	vk::DeviceCreateInfo createInfo;
-	//キューの設定
-	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());       // キュー作成情報の数
-	createInfo.pQueueCreateInfos = queueCreateInfos.data();                                 // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
-	//拡張機能の設定
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());      // 有効なロジカルデバイス拡張機能の数
-	createInfo.ppEnabledExtensionNames = deviceExtensions.data();                           // 有効なロジカルデバイス拡張機能のリスト
+	createInfo.pNext = nullptr;
+	createInfo.flags = {};
+	createInfo.queueCreateInfoCount = (uint32_t)queueCreateInfos->size();       // キュー作成情報の数
+	createInfo.pQueueCreateInfos = queueCreateInfos->data();                    // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
 
-	// 指定された物理デバイスに対してロジカルデバイスを作成する
-	//vk::UniqueDevice logicalDevice = physicalDevice.createDeviceUnique(deviceCreateInfo);
-	//if (!logicalDevice)
-	//{
-	//	throw std::runtime_error("ロジカルデバイスの作成に失敗しました！");
-	//}
+	createInfo.enabledLayerCount = 0;
+	createInfo.ppEnabledLayerNames = nullptr;
+
+	createInfo.enabledExtensionCount = (uint32_t)deviceExtensions.size();      // 有効なロジカルデバイス拡張機能の数
+	createInfo.ppEnabledExtensionNames = deviceExtensions.data();              // 有効なロジカルデバイス拡張機能のリスト
+
+	createInfo.pEnabledFeatures = nullptr;
 
 	return createInfo;
 }

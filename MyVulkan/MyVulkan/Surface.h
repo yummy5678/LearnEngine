@@ -5,7 +5,7 @@
 
 namespace VulkanCreate
 {
-	vk::SurfaceKHR GetWindowSurface(vk::Instance& instance, GLFWwindow* window);
+	VkSurfaceKHR GetWindowSurface(vk::Instance& instance, GLFWwindow* window);
 
 };
 

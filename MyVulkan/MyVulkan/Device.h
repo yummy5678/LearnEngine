@@ -18,7 +18,7 @@ namespace VulkanCreate
 
 	
 	//logical
-	vk::DeviceCreateInfo CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo > queueCreateInfos);
+	vk::DeviceCreateInfo CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo >* queueCreateInfos);
 }
 
 namespace VulkanUtility
