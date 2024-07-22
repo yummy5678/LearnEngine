@@ -1,29 +1,69 @@
 #include "VulkanInstance.h"
 
 
+InstanceGenerator::InstanceGenerator()
+{
+}
 
+InstanceGenerator::~InstanceGenerator()
+{
+}
 
-vk::ApplicationInfo VulkanCreate::GetApplicationInfo()
+void InstanceGenerator::CreateInstance()
+{
+	auto instanceInfo = GetInstanceInfo();
+	m_Instance = vk::createInstanceUnique(instanceInfo);
+	// インスタンスの作成に失敗した場合のエラーメッセージ
+	if (!m_Instance) 
+	{
+		throw std::runtime_error("Vulkanインスタンスの作成に失敗しました！");
+	}
+
+}
+
+vk::Instance* InstanceGenerator::GetInstanse()
+{
+	return &m_Instance.get();
+}
+
+std::vector<const char*>* InstanceGenerator::GetRequiredInstanceExtensionsPointer()
+{
+	// インスタンス拡張機能のリストを作成する
+	static std::vector<const char*> instanceExtensions;	//static変数
+
+	// インスタンスが使用する拡張機能を設定する
+	uint32_t glfwExtensionCount = 0;	// GLFWは複数の拡張機能を要求する場合がある
+	const char** glfwExtensions;		// 拡張機能はC文字列の配列として渡されるため、ポインタ(配列)のポインタ(C文字列)が必要
+
+	// GLFWの拡張機能を取得する
+	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+	// GLFWの拡張機能をリストに追加する
+	for (size_t i = 0; i < glfwExtensionCount; i++)
+	{
+		instanceExtensions.push_back(glfwExtensions[i]);
+	}
+
+	return &instanceExtensions;
+}
+
+const vk::ApplicationInfo InstanceGenerator::GetApplicationInfo()
 {
 	// アプリケーションの情報を初期化
 	// ここは好きな値を書き込む
-	vk::ApplicationInfo appInfo = {};
-	appInfo.pApplicationName = "Vulkan App";                     // アプリケーションの名前
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);       // アプリケーションのバージョン名 
-	appInfo.pEngineName = "No Engine";                           // エンジンの名前
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);            // エンジンのバージョン名
-	appInfo.apiVersion = VK_API_VERSION_1_0;                     // Vulkan APIのバージョン
+	m_ApplicationInfo.pApplicationName = "Vulkan App";                     // アプリケーションの名前
+	m_ApplicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);       // アプリケーションのバージョン名 
+	m_ApplicationInfo.pEngineName = "No Engine";                           // エンジンの名前
+	m_ApplicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);            // エンジンのバージョン名
+	m_ApplicationInfo.apiVersion = VK_API_VERSION_1_0;                     // Vulkan APIのバージョン
 
-	return appInfo;
+	return m_ApplicationInfo;
 }
 
-
-
-
-vk::InstanceCreateInfo VulkanCreate::GetInstanceInfo(vk::ApplicationInfo* appInfo)
+const vk::InstanceCreateInfo InstanceGenerator::GetInstanceInfo(const vk::ApplicationInfo* appInfo)
 {
 	// エラーチェック
-	if (validationEnabled && !VulkanUtility::CheckValidationLayerSupport(validationLayers))
+	if (validationEnabled && !CheckValidationLayerSupport(validationLayers))
 	{
 		throw std::runtime_error("Required Validation Layers not supported!");
 	}
@@ -32,18 +72,17 @@ vk::InstanceCreateInfo VulkanCreate::GetInstanceInfo(vk::ApplicationInfo* appInf
 	/*/////////////////////
 	* インスタンスの作成
 	*//////////////////////
-	vk::InstanceCreateInfo createInfo = {};
-	createInfo.pNext;											// 拡張機能の情報 
-	createInfo.flags;											// インスタンスの作成フラグ 
-	createInfo.pApplicationInfo = appInfo;						// アプリケーション情報へのポインタ
-	createInfo.enabledLayerCount = 0;							// 有効にするレイヤーの数 
-	createInfo.ppEnabledLayerNames = nullptr;					// 有効にするレイヤーの名前の配列 
-	createInfo.enabledExtensionCount = 0;						// 有効にする拡張機能の数 
-	createInfo.ppEnabledExtensionNames = nullptr;				// 有効にする拡張機能の名前の配列 	
+	m_InstanceInfo.pNext;											// 拡張機能の情報 
+	m_InstanceInfo.flags;											// インスタンスの作成フラグ 
+	m_InstanceInfo.pApplicationInfo = appInfo;						// アプリケーション情報へのポインタ
+	m_InstanceInfo.enabledLayerCount = 0;							// 有効にするレイヤーの数 
+	m_InstanceInfo.ppEnabledLayerNames = nullptr;					// 有効にするレイヤーの名前の配列 
+	m_InstanceInfo.enabledExtensionCount = 0;						// 有効にする拡張機能の数 
+	m_InstanceInfo.ppEnabledExtensionNames = nullptr;				// 有効にする拡張機能の名前の配列 	
 
 
 	// GLFWの拡張機能を取得する
-	auto instanceExtensions = VulkanUtility::GetRequiredInstanceExtensionsPointer();
+	auto instanceExtensions = GetRequiredInstanceExtensionsPointer();
 
 	// バリデーションが有効な場合、検証用のデバッグ情報拡張機能を追加する
 	if (validationEnabled)
@@ -52,33 +91,26 @@ vk::InstanceCreateInfo VulkanCreate::GetInstanceInfo(vk::ApplicationInfo* appInf
 	}
 
 	// インスタンスが必要とする拡張機能がサポートされているか確認する
-	if (!VulkanUtility::CheckInstanceExtensionSupport(instanceExtensions))
+	if (!CheckInstanceExtensionSupport(instanceExtensions))
 	{
 		throw std::runtime_error("VkInstance は必要な拡張機能をサポートしていません！");
 	}
 
 	// 有効な拡張機能の数と名前の配列を設定する
-	createInfo.enabledExtensionCount = (uint32_t)instanceExtensions->size();
-	createInfo.ppEnabledExtensionNames = instanceExtensions->data();
+	m_InstanceInfo.enabledExtensionCount = (uint32_t)instanceExtensions->size();
+	m_InstanceInfo.ppEnabledExtensionNames = instanceExtensions->data();
 
 	// バリデーションが有効な場合、有効なレイヤーの数と名前の配列を設定する
 	if (validationEnabled)
 	{
-		createInfo.enabledLayerCount = (uint32_t)validationLayers.size();
-		createInfo.ppEnabledLayerNames = validationLayers.data();
+		m_InstanceInfo.enabledLayerCount = (uint32_t)validationLayers.size();
+		m_InstanceInfo.ppEnabledLayerNames = validationLayers.data();
 	}
-	
-    return createInfo;
+
+	return m_InstanceInfo;
 }
 
-
-
-
-
-
-
-
-bool VulkanUtility::CheckValidationLayerSupport(const std::vector<const char*> validationLayers)
+bool InstanceGenerator::CheckValidationLayerSupport(const std::vector<const char*> validationLayers)
 {
 	// バリデーションレイヤーの数を取得し、適切なサイズのベクターを作成する
 	uint32_t validationLayerCount;
@@ -119,46 +151,8 @@ bool VulkanUtility::CheckValidationLayerSupport(const std::vector<const char*> v
 	return true;
 }
 
-bool VulkanUtility::CheckInstanceExtensionSupport(std::vector<const char*>* checkExtensions)
+bool InstanceGenerator::CheckInstanceExtensionSupport(std::vector<const char*>* checkExtensions)
 {
-	// Vulkanのインスタンスがサポートする利用可能な拡張機能の数を取得する
-	uint32_t extensionCount = 0;
-	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-	// 利用可能な拡張機能の情報を保持するためのVkExtensionPropertiesのリストを作成する
-	std::vector<VkExtensionProperties> extensions(extensionCount);
-	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-
-	// 指定された拡張機能が利用可能な拡張機能リストに含まれているかチェックする
-	for (const auto& checkExtension : *checkExtensions)
-	{
-		bool hasExtension = false;
-		for (const auto& extension : extensions)
-		{
-			// 拡張機能名が一致するかどうかをstrcmpで比較する
-			if (strcmp(checkExtension, extension.extensionName) == 0)
-			{
-				hasExtension = true;
-				break;
-			}
-		}
-
-		// 指定された拡張機能が見つからない場合はfalseを返す
-		if (!hasExtension)
-		{
-			return false;
-		}
-	}
-
-	// すべての指定された拡張機能が見つかった場合はtrueを返す
-	return true;
-}
-
-std::vector<const char*>* VulkanUtility::GetRequiredInstanceExtensionsPointer()
-{
-	// インスタンス拡張機能のリストを作成する
-	static std::vector<const char*> instanceExtensions;	//static変数
-
 	// インスタンスが使用する拡張機能を設定する
 	uint32_t glfwExtensionCount = 0;	// GLFWは複数の拡張機能を要求する場合がある
 	const char** glfwExtensions;		// 拡張機能はC文字列の配列として渡されるため、ポインタ(配列)のポインタ(C文字列)が必要

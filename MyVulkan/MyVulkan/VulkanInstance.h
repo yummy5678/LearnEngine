@@ -4,21 +4,34 @@
 #include "VulkanValidation.h"
 
 // インスタンス拡張機能のリストを作成する
-
-
-namespace VulkanCreate
+class InstanceGenerator
 {
-	vk::ApplicationInfo		GetApplicationInfo();
-	vk::InstanceCreateInfo	GetInstanceInfo(vk::ApplicationInfo* appInfo = nullptr);
-}
+public:
+	InstanceGenerator();
+	~InstanceGenerator();
 
-namespace VulkanUtility
-{
-	bool CheckValidationLayerSupport(const std::vector<const char*> validationLayers);
-	bool CheckInstanceExtensionSupport(std::vector<const char*>* checkExtensions);
+	void CreateInstance();
+
+	[[nodiscard]]vk::Instance* GetInstanse();
+
+private:
+	vk::ApplicationInfo		m_ApplicationInfo;
+	vk::InstanceCreateInfo	m_InstanceInfo;
+	vk::UniqueInstance		m_Instance;
+
+	// インスタンス拡張機能のリストを作成する
+	std::vector<const char*> instanceExtensions;
 
 	// GLFW でサーフェスを作るのに必要なインスタンス拡張を取得
 	std::vector<const char*>* GetRequiredInstanceExtensionsPointer();
 
+	const vk::ApplicationInfo		GetApplicationInfo();
+	const vk::InstanceCreateInfo	GetInstanceInfo(const vk::ApplicationInfo* appInfo = nullptr);
+
+	bool CheckValidationLayerSupport(const std::vector<const char*> validationLayers);
+	bool CheckInstanceExtensionSupport(std::vector<const char*>* checkExtensions);
+
+
 };
+
 

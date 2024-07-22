@@ -1,6 +1,6 @@
 #include "Surface.h"
 
-VkSurfaceKHR VulkanCreate::GetWindowSurface(vk::Instance& instance, GLFWwindow* window)
+void SurfaceGenerator::CreateWindowSurface(vk::Instance& instance, GLFWwindow* window)
 {
 	VkSurfaceKHR c_Surface;
 	// サーフェスを作成する（サーフェス作成情報構造体を作成し、サーフェス作成関数を実行し、結果を返す）
@@ -11,7 +11,12 @@ VkSurfaceKHR VulkanCreate::GetWindowSurface(vk::Instance& instance, GLFWwindow* 
 		throw std::runtime_error("サーフェスの作成に失敗しました！");
 	}
 
-	// vk::SurfaceKHR にキャストして返す
-	return c_Surface;
+	m_Surface = vk::UniqueSurfaceKHR(c_Surface, instance);
 
+
+}
+
+VkSurfaceKHR* SurfaceGenerator::GetSurface()
+{
+	return &m_Surface.get();
 }

@@ -4,7 +4,7 @@
 /// <summary>
 /// キューファミリーのインデックスを取得する
 /// </summary>
-QueueFamilyIndices VulkanUtility::GetQueueFamilies(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+QueueFamilyIndices VulkanUtility::GetQueueFamilies(vk::PhysicalDevice& physicalDevice, vk::SurfaceKHR& surface)
 {
 	QueueFamilyIndices indices;
 
@@ -48,7 +48,7 @@ QueueFamilyIndices VulkanUtility::GetQueueFamilies(VkPhysicalDevice physicalDevi
 	return indices;
 }
 
-std::vector<vk::DeviceQueueCreateInfo> VulkanCreate::GetQueueInfos(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface)
+std::vector<vk::DeviceQueueCreateInfo> VulkanCreate::GetQueueInfos(vk::PhysicalDevice& physicalDevice, VkSurfaceKHR& surface)
 {
 	// 選択した物理デバイスのキューファミリーインデックスを取得する
 	QueueFamilyIndices queueIndex = VulkanUtility::GetQueueFamilies(physicalDevice, surface);

@@ -10,46 +10,41 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	
 	try {
 		//インスタンスの作成
-		auto appInfo =		VulkanCreate::GetApplicationInfo();
-		auto instanceInfo = VulkanCreate::GetInstanceInfo(&appInfo);
-		instance = vk::createInstanceUnique(instanceInfo);
-		// インスタンスの作成に失敗した場合のエラーメッセージ
-		if (!instance) {
-			throw std::runtime_error("Vulkanインスタンスの作成に失敗しました！");
-		}
-
+		InstanceGenerator instanceGenerator;
+		instanceGenerator.CreateInstance();
+		auto instance = instanceGenerator.GetInstanse();
 
 		createDebugCallback();
 
 		//サーフェスの作成
-		vk::SurfaceKHR rawSurface = VulkanCreate::GetWindowSurface(instance.get(), window);
-		surface = vk::UniqueSurfaceKHR(rawSurface, instance.get());
+		SurfaceGenerator surfaceGenerator;
+		surfaceGenerator.CreateWindowSurface(*instance,window);
+		auto surface = surfaceGenerator.GetSurface();
 
-		//物理デバイスの作成
-		physicalDevice	= VulkanCreate::GetPhysicalDevice(instance.get(), surface.get());
-
-		//論理デバイスの作成
-		auto queueInfo	= VulkanCreate::GetQueueInfos(physicalDevice, surface.get());
-		auto deviceInfo = VulkanCreate::CreateDeviceInfo(&queueInfo);
-		logicalDevice	= physicalDevice.createDeviceUnique(deviceInfo);
+		//物理・論理デバイスの作成
+		DeviceGenerator deviceGenerator(instance, surface);
+		//物理デバイスを取得
+		auto physicalDevice	= deviceGenerator.GetPhysicalDevice();
+		//論理デバイスを取得
+		auto logicalDevice	= deviceGenerator.GetLogicalDevice();
 
 		//スワップチェインの作成
-		auto swapchainInfo = VulkanCreate::GetSwapchainInfo(physicalDevice, surface.get());
-		swapchain		= logicalDevice->createSwapchainKHRUnique(swapchainInfo);
+		SwapchainGenerator swapchainGenerator(logicalDevice,physicalDevice,surface);
+		auto swapchain = swapchainGenerator.GetSwapchain();
 
 		//レンダーパスの作成
-		auto renderPassInfo = VulkanCreate::GetRenderPassInfo(&swapchainInfo);
-		renderPass = logicalDevice->createRenderPassUnique(*renderPassInfo);
+		RenderpassGenerator renderpassGenerator(logicalDevice, swapchainGenerator.GetSwapchainInfo());
+		auto renderPass = renderpassGenerator.GetRenderpass();
 
 
-		pipelineLayout  = GraphicsPipelineUtility::createPipelineLayout(logicalDevice.get());
-		graphicsPipeline = GraphicsPipelineUtility::createGraphicsPipeline(logicalDevice.get(), swapChainExtent, pipelineLayout.get(), renderPass.get());
+		//pipelineLayout  = GraphicsPipelineUtility::createPipelineLayout(logicalDevice);
+		//graphicsPipeline = GraphicsPipelineUtility::createGraphicsPipeline(logicalDevice, swapChainExtent, pipelineLayout.get(), renderPass);
 
-		swapChainImages = VulkanUtility::createSwapChainImages(logicalDevice.get(),physicalDevice, surface.get(), swapchain.get());//swapChainImagesを作成しておく
-		swapChainFramebuffers = VulkanUtility::createFramebuffers(logicalDevice.get(), swapChainImages, renderPass.get(), swapChainExtent);
-		graphicsCommandPool = CommandUtility::createCommandPool(logicalDevice.get(), physicalDevice, surface.get());
-		commandBuffers = CommandUtility::createCommandBuffers(logicalDevice.get(), swapChainFramebuffers, graphicsCommandPool.get());
-		CommandUtility::recordCommands(renderPass.get(), swapChainExtent, graphicsPipeline.get(), swapChainFramebuffers, commandBuffers);
+		//swapChainImages = VulkanUtility::createSwapChainImages(logicalDevice,physicalDevice, surface, *swapchain);//swapChainImagesを作成しておく
+		//swapChainFramebuffers = VulkanUtility::createFramebuffers(logicalDevice, swapChainImages, renderPass, swapChainExtent);
+		//graphicsCommandPool = CommandUtility::createCommandPool(logicalDevice, physicalDevice, surface);
+		//commandBuffers = CommandUtility::createCommandBuffers(logicalDevice, swapChainFramebuffers, graphicsCommandPool.get());
+		//CommandUtility::recordCommands(renderPass, swapChainExtent, graphicsPipeline.get(), swapChainFramebuffers, commandBuffers);
 		createSynchronisation();
 	}
 	catch (const std::runtime_error& e) {
@@ -155,104 +150,104 @@ VulkanRenderer::~VulkanRenderer()
 {
 }
 
-void VulkanRenderer::createInstance()
-{
-
-	// エラーチェック
-	if (validationEnabled && !checkValidationLayerSupport())
-	{
-		throw std::runtime_error("Required Validation Layers not supported!");
-	}
-
-	// アプリケーションの情報を初期化
-	// ここは好きな値を書き込む
-	VkApplicationInfo appInfo = {};
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "Vulkan App";                     // アプリケーションの名前
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);       // アプリケーションのバージョン名 
-	appInfo.pEngineName = "No Engine";                           // エンジンの名前
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);            // エンジンのバージョン名
-	appInfo.apiVersion = VK_API_VERSION_1_0;                     // Vulkan APIのバージョン
-
-	/*/////////////////////
-	* インスタンスの作成
-	*//////////////////////
-	VkInstanceCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;	// インスタンスのタイプ
-	createInfo.pNext;											// 拡張機能の情報 
-	createInfo.flags;											// インスタンスの作成フラグ 
-	createInfo.pApplicationInfo = &appInfo;						// アプリケーション情報へのポインタ
-	createInfo.enabledLayerCount = 0;							// 有効にするレイヤーの数 
-	createInfo.ppEnabledLayerNames = nullptr;					// 有効にするレイヤーの名前の配列 
-	createInfo.enabledExtensionCount;							// 有効にする拡張機能の数 
-	createInfo.ppEnabledExtensionNames;							// 有効にする拡張機能の名前の配列 	
-
-	// インスタンス拡張機能のリストを作成する
-	std::vector<const char*> instanceExtensions = std::vector<const char*>();
-
-	// インスタンスが使用する拡張機能を設定する
-	uint32_t glfwExtensionCount = 0;	// GLFWは複数の拡張機能を要求する場合がある
-	const char** glfwExtensions;		// 拡張機能はC文字列の配列として渡されるため、ポインタ(配列)のポインタ(C文字列)が必要
-
-	// GLFWの拡張機能を取得する
-	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-	// GLFWの拡張機能をリストに追加する
-	for (size_t i = 0; i < glfwExtensionCount; i++)
-	{
-		instanceExtensions.push_back(glfwExtensions[i]);
-	}
-
-	// バリデーションが有効な場合、検証用のデバッグ情報拡張機能を追加する
-	if (validationEnabled)
-	{
-		instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-	}
-
-	// インスタンスが必要とする拡張機能がサポートされているか確認する
-	if (!checkInstanceExtensionSupport(&instanceExtensions))
-	{
-		throw std::runtime_error("VkInstance は必要な拡張機能をサポートしていません！");
-	}
-
-	// 有効な拡張機能の数と名前の配列を設定する
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size());
-	createInfo.ppEnabledExtensionNames = instanceExtensions.data();
-
-	// バリデーションが有効な場合、有効なレイヤーの数と名前の配列を設定する
-	if (validationEnabled)
-	{
-		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-		createInfo.ppEnabledLayerNames = validationLayers.data();
-	}	
-
-	// インスタンスを作成する
-	instance = vk::createInstanceUnique(createInfo);
-
-	// インスタンスの作成に失敗した場合のエラーメッセージ
-	if (!instance) {
-		throw std::runtime_error("Vulkanインスタンスの作成に失敗しました！");
-	}
-}
+//void VulkanRenderer::createInstance()
+//{
+//
+//	// エラーチェック
+//	if (validationEnabled && !checkValidationLayerSupport())
+//	{
+//		throw std::runtime_error("Required Validation Layers not supported!");
+//	}
+//
+//	// アプリケーションの情報を初期化
+//	// ここは好きな値を書き込む
+//	VkApplicationInfo appInfo = {};
+//	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+//	appInfo.pApplicationName = "Vulkan App";                     // アプリケーションの名前
+//	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);       // アプリケーションのバージョン名 
+//	appInfo.pEngineName = "No Engine";                           // エンジンの名前
+//	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);            // エンジンのバージョン名
+//	appInfo.apiVersion = VK_API_VERSION_1_0;                     // Vulkan APIのバージョン
+//
+//	/*/////////////////////
+//	* インスタンスの作成
+//	*//////////////////////
+//	VkInstanceCreateInfo createInfo = {};
+//	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;	// インスタンスのタイプ
+//	createInfo.pNext;											// 拡張機能の情報 
+//	createInfo.flags;											// インスタンスの作成フラグ 
+//	createInfo.pApplicationInfo = &appInfo;						// アプリケーション情報へのポインタ
+//	createInfo.enabledLayerCount = 0;							// 有効にするレイヤーの数 
+//	createInfo.ppEnabledLayerNames = nullptr;					// 有効にするレイヤーの名前の配列 
+//	createInfo.enabledExtensionCount;							// 有効にする拡張機能の数 
+//	createInfo.ppEnabledExtensionNames;							// 有効にする拡張機能の名前の配列 	
+//
+//	// インスタンス拡張機能のリストを作成する
+//	std::vector<const char*> instanceExtensions = std::vector<const char*>();
+//
+//	// インスタンスが使用する拡張機能を設定する
+//	uint32_t glfwExtensionCount = 0;	// GLFWは複数の拡張機能を要求する場合がある
+//	const char** glfwExtensions;		// 拡張機能はC文字列の配列として渡されるため、ポインタ(配列)のポインタ(C文字列)が必要
+//
+//	// GLFWの拡張機能を取得する
+//	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+//
+//	// GLFWの拡張機能をリストに追加する
+//	for (size_t i = 0; i < glfwExtensionCount; i++)
+//	{
+//		instanceExtensions.push_back(glfwExtensions[i]);
+//	}
+//
+//	// バリデーションが有効な場合、検証用のデバッグ情報拡張機能を追加する
+//	if (validationEnabled)
+//	{
+//		instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+//	}
+//
+//	// インスタンスが必要とする拡張機能がサポートされているか確認する
+//	if (!checkInstanceExtensionSupport(&instanceExtensions))
+//	{
+//		throw std::runtime_error("VkInstance は必要な拡張機能をサポートしていません！");
+//	}
+//
+//	// 有効な拡張機能の数と名前の配列を設定する
+//	createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size());
+//	createInfo.ppEnabledExtensionNames = instanceExtensions.data();
+//
+//	// バリデーションが有効な場合、有効なレイヤーの数と名前の配列を設定する
+//	if (validationEnabled)
+//	{
+//		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+//		createInfo.ppEnabledLayerNames = validationLayers.data();
+//	}	
+//
+//	// インスタンスを作成する
+//	instance = vk::createInstanceUnique(createInfo);
+//
+//	// インスタンスの作成に失敗した場合のエラーメッセージ
+//	if (!instance) {
+//		throw std::runtime_error("Vulkanインスタンスの作成に失敗しました！");
+//	}
+//}
 
 void VulkanRenderer::createDebugCallback()
 {
-	// バリデーションが有効な場合のみコールバックを作成する
-	if (!validationEnabled) return;
+	//// バリデーションが有効な場合のみコールバックを作成する
+	//if (!validationEnabled) return;
 
-	// デバッグレポートコールバックの作成情報を初期化する
-	VkDebugReportCallbackCreateInfoEXT callbackCreateInfo = {};
-	callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;				// デバッグレポートコールバックの作成情報の構造体のタイプを指定
-	callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;		// 呼び出しを開始するバリデーションレポートの種類
-	callbackCreateInfo.pfnCallback = debugCallback;													// コールバック関数へのポインタ
+	//// デバッグレポートコールバックの作成情報を初期化する
+	//VkDebugReportCallbackCreateInfoEXT callbackCreateInfo = {};
+	//callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;				// デバッグレポートコールバックの作成情報の構造体のタイプを指定
+	//callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;		// 呼び出しを開始するバリデーションレポートの種類
+	//callbackCreateInfo.pfnCallback = debugCallback;													// コールバック関数へのポインタ
 
-	// カスタムの作成関数を使用してデバッグコールバックを作成する
-	VkResult result = CreateDebugReportCallbackEXT(instance.get(), &callbackCreateInfo, nullptr, &callback);
-	if (result != VK_SUCCESS)
-	{
-		//throw std::runtime_error("Failed to create Debug Callback!");
-		throw std::runtime_error("デバッグコールバックの作成に失敗しました！");
-	}
+	//// カスタムの作成関数を使用してデバッグコールバックを作成する
+	//VkResult result = CreateDebugReportCallbackEXT(instance, &callbackCreateInfo, nullptr, &callback);
+	//if (result != VK_SUCCESS)
+	//{
+	//	//throw std::runtime_error("Failed to create Debug Callback!");
+	//	throw std::runtime_error("デバッグコールバックの作成に失敗しました！");
+	//}
 }
 
 /// <summary>
@@ -260,58 +255,58 @@ void VulkanRenderer::createDebugCallback()
 /// </summary>
 void VulkanRenderer::createLogicalDevice()
 {
-	//論理デバイスの作成に必要なもの
-	//1,使用するデバイスの拡張
-	//2,使用するデバイスのレイヤー
-	//3,デバイスのどのキューを使用するか
+	////論理デバイスの作成に必要なもの
+	////1,使用するデバイスの拡張
+	////2,使用するデバイスのレイヤー
+	////3,デバイスのどのキューを使用するか
 
-	// 選択した物理デバイスのキューファミリーインデックスを取得する
-	QueueFamilyIndices queueIndex = getQueueFamilies(physicalDevice);
+	//// 選択した物理デバイスのキューファミリーインデックスを取得する
+	//QueueFamilyIndices queueIndex = getQueueFamilies(physicalDevice);
 
-	// キュー作成情報用のベクター
-	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	//// キュー作成情報用のベクター
+	//std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
-	//ファミリーインデックス用のセット
-	std::set<int> queueFamilyIndices = { queueIndex.graphicsFamily, queueIndex.presentationFamily };
+	////ファミリーインデックス用のセット
+	//std::set<int> queueFamilyIndices = { queueIndex.graphicsFamily, queueIndex.presentationFamily };
 
-	// 論理デバイスで作成する必要があるキューとその情報を設定する
-	for (int queueFamilyIndex : queueFamilyIndices)
-	{
-		VkDeviceQueueCreateInfo queueCreateInfo = {};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;                        // キューを作成するファミリーのインデックス
-		queueCreateInfo.queueCount = 1;                                             // 作成するキューの数
-		float priority = 1.0f;														// 優先度
-		queueCreateInfo.pQueuePriorities = &priority;                               // Vulkanは複数のキューをどのように扱うかを知る必要があるため、優先度を指定する (1が最高優先度)
+	//// 論理デバイスで作成する必要があるキューとその情報を設定する
+	//for (int queueFamilyIndex : queueFamilyIndices)
+	//{
+	//	VkDeviceQueueCreateInfo queueCreateInfo = {};
+	//	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	//	queueCreateInfo.queueFamilyIndex = queueFamilyIndex;                        // キューを作成するファミリーのインデックス
+	//	queueCreateInfo.queueCount = 1;                                             // 作成するキューの数
+	//	float priority = 1.0f;														// 優先度
+	//	queueCreateInfo.pQueuePriorities = &priority;                               // Vulkanは複数のキューをどのように扱うかを知る必要があるため、優先度を指定する (1が最高優先度)
 
-		queueCreateInfos.push_back(queueCreateInfo);
-	}
+	//	queueCreateInfos.push_back(queueCreateInfo);
+	//}
 
-	// 論理デバイスを作成するための情報を設定する
-	VkDeviceCreateInfo deviceCreateInfo = {};
-	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());       // キュー作成情報の数
-	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();                                 // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
-	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());      // 有効なロジカルデバイス拡張機能の数
-	deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();                           // 有効なロジカルデバイス拡張機能のリスト
+	//// 論理デバイスを作成するための情報を設定する
+	//VkDeviceCreateInfo deviceCreateInfo = {};
+	//deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	//deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());       // キュー作成情報の数
+	//deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();                                 // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
+	//deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());      // 有効なロジカルデバイス拡張機能の数
+	//deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();                           // 有効なロジカルデバイス拡張機能のリスト
 
-	// 論理デバイスが使用する物理デバイスの機能
-	VkPhysicalDeviceFeatures deviceFeatures = {};
+	//// 論理デバイスが使用する物理デバイスの機能
+	//VkPhysicalDeviceFeatures deviceFeatures = {};
 
-	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;            // ロジカルデバイスが使用する物理デバイスの機能
+	//deviceCreateInfo.pEnabledFeatures = &deviceFeatures;            // ロジカルデバイスが使用する物理デバイスの機能
 
-	// 指定された物理デバイスに対してロジカルデバイスを作成する
-	logicalDevice = physicalDevice.createDeviceUnique(deviceCreateInfo);
-	if (!logicalDevice)
-	{
-		throw std::runtime_error("ロジカルデバイスの作成に失敗しました！");
-	}
+	//// 指定された物理デバイスに対してロジカルデバイスを作成する
+	//logicalDevice = physicalDevice.createDeviceUnique(deviceCreateInfo);
+	//if (!logicalDevice)
+	//{
+	//	throw std::runtime_error("ロジカルデバイスの作成に失敗しました！");
+	//}
 
-	// キューはデバイスと同時に作成されるため
-	// キューへのハンドルを取得する
-	// 指定されたロジカルデバイスから、指定されたキューファミリーの指定されたキューインデックス（0は唯一のキューなので0）、指定されたVkQueueへの参照を置く
-	vkGetDeviceQueue(logicalDevice.get(), queueIndex.graphicsFamily, 0, &graphicsQueue);
-	vkGetDeviceQueue(logicalDevice.get(), queueIndex.presentationFamily, 0, &presentationQueue);
+	//// キューはデバイスと同時に作成されるため
+	//// キューへのハンドルを取得する
+	//// 指定されたロジカルデバイスから、指定されたキューファミリーの指定されたキューインデックス（0は唯一のキューなので0）、指定されたVkQueueへの参照を置く
+	//vkGetDeviceQueue(logicalDevice.get(), queueIndex.graphicsFamily, 0, &graphicsQueue);
+	//vkGetDeviceQueue(logicalDevice.get(), queueIndex.presentationFamily, 0, &presentationQueue);
 }
 
 //void VulkanRenderer::createSurface()
@@ -691,32 +686,32 @@ void VulkanRenderer::createCommandBuffers()
 
 void VulkanRenderer::createSynchronisation()
 {
-	// MAX_FRAME_DRAWS 分のセマフォとフェンスをリサイズする
-	imageAvailable.resize(MAX_FRAME_DRAWS);
-	renderFinished.resize(MAX_FRAME_DRAWS);
-	drawFences.resize(MAX_FRAME_DRAWS);
+	//// MAX_FRAME_DRAWS 分のセマフォとフェンスをリサイズする
+	//imageAvailable.resize(MAX_FRAME_DRAWS);
+	//renderFinished.resize(MAX_FRAME_DRAWS);
+	//drawFences.resize(MAX_FRAME_DRAWS);
 
-	// セマフォの作成情報を設定する
-	VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-	semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	//// セマフォの作成情報を設定する
+	//VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+	//semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-	// フェンスの作成情報を設定する
-	VkFenceCreateInfo fenceCreateInfo = {};
-	fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT; // 初期状態でシグナルされた状態のフェンスを作成する
+	//// フェンスの作成情報を設定する
+	//VkFenceCreateInfo fenceCreateInfo = {};
+	//fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	//fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT; // 初期状態でシグナルされた状態のフェンスを作成する
 
-	// MAX_FRAME_DRAWS 分のセマフォとフェンスを作成するループ
-	for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
-	{
-		// セマフォとフェンスを作成する
-		if (vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &imageAvailable[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &renderFinished[i]) != VK_SUCCESS ||
-			vkCreateFence(logicalDevice.get(), &fenceCreateInfo, nullptr, &drawFences[i]) != VK_SUCCESS)
-		{
-			// 作成に失敗した場合は例外を投げる
-			throw std::runtime_error("Failed to create a Semaphore and/or Fence!");
-		}
-	}
+	//// MAX_FRAME_DRAWS 分のセマフォとフェンスを作成するループ
+	//for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+	//{
+	//	// セマフォとフェンスを作成する
+	//	if (vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &imageAvailable[i]) != VK_SUCCESS ||
+	//		vkCreateSemaphore(logicalDevice.get(), &semaphoreCreateInfo, nullptr, &renderFinished[i]) != VK_SUCCESS ||
+	//		vkCreateFence(logicalDevice.get(), &fenceCreateInfo, nullptr, &drawFences[i]) != VK_SUCCESS)
+	//	{
+	//		// 作成に失敗した場合は例外を投げる
+	//		throw std::runtime_error("Failed to create a Semaphore and/or Fence!");
+	//	}
+	//}
 }
 
 
@@ -777,22 +772,22 @@ void VulkanRenderer::recordCommands()
 /// </summary>
 void VulkanRenderer::getPhysicalDevice()
 {
-	//インスタンスから物理デバイスを取得
-	std::vector<vk::PhysicalDevice> physicalDevices = instance->enumeratePhysicalDevices();
+	////インスタンスから物理デバイスを取得
+	//std::vector<vk::PhysicalDevice> physicalDevices = instance->enumeratePhysicalDevices();
 
-	// 適切なデバイスが見つかるまでループする
-	for (const auto& device : physicalDevices)
-	{
-		if (checkDeviceSuitable(device))
-		{
-			// 適切なデバイスが見つかった
-			physicalDevice = device;
-			return;
-		}
-	}
+	//// 適切なデバイスが見つかるまでループする
+	//for (const auto& device : physicalDevices)
+	//{
+	//	if (checkDeviceSuitable(device))
+	//	{
+	//		// 適切なデバイスが見つかった
+	//		physicalDevice = device;
+	//		return;
+	//	}
+	//}
 
-	// 利用可能なデバイスがない場合
-	throw std::runtime_error("VulkanをサポートするGPUが見つかりません！");
+	//// 利用可能なデバイスがない場合
+	//throw std::runtime_error("VulkanをサポートするGPUが見つかりません！");
 
 }
 
@@ -1142,42 +1137,43 @@ VkExtent2D VulkanRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surf
 
 VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
 {
-	// 画像ビュー作成情報の初期化
-	VkImageViewCreateInfo viewCreateInfo = {};
-	viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;		 // 画像ビュー作成情報の構造体タイプを設定
-	viewCreateInfo.image = image;                                            // View を作成するための Image
-	viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;                         // Image の種類 (1D, 2D, 3D, Cube など)
-	viewCreateInfo.format = format;                                          // Image データのフォーマット
-	viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;             // RGBA コンポーネントを他の RGBA 値にリマップすることができます
-	viewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-	viewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-	viewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+	//// 画像ビュー作成情報の初期化
+	//VkImageViewCreateInfo viewCreateInfo = {};
+	//viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;		 // 画像ビュー作成情報の構造体タイプを設定
+	//viewCreateInfo.image = image;                                            // View を作成するための Image
+	//viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;                         // Image の種類 (1D, 2D, 3D, Cube など)
+	//viewCreateInfo.format = format;                                          // Image データのフォーマット
+	//viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;             // RGBA コンポーネントを他の RGBA 値にリマップすることができます
+	//viewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+	//viewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+	//viewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 
-	// Subresource は Image の一部だけを表示するための設定です
-	viewCreateInfo.subresourceRange.aspectMask = aspectFlags;                 // Image のどの面を表示するか (例: COLOR_BIT は色を表示するため)
-	viewCreateInfo.subresourceRange.baseMipLevel = 0;                         // 表示を開始する Mipmap レベル
-	viewCreateInfo.subresourceRange.levelCount = 1;                           // 表示する Mipmap レベルの数
-	viewCreateInfo.subresourceRange.baseArrayLayer = 0;                       // 表示を開始する配列レベル
-	viewCreateInfo.subresourceRange.layerCount = 1;                           // 表示する配列レベルの数
+	//// Subresource は Image の一部だけを表示するための設定です
+	//viewCreateInfo.subresourceRange.aspectMask = aspectFlags;                 // Image のどの面を表示するか (例: COLOR_BIT は色を表示するため)
+	//viewCreateInfo.subresourceRange.baseMipLevel = 0;                         // 表示を開始する Mipmap レベル
+	//viewCreateInfo.subresourceRange.levelCount = 1;                           // 表示する Mipmap レベルの数
+	//viewCreateInfo.subresourceRange.baseArrayLayer = 0;                       // 表示を開始する配列レベル
+	//viewCreateInfo.subresourceRange.layerCount = 1;                           // 表示する配列レベルの数
 
-	// Image View を作成し、そのハンドルを返します
-	VkImageView imageView;  // Image View のハンドルを保持する変数を宣言します
+	//// Image View を作成し、そのハンドルを返します
+	//VkImageView imageView = {};  // Image View のハンドルを保持する変数を宣言します
 
-	// vkCreateImageView 関数を使用して Image View を作成します
-	// mainDevice.logicalDevice: Image View を作成するための論理デバイス
-	// &viewCreateInfo: Image View の作成に必要な情報が格納された構造体へのポインタ
-	// nullptr: カスタムのアロケーターを使用しないためのオプション (通常は nullptr を指定します)
-	// &imageView: 作成された Image View のハンドルを受け取る変数へのポインタ
-	VkResult result = vkCreateImageView(logicalDevice.get(), &viewCreateInfo, nullptr, &imageView);
+	//// vkCreateImageView 関数を使用して Image View を作成します
+	//// mainDevice.logicalDevice: Image View を作成するための論理デバイス
+	//// &viewCreateInfo: Image View の作成に必要な情報が格納された構造体へのポインタ
+	//// nullptr: カスタムのアロケーターを使用しないためのオプション (通常は nullptr を指定します)
+	//// &imageView: 作成された Image View のハンドルを受け取る変数へのポインタ
+	//VkResult result = vkCreateImageView(logicalDevice.get(), &viewCreateInfo, nullptr, &imageView);
 
-	// vkCreateImageView の結果が成功ではない場合、エラーをスローします
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create an Image View!");
-	}
+	//// vkCreateImageView の結果が成功ではない場合、エラーをスローします
+	//if (result != VK_SUCCESS)
+	//{
+	//	throw std::runtime_error("Failed to create an Image View!");
+	//}
 
-	// 作成した Image View のハンドルを返します
-	return imageView;
+	//// 作成した Image View のハンドルを返します
+	//return imageView;
+	return VkImageView{};
 }
 
 void VulkanRenderer::createRenderPass()
@@ -1252,19 +1248,20 @@ void VulkanRenderer::createRenderPass()
 
 VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
 {
-	// シェーダーモジュール作成情報の設定
-	VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
-	shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;		// 構造体のタイプを設定
-	shaderModuleCreateInfo.codeSize = code.size();									// コードのサイズを指定
-	shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());	// コードのポインタをuint32_tポインタにキャストして設定
+	//// シェーダーモジュール作成情報の設定
+	//VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
+	//shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;		// 構造体のタイプを設定
+	//shaderModuleCreateInfo.codeSize = code.size();									// コードのサイズを指定
+	//shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());	// コードのポインタをuint32_tポインタにキャストして設定
 
-	// シェーダーモジュールの作成
-	VkShaderModule shaderModule;
-	VkResult result = vkCreateShaderModule(logicalDevice.get(), &shaderModuleCreateInfo, nullptr, &shaderModule);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("シェーダーモジュールの作成に失敗しました！");
-	}
+	//// シェーダーモジュールの作成
+	//VkShaderModule shaderModule;
+	//VkResult result = vkCreateShaderModule(logicalDevice.get(), &shaderModuleCreateInfo, nullptr, &shaderModule);
+	//if (result != VK_SUCCESS)
+	//{
+	//	throw std::runtime_error("シェーダーモジュールの作成に失敗しました！");
+	//}
 
-	return shaderModule;
+	//return shaderModule;
+	return VkShaderModule{};
 }

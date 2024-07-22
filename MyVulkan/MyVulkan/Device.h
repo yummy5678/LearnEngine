@@ -9,21 +9,36 @@ const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-namespace VulkanCreate
+class DeviceGenerator
 {
-	//physical
-	//物理デバイスの取得
-	vk::PhysicalDevice GetPhysicalDevice(vk::Instance& instance, vk::SurfaceKHR surface);
+public:
+	DeviceGenerator(vk::Instance& instance, vk::SurfaceKHR& surface);
+	~DeviceGenerator();
 
-
+	vk::PhysicalDevice*	GetPhysicalDevice();
+	vk::Device*			GetLogicalDevice();
 	
-	//logical
-	vk::DeviceCreateInfo CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo >* queueCreateInfos);
-}
 
-namespace VulkanUtility
-{
+private:
+	vk::PhysicalDevice	m_PhysicalDevice;
+	vk::UniqueDevice	m_LogicalDevice;
+
+	//論理デバイスの作成情報
+	vk::DeviceCreateInfo m_DeviceInfo;
+
+	//物理デバイスの取得
+	vk::PhysicalDevice BringPhysicalDevice(vk::Instance& instance, vk::SurfaceKHR surface);
+
+	//論理デバイスの作成情報を作成
+	void CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo >* queueCreateInfos);
+	//論理デバイスの作成
+	void CreateLogicalDevice();
+
+
+
 	//拡張機能が使えるかの確認
 	bool CheckDeviceExtensionSupport(vk::PhysicalDevice device);
 	bool CheckDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface);
-}
+
+
+};

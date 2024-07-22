@@ -3,9 +3,14 @@
 #include "Utilities.h"
 #include <GLFW/glfw3.h>
 
-namespace VulkanCreate
+
+class SurfaceGenerator
 {
-	VkSurfaceKHR GetWindowSurface(vk::Instance& instance, GLFWwindow* window);
+public:
+	void CreateWindowSurface(vk::Instance & instance, GLFWwindow * window);
+	VkSurfaceKHR* GetSurface();
 
+
+private:
+	vk::UniqueSurfaceKHR m_Surface;
 };
-

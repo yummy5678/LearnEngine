@@ -18,12 +18,6 @@ struct SwapChainDetails {
 	std::vector<vk::PresentModeKHR>		presentationModes;		// How images should be presented to screen
 };
 
-namespace VulkanCreate
-{
-	// スワップチェインの作成関数
-	vk::SwapchainCreateInfoKHR GetSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
-}
-
 namespace VulkanUtility
 {
 	SwapChainDetails getSwapChainDetails(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
@@ -55,3 +49,34 @@ namespace VulkanUtility
 
 };
 
+class SwapchainGenerator
+{
+public:
+	SwapchainGenerator(vk::Device& logicalDevice, vk::PhysicalDevice& physicalDevice, vk::SurfaceKHR& surface);
+	~SwapchainGenerator();
+
+	[[nodiscard]] vk::SwapchainKHR*				GetSwapchain();
+	[[nodiscard]] vk::Extent2D*					Get2DExtent();
+	[[nodiscard]] vk::SurfaceFormatKHR*			GetSurfaceFormat();
+	[[nodiscard]] vk::SwapchainCreateInfoKHR*	GetSwapchainInfo();
+private:
+	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
+	vk::UniqueSwapchainKHR				m_Swapchain;
+
+	vk::SurfaceCapabilitiesKHR			m_SurfaceCapabilities;
+	vk::SurfaceFormatKHR				m_SurfaceFormat;
+	vk::Extent2D						m_Extent;
+	vk::PresentModeKHR					m_PresentMode;
+
+	// スワップチェインの作成関数
+	void CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+
+	// サーフェスの機能を取得
+	vk::SurfaceCapabilitiesKHR GetSurfaceCapabilities(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	// スワップチェインのフォーマットを選択する関数
+	vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
+	// スワップチェインのプレゼントモードを選択する関数
+	vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
+	// スワップチェインのエクステントを選択する関数
+	vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities);
+};

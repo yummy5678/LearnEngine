@@ -37,22 +37,22 @@ private:
 
 	// Vulkan Components
 	//VkInstance instance;
-	vk::UniqueInstance instance;
+	//vk::UniqueInstance instance;
 
 	//コールバック
 	VkDebugReportCallbackEXT callback;
 
 	//メインデバイス
-	vk::PhysicalDevice physicalDevice;	//物理デバイス(ただの構造体なので破棄の必要はない)
-	vk::UniqueDevice logicalDevice;		//論理デバイス
+	//vk::PhysicalDevice physicalDevice;	//物理デバイス(ただの構造体なので破棄の必要はない)
+	//vk::UniqueDevice logicalDevice;		//論理デバイス
 
 	//キュー
 	VkQueue graphicsQueue;
 	VkQueue presentationQueue;
 
 	//スワップチェイン
-	vk::UniqueSurfaceKHR				surface;
-	vk::UniqueSwapchainKHR				swapchain;
+	//vk::UniqueSurfaceKHR				surface;
+	//vk::UniqueSwapchainKHR			swapchain;
 	std::vector<SwapchainImage>			swapChainImages;
 	std::vector<vk::Framebuffer>		swapChainFramebuffers;
 	std::vector<vk::CommandBuffer>		commandBuffers;
@@ -60,7 +60,7 @@ private:
 	// - Pipeline
 	vk::UniquePipeline			graphicsPipeline;
 	vk::UniquePipelineLayout	pipelineLayout;
-	vk::UniqueRenderPass		renderPass;
+	//vk::UniqueRenderPass		renderPass;
 
 	// - Pools
 	vk::UniqueCommandPool graphicsCommandPool;
@@ -80,7 +80,7 @@ private:
 	// Vulkan Functions
 	// - Create Functions
 	//インスタンスの作成
-	void createInstance();
+	//void createInstance();
 
 	//デバイスの作成
 	void createDebugCallback();
