@@ -2,7 +2,7 @@
 using namespace VulkanUtility;
 
 
-RenderpassGenerator::RenderpassGenerator(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR* swapchainInfo)
+RenderpassGenerator::RenderpassGenerator(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR swapchainInfo)
 {
     CreateRenderpass(logicalDevice, swapchainInfo);
 
@@ -14,7 +14,7 @@ RenderpassGenerator::~RenderpassGenerator()
     Release();
 }
 
-void RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice,vk::SwapchainCreateInfoKHR* swapchainInfo)
+void RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice,vk::SwapchainCreateInfoKHR swapchainInfo)
 {
     auto colorAttachment = CreateColorAttachment(swapchainInfo);
     auto subpass = CreateSubpass();
@@ -41,11 +41,11 @@ void RenderpassGenerator::Release()
     //m_pLogicalDevice->destroyRenderPass(m_RenderPass, nullptr);
 }
 
-vk::AttachmentDescription* RenderpassGenerator::CreateColorAttachment(const vk::SwapchainCreateInfoKHR* swapchainInfo)
+vk::AttachmentDescription* RenderpassGenerator::CreateColorAttachment(const vk::SwapchainCreateInfoKHR swapchainInfo)
 {
     // カラーバッファアタッチメントの記述
     m_ColorAttachment.flags = {};
-    m_ColorAttachment.format = swapchainInfo->imageFormat;       // スワップチェインのイメージフォーマット
+    m_ColorAttachment.format = swapchainInfo.imageFormat;       // スワップチェインのイメージフォーマット
     m_ColorAttachment.samples = vk::SampleCountFlagBits::e1;      // マルチサンプリングのサンプル数
     m_ColorAttachment.loadOp = vk::AttachmentLoadOp::eClear;     // レンダーパスの開始時にカラーバッファをクリア
     m_ColorAttachment.storeOp = vk::AttachmentStoreOp::eStore;    // レンダーパスの終了時にカラーバッファを保存

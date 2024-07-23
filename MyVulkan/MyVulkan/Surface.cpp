@@ -16,7 +16,7 @@ void SurfaceGenerator::CreateWindowSurface(vk::Instance& instance, GLFWwindow* w
 
 }
 
-VkSurfaceKHR* SurfaceGenerator::GetSurface()
+VkSurfaceKHR SurfaceGenerator::GetSurface()
 {
-	return &m_Surface.get();
+	return m_Surface.get();
 }

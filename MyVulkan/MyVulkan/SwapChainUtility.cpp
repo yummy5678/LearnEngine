@@ -231,34 +231,42 @@ std::vector<vk::Framebuffer> VulkanUtility::createFramebuffers(vk::Device logica
 
 
 
-SwapchainGenerator::SwapchainGenerator(vk::Device& logicalDevice, vk::PhysicalDevice& physicalDevice, vk::SurfaceKHR& surface)
+SwapchainGenerator::SwapchainGenerator(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     CreateSwapchainInfo(physicalDevice, surface);
     m_Swapchain = logicalDevice.createSwapchainKHRUnique(m_SwapchainInfo);
+
+    CreateSwapChainImages(logicalDevice, physicalDevice, surface, m_Swapchain.get());
+
 }
 
 SwapchainGenerator::~SwapchainGenerator()
 {
 }
 
-vk::SwapchainKHR* SwapchainGenerator::GetSwapchain()
+vk::SwapchainKHR SwapchainGenerator::GetSwapchain()
 {
-    return &m_Swapchain.get();
+    return m_Swapchain.get();
 }
 
-vk::Extent2D* SwapchainGenerator::Get2DExtent()
+vk::Extent2D SwapchainGenerator::Get2DExtent()
 {
-    return &m_Extent;
+    return m_Extent;
 }
 
-vk::SurfaceFormatKHR* SwapchainGenerator::GetSurfaceFormat()
+vk::SurfaceFormatKHR SwapchainGenerator::GetSurfaceFormat()
 {
-    return &m_SurfaceFormat;
+    return m_SurfaceFormat;
 }
 
-vk::SwapchainCreateInfoKHR* SwapchainGenerator::GetSwapchainInfo()
+vk::SwapchainCreateInfoKHR SwapchainGenerator::GetSwapchainInfo()
 {
-    return &m_SwapchainInfo;
+    return m_SwapchainInfo;
+}
+
+std::vector<SwapchainImage> SwapchainGenerator::GetSwapChainImages()
+{
+    return m_Images;
 }
 
 
@@ -323,6 +331,72 @@ void SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, 
 
 }
 
+void SwapchainGenerator::CreateSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, vk::SwapchainKHR swapchain)
+{
+    // スワップチェーンを構成するイメージのベクターを取得
+    std::vector<vk::Image> images = logicalDevice.getSwapchainImagesKHR(swapchain);
+
+
+    // Swapchainの画像を格納するベクターを作成
+    std::vector<SwapchainImage> swapChainImages;
+    swapChainImages.reserve(images.size());
+
+
+    // スワップチェイン作成時に取得したのと同じ情報が欲しい
+    vk::SurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(GetSurfaceFormats(physicalDevice, surface));
+
+    for (vk::Image image : images)
+    {
+        // 画像ハンドルを保存する
+        SwapchainImage swapChainImage = {};
+        swapChainImage.image = image;
+        //フォーマットはchooseSwapSurfaceFormatで使用したのと同じものでなければならない
+        swapChainImage.imageView = CreateImageView(logicalDevice, image, surfaceFormat.format, vk::ImageAspectFlagBits::eColor);
+
+        // Swapchain画像リストに追加する
+        swapChainImages.push_back(swapChainImage);
+    }
+
+    m_Images = swapChainImages;
+}
+
+vk::ImageView SwapchainGenerator::CreateImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags)
+{
+    // 画像ビュー作成情報の初期化
+    vk::ImageViewCreateInfo imageViewCreateInfo;
+    imageViewCreateInfo.image = image;                                            // View を作成するための Image
+    imageViewCreateInfo.viewType = vk::ImageViewType::e2D;                         // Image の種類 (1D, 2D, 3D, Cube など)
+    imageViewCreateInfo.format = format;                                          // Image データのフォーマット
+    imageViewCreateInfo.components.r = vk::ComponentSwizzle::eIdentity;             // RGBA コンポーネントを他の RGBA 値にリマップすることができます
+    imageViewCreateInfo.components.g = vk::ComponentSwizzle::eIdentity;
+    imageViewCreateInfo.components.b = vk::ComponentSwizzle::eIdentity;
+    imageViewCreateInfo.components.a = vk::ComponentSwizzle::eIdentity;
+
+    // Subresource は Image の一部だけを表示するための設定です
+    imageViewCreateInfo.subresourceRange.aspectMask = aspectFlags;                 // Image のどの面を表示するか (例: COLOR_BIT は色を表示するため)
+    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;                         // 表示を開始する Mipmap レベル
+    imageViewCreateInfo.subresourceRange.levelCount = 1;                           // 表示する Mipmap レベルの数
+    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;                       // 表示を開始する配列レベル
+    imageViewCreateInfo.subresourceRange.layerCount = 1;                           // 表示する配列レベルの数
+
+    // vkCreateImageView 関数を使用して Image View を作成します
+    // mainDevice.logicalDevice: Image View を作成するための論理デバイス
+    // &viewCreateInfo: Image View の作成に必要な情報が格納された構造体へのポインタ
+    // nullptr: カスタムのアロケーターを使用しないためのオプション (通常は nullptr を指定します)
+    // &imageView: 作成された Image View のハンドルを受け取る変数へのポインタ
+    vk::ImageView imageView = logicalDevice.createImageView(imageViewCreateInfo);
+    // vkCreateImageView の結果が成功ではない場合、エラーをスローします
+    if (!imageView)
+    {
+        throw std::runtime_error("Failed to create an Image View!");
+    }
+
+    // 作成した Image View のハンドルを返します
+    return imageView;
+
+}
+
+
 vk::SurfaceCapabilitiesKHR SwapchainGenerator::GetSurfaceCapabilities(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     return physicalDevice.getSurfaceCapabilitiesKHR(surface);
@@ -368,4 +442,9 @@ vk::Extent2D SwapchainGenerator::ChooseSwapExtent(const vk::SurfaceCapabilitiesK
         actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
         return actualExtent;
     }
+}
+
+std::vector<vk::SurfaceFormatKHR> SwapchainGenerator::GetSurfaceFormats(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+    return physicalDevice.getSurfaceFormatsKHR(surface);
 }

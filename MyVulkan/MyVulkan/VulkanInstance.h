@@ -10,9 +10,7 @@ public:
 	InstanceGenerator();
 	~InstanceGenerator();
 
-	void CreateInstance();
-
-	[[nodiscard]]vk::Instance* GetInstanse();
+	[[nodiscard]]vk::Instance GetInstanse();
 
 private:
 	vk::ApplicationInfo		m_ApplicationInfo;
@@ -21,6 +19,9 @@ private:
 
 	// インスタンス拡張機能のリストを作成する
 	std::vector<const char*> instanceExtensions;
+
+	//インスタンスの作成
+	void CreateInstance();
 
 	// GLFW でサーフェスを作るのに必要なインスタンス拡張を取得
 	std::vector<const char*>* GetRequiredInstanceExtensionsPointer();

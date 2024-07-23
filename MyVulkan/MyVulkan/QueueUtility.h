@@ -24,5 +24,5 @@ namespace VulkanCreate
 
 namespace VulkanUtility
 {
-	QueueFamilyIndices GetQueueFamilies(vk::PhysicalDevice& device, vk::SurfaceKHR& surface);
+	QueueFamilyIndices GetQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface);
 }

@@ -3,6 +3,7 @@
 
 InstanceGenerator::InstanceGenerator()
 {
+	CreateInstance();
 }
 
 InstanceGenerator::~InstanceGenerator()
@@ -21,9 +22,9 @@ void InstanceGenerator::CreateInstance()
 
 }
 
-vk::Instance* InstanceGenerator::GetInstanse()
+vk::Instance InstanceGenerator::GetInstanse()
 {
-	return &m_Instance.get();
+	return m_Instance.get();
 }
 
 std::vector<const char*>* InstanceGenerator::GetRequiredInstanceExtensionsPointer()

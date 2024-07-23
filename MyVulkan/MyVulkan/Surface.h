@@ -8,7 +8,7 @@ class SurfaceGenerator
 {
 public:
 	void CreateWindowSurface(vk::Instance & instance, GLFWwindow * window);
-	VkSurfaceKHR* GetSurface();
+	VkSurfaceKHR GetSurface();
 
 
 private:

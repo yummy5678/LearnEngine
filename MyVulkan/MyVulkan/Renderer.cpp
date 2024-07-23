@@ -11,14 +11,13 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	try {
 		//インスタンスの作成
 		InstanceGenerator instanceGenerator;
-		instanceGenerator.CreateInstance();
 		auto instance = instanceGenerator.GetInstanse();
 
 		createDebugCallback();
 
 		//サーフェスの作成
 		SurfaceGenerator surfaceGenerator;
-		surfaceGenerator.CreateWindowSurface(*instance,window);
+		surfaceGenerator.CreateWindowSurface(instance,window);
 		auto surface = surfaceGenerator.GetSurface();
 
 		//物理・論理デバイスの作成
@@ -29,22 +28,26 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		auto logicalDevice	= deviceGenerator.GetLogicalDevice();
 
 		//スワップチェインの作成
-		SwapchainGenerator swapchainGenerator(logicalDevice,physicalDevice,surface);
+		SwapchainGenerator swapchainGenerator(logicalDevice, physicalDevice, surface);
 		auto swapchain = swapchainGenerator.GetSwapchain();
+		auto swapChainImages = swapchainGenerator.GetSwapChainImages();//swapChainImagesを作成しておく
 
 		//レンダーパスの作成
 		RenderpassGenerator renderpassGenerator(logicalDevice, swapchainGenerator.GetSwapchainInfo());
 		auto renderPass = renderpassGenerator.GetRenderpass();
 
+		//パイプラインの作成
+		PipelineGenerator pipelineGenerator(logicalDevice, swapChainExtent, renderPass);
+		auto graphicsPipeline = pipelineGenerator.GetPipeline();
+		
+		//フレームバッファの作成
+		FramebufferGenerator framebufferGenerator(logicalDevice, swapchainGenerator, renderPass);
+		auto swapchainFramebuffers = VulkanUtility::createFramebuffers(logicalDevice, swapChainImages, renderPass, swapChainExtent);
 
-		//pipelineLayout  = GraphicsPipelineUtility::createPipelineLayout(logicalDevice);
-		//graphicsPipeline = GraphicsPipelineUtility::createGraphicsPipeline(logicalDevice, swapChainExtent, pipelineLayout.get(), renderPass);
-
-		//swapChainImages = VulkanUtility::createSwapChainImages(logicalDevice,physicalDevice, surface, *swapchain);//swapChainImagesを作成しておく
-		//swapChainFramebuffers = VulkanUtility::createFramebuffers(logicalDevice, swapChainImages, renderPass, swapChainExtent);
-		//graphicsCommandPool = CommandUtility::createCommandPool(logicalDevice, physicalDevice, surface);
-		//commandBuffers = CommandUtility::createCommandBuffers(logicalDevice, swapChainFramebuffers, graphicsCommandPool.get());
-		//CommandUtility::recordCommands(renderPass, swapChainExtent, graphicsPipeline.get(), swapChainFramebuffers, commandBuffers);
+		//コマンドの作成
+		graphicsCommandPool = CommandUtility::createCommandPool(logicalDevice, physicalDevice, surface);
+		commandBuffers = CommandUtility::createCommandBuffers(logicalDevice, swapchainFramebuffers, graphicsCommandPool.get());
+		CommandUtility::recordCommands(renderPass, swapChainExtent, graphicsPipeline, swapchainFramebuffers, commandBuffers);
 		createSynchronisation();
 	}
 	catch (const std::runtime_error& e) {

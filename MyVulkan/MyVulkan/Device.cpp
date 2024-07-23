@@ -1,6 +1,6 @@
 #include "Device.h"
 
-DeviceGenerator::DeviceGenerator(vk::Instance& instance, vk::SurfaceKHR& surface)
+DeviceGenerator::DeviceGenerator(vk::Instance instance, vk::SurfaceKHR surface)
 {
 	//使用可能な物理デバイスを探してくる
 	m_PhysicalDevice = BringPhysicalDevice(instance, surface);
@@ -15,17 +15,17 @@ DeviceGenerator::~DeviceGenerator()
 {
 }
 
-vk::PhysicalDevice* DeviceGenerator::GetPhysicalDevice()
+vk::PhysicalDevice DeviceGenerator::GetPhysicalDevice()
 {
-	return &m_PhysicalDevice;
+	return m_PhysicalDevice;
 }
 
-vk::Device* DeviceGenerator::GetLogicalDevice()
+vk::Device DeviceGenerator::GetLogicalDevice()
 {
-	return &m_LogicalDevice.get();
+	return m_LogicalDevice.get();
 }
 
-vk::PhysicalDevice DeviceGenerator::BringPhysicalDevice(vk::Instance& instance, vk::SurfaceKHR surface)
+vk::PhysicalDevice DeviceGenerator::BringPhysicalDevice(vk::Instance instance, vk::SurfaceKHR surface)
 {
 	//インスタンスから物理デバイス(GPU)を全て取得
 	std::vector<vk::PhysicalDevice> physicalDevices = instance.enumeratePhysicalDevices();
@@ -118,17 +118,17 @@ bool DeviceGenerator::CheckDeviceSuitable(vk::PhysicalDevice device, vk::Surface
 	*/
 
 	// キューファミリーのインデックスを取得する
-	QueueFamilyIndices indices = VulkanUtility::GetQueueFamilies(m_PhysicalDevice, surface);
+	QueueFamilyIndices indices = VulkanUtility::GetQueueFamilies(device, surface);
 
 	// デバイスが必要とする拡張機能をサポートしているか確認する
-	bool extensionsSupported = CheckDeviceExtensionSupport(m_PhysicalDevice);
+	bool extensionsSupported = CheckDeviceExtensionSupport(device);
 
 	// Swapchainが有効かどうかを確認する
 	bool swapChainValid = false;
 	if (extensionsSupported)
 	{
 		// 特定の物理デバイスに対するSwap Chainの詳細を取得する
-		SwapChainDetails swapChainDetails = VulkanUtility::getSwapChainDetails(m_PhysicalDevice, surface);
+		SwapChainDetails swapChainDetails = VulkanUtility::getSwapChainDetails(device, surface);
 
 		// Swap Chainの有効性を確認する。プレゼンテーションモードが空でなく、フォーマットも空でない場合に有効とみなす。
 		swapChainValid = !swapChainDetails.presentationModes.empty() && !swapChainDetails.formats.empty();

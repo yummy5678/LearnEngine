@@ -5,7 +5,7 @@
 class RenderpassGenerator
 {
 public:
-	RenderpassGenerator(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR* swapchainInfo);
+	RenderpassGenerator(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR swapchainInfo);
 	~RenderpassGenerator();
 
 	[[nodiscard]]vk::RenderPass		GetRenderpass();
@@ -19,8 +19,8 @@ private:
 	vk::RenderPassCreateInfo				m_RenderPassInfo;
 	vk::UniqueRenderPass					m_RenderPass;
 
-	void CreateRenderpass(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR* swapchainInfo);
-	vk::AttachmentDescription*				CreateColorAttachment(const vk::SwapchainCreateInfoKHR* swapchainInfo);
+	void CreateRenderpass(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR swapchainInfo);
+	vk::AttachmentDescription*				CreateColorAttachment(const vk::SwapchainCreateInfoKHR swapchainInfo);
 	vk::SubpassDescription*					CreateSubpass();
 	std::vector<vk::SubpassDependency>*		CreateDependencies();
 

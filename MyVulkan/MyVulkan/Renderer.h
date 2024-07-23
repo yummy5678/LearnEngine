@@ -17,6 +17,7 @@
 #include "SwapChainUtility.h"
 #include "RenderPassUtility.h"
 #include "GraphicsPipelineUtility.h"
+#include "FramebufferGenerator.h"
 #include "CommandUtility.h"
 
 class VulkanRenderer
@@ -53,13 +54,13 @@ private:
 	//スワップチェイン
 	//vk::UniqueSurfaceKHR				surface;
 	//vk::UniqueSwapchainKHR			swapchain;
-	std::vector<SwapchainImage>			swapChainImages;
-	std::vector<vk::Framebuffer>		swapChainFramebuffers;
+	//std::vector<SwapchainImage>			swapChainImages;
+	//std::vector<vk::Framebuffer>		swapChainFramebuffers;
 	std::vector<vk::CommandBuffer>		commandBuffers;
 
 	// - Pipeline
-	vk::UniquePipeline			graphicsPipeline;
-	vk::UniquePipelineLayout	pipelineLayout;
+	//vk::UniquePipeline			graphicsPipeline;
+	//vk::UniquePipelineLayout	pipelineLayout;
 	//vk::UniqueRenderPass		renderPass;
 
 	// - Pools

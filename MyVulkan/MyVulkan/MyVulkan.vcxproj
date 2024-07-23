@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="CommandUtility.cpp" />
     <ClCompile Include="Device.cpp" />
+    <ClCompile Include="FramebufferGenerator.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="GraphicsPipelineUtility.cpp" />
     <ClCompile Include="main.cpp" />
@@ -149,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="CommandUtility.h" />
     <ClInclude Include="Device.h" />
+    <ClInclude Include="FramebufferGenerator.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="GraphicsDefine.h" />
     <ClInclude Include="GraphicsPipelineUtility.h" />

@@ -52,13 +52,15 @@ namespace VulkanUtility
 class SwapchainGenerator
 {
 public:
-	SwapchainGenerator(vk::Device& logicalDevice, vk::PhysicalDevice& physicalDevice, vk::SurfaceKHR& surface);
+	SwapchainGenerator(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 	~SwapchainGenerator();
 
-	[[nodiscard]] vk::SwapchainKHR*				GetSwapchain();
-	[[nodiscard]] vk::Extent2D*					Get2DExtent();
-	[[nodiscard]] vk::SurfaceFormatKHR*			GetSurfaceFormat();
-	[[nodiscard]] vk::SwapchainCreateInfoKHR*	GetSwapchainInfo();
+	[[nodiscard]] vk::SwapchainKHR				GetSwapchain();
+	[[nodiscard]] vk::Extent2D					Get2DExtent();
+	[[nodiscard]] vk::SurfaceFormatKHR			GetSurfaceFormat();
+	[[nodiscard]] vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
+	[[nodiscard]] std::vector<SwapchainImage>	GetSwapChainImages();
+
 private:
 	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
 	vk::UniqueSwapchainKHR				m_Swapchain;
@@ -68,9 +70,16 @@ private:
 	vk::Extent2D						m_Extent;
 	vk::PresentModeKHR					m_PresentMode;
 
+	std::vector<SwapchainImage>			m_Images;
+	
+
+
 	// スワップチェインの作成関数
 	void CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 
+	void CreateSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, vk::SwapchainKHR swapchain);
+
+	vk::ImageView CreateImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags);
 	// サーフェスの機能を取得
 	vk::SurfaceCapabilitiesKHR GetSurfaceCapabilities(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 	// スワップチェインのフォーマットを選択する関数
@@ -79,4 +88,7 @@ private:
 	vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
 	// スワップチェインのエクステントを選択する関数
 	vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities);
+
+	
+	std::vector<vk::SurfaceFormatKHR> GetSurfaceFormats(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 };

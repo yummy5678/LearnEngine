@@ -12,11 +12,11 @@ const std::vector<const char*> deviceExtensions = {
 class DeviceGenerator
 {
 public:
-	DeviceGenerator(vk::Instance& instance, vk::SurfaceKHR& surface);
+	DeviceGenerator(vk::Instance instance, vk::SurfaceKHR surface);
 	~DeviceGenerator();
 
-	vk::PhysicalDevice*	GetPhysicalDevice();
-	vk::Device*			GetLogicalDevice();
+	vk::PhysicalDevice	GetPhysicalDevice();
+	vk::Device			GetLogicalDevice();
 	
 
 private:
@@ -27,7 +27,7 @@ private:
 	vk::DeviceCreateInfo m_DeviceInfo;
 
 	//物理デバイスの取得
-	vk::PhysicalDevice BringPhysicalDevice(vk::Instance& instance, vk::SurfaceKHR surface);
+	vk::PhysicalDevice BringPhysicalDevice(vk::Instance instance, vk::SurfaceKHR surface);
 
 	//論理デバイスの作成情報を作成
 	void CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo >* queueCreateInfos);
