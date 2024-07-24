@@ -1,6 +1,15 @@
 #include "Device.h"
 
-DeviceGenerator::DeviceGenerator(vk::Instance instance, vk::SurfaceKHR surface)
+DeviceGenerator::DeviceGenerator()
+{
+
+}
+
+DeviceGenerator::~DeviceGenerator()
+{
+}
+
+void DeviceGenerator::Create(vk::Instance instance, vk::SurfaceKHR surface)
 {
 	//使用可能な物理デバイスを探してくる
 	m_PhysicalDevice = BringPhysicalDevice(instance, surface);
@@ -9,10 +18,6 @@ DeviceGenerator::DeviceGenerator(vk::Instance instance, vk::SurfaceKHR surface)
 	auto queueCreateInfos = VulkanCreate::GetQueueInfos(m_PhysicalDevice, surface);
 	CreateDeviceInfo(&queueCreateInfos);
 	m_LogicalDevice = m_PhysicalDevice.createDeviceUnique(m_DeviceInfo);
-}
-
-DeviceGenerator::~DeviceGenerator()
-{
 }
 
 vk::PhysicalDevice DeviceGenerator::GetPhysicalDevice()

@@ -52,14 +52,16 @@ namespace VulkanUtility
 class SwapchainGenerator
 {
 public:
-	SwapchainGenerator(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	SwapchainGenerator();
 	~SwapchainGenerator();
 
-	[[nodiscard]] vk::SwapchainKHR				GetSwapchain();
-	[[nodiscard]] vk::Extent2D					Get2DExtent();
-	[[nodiscard]] vk::SurfaceFormatKHR			GetSurfaceFormat();
-	[[nodiscard]] vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
-	[[nodiscard]] std::vector<SwapchainImage>	GetSwapChainImages();
+	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+
+	vk::SwapchainKHR			GetSwapchain();
+	vk::Extent2D				Get2DExtent();
+	vk::SurfaceFormatKHR		GetSurfaceFormat();
+	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
+	std::vector<SwapchainImage>	GetSwapChainImages();
 
 private:
 	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
@@ -75,9 +77,9 @@ private:
 
 
 	// スワップチェインの作成関数
-	void CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	vk::SwapchainCreateInfoKHR CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 
-	void CreateSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, vk::SwapchainKHR swapchain);
+	std::vector<SwapchainImage> CreateSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, vk::SwapchainKHR swapchain);
 
 	vk::ImageView CreateImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags);
 	// サーフェスの機能を取得

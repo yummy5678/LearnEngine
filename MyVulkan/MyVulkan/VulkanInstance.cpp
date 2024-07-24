@@ -3,7 +3,7 @@
 
 InstanceGenerator::InstanceGenerator()
 {
-	CreateInstance();
+	
 }
 
 InstanceGenerator::~InstanceGenerator()
@@ -12,7 +12,8 @@ InstanceGenerator::~InstanceGenerator()
 
 void InstanceGenerator::CreateInstance()
 {
-	auto instanceInfo = GetInstanceInfo();
+	m_ApplicationInfo = CreateApplicationInfo();
+	auto instanceInfo = CreateInstanceInfo(&m_ApplicationInfo);
 	m_Instance = vk::createInstanceUnique(instanceInfo);
 	// インスタンスの作成に失敗した場合のエラーメッセージ
 	if (!m_Instance) 
@@ -20,6 +21,11 @@ void InstanceGenerator::CreateInstance()
 		throw std::runtime_error("Vulkanインスタンスの作成に失敗しました！");
 	}
 
+}
+
+void InstanceGenerator::Create()
+{
+	CreateInstance();
 }
 
 vk::Instance InstanceGenerator::GetInstanse()
@@ -48,20 +54,21 @@ std::vector<const char*>* InstanceGenerator::GetRequiredInstanceExtensionsPointe
 	return &instanceExtensions;
 }
 
-const vk::ApplicationInfo InstanceGenerator::GetApplicationInfo()
+vk::ApplicationInfo InstanceGenerator::CreateApplicationInfo()
 {
 	// アプリケーションの情報を初期化
 	// ここは好きな値を書き込む
-	m_ApplicationInfo.pApplicationName = "Vulkan App";                     // アプリケーションの名前
-	m_ApplicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);       // アプリケーションのバージョン名 
-	m_ApplicationInfo.pEngineName = "No Engine";                           // エンジンの名前
-	m_ApplicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);            // エンジンのバージョン名
-	m_ApplicationInfo.apiVersion = VK_API_VERSION_1_0;                     // Vulkan APIのバージョン
+	vk::ApplicationInfo appInfo;
+	appInfo.pApplicationName = "Vulkan App";                     // アプリケーションの名前
+	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);       // アプリケーションのバージョン名 
+	appInfo.pEngineName = "No Engine";                           // エンジンの名前
+	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);            // エンジンのバージョン名
+	appInfo.apiVersion = VK_API_VERSION_1_0;                     // Vulkan APIのバージョン
 
-	return m_ApplicationInfo;
+	return appInfo;
 }
 
-const vk::InstanceCreateInfo InstanceGenerator::GetInstanceInfo(const vk::ApplicationInfo* appInfo)
+const vk::InstanceCreateInfo InstanceGenerator::CreateInstanceInfo(const vk::ApplicationInfo* appInfo)
 {
 	// エラーチェック
 	if (validationEnabled && !CheckValidationLayerSupport(validationLayers))

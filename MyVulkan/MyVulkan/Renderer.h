@@ -26,7 +26,6 @@ public:
 	VulkanRenderer();
 	~VulkanRenderer();
 
-
 	int init(GameWindow renderWindow);
 	//void draw();
 	void cleanup();
@@ -35,7 +34,9 @@ private:
 	GLFWwindow* window;
 
 	int currentFrame = 0;
-
+	InstanceGenerator instanceGenerator;
+	SurfaceGenerator surfaceGenerator;
+	DeviceGenerator deviceGenerator;
 	// Vulkan Components
 	//VkInstance instance;
 	//vk::UniqueInstance instance;
@@ -56,7 +57,7 @@ private:
 	//vk::UniqueSwapchainKHR			swapchain;
 	//std::vector<SwapchainImage>			swapChainImages;
 	//std::vector<vk::Framebuffer>		swapChainFramebuffers;
-	std::vector<vk::CommandBuffer>		commandBuffers;
+	//std::vector<vk::CommandBuffer>		commandBuffers;
 
 	// - Pipeline
 	//vk::UniquePipeline			graphicsPipeline;
@@ -64,14 +65,14 @@ private:
 	//vk::UniqueRenderPass		renderPass;
 
 	// - Pools
-	vk::UniqueCommandPool graphicsCommandPool;
+	//vk::UniqueCommandPool graphicsCommandPool;
 
 	// - Utility
-	VkFormat swapChainImageFormat;
-	vk::Extent2D swapChainExtent = {
-		windowWidth,
-		windowHeight
-	};
+	//VkFormat swapChainImageFormat;
+	//vk::Extent2D swapChainExtent = {
+	//	windowWidth,
+	//	windowHeight
+	//};
 
 	// - Synchronisation
 	std::vector<VkSemaphore> imageAvailable;

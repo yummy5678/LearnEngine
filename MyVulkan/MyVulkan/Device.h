@@ -12,8 +12,10 @@ const std::vector<const char*> deviceExtensions = {
 class DeviceGenerator
 {
 public:
-	DeviceGenerator(vk::Instance instance, vk::SurfaceKHR surface);
+	DeviceGenerator();
 	~DeviceGenerator();
+
+	void Create(vk::Instance instance, vk::SurfaceKHR surface);
 
 	vk::PhysicalDevice	GetPhysicalDevice();
 	vk::Device			GetLogicalDevice();

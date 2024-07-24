@@ -147,3 +147,84 @@ void CommandUtility::createSynchronisation()
     //    }
     //}
 }
+
+CommandGenerator::CommandGenerator(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, std::vector<vk::Framebuffer> framebuffers)
+{
+    m_Pool = CreateCommandPool(logicalDevice, physicalDevice, surface);
+    m_Buffers = CreateCommandBuffers(logicalDevice, framebuffers, m_Pool.get());
+}
+
+CommandGenerator::~CommandGenerator()
+{
+}
+
+vk::CommandPool CommandGenerator::GetPool()
+{
+    return m_Pool.get();
+}
+
+std::vector<vk::CommandBuffer> CommandGenerator::GetBuffers()
+{
+    return m_Buffers;
+}
+
+vk::UniqueCommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+    // デバイスからキューファミリーのインデックスを取得する
+    QueueFamilyIndices queueFamilyIndices = VulkanUtility::GetQueueFamilies(physicalDevice, surface);
+
+    // コマンドプールの作成に必要な情報を設定する
+    vk::CommandPoolCreateInfo poolInfo = {};
+    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;			// このコマンドプールが使用するキューファミリータイプ
+    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;	// コマンドバッファのリセットを許可する場合はフラグを追加する
+
+    // グラフィックスキューファミリー用のコマンドプールを作成する
+    vk::CommandPool commandPool = logicalDevice.createCommandPool(poolInfo);
+    if (!commandPool)
+    {
+        throw std::runtime_error("コマンドプールの作成に失敗しました！");
+    }
+
+    return vk::UniqueCommandPool(commandPool, logicalDevice);
+}
+
+std::vector<vk::CommandBuffer> CommandGenerator::CreateCommandBuffers(vk::Device logicalDevice, std::vector<vk::Framebuffer> framebuffers, vk::CommandPool commandPool)
+{
+    // エラーチェック: logicalDeviceが有効であるか確認
+    if (!logicalDevice)
+    {
+        throw std::runtime_error("logicalDeviceが無効です！");
+    }
+
+    // エラーチェック: commandPoolが有効であるか確認
+    if (!commandPool)
+    {
+        throw std::runtime_error("commandPoolが無効です！");
+    }
+
+    // エラーチェック: framebuffersが空でないことを確認
+    if (framebuffers.empty())
+    {
+        throw std::runtime_error("framebuffersが空です！");
+    }
+
+    std::vector<vk::CommandBuffer> commandBuffers;
+    commandBuffers.reserve(framebuffers.size()); // 容量を確保
+
+    // コマンドバッファを割り当てるための情報を設定する
+    vk::CommandBufferAllocateInfo cbAllocInfo;
+    cbAllocInfo.commandPool = commandPool;                                 // コマンドバッファを割り当てるコマンドプール
+    cbAllocInfo.level = vk::CommandBufferLevel::ePrimary;                  // コマンドバッファのレベル (PRIMARY: 直接キューに送信するバッファ)
+    cbAllocInfo.commandBufferCount = (uint32_t)framebuffers.size(); // 割り当てるコマンドバッファの数
+
+    // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
+    commandBuffers = logicalDevice.allocateCommandBuffers(cbAllocInfo);
+
+    // エラーチェック: コマンドバッファの割り当てに失敗していないことを確認
+    if (commandBuffers.empty())
+    {
+        throw std::runtime_error("コマンドバッファの割り当てに失敗しました！");
+    }
+
+    return commandBuffers;
+}

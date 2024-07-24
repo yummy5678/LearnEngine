@@ -12,3 +12,21 @@ namespace CommandUtility
 	void createSynchronisation();
 };
 
+class CommandGenerator
+{
+public:
+	CommandGenerator(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, std::vector<vk::Framebuffer> framebuffers);
+	~CommandGenerator();
+
+	vk::CommandPool GetPool();
+	std::vector<vk::CommandBuffer> GetBuffers();
+
+
+private:
+	vk::UniqueCommandPool			m_Pool;
+	std::vector<vk::CommandBuffer>	m_Buffers;
+
+	vk::UniqueCommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	std::vector<vk::CommandBuffer> CreateCommandBuffers(vk::Device logicalDevice, std::vector<vk::Framebuffer> framebuffers, vk::CommandPool commandPool);
+
+};

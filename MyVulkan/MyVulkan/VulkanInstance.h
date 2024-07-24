@@ -10,6 +10,7 @@ public:
 	InstanceGenerator();
 	~InstanceGenerator();
 
+	void Create();
 	[[nodiscard]]vk::Instance GetInstanse();
 
 private:
@@ -24,14 +25,13 @@ private:
 	void CreateInstance();
 
 	// GLFW でサーフェスを作るのに必要なインスタンス拡張を取得
-	std::vector<const char*>* GetRequiredInstanceExtensionsPointer();
+	std::vector<const char*>*	GetRequiredInstanceExtensionsPointer();
 
-	const vk::ApplicationInfo		GetApplicationInfo();
-	const vk::InstanceCreateInfo	GetInstanceInfo(const vk::ApplicationInfo* appInfo = nullptr);
+	vk::ApplicationInfo				CreateApplicationInfo();
+	const vk::InstanceCreateInfo	CreateInstanceInfo(const vk::ApplicationInfo* appInfo = nullptr);
 
 	bool CheckValidationLayerSupport(const std::vector<const char*> validationLayers);
 	bool CheckInstanceExtensionSupport(std::vector<const char*>* checkExtensions);
-
 
 };
 

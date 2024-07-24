@@ -204,19 +204,74 @@ vk::UniquePipelineLayout GraphicsPipelineUtility::createPipelineLayout(vk::Devic
 	return pipelineLauout;
 }
 
-PipelineGenerator::PipelineGenerator(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
+PipelineGenerator::PipelineGenerator()
 {
-	//パイプラインレイアウトの作成
-	CreatePipelineLayout(logicalDevice);
 
-
-
-
-	CreateGraphicsPipeline(logicalDevice, extent, m_PipelineLayout.get(), renderPass);
 }
 
 PipelineGenerator::~PipelineGenerator()
 {
+}
+
+void PipelineGenerator::Create(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
+{
+	//シェーダーステージの作成
+	auto shaderStageInfos = GetShaderStageInfo(logicalDevice);
+
+	//vertexInputCreateInfoの作成
+	auto vertexInputCreateInfo = GetVertexInputStateInfo();
+
+	//入力アセンブリステートの作成
+	auto inputAssemblyInfo = GetInputAssemblyStateInfo();
+
+	//ビューポートステートの作成
+	auto viewportStateCreateInfo = GetViewportStateInfo(extent);
+
+	//ラスタライザーステートの作成
+	auto rasterizerCreateInfo = GetRasterizationStateInfo();
+
+	// -- ダイナミックステート --
+	// 有効にするダイナミックステート
+	//std::vector<VkDynamicState> dynamicStateEnables;
+	//dynamicStateEnables.push_back(VK_DYNAMIC_STATE_VIEWPORT);	// ダイナミックビューポート: vkCmdSetViewport(commandbuffer, 0, 1, &viewport); でコマンドバッファ内でリサイズ可能
+	//dynamicStateEnables.push_back(VK_DYNAMIC_STATE_SCISSOR);	// ダイナミックシザー: vkCmdSetScissor(commandbuffer, 0, 1, &scissor); でコマンドバッファ内でリサイズ可能
+
+	//// ダイナミックステートの作成情報
+	//VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = {};
+	//dynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	//dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
+	//dynamicStateCreateInfo.pDynamicStates = dynamicStateEnables.data();
+
+	//マルチサンプリングステートの作成
+	auto multisamplingInfo = GetMultisampleStateInfo();
+
+	//ブレンドステートの作成
+	auto attachment = GetColorBlendAttachmentState();
+	auto colorBlendingCreateInfo = GetColorBlendStateInfo(&attachment);
+
+	//パイプラインレイアウトの作成
+	auto pipelineLayout = CreatePipelineLayout(logicalDevice);
+	m_PipelineLayout = vk::UniquePipelineLayout(pipelineLayout,logicalDevice);
+
+
+	//パイプラインの作成
+	auto pipeline = CreateGraphicsPipeline(
+		/*logicalDevice				*/logicalDevice,
+		/*shaderStageInfos			*/&shaderStageInfos,
+		/*vertexInputCreateInfo		*/&vertexInputCreateInfo,
+		/*inputAssemblyInfo			*/&inputAssemblyInfo,
+		/*tessellationStateInfo		*/nullptr,
+		/*viewportStateCreateInfo	*/&viewportStateCreateInfo,
+		/*rasterizerCreateInfo		*/&rasterizerCreateInfo,
+		/*multisampleInfo			*/&multisamplingInfo,
+		/*depthStencilInfo			*/nullptr,
+		/*colourBlendingCreateInfo	*/&colorBlendingCreateInfo,
+		/*dynamicStateInfo			*/nullptr,
+		/*pipelineLayout			*/pipelineLayout,
+		/*renderPass				*/renderPass
+	);
+	m_Pipeline = vk::UniquePipeline(pipeline,logicalDevice);
+
 }
 
 vk::Pipeline PipelineGenerator::GetPipeline()
@@ -239,7 +294,72 @@ vk::PipelineLayoutCreateInfo PipelineGenerator::GetLayoutInfo()
 	return m_PipelineLayoutCreateInfo;
 }
 
-void PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Extent2D extent, vk::PipelineLayout pipelineLayout, vk::RenderPass renderPass)
+vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(
+	vk::Device										logicalDevice,
+	std::vector<vk::PipelineShaderStageCreateInfo>* shaderStageInfos,
+	vk::PipelineVertexInputStateCreateInfo*			vertexInputCreateInfo,
+	vk::PipelineInputAssemblyStateCreateInfo*		inputAssemblyInfo,
+	vk::PipelineTessellationStateCreateInfo*		tessellationStateInfo,
+	vk::PipelineViewportStateCreateInfo*			viewportStateCreateInfo,
+	vk::PipelineRasterizationStateCreateInfo*		rasterizerCreateInfo,
+	vk::PipelineMultisampleStateCreateInfo*			multisampleInfo,
+	vk::PipelineDepthStencilStateCreateInfo*		depthStencilInfo,
+	vk::PipelineColorBlendStateCreateInfo*			colourBlendingCreateInfo,
+	vk::PipelineDynamicStateCreateInfo*				dynamicStateInfo,
+	vk::PipelineLayout								pipelineLayout,
+	vk::RenderPass									renderPass)
+{
+
+	// -- グラフィックスパイプラインの作成 --
+	m_PipelineCreateInfo.pNext;
+	m_PipelineCreateInfo.flags;
+	m_PipelineCreateInfo.stageCount = shaderStageInfos->size();// シェーダーステージの数
+	m_PipelineCreateInfo.pStages = shaderStageInfos->data();						// シェーダーステージのリスト
+	m_PipelineCreateInfo.pVertexInputState = vertexInputCreateInfo;	// すべての固定機能パイプラインステート
+	m_PipelineCreateInfo.pInputAssemblyState = inputAssemblyInfo;
+	m_PipelineCreateInfo.pTessellationState = tessellationStateInfo;					//未作成
+	m_PipelineCreateInfo.pViewportState = viewportStateCreateInfo;
+	m_PipelineCreateInfo.pRasterizationState = rasterizerCreateInfo;
+	m_PipelineCreateInfo.pMultisampleState = multisampleInfo;
+	m_PipelineCreateInfo.pDepthStencilState = depthStencilInfo;					//未作成
+	m_PipelineCreateInfo.pColorBlendState = colourBlendingCreateInfo;
+	m_PipelineCreateInfo.pDynamicState = dynamicStateInfo;						//未作成
+	m_PipelineCreateInfo.layout = pipelineLayout;// パイプラインが使用するパイプラインレイアウト
+	m_PipelineCreateInfo.renderPass = renderPass;// パイプラインが互換性のあるレンダーパスの説明
+	m_PipelineCreateInfo.subpass = 0;// パイプラインで使用するサブパス
+
+	// パイプラインの派生: 最適化のために相互に派生する複数のパイプラインを作成できる
+	m_PipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;// 派生元の既存のパイプライン
+	m_PipelineCreateInfo.basePipelineIndex = -1;// または作成中のパイプラインのインデックス (複数作成する場合)
+
+	// グラフィックスパイプラインを作成
+	m_Pipeline = logicalDevice.createGraphicsPipelineUnique(VK_NULL_HANDLE, m_PipelineCreateInfo).value;
+	//if (!graphicsPipeline) {
+	//	throw std::runtime_error("グラフィックスパイプラインの作成に失敗しました！");
+	//}
+
+}
+
+vk::PipelineLayout PipelineGenerator::CreatePipelineLayout(vk::Device logicalDevice)
+{
+	// -- パイプラインレイアウト (TODO: 将来のディスクリプタセットレイアウトを適用する) --
+	vk::PipelineLayoutCreateInfo pipelineLayoutInfo;
+	pipelineLayoutInfo.setLayoutCount = 0;
+	pipelineLayoutInfo.pSetLayouts = nullptr;
+	pipelineLayoutInfo.pushConstantRangeCount = 0;
+	pipelineLayoutInfo.pPushConstantRanges = nullptr;
+
+
+	return logicalDevice.createPipelineLayout(pipelineLayoutInfo);
+
+	// エラーの場合メッセージを投げる
+	//if (!m_PipelineLayout)
+	//{
+	//	throw std::runtime_error("パイプラインレイアウトの作成に失敗しました！");
+	//}
+}
+
+std::vector<vk::PipelineShaderStageCreateInfo> PipelineGenerator::GetShaderStageInfo(vk::Device logicalDevice)
 {
 	// シェーダーのSPIR-Vコードを読み込む
 	auto vertexShaderCode = readFile("Shaders/vert.spv");
@@ -263,9 +383,12 @@ void PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Ext
 	fragmentShaderCreateInfo.pName = "main";									// エントリーポイント
 
 	// シェーダーステージ作成情報を配列に格納
-	vk::PipelineShaderStageCreateInfo shaderStages[] = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
+	std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
+	return shaderStages;
+}
 
-
+vk::PipelineVertexInputStateCreateInfo PipelineGenerator::GetVertexInputStateInfo()
+{
 	// -- 頂点入力 (TODO: リソースが作成されたら頂点の説明を追加する) --
 	vk::PipelineVertexInputStateCreateInfo vertexInputCreateInfo;
 	vertexInputCreateInfo.vertexBindingDescriptionCount = 0;
@@ -273,13 +396,22 @@ void PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Ext
 	vertexInputCreateInfo.vertexAttributeDescriptionCount = 0;
 	vertexInputCreateInfo.pVertexAttributeDescriptions = nullptr;		// 頂点属性の説明 (データフォーマットやバインド先/元)
 
+	return vertexInputCreateInfo;
+}
 
+vk::PipelineInputAssemblyStateCreateInfo PipelineGenerator::GetInputAssemblyStateInfo()
+{
 	// 入力アセンブリステートを設定する
 	vk::PipelineInputAssemblyStateCreateInfo inputAssembly;
 	inputAssembly.sType = vk::StructureType::ePipelineInputAssemblyStateCreateInfo;
 	inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;         // 頂点をアセンブルする基本図形の種類
 	inputAssembly.primitiveRestartEnable = VK_FALSE;                       // "strip" トポロジーを上書きして新しいプリミティブを開始することを許可するか
+	
+	return inputAssembly;
+}
 
+vk::PipelineViewportStateCreateInfo PipelineGenerator::GetViewportStateInfo(vk::Extent2D extent)
+{
 	// -- ビューポート & シザー --
 	// ビューポート情報の構造体を作成
 	vk::Viewport viewport = {};
@@ -303,33 +435,26 @@ void PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Ext
 	viewportStateCreateInfo.scissorCount = 1;
 	viewportStateCreateInfo.pScissors = &scissor;
 
+	return viewportStateCreateInfo;
+}
 
-
-	// -- ダイナミックステート --
-	// 有効にするダイナミックステート
-	//std::vector<VkDynamicState> dynamicStateEnables;
-	//dynamicStateEnables.push_back(VK_DYNAMIC_STATE_VIEWPORT);	// ダイナミックビューポート: vkCmdSetViewport(commandbuffer, 0, 1, &viewport); でコマンドバッファ内でリサイズ可能
-	//dynamicStateEnables.push_back(VK_DYNAMIC_STATE_SCISSOR);	// ダイナミックシザー: vkCmdSetScissor(commandbuffer, 0, 1, &scissor); でコマンドバッファ内でリサイズ可能
-
-	//// ダイナミックステートの作成情報
-	//VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = {};
-	//dynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-	//dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
-	//dynamicStateCreateInfo.pDynamicStates = dynamicStateEnables.data();
-
-
+vk::PipelineRasterizationStateCreateInfo PipelineGenerator::GetRasterizationStateInfo()
+{
 	// ラスタライザーステートを設定する
 	vk::PipelineRasterizationStateCreateInfo rasterizerCreateInfo;
-	rasterizerCreateInfo.setDepthClampEnable(VK_FALSE);				// フラグメントが近接/遠隔平面を超えた場合にクリップ (デフォルト) または平面にクランプするかを変更
-	rasterizerCreateInfo.setRasterizerDiscardEnable(VK_FALSE);		// データを破棄しラスタライザをスキップするかどうか。フレームバッファ出力なしのパイプラインにのみ適している
-	rasterizerCreateInfo.setPolygonMode(vk::PolygonMode::eFill);	// 頂点間のポイントの塗りつぶし方法
-	rasterizerCreateInfo.setLineWidth(1.0f);						// 描画時の線の太さ
-	rasterizerCreateInfo.setCullMode(vk::CullModeFlagBits::eBack);	// 三角形のどの面をカリングするか
-	rasterizerCreateInfo.setFrontFace(vk::FrontFace::eClockwise);	// 前面を決定するための巻き方向
-	rasterizerCreateInfo.setDepthBiasEnable(VK_FALSE);				// フラグメントに深度バイアスを追加するか (シャドウマッピングで "影アクネ" を防ぐのに有効)
+	rasterizerCreateInfo.depthClampEnable = VK_FALSE;				// フラグメントが近接/遠隔平面を超えた場合にクリップ (デフォルト) または平面にクランプするかを変更
+	rasterizerCreateInfo.rasterizerDiscardEnable = VK_FALSE;		// データを破棄しラスタライザをスキップするかどうか。フレームバッファ出力なしのパイプラインにのみ適している
+	rasterizerCreateInfo.polygonMode = vk::PolygonMode::eFill;	// 頂点間のポイントの塗りつぶし方法
+	rasterizerCreateInfo.lineWidth = 1.0f;						// 描画時の線の太さ
+	rasterizerCreateInfo.cullMode = vk::CullModeFlagBits::eBack;	// 三角形のどの面をカリングするか
+	rasterizerCreateInfo.frontFace = vk::FrontFace::eClockwise;	// 前面を決定するための巻き方向
+	rasterizerCreateInfo.depthBiasEnable = VK_FALSE;				// フラグメントに深度バイアスを追加するか (シャドウマッピングで "影アクネ" を防ぐのに有効)
 
+	return rasterizerCreateInfo;
+}
 
-
+vk::PipelineMultisampleStateCreateInfo PipelineGenerator::GetMultisampleStateInfo()
+{
 	// マルチサンプリングステートを設定する
 	vk::PipelineMultisampleStateCreateInfo multisamplingCreateInfo;
 	multisamplingCreateInfo.setSampleShadingEnable(VK_FALSE);						// マルチサンプルシェーディングを有効にするかどうか
@@ -339,13 +464,16 @@ void PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Ext
 	multisamplingCreateInfo.setAlphaToCoverageEnable(VK_FALSE);						// アルファ マスク
 	multisamplingCreateInfo.setAlphaToOneEnable(VK_FALSE);							// アルファ チャネルの最大値
 
+	return multisamplingCreateInfo;
+}
 
-	// -- ブレンディング --
-	// ブレンディングは、書き込まれる新しい色と古い値をどのようにブレンドするかを決定する
 
+std::vector<vk::PipelineColorBlendAttachmentState> PipelineGenerator::GetColorBlendAttachmentState()
+{
 	// ブレンドアタッチメントステートを設定する
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment;
-	colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR |
+	colorBlendAttachment.colorWriteMask = 
+		vk::ColorComponentFlagBits::eR |
 		vk::ColorComponentFlagBits::eG |
 		vk::ColorComponentFlagBits::eB |
 		vk::ColorComponentFlagBits::eA;
@@ -362,71 +490,19 @@ void PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Ext
 	colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
 	// 要約: (1 * 新しいアルファ) + (0 * 古いアルファ) = 新しいアルファ
 
+	return std::vector<vk::PipelineColorBlendAttachmentState>{colorBlendAttachment};
+}
+
+vk::PipelineColorBlendStateCreateInfo PipelineGenerator::GetColorBlendStateInfo(std::vector<vk::PipelineColorBlendAttachmentState>* pAttachments)
+{
 	vk::PipelineColorBlendStateCreateInfo colourBlendingCreateInfo;
 	colourBlendingCreateInfo.pNext;
 	colourBlendingCreateInfo.flags;
 	colourBlendingCreateInfo.logicOpEnable = VK_FALSE;				// 計算の代わりに論理演算を使用するかどうか
 	colourBlendingCreateInfo.logicOp;
-	colourBlendingCreateInfo.attachmentCount = 1;
-	colourBlendingCreateInfo.pAttachments = &colorBlendAttachment;
+	colourBlendingCreateInfo.attachmentCount = pAttachments->size();
+	colourBlendingCreateInfo.pAttachments = pAttachments->data();
 	colourBlendingCreateInfo.blendConstants;
 
-
-	//
-	// ここにあったパイプラインレイアウトを作る処理は別の場所に記載
-	//
-
-
-
-	// -- 深度ステンシルテスト --
-	// TODO: 深度ステンシルテストの設定
-
-
-	// -- グラフィックスパイプラインの作成 --
-	m_PipelineCreateInfo.pNext;
-	m_PipelineCreateInfo.flags;
-	m_PipelineCreateInfo.stageCount = 2;// シェーダーステージの数
-	m_PipelineCreateInfo.pStages = shaderStages;						// シェーダーステージのリスト
-	m_PipelineCreateInfo.pVertexInputState = &vertexInputCreateInfo;	// すべての固定機能パイプラインステート
-	m_PipelineCreateInfo.pInputAssemblyState = &inputAssembly;
-	m_PipelineCreateInfo.pTessellationState;
-	m_PipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
-	m_PipelineCreateInfo.pRasterizationState = &rasterizerCreateInfo;
-	m_PipelineCreateInfo.pMultisampleState = &multisamplingCreateInfo;
-	m_PipelineCreateInfo.pDepthStencilState = nullptr;
-	m_PipelineCreateInfo.pColorBlendState = &colourBlendingCreateInfo;
-	m_PipelineCreateInfo.pDynamicState = nullptr;
-	m_PipelineCreateInfo.layout = pipelineLayout;// パイプラインが使用するパイプラインレイアウト
-	m_PipelineCreateInfo.renderPass = renderPass;// パイプラインが互換性のあるレンダーパスの説明
-	m_PipelineCreateInfo.subpass = 0;// パイプラインで使用するサブパス
-
-	// パイプラインの派生: 最適化のために相互に派生する複数のパイプラインを作成できる
-	m_PipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;// 派生元の既存のパイプライン
-	m_PipelineCreateInfo.basePipelineIndex = -1;// または作成中のパイプラインのインデックス (複数作成する場合)
-
-	// グラフィックスパイプラインを作成
-	m_Pipeline = logicalDevice.createGraphicsPipelineUnique(VK_NULL_HANDLE, m_PipelineCreateInfo).value;
-	//if (!graphicsPipeline) {
-	//	throw std::runtime_error("グラフィックスパイプラインの作成に失敗しました！");
-	//}
-
-}
-
-void PipelineGenerator::CreatePipelineLayout(vk::Device logicalDevice)
-{
-	// -- パイプラインレイアウト (TODO: 将来のディスクリプタセットレイアウトを適用する) --
-	
-	m_PipelineLayoutCreateInfo.setLayoutCount = 0;
-	m_PipelineLayoutCreateInfo.pSetLayouts = nullptr;
-	m_PipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-	m_PipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
-
-
-	m_PipelineLayout = logicalDevice.createPipelineLayoutUnique(m_PipelineLayoutCreateInfo);
-
-	// エラーの場合メッセージを投げる
-	//if (!m_PipelineLayout)
-	//{
-	//	throw std::runtime_error("パイプラインレイアウトの作成に失敗しました！");
-	//}
+	return colourBlendingCreateInfo;
 }

@@ -2,19 +2,21 @@
 using namespace VulkanUtility;
 
 
-RenderpassGenerator::RenderpassGenerator(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR swapchainInfo)
+RenderpassGenerator::RenderpassGenerator()
 {
-    CreateRenderpass(logicalDevice, swapchainInfo);
-
-
 }
 
 RenderpassGenerator::~RenderpassGenerator()
 {
-    Release();
 }
 
-void RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice,vk::SwapchainCreateInfoKHR swapchainInfo)
+void RenderpassGenerator::Create(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR swapchainInfo)
+{
+    auto renderPass = CreateRenderpass(logicalDevice, swapchainInfo);
+    m_RenderPass = vk::UniqueRenderPass(renderPass,logicalDevice);
+}
+
+vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice,vk::SwapchainCreateInfoKHR swapchainInfo)
 {
     auto colorAttachment = CreateColorAttachment(swapchainInfo);
     auto subpass = CreateSubpass();
@@ -24,7 +26,7 @@ void RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice,vk::Swapchai
 
     //レンダーパスを作成
 
-    m_RenderPass = logicalDevice.createRenderPassUnique(createInfo);
+    return logicalDevice.createRenderPass(createInfo);
     //if (!renderPass)
     //{
     //    throw std::runtime_error("レンダーパスの作成に失敗しました!");
@@ -36,10 +38,10 @@ vk::RenderPass RenderpassGenerator::GetRenderpass()
     return m_RenderPass.get();
 }
 
-void RenderpassGenerator::Release()
-{
+//void RenderpassGenerator::Release()
+//{
     //m_pLogicalDevice->destroyRenderPass(m_RenderPass, nullptr);
-}
+//}
 
 vk::AttachmentDescription* RenderpassGenerator::CreateColorAttachment(const vk::SwapchainCreateInfoKHR swapchainInfo)
 {
