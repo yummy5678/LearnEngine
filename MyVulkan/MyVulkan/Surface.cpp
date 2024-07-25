@@ -1,7 +1,18 @@
 #include "Surface.h"
 
+SurfaceGenerator::SurfaceGenerator()
+{
+	m_ClassName = "SurfaceGenerator";
+}
+
+SurfaceGenerator::~SurfaceGenerator()
+{
+}
+
 void SurfaceGenerator::CreateWindowSurface(vk::Instance& instance, GLFWwindow* window)
 {
+	m_bCreated = true;
+
 	VkSurfaceKHR c_Surface;
 	// サーフェスを作成する（サーフェス作成情報構造体を作成し、サーフェス作成関数を実行し、結果を返す）
 	VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &c_Surface);
@@ -18,5 +29,6 @@ void SurfaceGenerator::CreateWindowSurface(vk::Instance& instance, GLFWwindow* w
 
 VkSurfaceKHR SurfaceGenerator::GetSurface()
 {
+	CheckCreated();
 	return m_Surface.get();
 }

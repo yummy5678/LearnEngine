@@ -2,7 +2,7 @@
 
 DeviceGenerator::DeviceGenerator()
 {
-
+	m_ClassName = "DeviceGenerator";
 }
 
 DeviceGenerator::~DeviceGenerator()
@@ -11,6 +11,8 @@ DeviceGenerator::~DeviceGenerator()
 
 void DeviceGenerator::Create(vk::Instance instance, vk::SurfaceKHR surface)
 {
+	m_bCreated = true;
+
 	//使用可能な物理デバイスを探してくる
 	m_PhysicalDevice = BringPhysicalDevice(instance, surface);
 
@@ -22,11 +24,13 @@ void DeviceGenerator::Create(vk::Instance instance, vk::SurfaceKHR surface)
 
 vk::PhysicalDevice DeviceGenerator::GetPhysicalDevice()
 {
+	CheckCreated();
 	return m_PhysicalDevice;
 }
 
 vk::Device DeviceGenerator::GetLogicalDevice()
 {
+	CheckCreated();
 	return m_LogicalDevice.get();
 }
 

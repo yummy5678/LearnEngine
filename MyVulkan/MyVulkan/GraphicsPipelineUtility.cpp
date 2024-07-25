@@ -206,7 +206,7 @@ vk::UniquePipelineLayout GraphicsPipelineUtility::createPipelineLayout(vk::Devic
 
 PipelineGenerator::PipelineGenerator()
 {
-
+	m_ClassName = "PipelineGenerator";
 }
 
 PipelineGenerator::~PipelineGenerator()
@@ -215,20 +215,55 @@ PipelineGenerator::~PipelineGenerator()
 
 void PipelineGenerator::Create(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
 {
+	m_bCreated = true;
+
+	//パイプラインの作成
+	auto pipelineInfo = CreateGraphicsPipelineInfo(logicalDevice, extent, renderPass);
+	m_Pipeline = logicalDevice.createGraphicsPipelineUnique(nullptr, pipelineInfo).value;
+
+}
+
+vk::Pipeline PipelineGenerator::GetPipeline()
+{
+	CheckCreated();
+	return m_Pipeline.get();
+}
+
+vk::PipelineLayout PipelineGenerator::GetPipelineLayout()
+{
+	CheckCreated();
+	return m_PipelineLayout.get();
+}
+
+vk::GraphicsPipelineCreateInfo PipelineGenerator::GetPipelineInfo()
+{
+	CheckCreated();
+	return m_PipelineCreateInfo;
+}
+
+vk::PipelineLayoutCreateInfo PipelineGenerator::GetLayoutInfo()
+{
+	CheckCreated();
+	return m_PipelineLayoutCreateInfo;
+}
+
+vk::GraphicsPipelineCreateInfo PipelineGenerator::CreateGraphicsPipelineInfo(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
+{
 	//シェーダーステージの作成
-	auto shaderStageInfos = GetShaderStageInfo(logicalDevice);
+	m_ShaderStageInfos = GetShaderStageInfo(logicalDevice);
 
 	//vertexInputCreateInfoの作成
-	auto vertexInputCreateInfo = GetVertexInputStateInfo();
+	m_VertexInputCreateInfo = GetVertexInputStateInfo();
 
 	//入力アセンブリステートの作成
-	auto inputAssemblyInfo = GetInputAssemblyStateInfo();
+	m_InputAssemblyInfo = GetInputAssemblyStateInfo();
 
 	//ビューポートステートの作成
-	auto viewportStateCreateInfo = GetViewportStateInfo(extent);
+	m_viewportGenerator.Create(extent);
+	auto viewportStateCreateInfo = m_viewportGenerator.GetCreateInfoPointer();
 
 	//ラスタライザーステートの作成
-	auto rasterizerCreateInfo = GetRasterizationStateInfo();
+	m_RasterizerCreateInfo = GetRasterizationStateInfo();
 
 	// -- ダイナミックステート --
 	// 有効にするダイナミックステート
@@ -243,97 +278,43 @@ void PipelineGenerator::Create(vk::Device logicalDevice, vk::Extent2D extent, vk
 	//dynamicStateCreateInfo.pDynamicStates = dynamicStateEnables.data();
 
 	//マルチサンプリングステートの作成
-	auto multisamplingInfo = GetMultisampleStateInfo();
+	m_MultisamplingInfo = GetMultisampleStateInfo();
 
 	//ブレンドステートの作成
-	auto attachment = GetColorBlendAttachmentState();
-	auto colorBlendingCreateInfo = GetColorBlendStateInfo(&attachment);
+	m_ColorBlendAttachment = GetColorBlendAttachmentState();
+	m_ColorBlendCreateInfo = GetColorBlendStateInfo(&m_ColorBlendAttachment);
 
 	//パイプラインレイアウトの作成
 	auto pipelineLayout = CreatePipelineLayout(logicalDevice);
-	m_PipelineLayout = vk::UniquePipelineLayout(pipelineLayout,logicalDevice);
+	m_PipelineLayout = vk::UniquePipelineLayout(pipelineLayout, logicalDevice);
 
 
-	//パイプラインの作成
-	auto pipeline = CreateGraphicsPipeline(
-		/*logicalDevice				*/logicalDevice,
-		/*shaderStageInfos			*/&shaderStageInfos,
-		/*vertexInputCreateInfo		*/&vertexInputCreateInfo,
-		/*inputAssemblyInfo			*/&inputAssemblyInfo,
-		/*tessellationStateInfo		*/nullptr,
-		/*viewportStateCreateInfo	*/&viewportStateCreateInfo,
-		/*rasterizerCreateInfo		*/&rasterizerCreateInfo,
-		/*multisampleInfo			*/&multisamplingInfo,
-		/*depthStencilInfo			*/nullptr,
-		/*colourBlendingCreateInfo	*/&colorBlendingCreateInfo,
-		/*dynamicStateInfo			*/nullptr,
-		/*pipelineLayout			*/pipelineLayout,
-		/*renderPass				*/renderPass
-	);
-	m_Pipeline = vk::UniquePipeline(pipeline,logicalDevice);
-
-}
-
-vk::Pipeline PipelineGenerator::GetPipeline()
-{
-	return m_Pipeline.get();
-}
-
-vk::PipelineLayout PipelineGenerator::GetPipelineLayout()
-{
-	return m_PipelineLayout.get();
-}
-
-vk::GraphicsPipelineCreateInfo PipelineGenerator::GetPipelineInfo()
-{
-	return m_PipelineCreateInfo;
-}
-
-vk::PipelineLayoutCreateInfo PipelineGenerator::GetLayoutInfo()
-{
-	return m_PipelineLayoutCreateInfo;
-}
-
-vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(
-	vk::Device										logicalDevice,
-	std::vector<vk::PipelineShaderStageCreateInfo>* shaderStageInfos,
-	vk::PipelineVertexInputStateCreateInfo*			vertexInputCreateInfo,
-	vk::PipelineInputAssemblyStateCreateInfo*		inputAssemblyInfo,
-	vk::PipelineTessellationStateCreateInfo*		tessellationStateInfo,
-	vk::PipelineViewportStateCreateInfo*			viewportStateCreateInfo,
-	vk::PipelineRasterizationStateCreateInfo*		rasterizerCreateInfo,
-	vk::PipelineMultisampleStateCreateInfo*			multisampleInfo,
-	vk::PipelineDepthStencilStateCreateInfo*		depthStencilInfo,
-	vk::PipelineColorBlendStateCreateInfo*			colourBlendingCreateInfo,
-	vk::PipelineDynamicStateCreateInfo*				dynamicStateInfo,
-	vk::PipelineLayout								pipelineLayout,
-	vk::RenderPass									renderPass)
-{
 
 	// -- グラフィックスパイプラインの作成 --
-	m_PipelineCreateInfo.pNext;
-	m_PipelineCreateInfo.flags;
-	m_PipelineCreateInfo.stageCount = shaderStageInfos->size();// シェーダーステージの数
-	m_PipelineCreateInfo.pStages = shaderStageInfos->data();						// シェーダーステージのリスト
-	m_PipelineCreateInfo.pVertexInputState = vertexInputCreateInfo;	// すべての固定機能パイプラインステート
-	m_PipelineCreateInfo.pInputAssemblyState = inputAssemblyInfo;
-	m_PipelineCreateInfo.pTessellationState = tessellationStateInfo;					//未作成
-	m_PipelineCreateInfo.pViewportState = viewportStateCreateInfo;
-	m_PipelineCreateInfo.pRasterizationState = rasterizerCreateInfo;
-	m_PipelineCreateInfo.pMultisampleState = multisampleInfo;
-	m_PipelineCreateInfo.pDepthStencilState = depthStencilInfo;					//未作成
-	m_PipelineCreateInfo.pColorBlendState = colourBlendingCreateInfo;
-	m_PipelineCreateInfo.pDynamicState = dynamicStateInfo;						//未作成
-	m_PipelineCreateInfo.layout = pipelineLayout;// パイプラインが使用するパイプラインレイアウト
-	m_PipelineCreateInfo.renderPass = renderPass;// パイプラインが互換性のあるレンダーパスの説明
-	m_PipelineCreateInfo.subpass = 0;// パイプラインで使用するサブパス
+	vk::GraphicsPipelineCreateInfo pipelineInfo;
+	pipelineInfo.pNext;
+	pipelineInfo.flags;
+	pipelineInfo.stageCount			= m_ShaderStageInfos.size();	// シェーダーステージの数
+	pipelineInfo.pStages			= m_ShaderStageInfos.data();	// シェーダーステージのリスト
+	pipelineInfo.pVertexInputState	= &m_VertexInputCreateInfo;	// すべての固定機能パイプラインステート
+	pipelineInfo.pInputAssemblyState= &m_InputAssemblyInfo;
+	pipelineInfo.pTessellationState	= nullptr;					//未作成
+	pipelineInfo.pViewportState		= viewportStateCreateInfo;
+	pipelineInfo.pRasterizationState= &m_RasterizerCreateInfo;
+	pipelineInfo.pMultisampleState	= &m_MultisamplingInfo;
+	pipelineInfo.pDepthStencilState	= nullptr;					//未作成
+	pipelineInfo.pColorBlendState	= &m_ColorBlendCreateInfo;
+	pipelineInfo.pDynamicState		= nullptr;					//未作成
+	pipelineInfo.layout				= m_PipelineLayout.get();			// パイプラインが使用するパイプラインレイアウト
+	pipelineInfo.renderPass			= renderPass;				// パイプラインが互換性のあるレンダーパスの説明
+	pipelineInfo.subpass			= 0;						// パイプラインで使用するサブパス
 
 	// パイプラインの派生: 最適化のために相互に派生する複数のパイプラインを作成できる
-	m_PipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;// 派生元の既存のパイプライン
-	m_PipelineCreateInfo.basePipelineIndex = -1;// または作成中のパイプラインのインデックス (複数作成する場合)
+	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;// 派生元の既存のパイプライン
+	pipelineInfo.basePipelineIndex = -1;// または作成中のパイプラインのインデックス (複数作成する場合)
 
 	// グラフィックスパイプラインを作成
-	m_Pipeline = logicalDevice.createGraphicsPipelineUnique(VK_NULL_HANDLE, m_PipelineCreateInfo).value;
+	return pipelineInfo;
 	//if (!graphicsPipeline) {
 	//	throw std::runtime_error("グラフィックスパイプラインの作成に失敗しました！");
 	//}
@@ -408,34 +389,6 @@ vk::PipelineInputAssemblyStateCreateInfo PipelineGenerator::GetInputAssemblyStat
 	inputAssembly.primitiveRestartEnable = VK_FALSE;                       // "strip" トポロジーを上書きして新しいプリミティブを開始することを許可するか
 	
 	return inputAssembly;
-}
-
-vk::PipelineViewportStateCreateInfo PipelineGenerator::GetViewportStateInfo(vk::Extent2D extent)
-{
-	// -- ビューポート & シザー --
-	// ビューポート情報の構造体を作成
-	vk::Viewport viewport = {};
-	viewport.x = 0.0f;									// x 開始座標
-	viewport.y = 0.0f;									// y 開始座標
-	viewport.width = (float)extent.width;				// ビューポートの幅
-	viewport.height = (float)extent.height;				// ビューポートの高さ
-	viewport.minDepth = 0.0f;							// フレームバッファの最小深度
-	viewport.maxDepth = 1.0f;							// フレームバッファの最大深度
-
-	// シザー情報の構造体を作成
-	vk::Rect2D scissor = {};
-	scissor.offset = VkOffset2D{ 0,0 };		// 使用する領域のオフセット
-	scissor.extent = extent;				// 使用する領域の範囲とオフセットから開始
-
-	// ビューポートステート作成情報を設定する
-	vk::PipelineViewportStateCreateInfo viewportStateCreateInfo;
-	viewportStateCreateInfo.sType = vk::StructureType::ePipelineViewportStateCreateInfo;
-	viewportStateCreateInfo.viewportCount = 1;
-	viewportStateCreateInfo.pViewports = &viewport;
-	viewportStateCreateInfo.scissorCount = 1;
-	viewportStateCreateInfo.pScissors = &scissor;
-
-	return viewportStateCreateInfo;
 }
 
 vk::PipelineRasterizationStateCreateInfo PipelineGenerator::GetRasterizationStateInfo()

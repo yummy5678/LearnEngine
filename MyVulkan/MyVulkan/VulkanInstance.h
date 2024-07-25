@@ -1,10 +1,11 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
+#include "GeneratorBase.h"
 #include "VulkanValidation.h"
 
 // インスタンス拡張機能のリストを作成する
-class InstanceGenerator
+class InstanceGenerator : public CGeneratorBase
 {
 public:
 	InstanceGenerator();

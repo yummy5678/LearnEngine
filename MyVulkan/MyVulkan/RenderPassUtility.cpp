@@ -1,9 +1,8 @@
 #include "RenderPassUtility.h"
-using namespace VulkanUtility;
-
 
 RenderpassGenerator::RenderpassGenerator()
 {
+    m_ClassName = "RenderpassGenerator";
 }
 
 RenderpassGenerator::~RenderpassGenerator()
@@ -12,6 +11,7 @@ RenderpassGenerator::~RenderpassGenerator()
 
 void RenderpassGenerator::Create(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR swapchainInfo)
 {
+    m_bCreated = true;
     auto renderPass = CreateRenderpass(logicalDevice, swapchainInfo);
     m_RenderPass = vk::UniqueRenderPass(renderPass,logicalDevice);
 }
@@ -35,6 +35,7 @@ vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice,vk
 
 vk::RenderPass RenderpassGenerator::GetRenderpass()
 {
+    CheckCreated();
     return m_RenderPass.get();
 }
 

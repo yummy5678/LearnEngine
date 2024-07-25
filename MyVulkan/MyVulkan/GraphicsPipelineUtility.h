@@ -1,7 +1,9 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include "GeneratorBase.h"
 #include "Utilities.h"
 #include "ShaderUtility.h"
+#include "ViewportGenerator.h"
 
 namespace GraphicsPipelineUtility
 {
@@ -10,7 +12,7 @@ namespace GraphicsPipelineUtility
 	 vk::UniquePipelineLayout createPipelineLayout(vk::Device logicalDevice);
 };
 
-class PipelineGenerator
+class PipelineGenerator : CGeneratorBase
 {
 public:
 	PipelineGenerator();
@@ -31,32 +33,28 @@ private:
 	vk::UniquePipelineLayout		m_PipelineLayout;
 	vk::PipelineLayoutCreateInfo	m_PipelineLayoutCreateInfo;
 
-	vk::Pipeline CreateGraphicsPipeline(
-		vk::Device										logicalDevice,
-		std::vector<vk::PipelineShaderStageCreateInfo>* shaderStageInfos,
-		vk::PipelineVertexInputStateCreateInfo*			vertexInputCreateInfo,
-		vk::PipelineInputAssemblyStateCreateInfo*		inputAssemblyInfo,
-		vk::PipelineTessellationStateCreateInfo*		tessellationStateInfo,
-		vk::PipelineViewportStateCreateInfo*			viewportStateCreateInfo,
-		vk::PipelineRasterizationStateCreateInfo*		rasterizerCreateInfo,
-		vk::PipelineMultisampleStateCreateInfo*			multisampleInfo,
-		vk::PipelineDepthStencilStateCreateInfo*		depthStencilInfo,
-		vk::PipelineColorBlendStateCreateInfo*			colourBlendingCreateInfo,
-		vk::PipelineDynamicStateCreateInfo*				dynamicStateInfo,
-		vk::PipelineLayout								pipelineLayout,
-		vk::RenderPass									renderPass);
+
+	std::vector<vk::PipelineShaderStageCreateInfo>		m_ShaderStageInfos;
+	vk::PipelineMultisampleStateCreateInfo				m_MultisamplingInfo;
+	vk::PipelineVertexInputStateCreateInfo				m_VertexInputCreateInfo;
+	vk::PipelineInputAssemblyStateCreateInfo			m_InputAssemblyInfo;
+	ViewportGenerator									m_viewportGenerator;
+	vk::PipelineRasterizationStateCreateInfo			m_RasterizerCreateInfo;
+	std::vector<vk::PipelineColorBlendAttachmentState>	m_ColorBlendAttachment;
+	vk::PipelineColorBlendStateCreateInfo				m_ColorBlendCreateInfo;
+
+	vk::GraphicsPipelineCreateInfo CreateGraphicsPipelineInfo(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass);
 
 
 	vk::PipelineLayout CreatePipelineLayout(vk::Device logicalDevice);
 
-	std::vector<vk::PipelineShaderStageCreateInfo>	GetShaderStageInfo(vk::Device logicalDevice);
-	vk::PipelineVertexInputStateCreateInfo			GetVertexInputStateInfo();
-	vk::PipelineInputAssemblyStateCreateInfo		GetInputAssemblyStateInfo();
-	vk::PipelineViewportStateCreateInfo				GetViewportStateInfo(vk::Extent2D extent);
-	vk::PipelineRasterizationStateCreateInfo		GetRasterizationStateInfo();
+	std::vector<vk::PipelineShaderStageCreateInfo>		GetShaderStageInfo(vk::Device logicalDevice);
+	vk::PipelineVertexInputStateCreateInfo				GetVertexInputStateInfo();
+	vk::PipelineInputAssemblyStateCreateInfo			GetInputAssemblyStateInfo();
+	vk::PipelineRasterizationStateCreateInfo			GetRasterizationStateInfo();
 
-	vk::PipelineMultisampleStateCreateInfo			GetMultisampleStateInfo();
-	std::vector<vk::PipelineColorBlendAttachmentState>			GetColorBlendAttachmentState();
-	vk::PipelineColorBlendStateCreateInfo			GetColorBlendStateInfo(std::vector<vk::PipelineColorBlendAttachmentState>* colorBlendAttachment);
+	vk::PipelineMultisampleStateCreateInfo				GetMultisampleStateInfo();
+	std::vector<vk::PipelineColorBlendAttachmentState>	GetColorBlendAttachmentState();
+	vk::PipelineColorBlendStateCreateInfo				GetColorBlendStateInfo(std::vector<vk::PipelineColorBlendAttachmentState>* colorBlendAttachment);
 
 };

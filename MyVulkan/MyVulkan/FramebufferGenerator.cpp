@@ -1,32 +1,48 @@
 #include "FramebufferGenerator.h"
 
-FramebufferGenerator::FramebufferGenerator(vk::Device logicalDevice, SwapchainGenerator& swapchain, vk::RenderPass renderPass)
+FramebufferGenerator::FramebufferGenerator()
 {
-    CreateFramebuffers(logicalDevice, swapchain.GetSwapChainImages(),renderPass,swapchain.Get2DExtent());
-}
-
-FramebufferGenerator::FramebufferGenerator(vk::Device logicalDevice, std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
-{
-    CreateFramebuffers(logicalDevice, swapChainImages, renderPass, extent);
+    m_ClassName = "FramebufferGenerator";
 }
 
 FramebufferGenerator::~FramebufferGenerator()
 {
+    Destroy();
 }
 
-std::vector<vk::Framebuffer> FramebufferGenerator::GetFramebuffers()
+void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
 {
-    return m_Framebuffers;
-}
-
-void FramebufferGenerator::CreateFramebuffers(vk::Device logicalDevice, std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
-{
+    m_bCreated = true;
     // logicalDeviceが有効であるか確認
     if (!logicalDevice)
     {
         throw std::runtime_error("logicalDeviceが無効です！");
     }
 
+    //作成情報を作成
+    m_FramebufferInfos = CreateFramebufferInfos(swapChainImages, renderPass, extent);
+
+    //作成情報からフレームバッファを作成
+    for (const auto& info : m_FramebufferInfos)
+    {
+        m_Framebuffers.push_back(logicalDevice.createFramebuffer(info));
+    }
+}
+
+void FramebufferGenerator::Destroy()
+{
+    for (const auto& framebuffer : m_Framebuffers)
+        vkDestroyFramebuffer(m_LogicalDevice, framebuffer, nullptr);
+}
+
+std::vector<vk::Framebuffer> FramebufferGenerator::GetFramebuffers()
+{
+    CheckCreated();
+    return m_Framebuffers;
+}
+
+std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferInfos(std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
+{
     // renderPassが有効であるか確認
     if (!renderPass)
     {
@@ -39,8 +55,8 @@ void FramebufferGenerator::CreateFramebuffers(vk::Device logicalDevice, std::vec
         throw std::runtime_error("swapChainImagesが空です！");
     }
 
-    std::vector<vk::Framebuffer> framebuffers;
-    framebuffers.reserve(swapChainImages.size());
+    std::vector<vk::FramebufferCreateInfo> framebufferInfos;
+    framebufferInfos.reserve(swapChainImages.size());
 
     for (const auto& swapChainImage : swapChainImages)
     {
@@ -49,26 +65,21 @@ void FramebufferGenerator::CreateFramebuffers(vk::Device logicalDevice, std::vec
             throw std::runtime_error("ImageViewが無効です！");
         }
 
-        std::array<vk::ImageView, 1> attachments = { swapChainImage.imageView };
+        m_Attachments = { swapChainImage.imageView };
 
-        vk::FramebufferCreateInfo framebufferCreateInfo = {};
-        framebufferCreateInfo.renderPass = renderPass;
-        framebufferCreateInfo.attachmentCount = (uint32_t)attachments.size();
-        framebufferCreateInfo.pAttachments = attachments.data();
-        framebufferCreateInfo.width = extent.width;
-        framebufferCreateInfo.height = extent.height;
-        framebufferCreateInfo.layers = 1;
-
-        // vk::Framebufferを作成する
-        vk::Framebuffer framebuffer = logicalDevice.createFramebuffer(framebufferCreateInfo);
-        if (!framebuffer)
-        {
-            throw std::runtime_error("フレームバッファの作成に失敗しました！");
-        }
+        vk::FramebufferCreateInfo createInfo;
+        createInfo.renderPass       = renderPass;
+        createInfo.attachmentCount  = (uint32_t)m_Attachments.size();
+        createInfo.pAttachments     = m_Attachments.data();
+        createInfo.width            = extent.width;
+        createInfo.height           = extent.height;
+        createInfo.layers           = 1;
 
         // vk::Framebufferをvk::UniqueFramebufferに変換する
-        framebuffers.push_back(framebuffer);
+        framebufferInfos.push_back(createInfo);
     }
 
-    m_Framebuffers = framebuffers;
+    return framebufferInfos;
 }
+
+

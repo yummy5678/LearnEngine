@@ -1,8 +1,9 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include "GeneratorBase.h"
 #include "SwapChainUtility.h"
 
-class RenderpassGenerator
+class RenderpassGenerator : public CGeneratorBase
 {
 public:
 	RenderpassGenerator();

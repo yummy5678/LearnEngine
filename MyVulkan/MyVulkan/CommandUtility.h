@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include "GeneratorBase.h"
 #include "QueueUtility.h"
 
 namespace CommandUtility
@@ -12,11 +13,13 @@ namespace CommandUtility
 	void createSynchronisation();
 };
 
-class CommandGenerator
+class CommandGenerator : public CGeneratorBase
 {
 public:
-	CommandGenerator(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, std::vector<vk::Framebuffer> framebuffers);
+	CommandGenerator();
 	~CommandGenerator();
+
+	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, std::vector<vk::Framebuffer> framebuffers);
 
 	vk::CommandPool GetPool();
 	std::vector<vk::CommandBuffer> GetBuffers();
@@ -26,7 +29,7 @@ private:
 	vk::UniqueCommandPool			m_Pool;
 	std::vector<vk::CommandBuffer>	m_Buffers;
 
-	vk::UniqueCommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 	std::vector<vk::CommandBuffer> CreateCommandBuffers(vk::Device logicalDevice, std::vector<vk::Framebuffer> framebuffers, vk::CommandPool commandPool);
 
 };

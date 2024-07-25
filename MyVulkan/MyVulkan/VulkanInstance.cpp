@@ -3,7 +3,7 @@
 
 InstanceGenerator::InstanceGenerator()
 {
-	
+	m_ClassName = "InstanceGenerator";
 }
 
 InstanceGenerator::~InstanceGenerator()
@@ -25,11 +25,13 @@ void InstanceGenerator::CreateInstance()
 
 void InstanceGenerator::Create()
 {
+	m_bCreated = true;
 	CreateInstance();
 }
 
 vk::Instance InstanceGenerator::GetInstanse()
 {
+	CheckCreated();
 	return m_Instance.get();
 }
 

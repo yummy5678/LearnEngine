@@ -134,6 +134,7 @@
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="FramebufferGenerator.cpp" />
     <ClCompile Include="GameWindow.cpp" />
+    <ClCompile Include="GeneratorBase.cpp" />
     <ClCompile Include="GraphicsPipelineUtility.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
@@ -142,6 +143,7 @@
     <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SwapChainUtility.cpp" />
+    <ClCompile Include="ViewportGenerator.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +154,7 @@
     <ClInclude Include="Device.h" />
     <ClInclude Include="FramebufferGenerator.h" />
     <ClInclude Include="GameWindow.h" />
+    <ClInclude Include="GeneratorBase.h" />
     <ClInclude Include="GraphicsDefine.h" />
     <ClInclude Include="GraphicsPipelineUtility.h" />
     <ClInclude Include="QueueUtility.h" />
@@ -161,6 +164,7 @@
     <ClInclude Include="Surface.h" />
     <ClInclude Include="SwapChainUtility.h" />
     <ClInclude Include="Utilities.h" />
+    <ClInclude Include="ViewportGenerator.h" />
     <ClInclude Include="VulkanInstance.h" />
     <ClInclude Include="VulkanValidation.h" />
   </ItemGroup>

@@ -34,9 +34,14 @@ private:
 	GLFWwindow* window;
 
 	int currentFrame = 0;
-	InstanceGenerator instanceGenerator;
-	SurfaceGenerator surfaceGenerator;
-	DeviceGenerator deviceGenerator;
+	InstanceGenerator		instanceGenerator;
+	SurfaceGenerator		surfaceGenerator;
+	DeviceGenerator			deviceGenerator;
+	SwapchainGenerator		swapchainGenerator;
+	RenderpassGenerator		renderpassGenerator;
+	PipelineGenerator		pipelineGenerator;
+	FramebufferGenerator	framebufferGenerator;
+	CommandGenerator		commandGenerator;
 	// Vulkan Components
 	//VkInstance instance;
 	//vk::UniqueInstance instance;

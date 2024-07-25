@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include "GeneratorBase.h"
 #include "QueueUtility.h"
 #include "GraphicsDefine.h"
 //#include "Utilities.h"
@@ -49,7 +50,7 @@ namespace VulkanUtility
 
 };
 
-class SwapchainGenerator
+class SwapchainGenerator : public CGeneratorBase
 {
 public:
 	SwapchainGenerator();

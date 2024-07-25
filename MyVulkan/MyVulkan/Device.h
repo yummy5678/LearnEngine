@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include <set>
+#include "GeneratorBase.h"
 #include "QueueUtility.h"
 #include "SwapChainUtility.h"
 
@@ -9,7 +10,7 @@ const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-class DeviceGenerator
+class DeviceGenerator : CGeneratorBase
 {
 public:
 	DeviceGenerator();

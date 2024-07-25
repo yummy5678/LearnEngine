@@ -233,8 +233,7 @@ std::vector<vk::Framebuffer> VulkanUtility::createFramebuffers(vk::Device logica
 
 SwapchainGenerator::SwapchainGenerator()
 {
-
-
+    m_ClassName = "SwapchainGenerator";
 }
 
 SwapchainGenerator::~SwapchainGenerator()
@@ -243,6 +242,7 @@ SwapchainGenerator::~SwapchainGenerator()
 
 void SwapchainGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
+    m_bCreated = true;
     m_SwapchainInfo = CreateSwapchainInfo(physicalDevice, surface);
     m_Swapchain = logicalDevice.createSwapchainKHRUnique(m_SwapchainInfo);
 
@@ -251,26 +251,31 @@ void SwapchainGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice phy
 
 vk::SwapchainKHR SwapchainGenerator::GetSwapchain()
 {
+    CheckCreated();
     return m_Swapchain.get();
 }
 
 vk::Extent2D SwapchainGenerator::Get2DExtent()
 {
+    CheckCreated();
     return m_Extent;
 }
 
 vk::SurfaceFormatKHR SwapchainGenerator::GetSurfaceFormat()
 {
+    CheckCreated();
     return m_SurfaceFormat;
 }
 
 vk::SwapchainCreateInfoKHR SwapchainGenerator::GetSwapchainInfo()
 {
+    CheckCreated();
     return m_SwapchainInfo;
 }
 
 std::vector<SwapchainImage> SwapchainGenerator::GetSwapChainImages()
 {
+    CheckCreated();
     return m_Images;
 }
 

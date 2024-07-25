@@ -10,19 +10,16 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	
 	try {
 		//インスタンスの作成
-		InstanceGenerator instanceGenerator;
 		instanceGenerator.Create();
 		auto instance = instanceGenerator.GetInstanse();
 
 		createDebugCallback();
 
 		//サーフェスの作成
-		SurfaceGenerator surfaceGenerator;
 		surfaceGenerator.CreateWindowSurface(instance,window);
 		auto surface = surfaceGenerator.GetSurface();
 
 		//物理・論理デバイスの作成
-		DeviceGenerator deviceGenerator;
 		deviceGenerator.Create(instance, surface);
 		//物理デバイスを取得
 		auto physicalDevice	= deviceGenerator.GetPhysicalDevice();
@@ -30,28 +27,25 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		auto logicalDevice	= deviceGenerator.GetLogicalDevice();
 
 		//スワップチェインの作成
-		SwapchainGenerator swapchainGenerator;
 		swapchainGenerator.Create(logicalDevice, physicalDevice, surface);
 		auto swapchain = swapchainGenerator.GetSwapchain();
 		auto swapChainImages = swapchainGenerator.GetSwapChainImages();//swapChainImagesを作成しておく
 		auto swapChainExtent = swapchainGenerator.Get2DExtent();
 
 		//レンダーパスの作成
-		RenderpassGenerator renderpassGenerator;
 		renderpassGenerator.Create(logicalDevice, swapchainGenerator.GetSwapchainInfo());
 		auto renderPass = renderpassGenerator.GetRenderpass();
 
 		//パイプラインの作成
-		PipelineGenerator pipelineGenerator;
 		pipelineGenerator.Create(logicalDevice, swapChainExtent, renderPass);
 		auto graphicsPipeline = pipelineGenerator.GetPipeline();
 		
 		//フレームバッファの作成
-		FramebufferGenerator framebufferGenerator(logicalDevice, swapchainGenerator, renderPass);
+		framebufferGenerator.Create(logicalDevice, swapChainImages, renderPass, swapChainExtent);
 		auto swapchainFramebuffers = framebufferGenerator.GetFramebuffers();
 
 		//コマンドバッファの作成
-		CommandGenerator commandGenerator(logicalDevice, physicalDevice, surface, swapchainFramebuffers);
+		commandGenerator.Create(logicalDevice, physicalDevice, surface, swapchainFramebuffers);
 		auto graphicsCommandPool = commandGenerator.GetPool();
 		auto commandBuffers = commandGenerator.GetBuffers();
 

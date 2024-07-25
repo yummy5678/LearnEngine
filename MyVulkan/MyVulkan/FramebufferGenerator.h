@@ -1,20 +1,27 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include "GeneratorBase.h"
 #include "SwapChainUtility.h"
 
-class FramebufferGenerator
+class FramebufferGenerator : public CGeneratorBase
 {
 public:
-	FramebufferGenerator(vk::Device logicalDevice, SwapchainGenerator& swapchain, vk::RenderPass renderPass);
-	FramebufferGenerator(vk::Device logicalDevice, std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent);
+	FramebufferGenerator();
 	~FramebufferGenerator();
+
+	void Create(vk::Device logicalDevice, std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent);
+
+
 
 	std::vector<vk::Framebuffer>	GetFramebuffers();
 private:
-	std::vector<vk::Framebuffer>	m_Framebuffers;
+	vk::Device								m_LogicalDevice;
+	std::vector<vk::Framebuffer>			m_Framebuffers;
+	std::vector<vk::FramebufferCreateInfo>	m_FramebufferInfos;
+	std::array<vk::ImageView, 1>			m_Attachments;
 
-	void CreateFramebuffers(vk::Device logicalDevice, std::vector<SwapchainImage> swapChainImages, 
-		vk::RenderPass renderPass, vk::Extent2D extent);
+	void Destroy();
+	std::vector<vk::FramebufferCreateInfo> CreateFramebufferInfos(std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent);
 
 };
 

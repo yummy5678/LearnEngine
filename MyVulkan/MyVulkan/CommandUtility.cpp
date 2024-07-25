@@ -148,27 +148,37 @@ void CommandUtility::createSynchronisation()
     //}
 }
 
-CommandGenerator::CommandGenerator(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, std::vector<vk::Framebuffer> framebuffers)
+CommandGenerator::CommandGenerator()
 {
-    m_Pool = CreateCommandPool(logicalDevice, physicalDevice, surface);
-    m_Buffers = CreateCommandBuffers(logicalDevice, framebuffers, m_Pool.get());
+    m_ClassName = "CommandGenerator";
 }
 
 CommandGenerator::~CommandGenerator()
 {
 }
 
+void CommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, std::vector<vk::Framebuffer> framebuffers)
+{
+    m_bCreated = true;
+
+    auto pool = CreateCommandPool(logicalDevice, physicalDevice, surface);
+    m_Pool = vk::UniqueCommandPool(pool,logicalDevice);
+    m_Buffers = CreateCommandBuffers(logicalDevice, framebuffers, pool);
+}
+
 vk::CommandPool CommandGenerator::GetPool()
 {
+    CheckCreated();
     return m_Pool.get();
 }
 
 std::vector<vk::CommandBuffer> CommandGenerator::GetBuffers()
 {
+    CheckCreated();
     return m_Buffers;
 }
 
-vk::UniqueCommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     // デバイスからキューファミリーのインデックスを取得する
     QueueFamilyIndices queueFamilyIndices = VulkanUtility::GetQueueFamilies(physicalDevice, surface);
@@ -179,13 +189,11 @@ vk::UniqueCommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevi
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;	// コマンドバッファのリセットを許可する場合はフラグを追加する
 
     // グラフィックスキューファミリー用のコマンドプールを作成する
-    vk::CommandPool commandPool = logicalDevice.createCommandPool(poolInfo);
-    if (!commandPool)
-    {
-        throw std::runtime_error("コマンドプールの作成に失敗しました！");
-    }
-
-    return vk::UniqueCommandPool(commandPool, logicalDevice);
+    return logicalDevice.createCommandPool(poolInfo);
+    //if (!commandPool)
+    //{
+    //    throw std::runtime_error("コマンドプールの作成に失敗しました！");
+    //}
 }
 
 std::vector<vk::CommandBuffer> CommandGenerator::CreateCommandBuffers(vk::Device logicalDevice, std::vector<vk::Framebuffer> framebuffers, vk::CommandPool commandPool)
