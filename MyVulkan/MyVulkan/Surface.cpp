@@ -9,7 +9,7 @@ SurfaceGenerator::~SurfaceGenerator()
 {
 }
 
-void SurfaceGenerator::CreateWindowSurface(vk::Instance& instance, GLFWwindow* window)
+void SurfaceGenerator::CreateWindowSurface(vk::Instance instance, GLFWwindow* window)
 {
 	m_bCreated = true;
 
@@ -22,7 +22,7 @@ void SurfaceGenerator::CreateWindowSurface(vk::Instance& instance, GLFWwindow* w
 		throw std::runtime_error("サーフェスの作成に失敗しました！");
 	}
 
-	m_Surface = vk::UniqueSurfaceKHR(c_Surface, instance);
+	m_Surface = c_Surface;
 
 
 }
@@ -30,5 +30,10 @@ void SurfaceGenerator::CreateWindowSurface(vk::Instance& instance, GLFWwindow* w
 VkSurfaceKHR SurfaceGenerator::GetSurface()
 {
 	CheckCreated();
-	return m_Surface.get();
+	return m_Surface;
+}
+
+void SurfaceGenerator::Destroy(vk::Instance instance)
+{
+	vkDestroySurfaceKHR(instance, m_Surface, nullptr);
 }

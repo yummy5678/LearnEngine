@@ -12,12 +12,14 @@ public:
 	~InstanceGenerator();
 
 	void Create();
-	[[nodiscard]]vk::Instance GetInstanse();
+	void Destroy();
+
+	vk::Instance GetInstanse();
 
 private:
 	vk::ApplicationInfo		m_ApplicationInfo;
 	vk::InstanceCreateInfo	m_InstanceInfo;
-	vk::UniqueInstance		m_Instance;
+	vk::Instance			m_Instance;
 
 	// インスタンス拡張機能のリストを作成する
 	std::vector<const char*> instanceExtensions;

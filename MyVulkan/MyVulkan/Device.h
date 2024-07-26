@@ -17,6 +17,7 @@ public:
 	~DeviceGenerator();
 
 	void Create(vk::Instance instance, vk::SurfaceKHR surface);
+	void Dedtroy();
 
 	vk::PhysicalDevice	GetPhysicalDevice();
 	vk::Device			GetLogicalDevice();
@@ -24,7 +25,7 @@ public:
 
 private:
 	vk::PhysicalDevice	m_PhysicalDevice;
-	vk::UniqueDevice	m_LogicalDevice;
+	vk::Device	m_LogicalDevice;
 
 	//論理デバイスの作成情報
 	vk::DeviceCreateInfo m_DeviceInfo;

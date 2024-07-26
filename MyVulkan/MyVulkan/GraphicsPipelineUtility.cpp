@@ -176,8 +176,8 @@ vk::UniquePipeline GraphicsPipelineUtility::createGraphicsPipeline(vk::Device lo
 	}
 
 	//パイプラインの作成後に不要になったシェーダーモジュールを破棄
-	//vkDestroyShaderModule(logicalDevice, fragmentShaderModule, nullptr);
-	//vkDestroyShaderModule(logicalDevice, vertexShaderModule, nullptr);
+	vkDestroyShaderModule(logicalDevice, fragmentShaderModule, nullptr);
+	vkDestroyShaderModule(logicalDevice, vertexShaderModule, nullptr);
 
 	return graphicsPipeline;
 
@@ -219,20 +219,30 @@ void PipelineGenerator::Create(vk::Device logicalDevice, vk::Extent2D extent, vk
 
 	//パイプラインの作成
 	auto pipelineInfo = CreateGraphicsPipelineInfo(logicalDevice, extent, renderPass);
-	m_Pipeline = logicalDevice.createGraphicsPipelineUnique(nullptr, pipelineInfo).value;
+	m_Pipeline = logicalDevice.createGraphicsPipeline(nullptr, pipelineInfo).value;
+}
 
+void PipelineGenerator::Destroy(vk::Device logicalDevice)
+{
+	vkDestroyPipelineLayout(logicalDevice, m_PipelineLayout, nullptr);
+	vkDestroyPipeline(logicalDevice, m_Pipeline, nullptr);
+
+
+	//パイプラインの作成後に不要になったシェーダーモジュールを破棄
+	//vkDestroyShaderModule(logicalDevice, fragmentShaderModule, nullptr);
+	//vkDestroyShaderModule(logicalDevice, vertexShaderModule, nullptr);
 }
 
 vk::Pipeline PipelineGenerator::GetPipeline()
 {
 	CheckCreated();
-	return m_Pipeline.get();
+	return m_Pipeline;
 }
 
 vk::PipelineLayout PipelineGenerator::GetPipelineLayout()
 {
 	CheckCreated();
-	return m_PipelineLayout.get();
+	return m_PipelineLayout;
 }
 
 vk::GraphicsPipelineCreateInfo PipelineGenerator::GetPipelineInfo()
@@ -285,8 +295,7 @@ vk::GraphicsPipelineCreateInfo PipelineGenerator::CreateGraphicsPipelineInfo(vk:
 	m_ColorBlendCreateInfo = GetColorBlendStateInfo(&m_ColorBlendAttachment);
 
 	//パイプラインレイアウトの作成
-	auto pipelineLayout = CreatePipelineLayout(logicalDevice);
-	m_PipelineLayout = vk::UniquePipelineLayout(pipelineLayout, logicalDevice);
+	m_PipelineLayout = CreatePipelineLayout(logicalDevice);
 
 
 
@@ -305,7 +314,7 @@ vk::GraphicsPipelineCreateInfo PipelineGenerator::CreateGraphicsPipelineInfo(vk:
 	pipelineInfo.pDepthStencilState	= nullptr;					//未作成
 	pipelineInfo.pColorBlendState	= &m_ColorBlendCreateInfo;
 	pipelineInfo.pDynamicState		= nullptr;					//未作成
-	pipelineInfo.layout				= m_PipelineLayout.get();			// パイプラインが使用するパイプラインレイアウト
+	pipelineInfo.layout				= m_PipelineLayout;			// パイプラインが使用するパイプラインレイアウト
 	pipelineInfo.renderPass			= renderPass;				// パイプラインが互換性のあるレンダーパスの説明
 	pipelineInfo.subpass			= 0;						// パイプラインで使用するサブパス
 
@@ -365,6 +374,7 @@ std::vector<vk::PipelineShaderStageCreateInfo> PipelineGenerator::GetShaderStage
 
 	// シェーダーステージ作成情報を配列に格納
 	std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
+
 	return shaderStages;
 }
 

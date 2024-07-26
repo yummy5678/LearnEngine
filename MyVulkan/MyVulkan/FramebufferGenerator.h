@@ -20,7 +20,7 @@ private:
 	std::vector<vk::FramebufferCreateInfo>	m_FramebufferInfos;
 	std::array<vk::ImageView, 1>			m_Attachments;
 
-	void Destroy();
+	void Destroy(vk::Device logicalDevice);
 	std::vector<vk::FramebufferCreateInfo> CreateFramebufferInfos(std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent);
 
 };

@@ -20,14 +20,19 @@ public:
 	~CommandGenerator();
 
 	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, std::vector<vk::Framebuffer> framebuffers);
+	void Destroy(vk::Device logicalDevice);
+
+	void RecordCommands(vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline);
 
 	vk::CommandPool GetPool();
 	std::vector<vk::CommandBuffer> GetBuffers();
 
 
 private:
-	vk::UniqueCommandPool			m_Pool;
+	vk::Device						m_LogicalDevice;
+	vk::CommandPool					m_Pool;
 	std::vector<vk::CommandBuffer>	m_Buffers;
+	std::vector<vk::Framebuffer>	m_Framebuffers;
 
 	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 	std::vector<vk::CommandBuffer> CreateCommandBuffers(vk::Device logicalDevice, std::vector<vk::Framebuffer> framebuffers, vk::CommandPool commandPool);

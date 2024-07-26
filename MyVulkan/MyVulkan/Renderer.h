@@ -19,6 +19,7 @@
 #include "GraphicsPipelineUtility.h"
 #include "FramebufferGenerator.h"
 #include "CommandUtility.h"
+#include "SynchronizationGenerator.h"
 
 class VulkanRenderer
 {
@@ -27,7 +28,7 @@ public:
 	~VulkanRenderer();
 
 	int init(GameWindow renderWindow);
-	//void draw();
+	void draw();
 	void cleanup();
 
 private:
@@ -80,9 +81,10 @@ private:
 	//};
 
 	// - Synchronisation
-	std::vector<VkSemaphore> imageAvailable;
-	std::vector<VkSemaphore> renderFinished;
-	std::vector<VkFence>	 drawFences;
+	SynchronizationGenerator synchronizationGenerator;
+	//std::vector<VkSemaphore> imageAvailable;
+	//std::vector<VkSemaphore> renderFinished;
+	//std::vector<VkFence>	 drawFences;
 
 	// Vulkan Functions
 	// - Create Functions
@@ -126,7 +128,7 @@ private:
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
 
 	// -- Create Functions
-	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-	VkShaderModule createShaderModule(const std::vector<char>& code);
+	//VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+	//VkShaderModule createShaderModule(const std::vector<char>& code);
 };
 

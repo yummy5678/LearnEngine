@@ -1,4 +1,5 @@
 #include "FramebufferGenerator.h"
+#include "VulkanUtility.h"
 
 FramebufferGenerator::FramebufferGenerator()
 {
@@ -7,7 +8,7 @@ FramebufferGenerator::FramebufferGenerator()
 
 FramebufferGenerator::~FramebufferGenerator()
 {
-    Destroy();
+    Destroy(m_LogicalDevice);
 }
 
 void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
@@ -18,6 +19,7 @@ void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<Swapchai
     {
         throw std::runtime_error("logicalDevice‚ª–³Œø‚Å‚·I");
     }
+    m_LogicalDevice = logicalDevice;
 
     //ì¬î•ñ‚ðì¬
     m_FramebufferInfos = CreateFramebufferInfos(swapChainImages, renderPass, extent);
@@ -29,16 +31,17 @@ void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<Swapchai
     }
 }
 
-void FramebufferGenerator::Destroy()
+void FramebufferGenerator::Destroy(vk::Device logicalDevice)
 {
     for (const auto& framebuffer : m_Framebuffers)
-        vkDestroyFramebuffer(m_LogicalDevice, framebuffer, nullptr);
+        vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
 }
 
 std::vector<vk::Framebuffer> FramebufferGenerator::GetFramebuffers()
 {
     CheckCreated();
     return m_Framebuffers;
+    ;
 }
 
 std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferInfos(std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)

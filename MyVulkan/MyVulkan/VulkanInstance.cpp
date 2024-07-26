@@ -14,7 +14,7 @@ void InstanceGenerator::CreateInstance()
 {
 	m_ApplicationInfo = CreateApplicationInfo();
 	auto instanceInfo = CreateInstanceInfo(&m_ApplicationInfo);
-	m_Instance = vk::createInstanceUnique(instanceInfo);
+	m_Instance = vk::createInstance(instanceInfo);
 	// インスタンスの作成に失敗した場合のエラーメッセージ
 	if (!m_Instance) 
 	{
@@ -29,10 +29,15 @@ void InstanceGenerator::Create()
 	CreateInstance();
 }
 
+void InstanceGenerator::Destroy()
+{
+	vkDestroyInstance(m_Instance, nullptr);
+}
+
 vk::Instance InstanceGenerator::GetInstanse()
 {
 	CheckCreated();
-	return m_Instance.get();
+	return m_Instance;
 }
 
 std::vector<const char*>* InstanceGenerator::GetRequiredInstanceExtensionsPointer()

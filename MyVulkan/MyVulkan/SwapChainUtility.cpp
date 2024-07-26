@@ -238,21 +238,35 @@ SwapchainGenerator::SwapchainGenerator()
 
 SwapchainGenerator::~SwapchainGenerator()
 {
+    Destroy(m_LogicalDevice);
 }
 
 void SwapchainGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     m_bCreated = true;
+    m_LogicalDevice = logicalDevice;
     m_SwapchainInfo = CreateSwapchainInfo(physicalDevice, surface);
-    m_Swapchain = logicalDevice.createSwapchainKHRUnique(m_SwapchainInfo);
+    m_Swapchain = logicalDevice.createSwapchainKHR(m_SwapchainInfo);
 
-    m_Images = CreateSwapChainImages(logicalDevice, physicalDevice, surface, m_Swapchain.get());
+    m_Images = CreateSwapChainImages(logicalDevice, physicalDevice, surface, m_Swapchain);
+}
+
+void SwapchainGenerator::Destroy(vk::Device logicalDevice)
+{
+    //m_Images
+    for (auto image : m_Images)
+	{
+		vkDestroyImageView(logicalDevice, image.imageView, nullptr);
+	}
+
+    //m_Swapchain
+   	vkDestroySwapchainKHR(logicalDevice, m_Swapchain, nullptr);
 }
 
 vk::SwapchainKHR SwapchainGenerator::GetSwapchain()
 {
     CheckCreated();
-    return m_Swapchain.get();
+    return m_Swapchain;
 }
 
 vk::Extent2D SwapchainGenerator::Get2DExtent()
@@ -361,7 +375,7 @@ std::vector<SwapchainImage> SwapchainGenerator::CreateSwapChainImages(vk::Device
     for (vk::Image image : images)
     {
         // 画像ハンドルを保存する
-        SwapchainImage swapChainImage = {};
+        SwapchainImage swapChainImage;
         swapChainImage.image = image;
         //フォーマットはchooseSwapSurfaceFormatで使用したのと同じものでなければならない
         swapChainImage.imageView = CreateImageView(logicalDevice, image, surfaceFormat.format, vk::ImageAspectFlagBits::eColor);
@@ -392,11 +406,7 @@ vk::ImageView SwapchainGenerator::CreateImageView(vk::Device logicalDevice, vk::
     imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;                       // 表示を開始する配列レベル
     imageViewCreateInfo.subresourceRange.layerCount = 1;                           // 表示する配列レベルの数
 
-    // vkCreateImageView 関数を使用して Image View を作成します
-    // mainDevice.logicalDevice: Image View を作成するための論理デバイス
-    // &viewCreateInfo: Image View の作成に必要な情報が格納された構造体へのポインタ
-    // nullptr: カスタムのアロケーターを使用しないためのオプション (通常は nullptr を指定します)
-    // &imageView: 作成された Image View のハンドルを受け取る変数へのポインタ
+    //イメージビューを作成
     vk::ImageView imageView = logicalDevice.createImageView(imageViewCreateInfo);
     // vkCreateImageView の結果が成功ではない場合、エラーをスローします
     if (!imageView)

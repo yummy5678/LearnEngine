@@ -11,10 +11,13 @@ public:
 	SurfaceGenerator();
 	~SurfaceGenerator();
 
-	void CreateWindowSurface(vk::Instance & instance, GLFWwindow * window);
+	void CreateWindowSurface(vk::Instance instance, GLFWwindow * window);
 	VkSurfaceKHR GetSurface();
+
+	void Destroy(vk::Instance instance);
 
 
 private:
-	vk::UniqueSurfaceKHR m_Surface;
+	vk::Instance			m_Instance;
+	vk::SurfaceKHR			m_Surface;
 };

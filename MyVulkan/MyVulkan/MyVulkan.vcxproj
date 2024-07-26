@@ -143,6 +143,7 @@
     <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SwapChainUtility.cpp" />
+    <ClCompile Include="SynchronizationGenerator.cpp" />
     <ClCompile Include="ViewportGenerator.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
   </ItemGroup>
@@ -163,9 +164,11 @@
     <ClInclude Include="ShaderUtility.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="SwapChainUtility.h" />
+    <ClInclude Include="SynchronizationGenerator.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="ViewportGenerator.h" />
     <ClInclude Include="VulkanInstance.h" />
+    <ClInclude Include="VulkanUtility.h" />
     <ClInclude Include="VulkanValidation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

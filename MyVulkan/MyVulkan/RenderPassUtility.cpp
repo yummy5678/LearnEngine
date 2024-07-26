@@ -7,13 +7,19 @@ RenderpassGenerator::RenderpassGenerator()
 
 RenderpassGenerator::~RenderpassGenerator()
 {
+    Destroy(m_LogicalDevice);
 }
 
 void RenderpassGenerator::Create(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR swapchainInfo)
 {
     m_bCreated = true;
-    auto renderPass = CreateRenderpass(logicalDevice, swapchainInfo);
-    m_RenderPass = vk::UniqueRenderPass(renderPass,logicalDevice);
+    m_LogicalDevice = logicalDevice;
+    m_RenderPass = CreateRenderpass(logicalDevice, swapchainInfo);
+}
+
+void RenderpassGenerator::Destroy(vk::Device logicalDevice)
+{
+    vkDestroyRenderPass(logicalDevice, m_RenderPass, nullptr);
 }
 
 vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice,vk::SwapchainCreateInfoKHR swapchainInfo)
@@ -36,7 +42,7 @@ vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice,vk
 vk::RenderPass RenderpassGenerator::GetRenderpass()
 {
     CheckCreated();
-    return m_RenderPass.get();
+    return m_RenderPass;
 }
 
 //void RenderpassGenerator::Release()

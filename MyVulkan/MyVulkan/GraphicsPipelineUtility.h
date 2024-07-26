@@ -19,6 +19,7 @@ public:
 	~PipelineGenerator();
 
 	void Create(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass);
+	void Destroy(vk::Device logicalDevice);
 
 	vk::Pipeline		GetPipeline();
 	vk::PipelineLayout	GetPipelineLayout();
@@ -27,10 +28,10 @@ public:
 	vk::PipelineLayoutCreateInfo	GetLayoutInfo();
 
 private:
-	vk::UniquePipeline				m_Pipeline;
+	vk::Pipeline					m_Pipeline;
 	vk::GraphicsPipelineCreateInfo	m_PipelineCreateInfo;
 
-	vk::UniquePipelineLayout		m_PipelineLayout;
+	vk::PipelineLayout				m_PipelineLayout;
 	vk::PipelineLayoutCreateInfo	m_PipelineLayoutCreateInfo;
 
 

@@ -160,16 +160,74 @@ CommandGenerator::~CommandGenerator()
 void CommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, std::vector<vk::Framebuffer> framebuffers)
 {
     m_bCreated = true;
+    m_Framebuffers = framebuffers;
+    m_Pool = CreateCommandPool(logicalDevice, physicalDevice, surface);
+    m_Buffers = CreateCommandBuffers(logicalDevice, framebuffers, m_Pool);
 
-    auto pool = CreateCommandPool(logicalDevice, physicalDevice, surface);
-    m_Pool = vk::UniqueCommandPool(pool,logicalDevice);
-    m_Buffers = CreateCommandBuffers(logicalDevice, framebuffers, pool);
+
+}
+
+void CommandGenerator::Destroy(vk::Device logicalDevice)
+{
+    vkDestroyCommandPool(logicalDevice, m_Pool, nullptr);
+}
+
+void CommandGenerator::RecordCommands(vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline)
+{
+    CheckCreated();
+
+    // 各コマンドバッファの開始方法に関する情報
+    vk::CommandBufferBeginInfo bufferBeginInfo;
+    bufferBeginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse; // バッファが再使用可能であることを示すフラグ
+
+    // レンダーパスを開始するための情報 (グラフィカルなアプリケーションの場合のみ必要)
+    vk::RenderPassBeginInfo renderPassBeginInfo;
+    renderPassBeginInfo.renderPass = renderPass;                             // 開始するレンダーパス
+    renderPassBeginInfo.renderArea.offset = vk::Offset2D{ 0, 0 };              // レンダーパスの開始位置 (ピクセル単位)
+    renderPassBeginInfo.renderArea.extent = extent;                          // レンダーパスを実行する領域のサイズ (offsetから始まる)
+    std::array<vk::ClearValue, 1> clearValues = {
+        vk::ClearValue{std::array<float, 4>{0.6f, 0.65f, 0.4f, 1.0f}}        // クリアする値のリスト
+    };
+    renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassBeginInfo.pClearValues = clearValues.data();                   // クリアする値のリスト
+
+    for (size_t i = 0; i < m_Buffers.size(); i++)
+    {
+        renderPassBeginInfo.framebuffer = m_Framebuffers[i];          // 使用するフレームバッファを設定する
+
+        // コマンドバッファの記録を開始する
+        vk::Result result = m_Buffers[i].begin(&bufferBeginInfo);
+        if (result != vk::Result::eSuccess)
+        {
+            throw std::runtime_error("コマンドバッファの記録の開始に失敗しました！");
+        }
+
+        // レンダーパスを開始する
+        m_Buffers[i].beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
+
+        // 使用するパイプラインをバインドする
+        m_Buffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
+
+        // パイプラインを実行する
+        m_Buffers[i].draw(3, 1, 0, 0);
+
+        // レンダーパスを終了する
+        m_Buffers[i].endRenderPass();
+
+        // コマンドバッファの記録を終了する
+        //result = commandBuffers[i].end();
+        m_Buffers[i].end();
+        //if (result != vk::Result::eSuccess)
+        //{
+        //    throw std::runtime_error("コマンドバッファの記録の終了に失敗しました！");
+        //}
+    }
 }
 
 vk::CommandPool CommandGenerator::GetPool()
 {
     CheckCreated();
-    return m_Pool.get();
+    return m_Pool;
 }
 
 std::vector<vk::CommandBuffer> CommandGenerator::GetBuffers()

@@ -19,7 +19,12 @@ void DeviceGenerator::Create(vk::Instance instance, vk::SurfaceKHR surface)
 	//論理デバイスの作成
 	auto queueCreateInfos = VulkanCreate::GetQueueInfos(m_PhysicalDevice, surface);
 	CreateDeviceInfo(&queueCreateInfos);
-	m_LogicalDevice = m_PhysicalDevice.createDeviceUnique(m_DeviceInfo);
+	m_LogicalDevice = m_PhysicalDevice.createDevice(m_DeviceInfo);
+}
+
+void DeviceGenerator::Dedtroy()
+{
+	vkDestroyDevice(m_LogicalDevice, nullptr);
 }
 
 vk::PhysicalDevice DeviceGenerator::GetPhysicalDevice()
@@ -31,7 +36,7 @@ vk::PhysicalDevice DeviceGenerator::GetPhysicalDevice()
 vk::Device DeviceGenerator::GetLogicalDevice()
 {
 	CheckCreated();
-	return m_LogicalDevice.get();
+	return m_LogicalDevice;
 }
 
 vk::PhysicalDevice DeviceGenerator::BringPhysicalDevice(vk::Instance instance, vk::SurfaceKHR surface)

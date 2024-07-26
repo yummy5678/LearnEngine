@@ -7,10 +7,26 @@
 
 const int MAX_FRAME_DRAWS = 3;
 
-struct SwapchainImage {
+struct UniqueSwapchainImage 
+{
+	vk::UniqueImage		image;		// Vulkanの中で扱う画像
+	vk::UniqueImageView	imageView;	// 画像ビュー
+};
+
+struct SwapchainImage 
+{
 	vk::Image		image;		// Vulkanの中で扱う画像
 	vk::ImageView	imageView;	// 画像ビュー
+
+	//オペレーターを用意して受け渡しを簡単にする
+	//SwapchainImage& operator=(const UniqueSwapchainImage& unique)
+	//{
+	//	this->image = unique.image.get();
+	//	this->imageView = unique.imageView.get();
+	//	return *this;
+	//}
 };
+
 
 
 struct SwapChainDetails {
@@ -57,6 +73,7 @@ public:
 	~SwapchainGenerator();
 
 	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	void Destroy(vk::Device logicalDevice);
 
 	vk::SwapchainKHR			GetSwapchain();
 	vk::Extent2D				Get2DExtent();
@@ -65,15 +82,16 @@ public:
 	std::vector<SwapchainImage>	GetSwapChainImages();
 
 private:
+	vk::Device m_LogicalDevice;
 	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
-	vk::UniqueSwapchainKHR				m_Swapchain;
+	vk::SwapchainKHR				m_Swapchain;
 
 	vk::SurfaceCapabilitiesKHR			m_SurfaceCapabilities;
 	vk::SurfaceFormatKHR				m_SurfaceFormat;
 	vk::Extent2D						m_Extent;
 	vk::PresentModeKHR					m_PresentMode;
 
-	std::vector<SwapchainImage>			m_Images;
+	std::vector<SwapchainImage>	m_Images;
 	
 
 

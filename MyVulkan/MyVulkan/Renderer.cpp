@@ -46,11 +46,14 @@ int VulkanRenderer::init(GameWindow renderWindow)
 
 		//コマンドバッファの作成
 		commandGenerator.Create(logicalDevice, physicalDevice, surface, swapchainFramebuffers);
-		auto graphicsCommandPool = commandGenerator.GetPool();
+		//auto graphicsCommandPool = commandGenerator.GetPool();
 		auto commandBuffers = commandGenerator.GetBuffers();
 
-		CommandUtility::recordCommands(renderPass, swapChainExtent, graphicsPipeline, swapchainFramebuffers, commandBuffers);
-		createSynchronisation();
+		commandGenerator.RecordCommands(renderPass, swapChainExtent, graphicsPipeline);
+		//CommandUtility::recordCommands(renderPass, swapChainExtent, graphicsPipeline, swapchainFramebuffers, commandBuffers);
+
+		synchronizationGenerator.Create(logicalDevice);
+		//createSynchronisation();
 	}
 	catch (const std::runtime_error& e) {
 		//エラーメッセージ受け取り
@@ -61,8 +64,8 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	return EXIT_SUCCESS;
 }
 
-//void VulkanRenderer::draw()
-//{
+void VulkanRenderer::draw()
+{
 //	// -- GET NEXT IMAGE --
 //// Wait for given fence to signal (open) from last draw before continuing
 //	vkWaitForFences(mainDevice.logicalDevice.get(), 1, &drawFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
@@ -114,7 +117,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 //
 //	// Get next frame (use % MAX_FRAME_DRAWS to keep value below MAX_FRAME_DRAWS)
 //	currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
-//}
+}
 
 void VulkanRenderer::cleanup()
 {
@@ -1140,8 +1143,8 @@ VkExtent2D VulkanRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surf
 }
 
 
-VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
-{
+//VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+//{
 	//// 画像ビュー作成情報の初期化
 	//VkImageViewCreateInfo viewCreateInfo = {};
 	//viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;		 // 画像ビュー作成情報の構造体タイプを設定
@@ -1178,8 +1181,7 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkIm
 
 	//// 作成した Image View のハンドルを返します
 	//return imageView;
-	return VkImageView{};
-}
+//}
 
 void VulkanRenderer::createRenderPass()
 {
@@ -1251,8 +1253,8 @@ void VulkanRenderer::createRenderPass()
 	//}
 }
 
-VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
-{
+//VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
+//{
 	//// シェーダーモジュール作成情報の設定
 	//VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
 	//shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;		// 構造体のタイプを設定
@@ -1268,5 +1270,4 @@ VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
 	//}
 
 	//return shaderModule;
-	return VkShaderModule{};
-}
+//}
