@@ -26,3 +26,11 @@ namespace VulkanUtility
 {
 	QueueFamilyIndices GetQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface);
 }
+
+
+//以下Queueに関するメモ
+//次の Vulkan オブジェクトは、キューがそのオブジェクトを使用するコマンドを実行している間は破棄してはなりません。
+//VkFence
+//VkSemaphore
+//VkCommandBuffer
+//VkCommandPool

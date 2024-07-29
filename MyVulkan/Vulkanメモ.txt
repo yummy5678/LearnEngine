@@ -1,0 +1,37 @@
+Vulkanとは
+一般的なPCはCPU、メモリ、ストレージを備えている(最近はGPUも)。
+最近は機械学習などにもGPUが用いられるようになってきた。
+ソフトウェア開発者がそれぞれメーカーごとにに作られているハードウェアやプラットフォームに対応する
+単一のAPIで作成できるようにするために作られた。
+
+Vulkanできること
+・グラフィックス(ラスター化とレイトレーシング)
+・コンピュート(GPGPU)OpenCLとCUDAみたいな
+・ビデオエンコード/デコード
+・セーフクリティカル
+・外部メモリと同期
+
+ホストメモリはCPUがアクセスするもの
+デバイスメモリはGPUがより早くアクセスできるもの
+VulkanMwmoryAllocator(VMA)の利用を推奨
+
+
+Khronos Validation Layers (検証レイヤ)
+● Vulkanアプリを開発する際䛾必需品
+● Vulkan に䛿 glGetError に相当するものはありません
+● 開発時だけ、アプリ䛾実行が遅くなる
+
+
+
+あとで調べる
+VulkanLoder
+
+
+
+
+https://www.youtube.com/watch?v=p56oTgvPpbo
+
+
+
+
+

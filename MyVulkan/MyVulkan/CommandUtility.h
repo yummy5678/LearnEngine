@@ -38,3 +38,35 @@ private:
 	std::vector<vk::CommandBuffer> CreateCommandBuffers(vk::Device logicalDevice, std::vector<vk::Framebuffer> framebuffers, vk::CommandPool commandPool);
 
 };
+
+//
+//次のオブジェクト タイプは、Vulkan コマンドに渡されたときに消費され、
+//作成に使用されたオブジェクトによってそれ以上アクセスされることはありません。
+//渡される API コマンドの実行中は破棄してはなりません。
+//VkShaderModule
+//VkPipelineCache
+//VkValidationCacheEXT
+
+//以下コマンドバッファに関するメモ
+//次の Vulkan オブジェクトは、そのオブジェクトを使用するコマンド バッファが保留状態にある間は破棄してはなりません。
+//VkEvent
+//VkQueryPool
+//VkBuffer
+//VkBufferView
+//VkImage
+//VkImageView
+//VkPipeline
+//VkSampler
+//VkSamplerYcbcrConversion
+//VkDescriptorPool
+//VkFramebuffer
+//VkRenderPass
+//VkCommandBuffer
+//VkCommandPool
+//VkDeviceMemory
+//VkDescriptorSet
+//VkIndirectCommandsLayoutNV
+//VkAccelerationStructureNV
+//VkAccelerationStructureKHR
+//VkVideoSessionKHR
+//VkVideoSessionParametersKHR

@@ -2,13 +2,11 @@
 #include <vulkan/vulkan.hpp>
 #include <set>
 #include "GeneratorBase.h"
+#include "VulkanExtensions.h"
 #include "QueueUtility.h"
 #include "SwapChainUtility.h"
 
-//使用する拡張機能
-const std::vector<const char*> deviceExtensions = {
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
+
 
 class DeviceGenerator : CGeneratorBase
 {
@@ -46,3 +44,9 @@ private:
 
 
 };
+
+
+//以下デバイスに関するメモ
+//VkPhysicalDeviceオブジェクトは明示的に破棄することはできませんVkInstance。
+//代わりに、取得元のオブジェクトが破棄されると暗黙的に破棄されます。
+

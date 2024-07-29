@@ -167,6 +167,7 @@
     <ClInclude Include="SynchronizationGenerator.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="ViewportGenerator.h" />
+    <ClInclude Include="VulkanExtensions.h" />
     <ClInclude Include="VulkanInstance.h" />
     <ClInclude Include="VulkanUtility.h" />
     <ClInclude Include="VulkanValidation.h" />

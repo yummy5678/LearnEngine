@@ -59,3 +59,5 @@ private:
 	vk::PipelineColorBlendStateCreateInfo				GetColorBlendStateInfo(std::vector<vk::PipelineColorBlendAttachmentState>* colorBlendAttachment);
 
 };
+
+//

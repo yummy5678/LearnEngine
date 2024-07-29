@@ -55,8 +55,8 @@ private:
 	//vk::UniqueDevice logicalDevice;		//論理デバイス
 
 	//キュー
-	VkQueue graphicsQueue;
-	VkQueue presentationQueue;
+	//VkQueue graphicsQueue;
+	//VkQueue presentationQueue;
 
 	//スワップチェイン
 	//vk::UniqueSurfaceKHR				surface;
@@ -132,3 +132,33 @@ private:
 	//VkShaderModule createShaderModule(const std::vector<char>& code);
 };
 
+//VulkanRendererクラスについて
+//Vulkanのインスタンス作成から描画、破棄までの処理を記述したクラス
+// 
+// ・画面に図形を表示するまでに必要なこと
+// 1. インスタンスの作成
+// Vulkanを使用する際は何よりもまずインスタンスを作成する
+// インスタンスはVulkanの機能を使用するのに必ず使用する
+// 
+// 2. 物理デバイスの選択
+// Vulkanが利用できる物理デバイス（GPU）を選択する。
+// (GPUについての詳しい説明はDeviceGeneratorに記載)
+// インスタンスを介して接続ざれているGPUを全て取得して
+// 使用に適したものをここで選んでおく。
+// 
+// 3. 論理デバイスとキューの作成
+// 
+// 
+// 
+//
+
+//ここでやっていること
+//画面に三角形を表示するところまでやる
+//インスタンスやサーフェス、デバイスの作成についての詳細は各Generatorクラスに記載。
+// 
+// ①インスタンスの作成
+// ②
+// 
+// 
+// 
+//

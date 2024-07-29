@@ -838,42 +838,42 @@ bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* che
 
 bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
-	// デバイスがサポートする拡張機能の数を取得する
-	uint32_t extensionCount = 0;
-	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+	//// デバイスがサポートする拡張機能の数を取得する
+	//uint32_t extensionCount = 0;
+	//vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-	// もし拡張機能が見つからない場合、失敗としてfalseを返す
-	if (extensionCount == 0)
-	{
-		return false;
-	}
+	//// もし拡張機能が見つからない場合、失敗としてfalseを返す
+	//if (extensionCount == 0)
+	//{
+	//	return false;
+	//}
 
-	// 拡張機能の情報を保持するためのVkExtensionPropertiesのリストを作成する
-	std::vector<VkExtensionProperties> extensions(extensionCount);
-	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, extensions.data());
+	//// 拡張機能の情報を保持するためのVkExtensionPropertiesのリストを作成する
+	//std::vector<VkExtensionProperties> extensions(extensionCount);
+	//vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, extensions.data());
 
-	// デバイスが必要とする拡張機能がサポートされているかチェックする
-	for (const auto& deviceExtension : deviceExtensions)
-	{
-		bool hasExtension = false;
-		for (const auto& extension : extensions)
-		{
-			// 拡張機能名が一致するかどうかをstrcmpで比較する
-			if (strcmp(deviceExtension, extension.extensionName) == 0)
-			{
-				hasExtension = true;
-				break;
-			}
-		}
+	//// デバイスが必要とする拡張機能がサポートされているかチェックする
+	//for (const auto& deviceExtension : deviceExtensions)
+	//{
+	//	bool hasExtension = false;
+	//	for (const auto& extension : extensions)
+	//	{
+	//		// 拡張機能名が一致するかどうかをstrcmpで比較する
+	//		if (strcmp(deviceExtension, extension.extensionName) == 0)
+	//		{
+	//			hasExtension = true;
+	//			break;
+	//		}
+	//	}
 
-		// 必要な拡張機能が見つからない場合はfalseを返す
-		if (!hasExtension)
-		{
-			return false;
-		}
-	}
+	//	// 必要な拡張機能が見つからない場合はfalseを返す
+	//	if (!hasExtension)
+	//	{
+	//		return false;
+	//	}
+	//}
 
-	// すべての必要な拡張機能が見つかった場合はtrueを返す
+	//// すべての必要な拡張機能が見つかった場合はtrueを返す
 	return true;
 }
 

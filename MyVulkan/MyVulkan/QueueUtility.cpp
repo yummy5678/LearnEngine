@@ -75,3 +75,4 @@ std::vector<vk::DeviceQueueCreateInfo> VulkanCreate::GetQueueInfos(vk::PhysicalD
 
 	return queueCreateInfos;
 }
+
