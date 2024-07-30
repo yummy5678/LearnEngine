@@ -68,8 +68,8 @@ void DeviceGenerator::CreateLogicalDevice()
 void DeviceGenerator::CreateDeviceInfo(std::vector<vk::DeviceQueueCreateInfo>* queueCreateInfos)
 {
 	// 論理デバイスを作成するための情報を設定する
-	m_DeviceInfo.pNext = nullptr;
-	m_DeviceInfo.flags = {};
+	m_DeviceInfo.pNext;
+	m_DeviceInfo.flags;
 	m_DeviceInfo.queueCreateInfoCount = (uint32_t)queueCreateInfos->size();       // キュー作成情報の数
 	m_DeviceInfo.pQueueCreateInfos = queueCreateInfos->data();                    // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
 	m_DeviceInfo.enabledLayerCount = 0;

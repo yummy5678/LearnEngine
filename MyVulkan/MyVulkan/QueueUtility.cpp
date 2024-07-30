@@ -65,10 +65,10 @@ std::vector<vk::DeviceQueueCreateInfo> VulkanCreate::GetQueueInfos(vk::PhysicalD
 		vk::DeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.pNext;
 		queueCreateInfo.flags;
-		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;                        // キューを作成するファミリーのインデックス
-		queueCreateInfo.queueCount = 1;                                             // 作成するキューの数
-		float priority = 1.0f;														// 優先度
-		queueCreateInfo.pQueuePriorities = &priority;                               // Vulkanは複数のキューをどのように扱うかを知る必要があるため、優先度を指定する (1が最高優先度)
+		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;	// キューを作成するファミリーのインデックス
+		queueCreateInfo.queueCount = 1;							// 作成するキューの数
+		float priority = 1.0f;									// 優先度
+		queueCreateInfo.pQueuePriorities = &priority;			// Vulkanは複数のキューをどのように扱うかを知る必要があるため、優先度を指定する (1が最高優先度)
 
 		queueCreateInfos.push_back(queueCreateInfo);
 	}

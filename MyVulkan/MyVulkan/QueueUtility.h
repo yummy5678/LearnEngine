@@ -7,7 +7,7 @@
 //indicesはindexの複数形
 struct QueueFamilyIndices {
     int graphicsFamily      = -1;   // グラフィックスキューファミリーの場所
-    int presentationFamily  = -1;   // プレゼンテーションキューファミリーの場所
+    int presentationFamily  = -1;   // プレゼンテーションキューファミリー(イメージの表示)の場所
 
     // キューファミリーが有効かどうかをチェックする
     bool isValid()

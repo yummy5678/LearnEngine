@@ -54,14 +54,14 @@ vk::AttachmentDescription* RenderpassGenerator::CreateColorAttachment(const vk::
 {
     // カラーバッファアタッチメントの記述
     m_ColorAttachment.flags = {};
-    m_ColorAttachment.format = swapchainInfo.imageFormat;       // スワップチェインのイメージフォーマット
-    m_ColorAttachment.samples = vk::SampleCountFlagBits::e1;      // マルチサンプリングのサンプル数
-    m_ColorAttachment.loadOp = vk::AttachmentLoadOp::eClear;     // レンダーパスの開始時にカラーバッファをクリア
-    m_ColorAttachment.storeOp = vk::AttachmentStoreOp::eStore;    // レンダーパスの終了時にカラーバッファを保存
-    m_ColorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;  // ステンシルバッファを使用しない
-    m_ColorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare; // ステンシルバッファを使用しない
-    m_ColorAttachment.initialLayout = vk::ImageLayout::eUndefined;      // レンダーパス開始前のレイアウト
-    m_ColorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;  // レンダーパス終了後のレイアウト（表示用）
+    m_ColorAttachment.format = swapchainInfo.imageFormat;                   // スワップチェインのイメージフォーマット
+    m_ColorAttachment.samples = vk::SampleCountFlagBits::e1;                // マルチサンプリングのサンプル数
+    m_ColorAttachment.loadOp = vk::AttachmentLoadOp::eClear;                // レンダーパスの開始時にカラーバッファをクリア
+    m_ColorAttachment.storeOp = vk::AttachmentStoreOp::eStore;              // レンダーパスの終了時にカラーバッファを保存
+    m_ColorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;      // ステンシルバッファを使用しない
+    m_ColorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;    // ステンシルバッファを使用しない
+    m_ColorAttachment.initialLayout = vk::ImageLayout::eUndefined;          // レンダーパス開始前のレイアウト
+    m_ColorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;        // レンダーパス終了後のレイアウト（表示用）
     
     return &m_ColorAttachment;
 }
