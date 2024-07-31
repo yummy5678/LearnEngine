@@ -119,7 +119,7 @@ private:
 	bool checkDeviceSuitable(VkPhysicalDevice device) { return false; };
 
 	// -- Getter Functions
-	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device) { return QueueFamilyIndices{}; };
+	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device);
 	SwapChainDetails getSwapChainDetails(VkPhysicalDevice device) { return SwapChainDetails{}; };
 
 	// -- Choose Functions
@@ -169,24 +169,23 @@ private:
 // 
 // 7. グラフィックスパイプラインの設定
 // 3Dオブジェクトのデータを描画する際に施す処理の設定。
-// ここでシェーダーを通して頂点とかの情報を
-// 最終的に画像データとして変換できるようにする.
-// 詳細はPipelineGenerator.hを参照
+// ここで複数のシェーダーを通して頂点等の情報を
+// 最終的に画像データとして変換できるようにする。
+// 詳細はPipelineGenerator.hを参照。
 // 
 // 8. フレームバッファの作成
-// レンダーパスとスワップチェーンのバッファを結びつけるために
-// フレームバッファを作成します。
-// これにより、描画結果がウィンドウに表示されるようになります。
+// グラフィックスパイプラインが描画した画像を管理するもの。
+// 詳細はFramebufferGenerator.hを参照。
 // 
 // 9. コマンドバッファの作成と記録
-// 
-// 
-// 
+// GPUに送る用の描画命令(コマンドバッファ)を
+// スワップチェインに必要な枚数分作成する。
+// ※CPUからGPUに処理命令を投げる時の名前がコマンドバッファ、GPUが命令を読み取るときの呼び方がキュー
 // 
 // 10. 同期オブジェクトの作成
-// 
-// 
-// 
+// 同期オブジェクト(今回はセマフォとフェンス)を作成して、描画の進行状況を管理する。
+// 同期オブジェクトはGPUの描画処理とディスプレイの表示速度を合わせるためのもの。
+// GPUの計算は凄く速いので、速度を合わせないと画面への表示が追いつかなくなる。
 // 
 // 11. 描画の実行
 // 

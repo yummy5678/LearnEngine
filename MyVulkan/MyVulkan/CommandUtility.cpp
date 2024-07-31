@@ -163,8 +163,6 @@ void CommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physi
     m_Framebuffers = framebuffers;
     m_Pool = CreateCommandPool(logicalDevice, physicalDevice, surface);
     m_Buffers = CreateCommandBuffers(logicalDevice, framebuffers, m_Pool);
-
-
 }
 
 void CommandGenerator::Destroy(vk::Device logicalDevice)

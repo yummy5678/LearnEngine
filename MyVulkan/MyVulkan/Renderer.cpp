@@ -19,10 +19,14 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		surfaceGenerator.CreateWindowSurface(instance,window);
 		auto surface = surfaceGenerator.GetSurface();
 
+
 		//物理・論理デバイスの作成
 		deviceGenerator.Create(instance, surface);
 		//物理デバイスを取得
 		auto physicalDevice	= deviceGenerator.GetPhysicalDevice();
+		auto surfaceCapabilities = surfaceGenerator.GetCapabilities(physicalDevice);
+		auto extent = surfaceCapabilities.currentExtent;
+
 		//論理デバイスを取得
 		auto logicalDevice	= deviceGenerator.GetLogicalDevice();
 
@@ -30,18 +34,19 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		swapchainGenerator.Create(logicalDevice, physicalDevice, surface);
 		auto swapchain = swapchainGenerator.GetSwapchain();
 		auto swapChainImages = swapchainGenerator.GetSwapChainImages();//swapChainImagesを作成しておく
-		auto swapChainExtent = swapchainGenerator.Get2DExtent();
+		auto swapSurfaceFormat = swapchainGenerator.GetSwapSurfaceFormat();
+		//auto swapChainExtent = swapchainGenerator.Get2DExtent();
 
 		//レンダーパスの作成
-		renderpassGenerator.Create(logicalDevice, swapchainGenerator.GetSwapchainInfo());
+		renderpassGenerator.Create(logicalDevice, swapSurfaceFormat);
 		auto renderPass = renderpassGenerator.GetRenderpass();
 
 		//パイプラインの作成
-		pipelineGenerator.Create(logicalDevice, swapChainExtent, renderPass);
+		pipelineGenerator.Create(logicalDevice, extent, renderPass);
 		auto graphicsPipeline = pipelineGenerator.GetPipeline();
 		
 		//フレームバッファの作成
-		framebufferGenerator.Create(logicalDevice, swapChainImages, renderPass, swapChainExtent);
+		framebufferGenerator.Create(logicalDevice, swapChainImages, renderPass, extent);
 		auto swapchainFramebuffers = framebufferGenerator.GetFramebuffers();
 
 		//コマンドバッファの作成
@@ -49,7 +54,8 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		//auto graphicsCommandPool = commandGenerator.GetPool();
 		auto commandBuffers = commandGenerator.GetBuffers();
 
-		commandGenerator.RecordCommands(renderPass, swapChainExtent, graphicsPipeline);
+		//コマンドの記録
+		commandGenerator.RecordCommands(renderPass, extent, graphicsPipeline);
 		//CommandUtility::recordCommands(renderPass, swapChainExtent, graphicsPipeline, swapchainFramebuffers, commandBuffers);
 
 		synchronizationGenerator.Create(logicalDevice);
@@ -66,57 +72,64 @@ int VulkanRenderer::init(GameWindow renderWindow)
 
 void VulkanRenderer::draw()
 {
-//	// -- GET NEXT IMAGE --
-//// Wait for given fence to signal (open) from last draw before continuing
-//	vkWaitForFences(mainDevice.logicalDevice.get(), 1, &drawFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
-//	// Manually reset (close) fences
-//	vkResetFences(mainDevice.logicalDevice.get(), 1, &drawFences[currentFrame]);
-//
-//	// Get index of next image to be drawn to, and signal semaphore when ready to be drawn to
-//	uint32_t imageIndex;
-//	vkAcquireNextImageKHR(mainDevice.logicalDevice.get(), swapchain.get(), std::numeric_limits<uint64_t>::max(), imageAvailable[currentFrame], VK_NULL_HANDLE, &imageIndex);
-//
-//	// -- SUBMIT COMMAND BUFFER TO RENDER --
-//	// Queue submission information
-//	VkSubmitInfo submitInfo = {};
-//	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-//	submitInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
-//	submitInfo.pWaitSemaphores = &imageAvailable[currentFrame];				// List of semaphores to wait on
-//	VkPipelineStageFlags waitStages[] = {
-//		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
-//	};
-//	submitInfo.pWaitDstStageMask = waitStages;						// Stages to check semaphores at
-//	submitInfo.commandBufferCount = 1;								// Number of command buffers to submit
-//	submitInfo.pCommandBuffers = &commandBuffers[imageIndex];		// Command buffer to submit
-//	submitInfo.signalSemaphoreCount = 1;							// Number of semaphores to signal
-//	submitInfo.pSignalSemaphores = &renderFinished[currentFrame];	// Semaphores to signal when command buffer finishes
-//
-//	// Submit command buffer to queue
-//	VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]);
-//	if (result != VK_SUCCESS)
-//	{
-//		throw std::runtime_error("Failed to submit Command Buffer to Queue!");
-//	}
-//
-//
-//	// -- PRESENT RENDERED IMAGE TO SCREEN --
-//	VkPresentInfoKHR presentInfo = {};
-//	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-//	presentInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
-//	presentInfo.pWaitSemaphores = &renderFinished[currentFrame];			// Semaphores to wait on
-//	presentInfo.swapchainCount = 1;											// Number of swapchains to present to
-//	presentInfo.pSwapchains = &swapchain;									// Swapchains to present images to
-//	presentInfo.pImageIndices = &imageIndex;								// Index of images in swapchains to present
-//
-//	// Present image
-//	result = vkQueuePresentKHR(presentationQueue, &presentInfo);
-//	if (result != VK_SUCCESS)
-//	{
-//		throw std::runtime_error("Failed to present Image!");
-//	}
-//
-//	// Get next frame (use % MAX_FRAME_DRAWS to keep value below MAX_FRAME_DRAWS)
-//	currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
+	// -- GET NEXT IMAGE --
+	// Wait for given fence to signal (open) from last draw before continuing
+	//論理デバイスを取得
+	auto logicalDevice = deviceGenerator.GetLogicalDevice();
+	auto swapchain = swapchainGenerator.GetSwapchain();
+	auto commandBuffers = commandGenerator.GetBuffers();
+	auto drawFences = synchronizationGenerator.GetDrawFences();
+	auto imageAvailable = synchronizationGenerator.GetImageAvailable();
+	auto renderFinished = synchronizationGenerator.GetRenderFinished();
+
+	vkWaitForFences(logicalDevice, 1, &drawFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+	// Manually reset (close) fences
+	vkResetFences(logicalDevice, 1, &drawFences[currentFrame]);
+
+	// Get index of next image to be drawn to, and signal semaphore when ready to be drawn to
+	uint32_t imageIndex;
+	vkAcquireNextImageKHR(logicalDevice, swapchain, std::numeric_limits<uint64_t>::max(), imageAvailable[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+	// -- SUBMIT COMMAND BUFFER TO RENDER --
+	// Queue submission information
+	vk::SubmitInfo submitInfo = {};
+	submitInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
+	submitInfo.pWaitSemaphores = &imageAvailable[currentFrame];				// List of semaphores to wait on
+	vk::PipelineStageFlags waitStages[] = {
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+	};
+	submitInfo.pWaitDstStageMask = waitStages;						// Stages to check semaphores at
+	submitInfo.commandBufferCount = 1;								// Number of command buffers to submit
+	submitInfo.pCommandBuffers = &commandBuffers[imageIndex];		// Command buffer to submit
+	submitInfo.signalSemaphoreCount = 1;							// Number of semaphores to signal
+	submitInfo.pSignalSemaphores = &renderFinished[currentFrame];	// Semaphores to signal when command buffer finishes
+
+	// Submit command buffer to queue
+	VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to submit Command Buffer to Queue!");
+	}
+
+
+	// -- PRESENT RENDERED IMAGE TO SCREEN --
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
+	presentInfo.pWaitSemaphores = &renderFinished[currentFrame];			// Semaphores to wait on
+	presentInfo.swapchainCount = 1;											// Number of swapchains to present to
+	presentInfo.pSwapchains = &swapchain;									// Swapchains to present images to
+	presentInfo.pImageIndices = &imageIndex;								// Index of images in swapchains to present
+
+	// Present image
+	result = vkQueuePresentKHR(presentationQueue, &presentInfo);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to present Image!");
+	}
+
+	// Get next frame (use % MAX_FRAME_DRAWS to keep value below MAX_FRAME_DRAWS)
+	currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
 }
 
 void VulkanRenderer::cleanup()
@@ -957,48 +970,48 @@ bool VulkanRenderer::checkValidationLayerSupport()
 //}
 
 
-//QueueFamilyIndices VulkanRenderer::getQueueFamilies(VkPhysicalDevice device)
-//{
-	//QueueFamilyIndices indices;
+QueueFamilyIndices VulkanRenderer::getQueueFamilies(VkPhysicalDevice device)
+{
+	QueueFamilyIndices indices;
 
-	//// 物理デバイスに対するすべてのキューファミリープロパティ情報を取得する
-	//uint32_t queueFamilyCount = 0;
-	//vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+	// 物理デバイスに対するすべてのキューファミリープロパティ情報を取得する
+	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
-	//std::vector<VkQueueFamilyProperties> queueFamilyList(queueFamilyCount);
-	//vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyList.data());
+	std::vector<VkQueueFamilyProperties> queueFamilyList(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyList.data());
 
-	//// 各キューファミリーを調べ、必要なタイプのキューを少なくとも1つ持っているかどうかを確認する
-	//int i = 0;
-	//for (const auto& queueFamily : queueFamilyList)
-	//{
-	//	// まず、キューファミリーが少なくとも1つのキューを持っているか確認する（キューがない可能性もある）
-	//	// キューはビットフィールドで複数のタイプを定義することができる。VK_QUEUE_*_BITとビットごとのAND演算を行い、必要なタイプを持っているか確認する
-	//	if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-	//	{
-	//		indices.graphicsFamily = i;		// キューファミリーが有効であれば、そのインデックスを取得する
-	//	}
+	// 各キューファミリーを調べ、必要なタイプのキューを少なくとも1つ持っているかどうかを確認する
+	int i = 0;
+	for (const auto& queueFamily : queueFamilyList)
+	{
+		// まず、キューファミリーが少なくとも1つのキューを持っているか確認する（キューがない可能性もある）
+		// キューはビットフィールドで複数のタイプを定義することができる。VK_QUEUE_*_BITとビットごとのAND演算を行い、必要なタイプを持っているか確認する
+		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		{
+			indices.graphicsFamily = i;		// キューファミリーが有効であれば、そのインデックスを取得する
+		}
 
-	//	// キューファミリーがプレゼンテーションをサポートしているか確認する
-	//	VkBool32 presentationSupport = false;
-	//	vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface.get(), &presentationSupport);
-	//	// キューがプレゼンテーションタイプであるかどうかを確認する（グラフィックスとプレゼンテーションの両方になり得る）
-	//	if (queueFamily.queueCount > 0 && presentationSupport)
-	//	{
-	//		indices.presentationFamily = i;
-	//	}
+		// キューファミリーがプレゼンテーションをサポートしているか確認する
+		VkBool32 presentationSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surfaceGenerator.GetSurface(), &presentationSupport);
+		// キューがプレゼンテーションタイプであるかどうかを確認する（グラフィックスとプレゼンテーションの両方になり得る）
+		if (queueFamily.queueCount > 0 && presentationSupport)
+		{
+			indices.presentationFamily = i;
+		}
 
-	//	// キューファミリーのインデックスが有効な状態にあるかどうかを確認し、そうであれば検索を停止する
-	//	if (indices.isValid())
-	//	{
-	//		break;
-	//	}
+		// キューファミリーのインデックスが有効な状態にあるかどうかを確認し、そうであれば検索を停止する
+		if (indices.isValid())
+		{
+			break;
+		}
 
-	//	i++;
-	//}
+		i++;
+	}
 
-	//return indices;
-//}
+	return indices;
+}
 
 
 //SwapChainDetails VulkanRenderer::getSwapChainDetails(VkPhysicalDevice device)

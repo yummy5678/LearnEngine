@@ -9,7 +9,7 @@ public:
 	RenderpassGenerator();
 	~RenderpassGenerator();
 
-	void Create(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR swapchainInfo);
+	void Create(vk::Device logicalDevice, const vk::SurfaceFormatKHR imageFormat);
 	void Destroy(vk::Device logicalDevice);
 
 	vk::RenderPass							GetRenderpass();
@@ -24,8 +24,8 @@ private:
 	vk::RenderPassCreateInfo				m_RenderPassInfo;
 	vk::RenderPass							m_RenderPass;
 
-	vk::RenderPass							CreateRenderpass(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR swapchainInfo);
-	vk::AttachmentDescription*				CreateColorAttachment(const vk::SwapchainCreateInfoKHR swapchainInfo);
+	vk::RenderPass							CreateRenderpass(vk::Device logicalDevice, const vk::SurfaceFormatKHR imageFormat);
+	vk::AttachmentDescription*				CreateColorAttachment(const vk::SurfaceFormatKHR imageFormat);
 	vk::SubpassDescription*					CreateSubpass();
 	std::vector<vk::SubpassDependency>*		CreateDependencies();
 

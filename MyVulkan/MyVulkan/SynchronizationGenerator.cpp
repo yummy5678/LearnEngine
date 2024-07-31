@@ -19,11 +19,29 @@ void SynchronizationGenerator::Create(vk::Device logicalDevice)
 void SynchronizationGenerator::Destroy(vk::Device logicalDevice)
 {
 	for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
-{
-	vkDestroySemaphore(logicalDevice, m_RenderFinished[i], nullptr);
-	vkDestroySemaphore(logicalDevice, m_ImageAvailable[i], nullptr);
-	vkDestroyFence	  (logicalDevice, m_DrawFences[i], nullptr);
+	{
+		vkDestroySemaphore(logicalDevice, m_RenderFinished[i], nullptr);
+		vkDestroySemaphore(logicalDevice, m_ImageAvailable[i], nullptr);
+		vkDestroyFence	  (logicalDevice, m_DrawFences[i], nullptr);
+	}
 }
+
+std::vector<vk::Semaphore> SynchronizationGenerator::GetImageAvailable()
+{
+	CheckCreated();
+	return m_ImageAvailable;
+}
+
+std::vector<vk::Semaphore> SynchronizationGenerator::GetRenderFinished()
+{
+	CheckCreated();
+	return m_RenderFinished;
+}
+
+std::vector<vk::Fence> SynchronizationGenerator::GetDrawFences()
+{
+	CheckCreated();
+	return m_DrawFences;
 }
 
 void SynchronizationGenerator::CreateSynchronisation(vk::Device logicalDevice)

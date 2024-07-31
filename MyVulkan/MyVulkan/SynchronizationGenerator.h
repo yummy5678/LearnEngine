@@ -11,6 +11,10 @@ public:
 	void Create(vk::Device logicalDevice);
 	void Destroy(vk::Device logicalDevice);
 
+	std::vector<vk::Semaphore>	GetImageAvailable();
+	std::vector<vk::Semaphore>	GetRenderFinished();
+	std::vector<vk::Fence>		GetDrawFences();
+
 private:
 	std::vector<vk::Semaphore>	m_ImageAvailable;
 	std::vector<vk::Semaphore>	m_RenderFinished;

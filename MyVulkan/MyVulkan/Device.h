@@ -7,7 +7,6 @@
 #include "SwapChainUtility.h"
 
 
-
 class DeviceGenerator : CGeneratorBase
 {
 public:
@@ -15,7 +14,7 @@ public:
 	~DeviceGenerator();
 
 	void Create(vk::Instance instance, vk::SurfaceKHR surface);
-	void Dedtroy();
+	void Destroy();
 
 	vk::PhysicalDevice	GetPhysicalDevice();
 	vk::Device			GetLogicalDevice();
@@ -27,6 +26,10 @@ private:
 
 	//論理デバイスの作成情報
 	vk::DeviceCreateInfo m_DeviceInfo;
+
+	//キュー
+	vk::Queue graphicsQueue;
+	vk::Queue presentationQueue;
 
 	//物理デバイスの取得
 	vk::PhysicalDevice BringPhysicalDevice(vk::Instance instance, vk::SurfaceKHR surface);
@@ -42,7 +45,7 @@ private:
 	bool CheckDeviceExtensionSupport(vk::PhysicalDevice device);
 	bool CheckDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface);
 
-
+	QueueFamilyIndices getQueueFamilies(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 };
 
 

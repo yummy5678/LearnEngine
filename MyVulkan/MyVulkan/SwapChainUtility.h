@@ -77,21 +77,21 @@ public:
 
 	vk::SwapchainKHR			GetSwapchain();
 	vk::Extent2D				Get2DExtent();
-	vk::SurfaceFormatKHR		GetSurfaceFormat();
+	vk::SurfaceFormatKHR		GetSwapSurfaceFormat();
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
 	std::vector<SwapchainImage>	GetSwapChainImages();
 
 private:
 	vk::Device m_LogicalDevice;
 	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
-	vk::SwapchainKHR				m_Swapchain;
+	vk::SwapchainKHR					m_Swapchain;
 
-	vk::SurfaceCapabilitiesKHR			m_SurfaceCapabilities;
+	//vk::SurfaceCapabilitiesKHR		m_SurfaceCapabilities;
 	vk::SurfaceFormatKHR				m_SurfaceFormat;
 	vk::Extent2D						m_Extent;
 	vk::PresentModeKHR					m_PresentMode;
 
-	std::vector<SwapchainImage>	m_Images;
+	std::vector<SwapchainImage>			m_Images;
 	
 
 
@@ -102,7 +102,7 @@ private:
 
 	vk::ImageView CreateImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags);
 	// サーフェスの機能を取得
-	vk::SurfaceCapabilitiesKHR GetSurfaceCapabilities(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	//vk::SurfaceCapabilitiesKHR GetSurfaceCapabilities(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 	// スワップチェインのフォーマットを選択する関数
 	vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
 	// スワップチェインのプレゼントモードを選択する関数

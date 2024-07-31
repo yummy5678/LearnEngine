@@ -10,11 +10,11 @@ RenderpassGenerator::~RenderpassGenerator()
     Destroy(m_LogicalDevice);
 }
 
-void RenderpassGenerator::Create(vk::Device logicalDevice, vk::SwapchainCreateInfoKHR swapchainInfo)
+void RenderpassGenerator::Create(vk::Device logicalDevice, const vk::SurfaceFormatKHR imageFormat)
 {
     m_bCreated = true;
     m_LogicalDevice = logicalDevice;
-    m_RenderPass = CreateRenderpass(logicalDevice, swapchainInfo);
+    m_RenderPass = CreateRenderpass(logicalDevice, imageFormat);
 }
 
 void RenderpassGenerator::Destroy(vk::Device logicalDevice)
@@ -22,9 +22,9 @@ void RenderpassGenerator::Destroy(vk::Device logicalDevice)
     vkDestroyRenderPass(logicalDevice, m_RenderPass, nullptr);
 }
 
-vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice,vk::SwapchainCreateInfoKHR swapchainInfo)
+vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice, const vk::SurfaceFormatKHR imageFormat)
 {
-    auto colorAttachment = CreateColorAttachment(swapchainInfo);
+    auto colorAttachment = CreateColorAttachment(imageFormat);
     auto subpass = CreateSubpass();
     auto dependencies = CreateDependencies();
 
@@ -50,11 +50,11 @@ vk::RenderPass RenderpassGenerator::GetRenderpass()
     //m_pLogicalDevice->destroyRenderPass(m_RenderPass, nullptr);
 //}
 
-vk::AttachmentDescription* RenderpassGenerator::CreateColorAttachment(const vk::SwapchainCreateInfoKHR swapchainInfo)
+vk::AttachmentDescription* RenderpassGenerator::CreateColorAttachment(const vk::SurfaceFormatKHR imageFormat)
 {
     // カラーバッファアタッチメントの記述
-    m_ColorAttachment.flags = {};
-    m_ColorAttachment.format = swapchainInfo.imageFormat;                   // スワップチェインのイメージフォーマット
+    m_ColorAttachment.flags;
+    m_ColorAttachment.format = imageFormat.format;                          // スワップチェインのイメージフォーマット
     m_ColorAttachment.samples = vk::SampleCountFlagBits::e1;                // マルチサンプリングのサンプル数
     m_ColorAttachment.loadOp = vk::AttachmentLoadOp::eClear;                // レンダーパスの開始時にカラーバッファをクリア
     m_ColorAttachment.storeOp = vk::AttachmentStoreOp::eStore;              // レンダーパスの終了時にカラーバッファを保存

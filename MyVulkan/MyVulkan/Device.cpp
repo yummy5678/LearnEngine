@@ -21,9 +21,18 @@ void DeviceGenerator::Create(vk::Instance instance, vk::SurfaceKHR surface)
 	auto queueCreateInfos = VulkanCreate::GetQueueInfos(m_PhysicalDevice, surface);
 	CreateDeviceInfo(&queueCreateInfos);
 	m_LogicalDevice = m_PhysicalDevice.createDevice(m_DeviceInfo);
+	
+	// 選択した物理デバイスのキューファミリーインデックスを取得する
+	QueueFamilyIndices queueIndex = getQueueFamilies(m_PhysicalDevice, surface);
+	graphicsQueue = m_LogicalDevice.getQueue((uint32_t)queueIndex.graphicsFamily);
+	//	 キューはデバイスと同時に作成されるため
+	// キューへのハンドルを取得する
+	//指定されたロジカルデバイスから、指定されたキューファミリーの指定されたキューインデックス（0は唯一のキューなので0）、指定されたVkQueueへの参照を置く
+	vkGetDeviceQueue(logicalDevice.get(), queueIndex.graphicsFamily, 0, &graphicsQueue);
+	vkGetDeviceQueue(logicalDevice.get(), queueIndex.presentationFamily, 0, &presentationQueue);
 }
 
-void DeviceGenerator::Dedtroy()
+void DeviceGenerator::Destroy()
 {
 	vkDestroyDevice(m_LogicalDevice, nullptr);
 }
@@ -152,4 +161,47 @@ bool DeviceGenerator::CheckDeviceSuitable(vk::PhysicalDevice device, vk::Surface
 
 	// デバイスが適合しているかを確認する
 	return indices.isValid() && extensionsSupported && swapChainValid;
+}
+
+QueueFamilyIndices DeviceGenerator::getQueueFamilies(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+	QueueFamilyIndices indices;
+
+	// 物理デバイスに対するすべてのキューファミリープロパティ情報を取得する
+	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+
+	std::vector<VkQueueFamilyProperties> queueFamilyList(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilyList.data());
+
+	// 各キューファミリーを調べ、必要なタイプのキューを少なくとも1つ持っているかどうかを確認する
+	int i = 0;
+	for (const auto& queueFamily : queueFamilyList)
+	{
+		// まず、キューファミリーが少なくとも1つのキューを持っているか確認する（キューがない可能性もある）
+		// キューはビットフィールドで複数のタイプを定義することができる。VK_QUEUE_*_BITとビットごとのAND演算を行い、必要なタイプを持っているか確認する
+		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		{
+			indices.graphicsFamily = i;		// キューファミリーが有効であれば、そのインデックスを取得する
+		}
+
+		// キューファミリーがプレゼンテーションをサポートしているか確認する
+		VkBool32 presentationSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentationSupport);
+		// キューがプレゼンテーションタイプであるかどうかを確認する（グラフィックスとプレゼンテーションの両方になり得る）
+		if (queueFamily.queueCount > 0 && presentationSupport)
+		{
+			indices.presentationFamily = i;
+		}
+
+		// キューファミリーのインデックスが有効な状態にあるかどうかを確認し、そうであれば検索を停止する
+		if (indices.isValid())
+		{
+			break;
+		}
+
+		i++;
+	}
+
+	return indices;
 }
