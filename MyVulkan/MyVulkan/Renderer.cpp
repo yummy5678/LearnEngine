@@ -72,64 +72,64 @@ int VulkanRenderer::init(GameWindow renderWindow)
 
 void VulkanRenderer::draw()
 {
-	// -- GET NEXT IMAGE --
-	// Wait for given fence to signal (open) from last draw before continuing
-	//論理デバイスを取得
-	auto logicalDevice = deviceGenerator.GetLogicalDevice();
-	auto swapchain = swapchainGenerator.GetSwapchain();
-	auto commandBuffers = commandGenerator.GetBuffers();
-	auto drawFences = synchronizationGenerator.GetDrawFences();
-	auto imageAvailable = synchronizationGenerator.GetImageAvailable();
-	auto renderFinished = synchronizationGenerator.GetRenderFinished();
+	//// -- GET NEXT IMAGE --
+	//// Wait for given fence to signal (open) from last draw before continuing
+	////論理デバイスを取得
+	//auto logicalDevice = deviceGenerator.GetLogicalDevice();
+	//auto swapchain = swapchainGenerator.GetSwapchain();
+	//auto commandBuffers = commandGenerator.GetBuffers();
+	//auto drawFences = synchronizationGenerator.GetDrawFences();
+	//auto imageAvailable = synchronizationGenerator.GetImageAvailable();
+	//auto renderFinished = synchronizationGenerator.GetRenderFinished();
 
-	vkWaitForFences(logicalDevice, 1, &drawFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
-	// Manually reset (close) fences
-	vkResetFences(logicalDevice, 1, &drawFences[currentFrame]);
+	//vkWaitForFences(logicalDevice, 1, &drawFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+	//// Manually reset (close) fences
+	//vkResetFences(logicalDevice, 1, &drawFences[currentFrame]);
 
-	// Get index of next image to be drawn to, and signal semaphore when ready to be drawn to
-	uint32_t imageIndex;
-	vkAcquireNextImageKHR(logicalDevice, swapchain, std::numeric_limits<uint64_t>::max(), imageAvailable[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	//// Get index of next image to be drawn to, and signal semaphore when ready to be drawn to
+	//uint32_t imageIndex;
+	//vkAcquireNextImageKHR(logicalDevice, swapchain, std::numeric_limits<uint64_t>::max(), imageAvailable[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
-	// -- SUBMIT COMMAND BUFFER TO RENDER --
-	// Queue submission information
-	vk::SubmitInfo submitInfo = {};
-	submitInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
-	submitInfo.pWaitSemaphores = &imageAvailable[currentFrame];				// List of semaphores to wait on
-	vk::PipelineStageFlags waitStages[] = {
-		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
-	};
-	submitInfo.pWaitDstStageMask = waitStages;						// Stages to check semaphores at
-	submitInfo.commandBufferCount = 1;								// Number of command buffers to submit
-	submitInfo.pCommandBuffers = &commandBuffers[imageIndex];		// Command buffer to submit
-	submitInfo.signalSemaphoreCount = 1;							// Number of semaphores to signal
-	submitInfo.pSignalSemaphores = &renderFinished[currentFrame];	// Semaphores to signal when command buffer finishes
+	//// -- SUBMIT COMMAND BUFFER TO RENDER --
+	//// Queue submission information
+	//vk::SubmitInfo submitInfo = {};
+	//submitInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
+	//submitInfo.pWaitSemaphores = &imageAvailable[currentFrame];				// List of semaphores to wait on
+	//vk::PipelineStageFlags waitStages[] = {
+	//	VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+	//};
+	//submitInfo.pWaitDstStageMask = waitStages;						// Stages to check semaphores at
+	//submitInfo.commandBufferCount = 1;								// Number of command buffers to submit
+	//submitInfo.pCommandBuffers = &commandBuffers[imageIndex];		// Command buffer to submit
+	//submitInfo.signalSemaphoreCount = 1;							// Number of semaphores to signal
+	//submitInfo.pSignalSemaphores = &renderFinished[currentFrame];	// Semaphores to signal when command buffer finishes
 
-	// Submit command buffer to queue
-	VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to submit Command Buffer to Queue!");
-	}
+	//// Submit command buffer to queue
+	//VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]);
+	//if (result != VK_SUCCESS)
+	//{
+	//	throw std::runtime_error("Failed to submit Command Buffer to Queue!");
+	//}
 
 
-	// -- PRESENT RENDERED IMAGE TO SCREEN --
-	VkPresentInfoKHR presentInfo = {};
-	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	presentInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
-	presentInfo.pWaitSemaphores = &renderFinished[currentFrame];			// Semaphores to wait on
-	presentInfo.swapchainCount = 1;											// Number of swapchains to present to
-	presentInfo.pSwapchains = &swapchain;									// Swapchains to present images to
-	presentInfo.pImageIndices = &imageIndex;								// Index of images in swapchains to present
+	//// -- PRESENT RENDERED IMAGE TO SCREEN --
+	//VkPresentInfoKHR presentInfo = {};
+	//presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	//presentInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
+	//presentInfo.pWaitSemaphores = &renderFinished[currentFrame];			// Semaphores to wait on
+	//presentInfo.swapchainCount = 1;											// Number of swapchains to present to
+	//presentInfo.pSwapchains = &swapchain;									// Swapchains to present images to
+	//presentInfo.pImageIndices = &imageIndex;								// Index of images in swapchains to present
 
-	// Present image
-	result = vkQueuePresentKHR(presentationQueue, &presentInfo);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to present Image!");
-	}
+	//// Present image
+	//result = vkQueuePresentKHR(presentationQueue, &presentInfo);
+	//if (result != VK_SUCCESS)
+	//{
+	//	throw std::runtime_error("Failed to present Image!");
+	//}
 
-	// Get next frame (use % MAX_FRAME_DRAWS to keep value below MAX_FRAME_DRAWS)
-	currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
+	//// Get next frame (use % MAX_FRAME_DRAWS to keep value below MAX_FRAME_DRAWS)
+	//currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
 }
 
 void VulkanRenderer::cleanup()
@@ -989,7 +989,7 @@ QueueFamilyIndices VulkanRenderer::getQueueFamilies(VkPhysicalDevice device)
 		// キューはビットフィールドで複数のタイプを定義することができる。VK_QUEUE_*_BITとビットごとのAND演算を行い、必要なタイプを持っているか確認する
 		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
 		{
-			indices.graphicsFamily = i;		// キューファミリーが有効であれば、そのインデックスを取得する
+			indices.m_GraphicsFamilyIndex = i;		// キューファミリーが有効であれば、そのインデックスを取得する
 		}
 
 		// キューファミリーがプレゼンテーションをサポートしているか確認する

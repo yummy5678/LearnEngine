@@ -1,63 +1,84 @@
 #include "QueueUtility.h"
 
 
-/// <summary>
-/// キューファミリーのインデックスを取得する
-/// </summary>
-QueueFamilyIndices VulkanUtility::GetQueueFamilies(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+QueueFamilyGenerator::QueueFamilyGenerator()
 {
-	QueueFamilyIndices indices;
-
-	// 物理デバイスに対するすべてのキューファミリープロパティ情報を取得する
-	uint32_t queueFamilyCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
-
-	std::vector<VkQueueFamilyProperties> queueFamilyList(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilyList.data());
-
-	// 各キューファミリーを調べ、必要なタイプのキューを少なくとも1つ持っているかどうかを確認する
-	int i = 0;
-	for (const auto& queueFamily : queueFamilyList)
-	{
-		// キューファミリーが少なくとも1つのキューを持っているか確認する（キューがない可能性もある）
-		// キューはビットフィールドで複数のタイプを定義することができる。
-		// VK_QUEUE_*_BITとビットごとのAND演算を行い、必要なタイプを持っているか確認する
-		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-		{
-			indices.graphicsFamily = i;		// キューファミリーが有効であれば、そのインデックスを取得する
-		}
-
-		// キューファミリーがプレゼンテーションをサポートしているか確認する
-		VkBool32 presentationSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentationSupport);
-		// キューがプレゼンテーションタイプであるかどうかを確認する（グラフィックスとプレゼンテーションの両方になり得る）
-		if (queueFamily.queueCount > 0 && presentationSupport)
-		{
-			indices.presentationFamily = i;
-		}
-
-		// キューファミリーのインデックスが有効な状態にあるかどうかを確認し、そうであれば検索を停止する
-		if (indices.isValid())
-		{
-			break;
-		}
-
-		i++;
-	}
-
-	return indices;
+	m_ClassName = "QueueFamilyGenerator";
 }
 
-std::vector<vk::DeviceQueueCreateInfo> VulkanCreate::GetQueueInfos(vk::PhysicalDevice physicalDevice,VkSurfaceKHR surface)
+QueueFamilyGenerator::~QueueFamilyGenerator()
 {
-	// 選択した物理デバイスのキューファミリーインデックスを取得する
-	QueueFamilyIndices queueIndex = VulkanUtility::GetQueueFamilies(physicalDevice, surface);
+}
+
+void QueueFamilyGenerator::Create(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+	m_bCreated = true;	//作成関数を通ったフラグを立てる
+	m_GraphicsFamilyIndex = SearchGraphicsFamily(physicalDevice, surface);	// キューファミリーが有効であれば、そのインデックスを取得する
+
+	m_PresentationFamilyIndex = SearchPresentationFamily(physicalDevice, surface);
+
+
+	m_QueueCreateInfos = CreateQueueInfos(physicalDevice, surface);
+}
+
+vk::Queue QueueFamilyGenerator::GetGraphics(vk::Device logicalDevice)
+{
+	CheckCreated();	//作成関数を通す前に使用するとエラー
+	return logicalDevice.getQueue(m_GraphicsFamilyIndex, 0u);
+}
+
+vk::Queue QueueFamilyGenerator::GetPresentation(vk::Device logicalDevice)
+{
+	CheckCreated();	//作成関数を通す前に使用するとエラー
+	return logicalDevice.getQueue(m_PresentationFamilyIndex, 0u);
+}
+
+std::vector<vk::DeviceQueueCreateInfo> QueueFamilyGenerator::GetQueueInfos()
+{
+	CheckCreated();	//作成関数を通す前に使用するとエラー
+	return m_QueueCreateInfos;
+}
+
+int QueueFamilyGenerator::SearchGraphicsFamily(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
+	const auto queueFamilyList = physicalDevice.getQueueFamilyProperties();
+
+	for (int i = 0; i < queueFamilyList.size(); i++)
+	{
+		// 1. キューファミリーが1つでもキューを持っているか確認する
+		// 2. レンダリングができるキューか、AND演算を行い確認する
+		if (queueFamilyList[i].queueCount == 0 && 
+			queueFamilyList[i].queueFlags & vk::QueueFlagBits::eGraphics)
+		{
+			return i;	// キューファミリーが有効であれば、そのインデックスを取得する
+		}
+	}
+}
+
+int QueueFamilyGenerator::SearchPresentationFamily(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
+	const auto queueFamilyList = physicalDevice.getQueueFamilyProperties();
+
+	for (int i = 0; i < queueFamilyList.size(); i++)
+	{
+		// 1. キューファミリーが1つでもキューを持っているか確認する
+		// 2. 画像の表示機能があるか確認する
+		if (queueFamilyList[i].queueCount == 0 && physicalDevice.getSurfaceSupportKHR(i, surface))
+		{
+			return i;	// キューファミリーが有効であれば、そのインデックスを取得する
+		}
+	}
+}
+
+std::vector<vk::DeviceQueueCreateInfo> QueueFamilyGenerator::CreateQueueInfos(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+	//ファミリーインデックス用のセット
+	std::set<int> queueFamilyIndices = { m_GraphicsFamilyIndex, m_PresentationFamilyIndex };
 
 	// キュー作成情報用のベクター
 	std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
-
-	//ファミリーインデックス用のセット
-	std::set<int> queueFamilyIndices = { queueIndex.graphicsFamily, queueIndex.presentationFamily };
 
 	// 論理デバイスで作成する必要があるキューとその情報を設定する
 	for (int queueFamilyIndex : queueFamilyIndices)

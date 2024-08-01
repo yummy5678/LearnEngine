@@ -344,10 +344,10 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
     // キューファミリのインデックスを取得
     QueueFamilyIndices indices = VulkanUtility::GetQueueFamilies(physicalDevice, surface);
     // キューファミリーインデックスの配列を作成
-    uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentationFamily };
+    uint32_t queueFamilyIndices[] = { indices.m_GraphicsFamilyIndex, indices.presentationFamily };
 
     // キューファミリが異なる場合は共有モードを設定
-    if (indices.graphicsFamily != indices.presentationFamily)
+    if (indices.m_GraphicsFamilyIndex != indices.presentationFamily)
     {
         swapchainInfo.imageSharingMode = vk::SharingMode::eConcurrent; // 並行モードに設定
         swapchainInfo.queueFamilyIndexCount = 2;                       // キューファミリーインデックスの数を設定
