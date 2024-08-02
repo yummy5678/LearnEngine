@@ -24,7 +24,7 @@ private:
 	std::vector<vk::CommandBuffer>	m_Buffers;
 	std::vector<vk::Framebuffer>	m_Framebuffers;
 
-	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, int graphicsFamilyIndex);
 	std::vector<vk::CommandBuffer> CreateCommandBuffers(vk::Device logicalDevice, std::vector<vk::Framebuffer> framebuffers, vk::CommandPool commandPool);
 
 };

@@ -87,14 +87,11 @@ std::vector<vk::CommandBuffer> CommandGenerator::GetBuffers()
     return m_Buffers;
 }
 
-vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, int graphicsFamilyIndex)
 {
-    // デバイスからキューファミリーのインデックスを取得する
-    QueueFamilyIndices queueFamilyIndices = VulkanUtility::GetQueueFamilies(physicalDevice, surface);
-
     // コマンドプールの作成に必要な情報を設定する
-    vk::CommandPoolCreateInfo poolInfo = {};
-    poolInfo.queueFamilyIndex = queueFamilyIndices.m_GraphicsFamilyIndex;	// このコマンドプールが使用するキューファミリータイプ
+    vk::CommandPoolCreateInfo poolInfo;
+    poolInfo.queueFamilyIndex = (uint32_t)graphicsFamilyIndex;	// このコマンドプールが使用するキューファミリータイプ
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;	// コマンドバッファのリセットを許可する場合はフラグを追加する
 
     // グラフィックスキューファミリー用のコマンドプールを作成する

@@ -119,7 +119,7 @@ private:
 	bool checkDeviceSuitable(VkPhysicalDevice device) { return false; };
 
 	// -- Getter Functions
-	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device);
+	//QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device);
 	SwapChainDetails getSwapChainDetails(VkPhysicalDevice device) { return SwapChainDetails{}; };
 
 	// -- Choose Functions
