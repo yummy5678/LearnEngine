@@ -6,6 +6,11 @@
 //キューを作成するときの初期値
 constexpr int Number_NoneQueue = -1;
 
+struct QueueContainer
+{
+
+};
+
 class QueueFamilyGenerator : CGeneratorBase
 {
 public:
@@ -14,13 +19,13 @@ public:
 
     void Create(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 
-    vk::Queue GetGraphics(vk::Device logicalDevice);
-    vk::Queue GetPresentation(vk::Device logicalDevice);
-    std::vector<vk::DeviceQueueCreateInfo> GetQueueInfos();
+    int GetGraphicIndex();
+    int GetPresentationIndex();
+    std::vector<vk::DeviceQueueCreateInfo> GetQueueInfos(); //デバイスの作成用
 
 private:   
-    int m_GraphicsFamilyIndex = Number_NoneQueue;      // グラフィックスキューファミリーの場所
-    int m_PresentationFamilyIndex = Number_NoneQueue;  // プレゼンテーションキューファミリー(画像の表示)の場所
+    int m_GraphicsFamilyIndex       = Number_NoneQueue;  // グラフィックスキューファミリーの場所
+    int m_PresentationFamilyIndex   = Number_NoneQueue;  // プレゼンテーションキューファミリー(画像の表示)の場所
 
     // キュー作成情報用のベクター
     std::vector<vk::DeviceQueueCreateInfo> m_QueueCreateInfos;

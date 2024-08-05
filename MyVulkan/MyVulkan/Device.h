@@ -21,17 +21,18 @@ public:
 
 	vk::Queue			GetGraphicsQueue();
 	vk::Queue			GetPresentationQueue();
+	int					GetQueueIndex();
 	
 
 private:
 	vk::PhysicalDevice	m_PhysicalDevice;
-	vk::Device	m_LogicalDevice;
+	vk::Device			m_LogicalDevice;
 
 	//論理デバイスの作成情報
 	vk::DeviceCreateInfo m_DeviceInfo;
 
 	//キュー
-	QueueFamilyGenerator queueFamilyGenerator;
+	QueueFamilyGenerator m_QueueFamilyGenerator;
 
 
 	//物理デバイスの取得

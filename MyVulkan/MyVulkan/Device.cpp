@@ -17,11 +17,11 @@ void DeviceGenerator::Create(vk::Instance instance, vk::SurfaceKHR surface)
 	//使用可能な物理デバイスを探してくる
 	m_PhysicalDevice = BringPhysicalDevice(instance, surface);
 
-	queueFamilyGenerator.Create(m_PhysicalDevice, surface);
+	m_QueueFamilyGenerator.Create(m_PhysicalDevice, surface);
 
 	//論理デバイスの作成
 	//デバイスの作成時にどんなキューを使用するか決める
-	m_DeviceInfo = CreateDeviceInfo(&queueFamilyGenerator.GetQueueInfos());
+	m_DeviceInfo = CreateDeviceInfo(&m_QueueFamilyGenerator.GetQueueInfos());
 	m_LogicalDevice = m_PhysicalDevice.createDevice(m_DeviceInfo);
 
 }
@@ -46,13 +46,18 @@ vk::Device DeviceGenerator::GetLogicalDevice()
 vk::Queue DeviceGenerator::GetGraphicsQueue()
 {
 	CheckCreated();
-	return queueFamilyGenerator.GetGraphics(m_LogicalDevice);
+	return m_LogicalDevice.getQueue(m_QueueFamilyGenerator.GetGraphicIndex(), 0u);
 }
 
 vk::Queue DeviceGenerator::GetPresentationQueue()
 {
 	CheckCreated();
-	return queueFamilyGenerator.GetPresentation(m_LogicalDevice);
+	return m_LogicalDevice.getQueue(m_QueueFamilyGenerator.GetPresentationIndex(), 0u);
+}
+
+int DeviceGenerator::GetQueueIndex()
+{
+	return m_QueueFamilyGenerator.GetGraphicIndex();//ここではグラフィックスキューを渡しておく(後で修正)
 }
 
 vk::PhysicalDevice DeviceGenerator::BringPhysicalDevice(vk::Instance instance, vk::SurfaceKHR surface)

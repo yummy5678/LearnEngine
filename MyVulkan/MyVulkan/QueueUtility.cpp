@@ -21,16 +21,16 @@ void QueueFamilyGenerator::Create(vk::PhysicalDevice physicalDevice, vk::Surface
 	m_QueueCreateInfos = CreateQueueInfos(physicalDevice, surface);
 }
 
-vk::Queue QueueFamilyGenerator::GetGraphics(vk::Device logicalDevice)
+int QueueFamilyGenerator::GetGraphicIndex()
 {
 	CheckCreated();	//作成関数を通す前に使用するとエラー
-	return logicalDevice.getQueue(m_GraphicsFamilyIndex, 0u);
+	return m_GraphicsFamilyIndex;
 }
 
-vk::Queue QueueFamilyGenerator::GetPresentation(vk::Device logicalDevice)
+int QueueFamilyGenerator::GetPresentationIndex()
 {
 	CheckCreated();	//作成関数を通す前に使用するとエラー
-	return logicalDevice.getQueue(m_PresentationFamilyIndex, 0u);
+	return m_PresentationFamilyIndex;
 }
 
 std::vector<vk::DeviceQueueCreateInfo> QueueFamilyGenerator::GetQueueInfos()

@@ -10,11 +10,11 @@ CommandGenerator::~CommandGenerator()
 {
 }
 
-void CommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, std::vector<vk::Framebuffer> framebuffers)
+void CommandGenerator::Create(vk::Device logicalDevice, int graphicsFamilyIndex, std::vector<vk::Framebuffer> framebuffers)
 {
     m_bCreated = true;
     m_Framebuffers = framebuffers;
-    m_Pool = CreateCommandPool(logicalDevice, physicalDevice, surface);
+    m_Pool = CreateCommandPool(logicalDevice, graphicsFamilyIndex);
     m_Buffers = CreateCommandBuffers(logicalDevice, framebuffers, m_Pool);
 }
 
