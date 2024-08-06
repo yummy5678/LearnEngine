@@ -226,11 +226,6 @@
 
 
 
-
-
-
-
-
 SwapchainGenerator::SwapchainGenerator()
 {
     m_ClassName = "SwapchainGenerator";
@@ -303,6 +298,8 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
     // サーフェスの機能を取得
     auto surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
 
+    QueueFamilyGenerator queueFamilyGenerator;
+    queueFamilyGenerator.Create(physicalDevice, surface);
 
     // スワップチェインのエクステント（幅と高さ）を選択
     m_Extent = ChooseSwapExtent(surfaceCapabilities);
@@ -345,10 +342,13 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
     //QueueFamilyIndices indices = VulkanUtility::GetQueueFamilies(physicalDevice, surface);
     // キューファミリーインデックスの配列を作成
     //uint32_t queueFamilyIndices[] = { indices.m_GraphicsFamilyIndex, indices.presentationFamily };
+    
+    
+    uint32_t queueFamilyIndices[] = { queueFamilyGenerator.GetGraphicIndex(), queueFamilyGenerator.GetPresentationIndex() };
 
     // キューファミリが異なる場合は共有モードを設定
     //if (indices.m_GraphicsFamilyIndex != indices.presentationFamily)
-    if (deviceGenerator.GetGraphicsQueue() != deviceGenerator.GetPresentationQueue())
+    if (queueFamilyGenerator.GetGraphicIndex() != queueFamilyGenerator.GetPresentationIndex())
     {
         swapchainInfo.imageSharingMode = vk::SharingMode::eConcurrent; // 並行モードに設定
         swapchainInfo.queueFamilyIndexCount = 2;                       // キューファミリーインデックスの数を設定

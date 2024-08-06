@@ -39,13 +39,16 @@ private:
 	vk::PhysicalDevice BringPhysicalDevice(vk::Instance instance, vk::SurfaceKHR surface);
 
 	//論理デバイスの作成情報を作成
-	vk::DeviceCreateInfo CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo >* m_QueueCreateInfos);
+	vk::DeviceCreateInfo CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo >& m_QueueCreateInfos);
 
 	//拡張機能が使えるかの確認
 	bool CheckDeviceExtensionSupport(vk::PhysicalDevice device);
 	bool CheckDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface);
 
 	//QueueFamilyIndices getQueueFamilies(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+
+
+	SwapChainDetails GetSwapChainDetails(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 };
 
 

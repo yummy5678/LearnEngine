@@ -18,6 +18,8 @@ void QueueFamilyGenerator::Create(vk::PhysicalDevice physicalDevice, vk::Surface
 	m_PresentationFamilyIndex = SearchPresentationFamily(physicalDevice, surface);
 
 
+
+
 	m_QueueCreateInfos = CreateQueueInfos(physicalDevice, surface);
 }
 
@@ -43,33 +45,44 @@ int QueueFamilyGenerator::SearchGraphicsFamily(vk::PhysicalDevice physicalDevice
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
 	const auto queueFamilyList = physicalDevice.getQueueFamilyProperties();
+	int index = Number_NoneQueue;
 
 	for (int i = 0; i < queueFamilyList.size(); i++)
 	{
 		// 1. キューファミリーが1つでもキューを持っているか確認する
 		// 2. レンダリングができるキューか、AND演算を行い確認する
-		if (queueFamilyList[i].queueCount == 0 && 
+		if (queueFamilyList[i].queueCount != 0 && 
 			queueFamilyList[i].queueFlags & vk::QueueFlagBits::eGraphics)
 		{
-			return i;	// キューファミリーが有効であれば、そのインデックスを取得する
+			index = i;	// キューファミリーが有効であれば、そのインデックスを取得する
+			break;
 		}
 	}
+
+	printf("グラフィックスキューの探索結果： %d\n", index);
+	return index;
+
 }
 
 int QueueFamilyGenerator::SearchPresentationFamily(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
 	const auto queueFamilyList = physicalDevice.getQueueFamilyProperties();
+	int index = Number_NoneQueue;
 
 	for (int i = 0; i < queueFamilyList.size(); i++)
 	{
 		// 1. キューファミリーが1つでもキューを持っているか確認する
 		// 2. 画像の表示機能があるか確認する
-		if (queueFamilyList[i].queueCount == 0 && physicalDevice.getSurfaceSupportKHR(i, surface))
+		if (queueFamilyList[i].queueCount != 0 && physicalDevice.getSurfaceSupportKHR(i, surface))
 		{
-			return i;	// キューファミリーが有効であれば、そのインデックスを取得する
+			index = i;	// キューファミリーが有効であれば、そのインデックスを取得する
+			break;
 		}
 	}
+
+	printf("プレゼンテーションキューの探索結果： %d\n", index);
+	return index;
 }
 
 std::vector<vk::DeviceQueueCreateInfo> QueueFamilyGenerator::CreateQueueInfos(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
@@ -83,7 +96,7 @@ std::vector<vk::DeviceQueueCreateInfo> QueueFamilyGenerator::CreateQueueInfos(vk
 	// 論理デバイスで作成する必要があるキューとその情報を設定する
 	for (int queueFamilyIndex : queueFamilyIndices)
 	{
-		vk::DeviceQueueCreateInfo queueCreateInfo = {};
+		vk::DeviceQueueCreateInfo queueCreateInfo;
 		queueCreateInfo.pNext;
 		queueCreateInfo.flags;
 		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;	// キューを作成するファミリーのインデックス

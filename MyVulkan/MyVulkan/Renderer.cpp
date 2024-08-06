@@ -25,16 +25,16 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		//物理デバイスを取得
 		auto physicalDevice	= deviceGenerator.GetPhysicalDevice();
 		auto surfaceCapabilities = surfaceGenerator.GetCapabilities(physicalDevice);
-		auto extent = surfaceCapabilities.currentExtent;
+		auto windowExtent = surfaceCapabilities.currentExtent;
 
 		//論理デバイスを取得
 		auto logicalDevice	= deviceGenerator.GetLogicalDevice();
 
 		//スワップチェインの作成
 		swapchainGenerator.Create(logicalDevice, physicalDevice, surface);
-		auto swapchain = swapchainGenerator.GetSwapchain();
-		auto swapChainImages = swapchainGenerator.GetSwapChainImages();//swapChainImagesを作成しておく
-		auto swapSurfaceFormat = swapchainGenerator.GetSwapSurfaceFormat();
+		auto swapchain			= swapchainGenerator.GetSwapchain();
+		auto swapChainImages	= swapchainGenerator.GetSwapChainImages();//swapChainImagesを作成しておく
+		auto swapSurfaceFormat	= swapchainGenerator.GetSwapSurfaceFormat();
 		//auto swapChainExtent = swapchainGenerator.Get2DExtent();
 
 		//レンダーパスの作成
@@ -42,11 +42,11 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		auto renderPass = renderpassGenerator.GetRenderpass();
 
 		//パイプラインの作成
-		pipelineGenerator.Create(logicalDevice, extent, renderPass);
+		pipelineGenerator.Create(logicalDevice, windowExtent, renderPass);
 		auto graphicsPipeline = pipelineGenerator.GetPipeline();
 		
 		//フレームバッファの作成
-		framebufferGenerator.Create(logicalDevice, swapChainImages, renderPass, extent);
+		framebufferGenerator.Create(logicalDevice, swapChainImages, renderPass, windowExtent);
 		auto swapchainFramebuffers = framebufferGenerator.GetFramebuffers();
 
 		//コマンドバッファの作成
@@ -55,7 +55,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		auto commandBuffers = commandGenerator.GetBuffers();
 
 		//コマンドの記録
-		commandGenerator.RecordCommands(renderPass, extent, graphicsPipeline);
+		commandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
 		//CommandUtility::recordCommands(renderPass, swapChainExtent, graphicsPipeline, swapchainFramebuffers, commandBuffers);
 
 		synchronizationGenerator.Create(logicalDevice);

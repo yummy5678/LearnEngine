@@ -21,7 +21,8 @@ void DeviceGenerator::Create(vk::Instance instance, vk::SurfaceKHR surface)
 
 	//論理デバイスの作成
 	//デバイスの作成時にどんなキューを使用するか決める
-	m_DeviceInfo = CreateDeviceInfo(&m_QueueFamilyGenerator.GetQueueInfos());
+	auto queueInfos = m_QueueFamilyGenerator.GetQueueInfos();
+	m_DeviceInfo = CreateDeviceInfo(queueInfos);
 	m_LogicalDevice = m_PhysicalDevice.createDevice(m_DeviceInfo);
 
 }
@@ -79,14 +80,14 @@ vk::PhysicalDevice DeviceGenerator::BringPhysicalDevice(vk::Instance instance, v
 	throw std::runtime_error("VulkanをサポートするGPUが見つかりません！");
 }
 
-vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(std::vector<vk::DeviceQueueCreateInfo>* m_QueueCreateInfos)
+vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
 {
 	// 論理デバイスを作成するための情報を設定する
 	vk::DeviceCreateInfo deviceInfo;
 	deviceInfo.pNext;
 	deviceInfo.flags;
-	deviceInfo.queueCreateInfoCount = (uint32_t)m_QueueCreateInfos->size();       // キュー作成情報の数
-	deviceInfo.pQueueCreateInfos = m_QueueCreateInfos->data();                    // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
+	deviceInfo.queueCreateInfoCount = (uint32_t)queueCreateInfos.size();       // キュー作成情報の数
+	deviceInfo.pQueueCreateInfos = queueCreateInfos.data();                    // デバイスが必要とするキューを作成するためのキュー作成情報のリスト
 	deviceInfo.enabledLayerCount = 0;
 	deviceInfo.ppEnabledLayerNames = nullptr;
 	deviceInfo.enabledExtensionCount = (uint32_t)deviceExtensions.size();      // 有効なロジカルデバイス拡張機能の数
@@ -155,10 +156,43 @@ bool DeviceGenerator::CheckDeviceSuitable(vk::PhysicalDevice device, vk::Surface
 
 	bool result = false;
 	// 特定の物理デバイスに対するスワップチェインの詳細を取得する
-	SwapChainDetails swapChainDetails = VulkanUtility::getSwapChainDetails(device, surface);
+	SwapChainDetails swapChainDetails = GetSwapChainDetails(device, surface);
 	// スワップチェインの有効性を確認する。プレゼンテーションモードが空でなく、フォーマットも空でない場合に有効とみなす。
 	result = !swapChainDetails.presentationModes.empty() && !swapChainDetails.formats.empty();
 
 	// 拡張機能に対応していてスワップチェインも有効
 	return result;
+}
+
+SwapChainDetails DeviceGenerator::GetSwapChainDetails(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+	SwapChainDetails swapChainDetails;
+
+	// -- CAPABILITIES --
+	// 特定の物理デバイスとサーフェスに対する表面のキャパビリティを取得する
+	swapChainDetails.surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
+
+	// -- FORMATS --
+	uint32_t formatCount = 0;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+
+	// フォーマットが返された場合、フォーマットのリストを取得する
+	if (formatCount != 0)
+	{
+		swapChainDetails.formats.resize(formatCount);
+		swapChainDetails.formats = physicalDevice.getSurfaceFormatsKHR(surface);
+	}
+
+	// -- PRESENTATION MODES --
+	uint32_t presentationCount = 0;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentationCount, nullptr);
+
+	// プレゼンテーションモードが返された場合、プレゼンテーションモードのリストを取得する
+	if (presentationCount != 0)
+	{
+		swapChainDetails.presentationModes.resize(presentationCount);
+		swapChainDetails.presentationModes = physicalDevice.getSurfacePresentModesKHR(surface);
+	}
+
+	return swapChainDetails;
 }
