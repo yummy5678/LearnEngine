@@ -1,31 +1,40 @@
 #include "VulkanInstance.h"
 
 
+
 InstanceGenerator::InstanceGenerator()
 {
 	m_ClassName = "InstanceGenerator";
+	std::cout << m_ClassName << "のコンストラクタが呼ばれました" << std::endl;
 }
 
 InstanceGenerator::~InstanceGenerator()
 {
+	std::cout << m_ClassName << "のデストラクタが呼ばれました" << std::endl;
 }
 
 void InstanceGenerator::CreateInstance()
 {
 	m_ApplicationInfo = CreateApplicationInfo();
 	auto instanceInfo = CreateInstanceInfo(&m_ApplicationInfo);
-	m_Instance = vk::createInstance(instanceInfo);
-	// インスタンスの作成に失敗した場合のエラーメッセージ
-	if (!m_Instance) 
+
+	try 
 	{
-		throw std::runtime_error("Vulkanインスタンスの作成に失敗しました！");
+		m_Instance = vk::createInstance(instanceInfo);
+	}
+	catch (const std::runtime_error& e)
+	{
+		// インスタンスの作成に失敗した場合のエラーメッセージ
+		throw std::runtime_error("インスタンスの作成に失敗しました！");
 	}
 
 }
 
 void InstanceGenerator::Create()
 {
-	m_bCreated = true;
+	std::cout << m_ClassName << "作成関数が呼ばれました" << std::endl;
+
+	m_bCreated = true;	//作成フラグをオンにする(デバッグ用)
 	CreateInstance();
 }
 
@@ -65,12 +74,14 @@ vk::ApplicationInfo InstanceGenerator::CreateApplicationInfo()
 {
 	// アプリケーションの情報を初期化
 	// ここは好きな値を書き込む
+	// ApplicationInfoの情報はGraphicsDefine.hで定義している
 	vk::ApplicationInfo appInfo;
-	appInfo.pApplicationName = "Vulkan App";                     // アプリケーションの名前
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);       // アプリケーションのバージョン名 
-	appInfo.pEngineName = "No Engine";                           // エンジンの名前
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);            // エンジンのバージョン名
-	appInfo.apiVersion = VK_API_VERSION_1_0;                     // Vulkan APIのバージョン
+	appInfo.pNext = nullptr;										//拡張機能情報(これは触らなくていい)
+	appInfo.pApplicationName = VulkanDefine::ApplicationName;       // アプリケーションの名前
+	appInfo.applicationVersion = VulkanDefine::ApplicationVersion;  // アプリケーションのバージョン名 
+	appInfo.pEngineName = VulkanDefine::EngineName;                 // エンジンの名前
+	appInfo.engineVersion = VulkanDefine::EngineVersion;			// エンジンのバージョン名
+	appInfo.apiVersion = VulkanDefine::ApiVersion;					// Vulkan APIのバージョン
 
 	return appInfo;
 }
@@ -78,7 +89,7 @@ vk::ApplicationInfo InstanceGenerator::CreateApplicationInfo()
 const vk::InstanceCreateInfo InstanceGenerator::CreateInstanceInfo(const vk::ApplicationInfo* appInfo)
 {
 	// エラーチェック
-	if (validationEnabled && !CheckValidationLayerSupport(validationLayers))
+	if (VulkanDefine::ValidationEnabled && !CheckValidationLayerSupport(validationLayers))
 	{
 		throw std::runtime_error("Required Validation Layers not supported!");
 	}
@@ -87,20 +98,21 @@ const vk::InstanceCreateInfo InstanceGenerator::CreateInstanceInfo(const vk::App
 	/*/////////////////////
 	* インスタンスの作成
 	*//////////////////////
-	m_InstanceInfo.pNext;											// 拡張機能の情報 
-	m_InstanceInfo.flags;											// インスタンスの作成フラグ 
-	m_InstanceInfo.pApplicationInfo = appInfo;						// アプリケーション情報へのポインタ
-	m_InstanceInfo.enabledLayerCount = 0;							// 有効にするレイヤーの数 
-	m_InstanceInfo.ppEnabledLayerNames = nullptr;					// 有効にするレイヤーの名前の配列 
-	m_InstanceInfo.enabledExtensionCount = 0;						// 有効にする拡張機能の数 
-	m_InstanceInfo.ppEnabledExtensionNames = nullptr;				// 有効にする拡張機能の名前の配列 	
+	vk::InstanceCreateInfo	instanceInfo;
+	instanceInfo.pNext;								// 拡張機能の情報 
+	instanceInfo.flags;								// インスタンスの作成フラグ 
+	instanceInfo.pApplicationInfo = appInfo;		// アプリケーション情報へのポインタ
+	instanceInfo.enabledLayerCount = 0;				// 有効にするレイヤーの数 
+	instanceInfo.ppEnabledLayerNames = nullptr;		// 有効にするレイヤーの名前の配列 
+	instanceInfo.enabledExtensionCount = 0;			// 有効にする拡張機能の数 
+	instanceInfo.ppEnabledExtensionNames = nullptr;	// 有効にする拡張機能の名前の配列 	
 
 
 	// GLFWの拡張機能を取得する
 	auto instanceExtensions = GetRequiredInstanceExtensionsPointer();
 
 	// バリデーションが有効な場合、検証用のデバッグ情報拡張機能を追加する
-	if (validationEnabled)
+	if (VulkanDefine::ValidationEnabled)
 	{
 		instanceExtensions->push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	}
@@ -112,17 +124,17 @@ const vk::InstanceCreateInfo InstanceGenerator::CreateInstanceInfo(const vk::App
 	}
 
 	// 有効な拡張機能の数と名前の配列を設定する
-	m_InstanceInfo.enabledExtensionCount = (uint32_t)instanceExtensions->size();
-	m_InstanceInfo.ppEnabledExtensionNames = instanceExtensions->data();
+	instanceInfo.enabledExtensionCount = (uint32_t)instanceExtensions->size();
+	instanceInfo.ppEnabledExtensionNames = instanceExtensions->data();
 
 	// バリデーションが有効な場合、有効なレイヤーの数と名前の配列を設定する
-	if (validationEnabled)
+	if (VulkanDefine::ValidationEnabled)
 	{
-		m_InstanceInfo.enabledLayerCount = (uint32_t)validationLayers.size();
-		m_InstanceInfo.ppEnabledLayerNames = validationLayers.data();
+		instanceInfo.enabledLayerCount = (uint32_t)validationLayers.size();
+		instanceInfo.ppEnabledLayerNames = validationLayers.data();
 	}
 
-	return m_InstanceInfo;
+	return instanceInfo;
 }
 
 bool InstanceGenerator::CheckValidationLayerSupport(const std::vector<const char*> validationLayers)
@@ -166,6 +178,7 @@ bool InstanceGenerator::CheckValidationLayerSupport(const std::vector<const char
 	return true;
 }
 
+//
 bool InstanceGenerator::CheckInstanceExtensionSupport(std::vector<const char*>* checkExtensions)
 {
 	// インスタンスが使用する拡張機能を設定する

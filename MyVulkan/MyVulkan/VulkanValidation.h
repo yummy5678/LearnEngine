@@ -1,6 +1,6 @@
 #pragma once
 
-const bool validationEnabled = true;
+//const bool validationEnabled = true;
 
 // List of validation layers to use
 // VK_LAYER_LUNARG_standard_validation = All standard validation layers

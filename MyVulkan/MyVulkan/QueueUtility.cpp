@@ -4,21 +4,23 @@
 QueueFamilyGenerator::QueueFamilyGenerator()
 {
 	m_ClassName = "QueueFamilyGenerator";
+	std::cout << m_ClassName << "のコンストラクタが呼ばれました" << std::endl;
 }
 
 QueueFamilyGenerator::~QueueFamilyGenerator()
 {
+	std::cout << m_ClassName << "のデストラクタが呼ばれました" << std::endl;
 }
 
 void QueueFamilyGenerator::Create(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
 	m_bCreated = true;	//作成関数を通ったフラグを立てる
-	m_GraphicsFamilyIndex = SearchGraphicsFamily(physicalDevice, surface);	// キューファミリーが有効であれば、そのインデックスを取得する
+
+	// キューファミリーが有効であれば、そのインデックスを取得する
+	m_GraphicsFamilyIndex = SearchGraphicsFamily(physicalDevice, surface);	
+
 
 	m_PresentationFamilyIndex = SearchPresentationFamily(physicalDevice, surface);
-
-
-
 
 	m_QueueCreateInfos = CreateQueueInfos(physicalDevice, surface);
 }
