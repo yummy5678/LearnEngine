@@ -136,6 +136,7 @@
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="GeneratorBase.cpp" />
     <ClCompile Include="GraphicsPipelineUtility.cpp" />
+    <ClCompile Include="InstanceExtensionManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="GeneratorBase.h" />
     <ClInclude Include="GraphicsDefine.h" />
     <ClInclude Include="GraphicsPipelineUtility.h" />
+    <ClInclude Include="InstanceExtensionManager.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderPassUtility.h" />

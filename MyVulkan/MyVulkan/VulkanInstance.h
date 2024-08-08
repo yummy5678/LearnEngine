@@ -22,7 +22,7 @@ private:
 	vk::Instance			m_Instance;
 
 	// インスタンス拡張機能のリストを作成する
-	std::vector<const char*> instanceExtensions;
+	std::vector<const char*> m_InstanceExtensions;
 
 	//インスタンスの作成
 	void CreateInstance();

@@ -77,11 +77,11 @@ vk::ApplicationInfo InstanceGenerator::CreateApplicationInfo()
 	// ApplicationInfoの情報はGraphicsDefine.hで定義している
 	vk::ApplicationInfo appInfo;
 	appInfo.pNext = nullptr;										//拡張機能情報(これは触らなくていい)
-	appInfo.pApplicationName = VulkanDefine::ApplicationName;       // アプリケーションの名前
-	appInfo.applicationVersion = VulkanDefine::ApplicationVersion;  // アプリケーションのバージョン名 
-	appInfo.pEngineName = VulkanDefine::EngineName;                 // エンジンの名前
-	appInfo.engineVersion = VulkanDefine::EngineVersion;			// エンジンのバージョン名
-	appInfo.apiVersion = VulkanDefine::ApiVersion;					// Vulkan APIのバージョン
+	appInfo.pApplicationName = VulkanDefine.ApplicationName;		// アプリケーションの名前
+	appInfo.applicationVersion = VulkanDefine.ApplicationVersion;	// アプリケーションのバージョン名 
+	appInfo.pEngineName = VulkanDefine.EngineName;					// エンジンの名前
+	appInfo.engineVersion = VulkanDefine.EngineVersion;				// エンジンのバージョン名
+	appInfo.apiVersion = VulkanDefine.ApiVersion;					// Vulkan APIのバージョン
 
 	return appInfo;
 }
@@ -89,7 +89,7 @@ vk::ApplicationInfo InstanceGenerator::CreateApplicationInfo()
 const vk::InstanceCreateInfo InstanceGenerator::CreateInstanceInfo(const vk::ApplicationInfo* appInfo)
 {
 	// エラーチェック
-	if (VulkanDefine::ValidationEnabled && !CheckValidationLayerSupport(validationLayers))
+	if (VulkanDefine.ValidationEnabled && !CheckValidationLayerSupport(validationLayers))
 	{
 		throw std::runtime_error("Required Validation Layers not supported!");
 	}
@@ -112,7 +112,7 @@ const vk::InstanceCreateInfo InstanceGenerator::CreateInstanceInfo(const vk::App
 	auto instanceExtensions = GetRequiredInstanceExtensionsPointer();
 
 	// バリデーションが有効な場合、検証用のデバッグ情報拡張機能を追加する
-	if (VulkanDefine::ValidationEnabled)
+	if (VulkanDefine.ValidationEnabled)
 	{
 		instanceExtensions->push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	}
@@ -128,7 +128,7 @@ const vk::InstanceCreateInfo InstanceGenerator::CreateInstanceInfo(const vk::App
 	instanceInfo.ppEnabledExtensionNames = instanceExtensions->data();
 
 	// バリデーションが有効な場合、有効なレイヤーの数と名前の配列を設定する
-	if (VulkanDefine::ValidationEnabled)
+	if (VulkanDefine.ValidationEnabled)
 	{
 		instanceInfo.enabledLayerCount = (uint32_t)validationLayers.size();
 		instanceInfo.ppEnabledLayerNames = validationLayers.data();
@@ -191,8 +191,8 @@ bool InstanceGenerator::CheckInstanceExtensionSupport(std::vector<const char*>* 
 	// GLFWの拡張機能をリストに追加する
 	for (size_t i = 0; i < glfwExtensionCount; i++)
 	{
-		instanceExtensions.push_back(glfwExtensions[i]);
+		m_InstanceExtensions.push_back(glfwExtensions[i]);
 	}
 
-	return &instanceExtensions;
+	return &m_InstanceExtensions;
 }
