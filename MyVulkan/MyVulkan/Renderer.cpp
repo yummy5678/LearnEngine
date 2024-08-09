@@ -2,6 +2,8 @@
 
 VulkanRenderer::VulkanRenderer()
 {
+
+
 }
 
 int VulkanRenderer::init(GameWindow renderWindow)
@@ -10,52 +12,52 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	
 	try {
 		//インスタンスの作成
-		instanceGenerator.Create();
-		auto instance = instanceGenerator.GetInstanse();
+		m_InstanceGenerator.Create();
+		auto instance = m_InstanceGenerator.GetInstanse();
 
 		createDebugCallback();
 
 		//サーフェスの作成
-		surfaceGenerator.CreateWindowSurface(instance,window);
-		auto surface = surfaceGenerator.GetSurface();
+		m_SurfaceGenerator.CreateWindowSurface(instance,window);
+		auto surface = m_SurfaceGenerator.GetSurface();
 
 
 		//物理・論理デバイスの作成
-		deviceGenerator.Create(instance, surface);
+		m_DeviceGenerator.Create(instance, surface);
 		//物理デバイスを取得
-		auto physicalDevice	= deviceGenerator.GetPhysicalDevice();
-		auto surfaceCapabilities = surfaceGenerator.GetCapabilities(physicalDevice);
+		auto physicalDevice	= m_DeviceGenerator.GetPhysicalDevice();
+		auto surfaceCapabilities = m_SurfaceGenerator.GetCapabilities(physicalDevice);
 		auto windowExtent = surfaceCapabilities.currentExtent;
 
 		//論理デバイスを取得
-		auto logicalDevice	= deviceGenerator.GetLogicalDevice();
+		auto logicalDevice	= m_DeviceGenerator.GetLogicalDevice();
 
 		//スワップチェインの作成
-		swapchainGenerator.Create(logicalDevice, physicalDevice, surface);
-		auto swapchain			= swapchainGenerator.GetSwapchain();
-		auto swapChainImages	= swapchainGenerator.GetSwapChainImages();//swapChainImagesを作成しておく
-		auto swapSurfaceFormat	= swapchainGenerator.GetSwapSurfaceFormat();
+		m_SwapchainGenerator.Create(logicalDevice, physicalDevice, surface);
+		auto swapchain			= m_SwapchainGenerator.GetSwapchain();
+		auto swapChainImages	= m_SwapchainGenerator.GetSwapChainImages();//swapChainImagesを作成しておく
+		auto swapSurfaceFormat	= m_SwapchainGenerator.GetSwapSurfaceFormat();
 		//auto swapChainExtent = swapchainGenerator.Get2DExtent();
 
 		//レンダーパスの作成
-		renderpassGenerator.Create(logicalDevice, swapSurfaceFormat);
-		auto renderPass = renderpassGenerator.GetRenderpass();
+		m_RenderpassGenerator.Create(logicalDevice, swapSurfaceFormat);
+		auto renderPass = m_RenderpassGenerator.GetRenderpass();
 
 		//パイプラインの作成
-		pipelineGenerator.Create(logicalDevice, windowExtent, renderPass);
-		auto graphicsPipeline = pipelineGenerator.GetPipeline();
+		m_PipelineGenerator.Create(logicalDevice, windowExtent, renderPass);
+		auto graphicsPipeline = m_PipelineGenerator.GetPipeline();
 		
 		//フレームバッファの作成
-		framebufferGenerator.Create(logicalDevice, swapChainImages, renderPass, windowExtent);
-		auto swapchainFramebuffers = framebufferGenerator.GetFramebuffers();
+		m_FramebufferGenerator.Create(logicalDevice, swapChainImages, renderPass, windowExtent);
+		auto swapchainFramebuffers = m_FramebufferGenerator.GetFramebuffers();
 
 		//コマンドバッファの作成
-		commandGenerator.Create(logicalDevice, deviceGenerator.GetQueueIndex(), swapchainFramebuffers);
+		m_CommandGenerator.Create(logicalDevice, m_DeviceGenerator.GetQueueIndex(), swapchainFramebuffers);
 		//auto graphicsCommandPool = commandGenerator.GetPool();
-		auto commandBuffers = commandGenerator.GetBuffers();
+		auto commandBuffers = m_CommandGenerator.GetBuffers();
 
 		//コマンドの記録
-		commandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
+		m_CommandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
 		//CommandUtility::recordCommands(renderPass, swapChainExtent, graphicsPipeline, swapchainFramebuffers, commandBuffers);
 
 		synchronizationGenerator.Create(logicalDevice);
@@ -893,40 +895,40 @@ bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device)
 
 bool VulkanRenderer::checkValidationLayerSupport()
 {
-	// バリデーションレイヤーの数を取得し、適切なサイズのベクターを作成する
-	uint32_t validationLayerCount;
-	vkEnumerateInstanceLayerProperties(&validationLayerCount, nullptr);
+	//// バリデーションレイヤーの数を取得し、適切なサイズのベクターを作成する
+	//uint32_t validationLayerCount;
+	//vkEnumerateInstanceLayerProperties(&validationLayerCount, nullptr);
 
-	// もしバリデーションレイヤーが見つからない場合かつ少なくとも1つのレイヤーが必要な場合はfalseを返す
-	if (validationLayerCount == 0 && validationLayers.size() > 0)
-	{
-		return false;
-	}
+	//// もしバリデーションレイヤーが見つからない場合かつ少なくとも1つのレイヤーが必要な場合はfalseを返す
+	//if (validationLayerCount == 0 && validationLayers.size() > 0)
+	//{
+	//	return false;
+	//}
 
-	// 利用可能なレイヤーの情報を保持するためのVkLayerPropertiesのリストを作成する
-	std::vector<VkLayerProperties> availableLayers(validationLayerCount);
-	vkEnumerateInstanceLayerProperties(&validationLayerCount, availableLayers.data());
+	//// 利用可能なレイヤーの情報を保持するためのVkLayerPropertiesのリストを作成する
+	//std::vector<VkLayerProperties> availableLayers(validationLayerCount);
+	//vkEnumerateInstanceLayerProperties(&validationLayerCount, availableLayers.data());
 
-	// 指定されたバリデーションレイヤーが利用可能なレイヤーリストに含まれているかチェックする
-	for (const auto& validationLayer : validationLayers)
-	{
-		bool hasLayer = false;
-		for (const auto& availableLayer : availableLayers)
-		{
-			// レイヤー名が一致するかどうかをstrcmpで比較する
-			if (strcmp(validationLayer, availableLayer.layerName) == 0)
-			{
-				hasLayer = true;
-				break;
-			}
-		}
+	//// 指定されたバリデーションレイヤーが利用可能なレイヤーリストに含まれているかチェックする
+	//for (const auto& validationLayer : validationLayers)
+	//{
+	//	bool hasLayer = false;
+	//	for (const auto& availableLayer : availableLayers)
+	//	{
+	//		// レイヤー名が一致するかどうかをstrcmpで比較する
+	//		if (strcmp(validationLayer, availableLayer.layerName) == 0)
+	//		{
+	//			hasLayer = true;
+	//			break;
+	//		}
+	//	}
 
-		// 指定されたバリデーションレイヤーが見つからない場合はfalseを返す
-		if (!hasLayer)
-		{
-			return false;
-		}
-	}
+	//	// 指定されたバリデーションレイヤーが見つからない場合はfalseを返す
+	//	if (!hasLayer)
+	//	{
+	//		return false;
+	//	}
+	//}
 
 	// すべての指定されたバリデーションレイヤーが見つかった場合はtrueを返す
 	return true;

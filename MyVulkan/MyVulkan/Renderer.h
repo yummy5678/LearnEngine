@@ -21,6 +21,7 @@
 #include "CommandUtility.h"
 #include "SynchronizationGenerator.h"
 
+
 class VulkanRenderer
 {
 public:
@@ -35,14 +36,17 @@ private:
 	GLFWwindow* window;
 
 	int currentFrame = 0;
-	InstanceGenerator		instanceGenerator;
-	SurfaceGenerator		surfaceGenerator;
-	DeviceGenerator			deviceGenerator;
-	SwapchainGenerator		swapchainGenerator;
-	RenderpassGenerator		renderpassGenerator;
-	PipelineGenerator		pipelineGenerator;
-	FramebufferGenerator	framebufferGenerator;
-	CommandGenerator		commandGenerator;
+	InstanceGenerator		m_InstanceGenerator;
+	SurfaceGenerator		m_SurfaceGenerator;
+	DeviceGenerator			m_DeviceGenerator;
+	SwapchainGenerator		m_SwapchainGenerator;
+	RenderpassGenerator		m_RenderpassGenerator;
+	PipelineGenerator		m_PipelineGenerator;
+	FramebufferGenerator	m_FramebufferGenerator;
+	CommandGenerator		m_CommandGenerator;
+
+
+	
 	// Vulkan Components
 	//VkInstance instance;
 	//vk::UniqueInstance instance;
@@ -90,6 +94,8 @@ private:
 	// - Create Functions
 	//インスタンスの作成
 	//void createInstance();
+	// インスタンス拡張機能のリストを作成する
+	std::vector<const char*> m_InstanceExtensions;
 
 	//デバイスの作成
 	void createDebugCallback();
