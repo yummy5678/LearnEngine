@@ -1,10 +1,12 @@
 #pragma once
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.hpp> //glfwよりvulkan.hが先に来るようにする
 #include <GLFW/glfw3.h>
 #include "GeneratorBase.h"
 #include "GraphicsDefine.h"
 #include "VulkanLayerManager.h"
+#include "VulkanExtensionManager.h"
 #include "VulkanValidation.h"
+
 
 // インスタンス拡張機能のリストを作成する
 class InstanceGenerator : public CGeneratorBase
@@ -13,15 +15,17 @@ public:
 	InstanceGenerator();
 	~InstanceGenerator();
 
-	void Create();
+	void Create(InstanceExtensionManager extensionManager);
 	void Destroy();
 
 	vk::Instance GetInstanse();
+	
 
 private:
 	vk::ApplicationInfo		m_ApplicationInfo;	//このアプリの名前などを入れる構造体
 	vk::Instance			m_Instance;
 	InstanceLayerManager	m_LayerManager;
+	InstanceExtensionManager m_ExtensionManager;
 
 	// インスタンス拡張機能のリストを作成する
 	std::vector<const char*> m_InstanceExtensions;
@@ -30,7 +34,7 @@ private:
 	std::vector<const char*>		GetRequiredInstanceExtensionsPointer();
 
 	//レイヤーの取得
-	std::vector<const char*>		GetLayers();
+	InstanceLayerManager			GetLayers();
 
 	//拡張機能の取得
 	std::vector<const char*>		GetExtensions()
@@ -41,14 +45,8 @@ private:
 	//インスタンスの作成情報の作成
 	const vk::InstanceCreateInfo	GetInstanceInfo(
 		const vk::ApplicationInfo* appInfo,
-		const std::vector<const char*>* layers, 
-		const std::vector<const char*>* extensions);
-
-	// 検証レイヤー名前のものをサポートしているか確認
-	bool CheckLayersSupport(const std::vector<const char*> validationLayers);
-
-	// 引数の拡張機能の名前のものが利用できるか確認
-	bool CheckExtensionsSupport(std::vector<const char*> checkExtensions);
+		InstanceLayerManager layerManager,
+		InstanceExtensionManager extensionManager);
 
 };
 

@@ -13,10 +13,9 @@ InstanceGenerator::~InstanceGenerator()
 	std::cout << m_ClassName << "のデストラクタが呼ばれました" << std::endl;
 }
 
-void InstanceGenerator::Create()
+void InstanceGenerator::Create(InstanceExtensionManager extensionManager)
 {
 	std::cout << m_ClassName << "作成関数が呼ばれました" << std::endl;
-
 	m_bCreated = true;	//作成フラグをオンにする(デバッグ用)
 
 	/*/////////////////////
@@ -27,10 +26,10 @@ void InstanceGenerator::Create()
 	/*/////////////////////
 	* 拡張機能リストの作成
 	*//////////////////////
-	auto extensions = GetExtensions();
+	auto extensions = extensionManager;
 
 	m_ApplicationInfo = GetApplicationInfo();
-	auto instanceInfo = GetInstanceInfo(&m_ApplicationInfo, &layers, &extensions);
+	auto instanceInfo = GetInstanceInfo(&m_ApplicationInfo, layers, extensions);
 
 	try
 	{
@@ -82,15 +81,16 @@ std::vector<const char*> InstanceGenerator::GetRequiredInstanceExtensionsPointer
 	return instanceExtensions;
 }
 
-std::vector<const char*> InstanceGenerator::GetLayers()
+InstanceLayerManager InstanceGenerator::GetLayers()
 {
+	InstanceLayerManager layers;
 	//レイヤリストの取得
 	if (VulkanDefine.ValidationEnabled)//検証レイヤーのフラグが立っていれば追加
 	{
-		m_LayerManager.AddLayer(LAYER_VALIDATION);
+		layers.Add(VULKAN_LAYER_VALIDATION);
 	}
-	std::vector<const char*> layers = m_LayerManager.GetLayerList();
-	CheckLayersSupport(layers);	//レイヤーが使用できるか確認
+	//std::vector<const char*> layers = m_LayerManager.GetLayerList();
+	//CheckLayersSupport(layers);	//レイヤーが使用できるか確認
 	return layers;
 }
 
@@ -106,11 +106,6 @@ std::vector<const char*> InstanceGenerator::GetExtensions()
 		std::cout << "デバッグ拡張機能の追加" << std::endl;
 	}
 
-	// インスタンスが必要とする拡張機能がサポートされているか確認する
-	if (!CheckExtensionsSupport(instanceExtensions))
-	{
-		throw std::runtime_error("インスタンスは必要な拡張機能をサポートしていません！");
-	}
 
 	return instanceExtensions;
 }
@@ -136,101 +131,26 @@ vk::ApplicationInfo InstanceGenerator::GetApplicationInfo()
 
 const vk::InstanceCreateInfo InstanceGenerator::GetInstanceInfo(
 	const vk::ApplicationInfo* appInfo,
-	const std::vector<const char*>* layers,
-	const std::vector<const char*>* extensions)
+	InstanceLayerManager layerManager,
+	InstanceExtensionManager extensionManager)
 {
 	std::cout << "インスタンス作成情報の作成" << std::endl;
+	auto layers = layerManager.GetList();
+	auto extensions = extensionManager.GetList();
 
 	/*/////////////////////
 	* インスタンスの作成
 	*//////////////////////
 	vk::InstanceCreateInfo	instanceInfo;
-	instanceInfo.pNext;									// 拡張機能の情報 
-	instanceInfo.flags;									// インスタンスの作成フラグ 
-	instanceInfo.pApplicationInfo = appInfo;			// アプリケーション情報へのポインタ
-	instanceInfo.enabledLayerCount = layers->size();		// 有効にするレイヤーの数 
-	instanceInfo.ppEnabledLayerNames = layers->data();	// 有効にするレイヤーの名前の配列 
-	instanceInfo.enabledExtensionCount = (uint32_t)extensions->size();	// 有効にする拡張機能の数 
-	instanceInfo.ppEnabledExtensionNames = extensions->data();			// 有効にする拡張機能の名前の配列 	
+	instanceInfo.pNext;												
+	instanceInfo.flags;												
+	instanceInfo.pApplicationInfo = appInfo;						// アプリケーション情報へのポインタ
+	instanceInfo.enabledLayerCount = layers.size();					// 有効にするレイヤーの数 
+	instanceInfo.ppEnabledLayerNames = &(*layers.begin());			// 有効にするレイヤーの名前の配列 
+	instanceInfo.enabledExtensionCount = extensions.size();			// 有効にする拡張機能の数 
+	instanceInfo.ppEnabledExtensionNames = &(*extensions.begin());	// 有効にする拡張機能の名前の配列 	
 
 	return instanceInfo;
 }
 
-// 配列内の文字列が間違っていたり、
-// 対応していないものだとエラーを出す
-bool InstanceGenerator::CheckLayersSupport(const std::vector<const char*> validationLayers)
-{
-	std::cout << "指定されたレイヤーが利用出来るか確認" << std::endl;
 
-	//利用可能なレイヤーのリストを持ってくる
-	std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
-
-	// 利用可能なレイヤーか引数のレイヤー数が0の場合はfalseを返す
-	if (availableLayers.empty() || validationLayers.empty())
-	{
-		std::cout << "失敗" << std::endl;
-		return false;
-	}
-
-	int hasCount = validationLayers.size();
-	// 指定されたバリデーションレイヤーが利用可能なレイヤーリストに含まれているかチェックする
-	for (const auto& validationLayer : validationLayers)
-	{
-		
-		for (const auto& availableLayer : availableLayers)
-		{
-			// レイヤー名が一致するかどうかをstrcmpで比較する
-			if (strcmp(validationLayer, availableLayer.layerName) == 0)
-			{
-				if (--hasCount == 0)
-				{
-					// すべての指定されたバリデーションレイヤーが見つかった場合はtrueを返す
-					std::cout << "成功" << std::endl;
-					return true;
-				}
-			}
-		}
-	}
-
-	// 指定されたレイヤーを全て見つけられなかった場合はfalseを返す
-	std::cout << "指定されたレイヤーを見つけられませんでした" << std::endl;
-	return false;
-}
-
-// 配列内の文字列が間違っていたり、
-// 対応していないものだとエラーを出す
-bool InstanceGenerator::CheckExtensionsSupport(std::vector<const char*> checkExtensions)
-{
-	std::cout << "インスタンスの指定された拡張機能が利用出来るか確認" << std::endl;
-
-	// Need to get number of extensions to create array of correct size to hold extensions
-	uint32_t extensionCount = 0;
-	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-	// Create a list of VkExtensionProperties using count
-	std::vector<VkExtensionProperties> extensions(extensionCount);
-	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-
-	// Check if given extensions are in list of available extensions
-	for (const auto& checkExtension : checkExtensions)
-	{
-		bool hasExtension = false;
-		for (const auto& extension : extensions)
-		{
-			if (strcmp(checkExtension, extension.extensionName) == 0)
-			{
-				hasExtension = true;
-				break;
-			}
-		}
-
-		if (!hasExtension)
-		{
-			std::cout << "失敗" << std::endl;
-			return false;
-		}
-	}
-
-	std::cout << "成功" << std::endl;
-	return true;
-}

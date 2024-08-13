@@ -2,8 +2,10 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <stdexcept>
+#include <vulkan/vulkan.hpp>
 
 
 enum InstanceLayerList
@@ -17,12 +19,9 @@ enum InstanceLayerList
 };
 
 //インスタンスの番号と名前を結びつける
-const std::unordered_map<InstanceLayerList, const char*> gLayerMap
-{
-	//{LAYER_VALIDATION,	"VK_LAYER_LUNARG_standard_validation"},
-	{ LAYER_VALIDATION, "VK_LAYER_KHRONOS_validation" },
+//constexpr const char VULKAN_LAYER_VALIDATION[] = "VK_LAYER_LUNARG_standard_validation";
+constexpr const char VULKAN_LAYER_VALIDATION[] = "VK_LAYER_KHRONOS_validation";
 
-};
 
 
 class InstanceLayerManager
@@ -31,21 +30,19 @@ public:
 	InstanceLayerManager();
 	~InstanceLayerManager();
 
-	void AddLayer(InstanceLayerList layer);
-	bool hasLayer(InstanceLayerList layer);
-	bool DeleteLayer(InstanceLayerList layer);
+	void Add(const char*);
+	bool hasLayer(const char*);
+	bool DeleteLayer(const char*);
 
-	std::vector<const char*> GetLayerList();
+	std::unordered_set<const char*> GetList();
 
 
 private:
+	
+	std::unordered_set<const char*> m_ExtensinList;	//内容の重複を避けたいためsetを使う
 
-	std::vector<const char*> m_LayerList;
-
-
-
-
-
+	//レイヤー名が使用できるか確認
+	bool CheckLayerSupport(const char* validationLayers);
 };
 
 // Vulkanのレイヤーとは？
