@@ -23,13 +23,8 @@ void InstanceGenerator::Create(InstanceExtensionManager extensionManager)
 	*//////////////////////
 	auto layers = GetLayers();
 
-	/*/////////////////////
-	* 拡張機能リストの作成
-	*//////////////////////
-	auto extensions = extensionManager;
-
 	m_ApplicationInfo = GetApplicationInfo();
-	auto instanceInfo = GetInstanceInfo(&m_ApplicationInfo, layers, extensions);
+	auto instanceInfo = GetInstanceInfo(&m_ApplicationInfo, layers, extensionManager);
 
 	try
 	{
@@ -57,30 +52,6 @@ vk::Instance InstanceGenerator::GetInstanse()
 	return m_Instance;
 }
 
-std::vector<const char*> InstanceGenerator::GetRequiredInstanceExtensionsPointer()
-{
-	std::cout << m_ClassName << "GLFW拡張機能のリストの受け取り" << std::endl;
-
-	// インスタンス拡張機能のリストを作成する
-	std::vector<const char*> instanceExtensions;
-
-	// インスタンスが使用する拡張機能を設定する
-	uint32_t glfwExtensionCount = 0;	// GLFWは複数の拡張機能を要求する場合がある
-	const char** glfwExtensions;		// 拡張機能はC文字列の配列として渡されるため、ポインタ(配列)のポインタ(C文字列)が必要
-
-	// GLFWの拡張機能を取得する
-	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-	// GLFWの拡張機能をリストに追加する
-	for (size_t i = 0; i < glfwExtensionCount; i++)
-	{
-		instanceExtensions.push_back(glfwExtensions[i]);
-		std::cout<< "拡張機能名：" << glfwExtensions[i] << std::endl;
-	}
-
-	return instanceExtensions;
-}
-
 InstanceLayerManager InstanceGenerator::GetLayers()
 {
 	InstanceLayerManager layers;
@@ -89,26 +60,10 @@ InstanceLayerManager InstanceGenerator::GetLayers()
 	{
 		layers.Add(VULKAN_LAYER_VALIDATION);
 	}
-	//std::vector<const char*> layers = m_LayerManager.GetLayerList();
-	//CheckLayersSupport(layers);	//レイヤーが使用できるか確認
+
 	return layers;
 }
 
-std::vector<const char*> InstanceGenerator::GetExtensions()
-{
-	// 拡張機能リストの作成
-	auto instanceExtensions = GetRequiredInstanceExtensionsPointer();	// GLFWの拡張機能を取得する
-
-	// バリデーションが有効な場合、検証用のデバッグ情報拡張機能を追加する
-	if (VulkanDefine.ValidationEnabled)
-	{
-		instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-		std::cout << "デバッグ拡張機能の追加" << std::endl;
-	}
-
-
-	return instanceExtensions;
-}
 
 vk::ApplicationInfo InstanceGenerator::GetApplicationInfo()
 {
@@ -131,12 +86,12 @@ vk::ApplicationInfo InstanceGenerator::GetApplicationInfo()
 
 const vk::InstanceCreateInfo InstanceGenerator::GetInstanceInfo(
 	const vk::ApplicationInfo* appInfo,
-	InstanceLayerManager layerManager,
-	InstanceExtensionManager extensionManager)
+	InstanceLayerManager& layerManager,
+	InstanceExtensionManager& extensionManager)
 {
 	std::cout << "インスタンス作成情報の作成" << std::endl;
 	auto layers = layerManager.GetList();
-	auto extensions = extensionManager.GetList();
+	auto extensions = extensionManager.GetExtensions();
 
 	/*/////////////////////
 	* インスタンスの作成
@@ -145,10 +100,10 @@ const vk::InstanceCreateInfo InstanceGenerator::GetInstanceInfo(
 	instanceInfo.pNext;												
 	instanceInfo.flags;												
 	instanceInfo.pApplicationInfo = appInfo;						// アプリケーション情報へのポインタ
-	instanceInfo.enabledLayerCount = layers.size();					// 有効にするレイヤーの数 
-	instanceInfo.ppEnabledLayerNames = &(*layers.begin());			// 有効にするレイヤーの名前の配列 
-	instanceInfo.enabledExtensionCount = extensions.size();			// 有効にする拡張機能の数 
-	instanceInfo.ppEnabledExtensionNames = &(*extensions.begin());	// 有効にする拡張機能の名前の配列 	
+	instanceInfo.enabledLayerCount = layers->size();					// 有効にするレイヤーの数 
+	instanceInfo.ppEnabledLayerNames = &(*layers->begin());			// 有効にするレイヤーの名前の配列 
+	instanceInfo.enabledExtensionCount = extensions->size();		// 有効にする拡張機能の数 
+	instanceInfo.ppEnabledExtensionNames = extensions->data();	// 有効にする拡張機能の名前の配列 	
 
 	return instanceInfo;
 }

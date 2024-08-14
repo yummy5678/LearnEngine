@@ -1,18 +1,19 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include <GLFW/glfw3.h>
 #include "GeneratorBase.h"
 #include "GraphicsDefine.h"
 #include "Utilities.h"
-#include <GLFW/glfw3.h>
+#include "InstanceExtensionManager.h"
 
 
 class SurfaceGenerator : public CGeneratorBase
 {
 public:
-	SurfaceGenerator();
+	SurfaceGenerator(InstanceExtensionManager& instanceExtension);
 	~SurfaceGenerator();
 
-	void CreateWindowSurface(vk::Instance instance, GLFWwindow* window);
+	void CreateWindowSurface(vk::Instance instance, GLFWwindow* m_pWindow);
 	VkSurfaceKHR GetSurface();
 	// サーフェスの機能を取得
 	vk::SurfaceCapabilitiesKHR GetCapabilities(vk::PhysicalDevice physicalDevice);
@@ -24,4 +25,6 @@ private:
 	vk::Instance				m_Instance;
 	vk::SurfaceKHR				m_Surface;
 	//vk::SurfaceCapabilitiesKHR	m_Capabilities;
+
+	std::vector<const char*> GetGLFWSurfaceExtensions();
 };

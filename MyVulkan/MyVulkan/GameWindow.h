@@ -18,13 +18,13 @@ public:
 	void kill();
 
 	//ウィンドウのポインターを渡す
-	GLFWwindow* getWindowPointer();
+	GLFWwindow* GetPointer();
 
 	//ウィンドウの終了フラグが立っているか確認
 	int checkCloseWindow();
 
 private:
 	//GLFWウィンドウのポインター
-	GLFWwindow* window = nullptr;
+	GLFWwindow* m_pWindow = nullptr;
 };
 

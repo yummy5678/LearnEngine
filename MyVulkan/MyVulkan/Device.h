@@ -13,7 +13,7 @@ public:
 	DeviceGenerator();
 	~DeviceGenerator();
 
-	void Create(vk::Instance instance, vk::SurfaceKHR surface);
+	void Create(CDeviceExtensionManager extensionManager,vk::Instance instance, vk::SurfaceKHR surface);
 	void Destroy();
 
 	vk::PhysicalDevice	GetPhysicalDevice();
@@ -36,14 +36,14 @@ private:
 
 
 	//物理デバイスの取得
-	vk::PhysicalDevice BringPhysicalDevice(vk::Instance instance, vk::SurfaceKHR surface);
+	vk::PhysicalDevice BringPhysicalDevice(CDeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface);
 
 	//論理デバイスの作成情報を作成
-	vk::DeviceCreateInfo CreateDeviceInfo(std::vector< vk::DeviceQueueCreateInfo >& m_QueueCreateInfos);
+	vk::DeviceCreateInfo CreateDeviceInfo(CDeviceExtensionManager& extensionManager, vk::PhysicalDevice phygicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos);
 
 	//拡張機能が使えるかの確認
-	bool CheckDeviceExtensionSupport(vk::PhysicalDevice device);
-	bool CheckDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface);
+	//bool CheckDeviceExtensionSupport(vk::PhysicalDevice physicalDevice);
+	bool CheckDeviceSuitable(CDeviceExtensionManager extensionManager, vk::PhysicalDevice phygicalDevice, vk::SurfaceKHR surface);
 
 	//QueueFamilyIndices getQueueFamilies(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 

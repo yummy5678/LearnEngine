@@ -4,9 +4,9 @@
 
 
 //デバイスで使用する拡張機能
-const std::vector<const char*> deviceExtensions = {
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
+//const std::vector<const char*> deviceExtensions = {
+//	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+//};
 
 
 //　拡張機能には、インスタンス拡張機能とデバイス拡張機能の2つのグループがあります。
@@ -115,7 +115,7 @@ const std::vector<const char*> deviceExtensions = {
 //・VK_KHR_surface_protected
 //保護されたサーフェスをサポートします。
 // 
-//V・K_KHR_display
+//・VK_KHR_display
 //ディスプレイ（外部モニター）とのインターフェースを提供します。
 // 
 //・VK_KHR_device_group

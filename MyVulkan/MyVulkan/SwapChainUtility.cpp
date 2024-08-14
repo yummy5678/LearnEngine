@@ -223,12 +223,11 @@
 
 
 
-
-
-
-SwapchainGenerator::SwapchainGenerator()
+SwapchainGenerator::SwapchainGenerator(CDeviceExtensionManager& deviceExtensionManager)
 {
     m_ClassName = "SwapchainGenerator";
+
+    deviceExtensionManager.UseSwapchain();
 }
 
 SwapchainGenerator::~SwapchainGenerator()

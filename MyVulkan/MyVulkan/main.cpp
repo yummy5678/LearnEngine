@@ -7,22 +7,22 @@
 #include "GameWindow.h"
 #include "Renderer.h"	//Vulkanのレンダラー処理をまとめている
 
-GameWindow window;
+GameWindow m_pWindow;
 VulkanRenderer vulkanRenderer;	//レンダラー
 
 int main()
 {
 	// ウィンドウを作成
-	window.init("Vulkan Window", windowWidth, windowHeight);
+	m_pWindow.init("Vulkan Window", windowWidth, windowHeight);
 
 	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
-	if (vulkanRenderer.init(window) == EXIT_FAILURE)
+	if (vulkanRenderer.init(m_pWindow) == EXIT_FAILURE)
 	{
 		return EXIT_FAILURE;
 	}
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
-	while (!window.checkCloseWindow())
+	while (!m_pWindow.checkCloseWindow())
 	{
 		//ここで毎フレーム更新を行う
 		glfwPollEvents();
@@ -31,7 +31,7 @@ int main()
 	vulkanRenderer.cleanup();
 
 	// 作成したウィンドウを片づける
-	window.kill();
+	m_pWindow.kill();
 
 	return EXIT_SUCCESS;
 }

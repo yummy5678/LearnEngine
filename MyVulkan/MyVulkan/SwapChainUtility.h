@@ -3,6 +3,7 @@
 #include "GeneratorBase.h"
 #include "QueueUtility.h"
 #include "GraphicsDefine.h"
+#include "DeviceExtensionManager.h"
 //#include "Utilities.h"
 
 const int MAX_FRAME_DRAWS = 3;
@@ -69,7 +70,7 @@ namespace VulkanUtility
 class SwapchainGenerator : public CGeneratorBase
 {
 public:
-	SwapchainGenerator();
+	SwapchainGenerator(CDeviceExtensionManager& deviceExtensionManager);
 	~SwapchainGenerator();
 
 	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);

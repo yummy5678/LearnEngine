@@ -1,10 +1,11 @@
 #pragma once
 #include <vulkan/vulkan.hpp> //glfwよりvulkan.hが先に来るようにする
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 #include "GeneratorBase.h"
 #include "GraphicsDefine.h"
 #include "VulkanLayerManager.h"
-#include "VulkanExtensionManager.h"
+#include "InstanceExtensionManager.h"
+#include "DeviceExtensionManager.h"
 #include "VulkanValidation.h"
 
 
@@ -24,20 +25,12 @@ public:
 private:
 	vk::ApplicationInfo		m_ApplicationInfo;	//このアプリの名前などを入れる構造体
 	vk::Instance			m_Instance;
-	InstanceLayerManager	m_LayerManager;
-	InstanceExtensionManager m_ExtensionManager;
 
 	// インスタンス拡張機能のリストを作成する
 	std::vector<const char*> m_InstanceExtensions;
 
-	// GLFW でサーフェスを作るのに必要なインスタンス拡張を取得
-	std::vector<const char*>		GetRequiredInstanceExtensionsPointer();
-
 	//レイヤーの取得
 	InstanceLayerManager			GetLayers();
-
-	//拡張機能の取得
-	std::vector<const char*>		GetExtensions()
 		;
 	//アプリケーション情報の取得
 	vk::ApplicationInfo				GetApplicationInfo();
@@ -45,8 +38,8 @@ private:
 	//インスタンスの作成情報の作成
 	const vk::InstanceCreateInfo	GetInstanceInfo(
 		const vk::ApplicationInfo* appInfo,
-		InstanceLayerManager layerManager,
-		InstanceExtensionManager extensionManager);
+		InstanceLayerManager& layerManager,
+		InstanceExtensionManager& extensionManager);
 
 };
 

@@ -1,6 +1,17 @@
 #include "Renderer.h"
 
-VulkanRenderer::VulkanRenderer()
+VulkanRenderer::VulkanRenderer() :
+	m_pWindow(nullptr),
+	m_InstanceExtension(),
+	m_DeviceExtension(),
+	m_InstanceGenerator(),
+	m_SurfaceGenerator(m_InstanceExtension),
+	m_DeviceGenerator(),
+	m_SwapchainGenerator(m_DeviceExtension),
+	m_RenderpassGenerator(),
+	m_PipelineGenerator(),
+	m_FramebufferGenerator(),
+	m_CommandGenerator()
 {
 
 
@@ -8,26 +19,26 @@ VulkanRenderer::VulkanRenderer()
 
 int VulkanRenderer::init(GameWindow renderWindow)
 {
-	window = renderWindow.getWindowPointer(); //ウィンドウのポインタのセット
+	m_pWindow = renderWindow.GetPointer(); //ウィンドウのポインタのセット
 	
 	try {
 		//インスタンスの作成
-		m_InstanceGenerator.Create();
+		m_InstanceGenerator.Create(m_InstanceExtension);
 		auto instance = m_InstanceGenerator.GetInstanse();
 
 		createDebugCallback();
 
 		//サーフェスの作成
-		m_SurfaceGenerator.CreateWindowSurface(instance,window);
+		m_SurfaceGenerator.CreateWindowSurface(instance,m_pWindow);
 		auto surface = m_SurfaceGenerator.GetSurface();
 
 
 		//物理・論理デバイスの作成
-		m_DeviceGenerator.Create(instance, surface);
+		m_DeviceGenerator.Create(m_DeviceExtension,instance, surface);
 		//物理デバイスを取得
-		auto physicalDevice	= m_DeviceGenerator.GetPhysicalDevice();
-		auto surfaceCapabilities = m_SurfaceGenerator.GetCapabilities(physicalDevice);
-		auto windowExtent = surfaceCapabilities.currentExtent;
+		auto physicalDevice			= m_DeviceGenerator.GetPhysicalDevice();
+		auto surfaceCapabilities	= m_SurfaceGenerator.GetCapabilities(physicalDevice);
+		auto windowExtent			= surfaceCapabilities.currentExtent;
 
 		//論理デバイスを取得
 		auto logicalDevice	= m_DeviceGenerator.GetLogicalDevice();
@@ -1142,7 +1153,7 @@ VkExtent2D VulkanRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surf
 
 		// ウィンドウのサイズを取得します
 		int width, height;
-		glfwGetFramebufferSize(window, &width, &height);
+		glfwGetFramebufferSize(m_pWindow, &width, &height);
 
 		// ウィンドウサイズを使用して新しい extent を作成します
 		VkExtent2D newExtent = {};

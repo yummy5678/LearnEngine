@@ -33,9 +33,13 @@ public:
 	void cleanup();
 
 private:
-	GLFWwindow* window;
+	GLFWwindow* m_pWindow;
 
 	int currentFrame = 0;
+
+	InstanceExtensionManager	m_InstanceExtension;
+	CDeviceExtensionManager		m_DeviceExtension;
+
 	InstanceGenerator		m_InstanceGenerator;
 	SurfaceGenerator		m_SurfaceGenerator;
 	DeviceGenerator			m_DeviceGenerator;
@@ -95,7 +99,7 @@ private:
 	//インスタンスの作成
 	//void createInstance();
 	// インスタンス拡張機能のリストを作成する
-	std::vector<const char*> m_InstanceExtensions;
+	//std::vector<const char*> m_InstanceExtensions;
 
 	//デバイスの作成
 	void createDebugCallback();

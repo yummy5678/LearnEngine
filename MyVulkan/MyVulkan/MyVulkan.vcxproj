@@ -130,13 +130,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DeviceExtensionManager.cpp" />
     <ClCompile Include="CommandUtility.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="FramebufferGenerator.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="GeneratorBase.cpp" />
     <ClCompile Include="GraphicsPipelineUtility.cpp" />
-    <ClCompile Include="VulkanExtensionManager.cpp" />
+    <ClCompile Include="InstanceExtensionManager.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
@@ -153,6 +154,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DeviceExtensionManager.h" />
     <ClInclude Include="CommandUtility.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="FramebufferGenerator.h" />
@@ -160,7 +162,7 @@
     <ClInclude Include="GeneratorBase.h" />
     <ClInclude Include="GraphicsDefine.h" />
     <ClInclude Include="GraphicsPipelineUtility.h" />
-    <ClInclude Include="VulkanExtensionManager.h" />
+    <ClInclude Include="InstanceExtensionManager.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="Renderer.h" />

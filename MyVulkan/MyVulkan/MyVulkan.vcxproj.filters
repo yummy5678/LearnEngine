@@ -66,7 +66,10 @@
     <ClCompile Include="VulkanLayerManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanExtensionManager.cpp">
+    <ClCompile Include="InstanceExtensionManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceExtensionManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -137,7 +140,10 @@
     <ClInclude Include="VulkanLayerManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanExtensionManager.h">
+    <ClInclude Include="InstanceExtensionManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceExtensionManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

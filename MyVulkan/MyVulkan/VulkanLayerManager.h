@@ -34,7 +34,7 @@ public:
 	bool hasLayer(const char*);
 	bool DeleteLayer(const char*);
 
-	std::unordered_set<const char*> GetList();
+	std::unordered_set<const char*>* GetList();
 
 
 private:

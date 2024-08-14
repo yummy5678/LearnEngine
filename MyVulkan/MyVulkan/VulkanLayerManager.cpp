@@ -1,7 +1,5 @@
 #include "VulkanLayerManager.h"
 
-
-
 InstanceLayerManager::InstanceLayerManager()
 {
 }
@@ -25,9 +23,9 @@ void InstanceLayerManager::Add(const char* layerName)
 
 }
 
-std::unordered_set<const char*> InstanceLayerManager::GetList()
+std::unordered_set<const char*>* InstanceLayerManager::GetList()
 {
-	return m_ExtensinList;
+	return &m_ExtensinList;
 }
 
 

@@ -18,21 +18,21 @@ void GameWindow::init(std::string wName, const int width, const int height)
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-	window = glfwCreateWindow(width, height, wName.c_str(), nullptr, nullptr);
+	m_pWindow = glfwCreateWindow(width, height, wName.c_str(), nullptr, nullptr);
 }
 
 void GameWindow::kill()
 {
-	glfwDestroyWindow(window);
+	glfwDestroyWindow(m_pWindow);
 	glfwTerminate();
 }
 
-GLFWwindow* GameWindow::getWindowPointer()
+GLFWwindow* GameWindow::GetPointer()
 {
-	return window;
+	return m_pWindow;
 }
 
 int GameWindow::checkCloseWindow()
 {
-	return glfwWindowShouldClose(window);
+	return glfwWindowShouldClose(m_pWindow);
 }
