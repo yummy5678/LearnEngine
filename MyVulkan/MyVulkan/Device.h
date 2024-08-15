@@ -36,7 +36,7 @@ private:
 
 
 	//物理デバイスの取得
-	vk::PhysicalDevice BringPhysicalDevice(CDeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface);
+	vk::PhysicalDevice pickPhysicalDevice(CDeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface);
 
 	//論理デバイスの作成情報を作成
 	vk::DeviceCreateInfo CreateDeviceInfo(CDeviceExtensionManager& extensionManager, vk::PhysicalDevice phygicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos);

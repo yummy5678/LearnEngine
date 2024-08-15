@@ -138,6 +138,7 @@
     <ClCompile Include="GeneratorBase.cpp" />
     <ClCompile Include="GraphicsPipelineUtility.cpp" />
     <ClCompile Include="InstanceExtensionManager.cpp" />
+    <ClCompile Include="PhysicalDeviceSelector.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="GraphicsDefine.h" />
     <ClInclude Include="GraphicsPipelineUtility.h" />
     <ClInclude Include="InstanceExtensionManager.h" />
+    <ClInclude Include="PhysicalDeviceSelector.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="Renderer.h" />

@@ -15,7 +15,7 @@ void DeviceGenerator::Create(CDeviceExtensionManager extensionManager, vk::Insta
 	m_bCreated = true;
 
 	//使用可能な物理デバイスを探してくる
-	m_PhysicalDevice = BringPhysicalDevice(extensionManager,instance, surface);
+	m_PhysicalDevice = pickPhysicalDevice(extensionManager,instance, surface);
 
 	m_QueueFamilyGenerator.Create(m_PhysicalDevice, surface);
 
@@ -61,14 +61,20 @@ int DeviceGenerator::GetQueueIndex()
 	return m_QueueFamilyGenerator.GetGraphicIndex();//ここではグラフィックスキューを渡しておく(後で修正)
 }
 
-vk::PhysicalDevice DeviceGenerator::BringPhysicalDevice(CDeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface)
+vk::PhysicalDevice DeviceGenerator::pickPhysicalDevice(CDeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface)
 {
-	//インスタンスから物理デバイス(GPU)を全て取得
-	std::vector<vk::PhysicalDevice> physicalDevices = instance.enumeratePhysicalDevices();
+	//インスタンスから接続されている物理デバイスを全て取得
+	std::vector<vk::PhysicalDevice> m_PhysicalDevices = instance.enumeratePhysicalDevices();
+
+	//物理デバイス自体を見つけられなかった場合
+	if (m_PhysicalDevices.empty()) {
+		throw std::runtime_error("VulkanをサポートしているGPUが見つかりません!");
+	}
 
 	// 適切なデバイスが見つかるまでループする
-	for (const auto& device : physicalDevices)
+	for (const auto& device : m_PhysicalDevices)
 	{
+		//デバイスが使用する拡張機能、
 		if (CheckDeviceSuitable(extensionManager,device, surface))
 		{
 			// 適切なデバイスが見つかった
@@ -140,24 +146,18 @@ vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(CDeviceExtensionManager& 
 //	return true;
 //}
 
-bool DeviceGenerator::CheckDeviceSuitable(CDeviceExtensionManager extensionManager, vk::PhysicalDevice device, vk::SurfaceKHR surface)
+bool DeviceGenerator::CheckDeviceSuitable(CDeviceExtensionManager extensionManager, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
-	/*
-	// デバイス自体に関する情報 (ID、名前、タイプ、ベンダーなど)
-	VkPhysicalDeviceProperties deviceProperties;
-	vkGetPhysicalDeviceProperties(device, &deviceProperties);
-
-	// デバイスの機能に関する情報 (ジオメトリシェーダー、テッセレーションシェーダー、ワイドラインなど)
-	VkPhysicalDeviceFeatures deviceFeatures;
-	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-	*/
+	// デバイスのプロパティと機能を取得
+	vk::PhysicalDeviceProperties	deviceProperties = physicalDevice.getProperties();
+	vk::PhysicalDeviceFeatures		deviceFeatures = physicalDevice.getFeatures();
 
 
 	// デバイスが必要とする拡張機能をサポートしているか確認する
-	if(extensionManager.GetExtensions(device) == nullptr) return false;	//拡張機能をサポートしていなかった！
+	if(extensionManager.GetExtensions(physicalDevice) == nullptr) return false;	//拡張機能をサポートしていなかった！
 
 	// 特定の物理デバイスに対するスワップチェインの詳細を取得する
-	SwapChainDetails swapChainDetails = GetSwapChainDetails(device, surface);
+	SwapChainDetails swapChainDetails = GetSwapChainDetails(physicalDevice, surface);
 
 
 	// プレゼンテーションモードが空でなく、フォーマットも空でない場合に有効とみなす。
