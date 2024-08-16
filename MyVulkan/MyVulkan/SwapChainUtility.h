@@ -8,24 +8,11 @@
 
 const int MAX_FRAME_DRAWS = 3;
 
-struct UniqueSwapchainImage 
-{
-	vk::UniqueImage		image;		// Vulkanの中で扱う画像
-	vk::UniqueImageView	imageView;	// 画像ビュー
-};
 
 struct SwapchainImage 
 {
 	vk::Image		image;		// Vulkanの中で扱う画像
 	vk::ImageView	imageView;	// 画像ビュー
-
-	//オペレーターを用意して受け渡しを簡単にする
-	//SwapchainImage& operator=(const UniqueSwapchainImage& unique)
-	//{
-	//	this->image = unique.image.get();
-	//	this->imageView = unique.imageView.get();
-	//	return *this;
-	//}
 };
 
 

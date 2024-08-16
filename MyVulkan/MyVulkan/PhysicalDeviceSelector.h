@@ -4,31 +4,41 @@
 #include <optional>
 #include <vector>
 #include <functional>
+#include "QueueUtility.h"
 
-class PhysicalDeviceSelector {
+struct PhysicalDeviceContainer
+{
+    vk::PhysicalDevice Handle = VK_NULL_HANDLE;
+    std::vector<vk::DeviceQueueCreateInfo> QueueInfo;
+};
+
+class PhysicalDeviceSelector 
+{
 public:
     // コンストラクタ
     PhysicalDeviceSelector(vk::Instance instance);
 
-    // グラフィックス処理に適したデバイスを選択
-    vk::PhysicalDevice selectGraphicsDevice();
+    // 描画処理に適したデバイスを選択
+    PhysicalDeviceContainer SelectGraphicsDevice();
 
-    // コンピューティングに適したデバイスを選択
-    vk::PhysicalDevice selectComputeDevice();
+    // 計算処理に適したデバイスを選択
+    PhysicalDeviceContainer SelectComputeDevice();
 
-    // その他の用途に応じたデバイスを選択
-    vk::PhysicalDevice selectSwapchainDevice(std::function<bool(const vk::PhysicalDevice&, vk::SurfaceKHR)> criteria);
+    // データの転送処理に適したデバイスを選択
+    PhysicalDeviceContainer SelectTransferDevice();
+
+    // スワップチェイン、画面表示に適したデバイスを選択
+    PhysicalDeviceContainer SelectSwapchainDevice(vk::SurfaceKHR surface);
+
 
 private:
     std::vector<vk::PhysicalDevice> m_PhysicalDevices;
     vk::Instance m_instance;
-    vk::SurfaceKHR m_surface;
 
-    bool CheckGraphics(vk::PhysicalDevice physicalDevice);
-    bool CheckSwapchain(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
-    bool CheckCompute(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+    std::vector<vk::DeviceQueueCreateInfo> CreateQueueInfos(std::set<int> queues);
 
-    
-    std::optional<uint32_t> findQueueFamilies(vk::PhysicalDevice device);
+    //物理デバイスか指定した拡張機能に対応しているか確認
+    bool CheckExtensionNames(vk::PhysicalDevice physicalDevice, std::vector<std::string> extensionNames);
+
 };
 

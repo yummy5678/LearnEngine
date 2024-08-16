@@ -10,12 +10,11 @@ CommandGenerator::~CommandGenerator()
 {
 }
 
-void CommandGenerator::Create(vk::Device logicalDevice, int graphicsFamilyIndex, std::vector<vk::Framebuffer> framebuffers)
+void CommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice, uint32_t commandSize)
 {
     m_bCreated = true;
-    m_Framebuffers = framebuffers;
-    m_Pool = CreateCommandPool(logicalDevice, graphicsFamilyIndex);
-    m_Buffers = CreateCommandBuffers(logicalDevice, framebuffers, m_Pool);
+    m_Pool = CreateCommandPool(logicalDevice, phygicalDevice);
+    m_Buffers = CreateCommandBuffers(logicalDevice, commandSize, m_Pool);
 }
 
 void CommandGenerator::Destroy(vk::Device logicalDevice)
@@ -42,9 +41,12 @@ void CommandGenerator::RecordCommands(vk::RenderPass renderPass, vk::Extent2D ex
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassBeginInfo.pClearValues = clearValues.data();                   // クリアする値のリスト
 
+
+
+    //とりあえず空のコマンドを作成
     for (size_t i = 0; i < m_Buffers.size(); i++)
     {
-        renderPassBeginInfo.framebuffer = m_Framebuffers[i];          // 使用するフレームバッファを設定する
+        //renderPassBeginInfo.framebuffer = m_Framebuffers[i];          // 使用するフレームバッファを設定する
 
         // コマンドバッファの記録を開始する
         vk::Result result = m_Buffers[i].begin(&bufferBeginInfo);
@@ -56,14 +58,14 @@ void CommandGenerator::RecordCommands(vk::RenderPass renderPass, vk::Extent2D ex
         // レンダーパスを開始する
         m_Buffers[i].beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
 
-        // 使用するパイプラインをバインドする
-        m_Buffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
+        //// 使用するパイプラインをバインドする
+        //m_Buffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
 
-        // パイプラインを実行する
-        m_Buffers[i].draw(3, 1, 0, 0);
+        //// パイプラインを実行する
+        //m_Buffers[i].draw(3, 1, 0, 0);
 
-        // レンダーパスを終了する
-        m_Buffers[i].endRenderPass();
+        //// レンダーパスを終了する
+        //m_Buffers[i].endRenderPass();
 
         // コマンドバッファの記録を終了する
         //result = commandBuffers[i].end();
@@ -87,12 +89,13 @@ std::vector<vk::CommandBuffer> CommandGenerator::GetBuffers()
     return m_Buffers;
 }
 
-vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, int graphicsFamilyIndex)
+vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice)
 {
+    QueueFamilySelector queue(phygicalDevice);
     // コマンドプールの作成に必要な情報を設定する
     vk::CommandPoolCreateInfo poolInfo;
-    poolInfo.queueFamilyIndex = (uint32_t)graphicsFamilyIndex;	// このコマンドプールが使用するキューファミリータイプ
-    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;	// コマンドバッファのリセットを許可する場合はフラグを追加する
+    poolInfo.queueFamilyIndex = queue.GetGraphicIndex();	            // このコマンドプールが使用するキューファミリータイプ
+    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;    // コマンドバッファのリセットを許可する場合はフラグを追加する
 
     // グラフィックスキューファミリー用のコマンドプールを作成する
     return logicalDevice.createCommandPool(poolInfo);
@@ -102,7 +105,7 @@ vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, in
     //}
 }
 
-std::vector<vk::CommandBuffer> CommandGenerator::CreateCommandBuffers(vk::Device logicalDevice, std::vector<vk::Framebuffer> framebuffers, vk::CommandPool commandPool)
+std::vector<vk::CommandBuffer> CommandGenerator::CreateCommandBuffers(vk::Device logicalDevice, uint32_t commandSize, vk::CommandPool commandPool)
 {
     // エラーチェック: logicalDeviceが有効であるか確認
     if (!logicalDevice)
@@ -116,20 +119,14 @@ std::vector<vk::CommandBuffer> CommandGenerator::CreateCommandBuffers(vk::Device
         throw std::runtime_error("commandPoolが無効です！");
     }
 
-    // エラーチェック: framebuffersが空でないことを確認
-    if (framebuffers.empty())
-    {
-        throw std::runtime_error("framebuffersが空です！");
-    }
-
     std::vector<vk::CommandBuffer> commandBuffers;
-    commandBuffers.reserve(framebuffers.size()); // 容量を確保
+    commandBuffers.reserve(commandSize); // 容量を確保
 
     // コマンドバッファを割り当てるための情報を設定する
     vk::CommandBufferAllocateInfo cbAllocInfo;
-    cbAllocInfo.commandPool = commandPool;                                 // コマンドバッファを割り当てるコマンドプール
-    cbAllocInfo.level = vk::CommandBufferLevel::ePrimary;                  // コマンドバッファのレベル (PRIMARY: 直接キューに送信するバッファ)
-    cbAllocInfo.commandBufferCount = (uint32_t)framebuffers.size(); // 割り当てるコマンドバッファの数
+    cbAllocInfo.commandPool = commandPool;                          // コマンドバッファを割り当てるコマンドプール
+    cbAllocInfo.level = vk::CommandBufferLevel::ePrimary;           // コマンドバッファのレベル (PRIMARY: 直接キューに送信するバッファ)
+    cbAllocInfo.commandBufferCount = commandSize; // 割り当てるコマンドバッファの数
 
     // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
     commandBuffers = logicalDevice.allocateCommandBuffers(cbAllocInfo);

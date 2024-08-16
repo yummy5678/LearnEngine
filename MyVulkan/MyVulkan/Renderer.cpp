@@ -63,7 +63,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		auto swapchainFramebuffers = m_FramebufferGenerator.GetFramebuffers();
 
 		//コマンドバッファの作成
-		m_CommandGenerator.Create(logicalDevice, m_DeviceGenerator.GetQueueIndex(), swapchainFramebuffers);
+		m_CommandGenerator.Create(logicalDevice, physicalDevice, 3);
 		//auto graphicsCommandPool = commandGenerator.GetPool();
 		auto commandBuffers = m_CommandGenerator.GetBuffers();
 

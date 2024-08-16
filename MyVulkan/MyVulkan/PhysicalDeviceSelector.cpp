@@ -1,5 +1,6 @@
 #include "PhysicalDeviceSelector.h"
 
+
 PhysicalDeviceSelector::PhysicalDeviceSelector(vk::Instance instance)
 {
     //インスタンスから接続されている物理デバイスを全て取得
@@ -11,54 +12,119 @@ PhysicalDeviceSelector::PhysicalDeviceSelector(vk::Instance instance)
     }
 }
 
-vk::PhysicalDevice PhysicalDeviceSelector::selectGraphicsDevice()
+PhysicalDeviceContainer PhysicalDeviceSelector::SelectGraphicsDevice()
 {
 	// 適切なデバイスが見つかるまでループする
 	for (const auto& device : m_PhysicalDevices)
 	{
+        QueueFamilySelector queueFamily(device);
 		//デバイスが使用する拡張機能、
-		if (CheckDeviceSuitable(extensionManager, device, surface))
+		if (queueFamily.GetGraphicIndex() != Number_NoneQueue)
 		{
 			// 適切なデバイスが見つかった
-			return device;
+            return { device, CreateQueueInfos({queueFamily.GetGraphicIndex()}) };
 		}
 	}
 
 	// 利用可能なデバイスがない場合
-	throw std::runtime_error("VulkanをサポートするGPUが見つかりません！");
+	throw std::runtime_error("描画用に使用できるGPUが見つかりません！");
 }
 
-vk::PhysicalDevice PhysicalDeviceSelector::selectSwapchainDevice(std::function<bool(const vk::PhysicalDevice&, vk::SurfaceKHR)> criteria)
+PhysicalDeviceContainer PhysicalDeviceSelector::SelectComputeDevice()
 {
-
-    return vk::PhysicalDevice();
-}
-
-bool PhysicalDeviceSelector::CheckGraphics(vk::PhysicalDevice physicalDevice)
-{
-    // デバイスのプロパティと機能を取得
-    vk::PhysicalDeviceProperties deviceProperties = physicalDevice.getProperties();
-    vk::PhysicalDeviceFeatures deviceFeatures = physicalDevice.getFeatures();
-
-    std::optional<uint32_t> graphicsFamily = findQueueFamilies(physicalDevice);
-
-    // アプリケーションの要件に応じてデバイスが適切かどうかを判断
-    return graphicsFamily.has_value() && deviceFeatures.geometryShader;
-}
-
-std::optional<uint32_t> PhysicalDeviceSelector::findQueueFamilies(vk::PhysicalDevice device)
-{
-    // デバイスのキューファミリーを取得
-    std::vector<vk::QueueFamilyProperties> queueFamilies = device.getQueueFamilyProperties();
-
-    std::optional<uint32_t> graphicsFamily;
-
-    for (uint32_t i = 0; i < queueFamilies.size(); i++) {
-        if (queueFamilies[i].queueFlags & vk::QueueFlagBits::eGraphics) {
-            graphicsFamily = i;
-            break;
+    // 適切なデバイスが見つかるまでループする
+    for (const auto& device : m_PhysicalDevices)
+    {
+        QueueFamilySelector queueFamily(device);
+        if (queueFamily.GetComputeIndex() != Number_NoneQueue)
+        {
+            // 適切なデバイスが見つかった
+            return { device, CreateQueueInfos({queueFamily.GetComputeIndex()}) };
         }
     }
 
-    return graphicsFamily;
+    // 利用可能なデバイスがない場合
+    throw std::runtime_error("計算用に使用できるGPUが見つかりません！");
 }
+
+PhysicalDeviceContainer PhysicalDeviceSelector::SelectTransferDevice()
+{
+    // 適切なデバイスが見つかるまでループする
+    for (const auto& device : m_PhysicalDevices)
+    {
+        QueueFamilySelector queueFamily(device);
+        if (queueFamily.GetTransferIndex() != Number_NoneQueue)
+        {
+            // 適切なデバイスが見つかった
+            return { device, CreateQueueInfos({queueFamily.GetComputeIndex()}) };
+        }
+    }
+
+    // 利用可能なデバイスがない場合
+    throw std::runtime_error("データ転送用に使用できるGPUが見つかりません！");
+}
+
+PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice(vk::SurfaceKHR surface)
+{
+    // 適切なデバイスが見つかるまでループする
+    for (const auto& device : m_PhysicalDevices)
+    {
+        //描画用キューと表示用キューが存在し、
+        //スワップチェイン拡張機能にも対応している
+        QueueFamilySelector queueFamily(device);
+        if (queueFamily.GetGraphicIndex()               != Number_NoneQueue &&
+            queueFamily.GetPresentationIndex(surface)   != Number_NoneQueue &&
+            CheckExtensionNames(device, { VK_KHR_SWAPCHAIN_EXTENSION_NAME }) == true)
+        {
+            // 適切なデバイスが見つかった
+            return { device, CreateQueueInfos({queueFamily.GetGraphicIndex(),queueFamily.GetPresentationIndex(surface)}) };
+        }
+    }
+
+    // 利用可能なデバイスがない場合
+    throw std::runtime_error("スワップチェイン用に使用できるGPUが見つかりません！");
+}
+
+std::vector<vk::DeviceQueueCreateInfo> PhysicalDeviceSelector::CreateQueueInfos(std::set<int> queueFamilyIndices)
+{
+       	// キュー作成情報用のベクター
+    	std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
+    
+    	// 論理デバイスで作成する必要があるキューとその情報を設定する
+    	for (int queueFamilyIndex : queueFamilyIndices)
+    	{
+    		vk::DeviceQueueCreateInfo queueCreateInfo;
+    		queueCreateInfo.pNext;
+    		queueCreateInfo.flags;
+    		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;	// キューを作成するファミリーのインデックス
+    		queueCreateInfo.queueCount = 1;							// 作成するキューの数(1つだけでいい)
+    		float priority = 1.0f;									// 優先度
+    		queueCreateInfo.pQueuePriorities = &priority;			// Vulkanは複数のキューをどのように扱うかを知る必要があるため、優先度を指定する (1が最高優先度)
+    
+    		queueCreateInfos.push_back(queueCreateInfo);
+    	}
+    
+    	return queueCreateInfos;
+}
+
+bool PhysicalDeviceSelector::CheckExtensionNames(vk::PhysicalDevice physicalDevice, std::vector<std::string> extensionNames)
+{
+    // 物理デバイスがサポートしている拡張機能を取得
+    auto availableExtensions = physicalDevice.enumerateDeviceExtensionProperties();
+
+    // 拡張機能の名前をセットにして、存在確認を効率化
+    std::set<std::string> availableExtensionsSet;
+    for (const auto& extension : availableExtensions) {
+        availableExtensionsSet.insert(extension.extensionName);
+    }
+
+    // 必要な拡張機能がサポートされているか確認
+    for (const auto& extensionName : extensionNames) {
+        if (availableExtensionsSet.find(extensionName) == availableExtensionsSet.end()) {
+            return false; // 必要な拡張機能が見つからない
+        }
+    }
+
+    return true; // 全ての必要な拡張機能がサポートされている
+}
+

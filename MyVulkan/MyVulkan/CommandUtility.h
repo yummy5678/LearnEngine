@@ -10,7 +10,7 @@ public:
 	CommandGenerator();
 	~CommandGenerator();
 
-	void Create(vk::Device logicalDevice, int graphicsFamilyIndex, std::vector<vk::Framebuffer> framebuffers);
+	void Create(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice, uint32_t commandSize);
 	void Create(DeviceGenerator , std::vector<vk::Framebuffer> framebuffers);
 	void Destroy(vk::Device logicalDevice);
 
@@ -24,10 +24,9 @@ private:
 	vk::Device						m_LogicalDevice;
 	vk::CommandPool					m_Pool;
 	std::vector<vk::CommandBuffer>	m_Buffers;
-	std::vector<vk::Framebuffer>	m_Framebuffers;
 
-	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, int graphicsFamilyIndex);
-	std::vector<vk::CommandBuffer> CreateCommandBuffers(vk::Device logicalDevice, std::vector<vk::Framebuffer> framebuffers, vk::CommandPool commandPool);
+	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice);
+	std::vector<vk::CommandBuffer> CreateCommandBuffers(vk::Device logicalDevice, uint32_t commandSize, vk::CommandPool commandPool);
 
 };
 

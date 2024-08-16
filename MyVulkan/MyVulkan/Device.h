@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.hpp>
 #include <set>
 #include "GeneratorBase.h"
+#include "PhysicalDeviceSelector.h"
 #include "VulkanExtensions.h"
 #include "QueueUtility.h"
 #include "SwapChainUtility.h"
@@ -25,30 +26,16 @@ public:
 	
 
 private:
+	//物理デバイス
 	vk::PhysicalDevice	m_PhysicalDevice;
+	//論理デバイス
 	vk::Device			m_LogicalDevice;
 
-	//論理デバイスの作成情報
-	vk::DeviceCreateInfo m_DeviceInfo;
-
 	//キュー
-	QueueFamilyGenerator m_QueueFamilyGenerator;
-
-
-	//物理デバイスの取得
-	vk::PhysicalDevice pickPhysicalDevice(CDeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface);
+	std::vector<vk::DeviceQueueCreateInfo> m_QueueFamilyGenerator;
 
 	//論理デバイスの作成情報を作成
 	vk::DeviceCreateInfo CreateDeviceInfo(CDeviceExtensionManager& extensionManager, vk::PhysicalDevice phygicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos);
-
-	//拡張機能が使えるかの確認
-	//bool CheckDeviceExtensionSupport(vk::PhysicalDevice physicalDevice);
-	bool CheckDeviceSuitable(CDeviceExtensionManager extensionManager, vk::PhysicalDevice phygicalDevice, vk::SurfaceKHR surface);
-
-	//QueueFamilyIndices getQueueFamilies(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
-
-
-	SwapChainDetails GetSwapChainDetails(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 };
 
 
