@@ -65,10 +65,10 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		//コマンドバッファの作成
 		m_CommandGenerator.Create(logicalDevice, physicalDevice, 3);
 		//auto graphicsCommandPool = commandGenerator.GetPool();
-		auto commandBuffers = m_CommandGenerator.GetBuffers();
+		//auto commandBuffers = m_CommandGenerator.GetBuffers();
 
 		//コマンドの記録
-		m_CommandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
+		//m_CommandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
 		//CommandUtility::recordCommands(renderPass, swapChainExtent, graphicsPipeline, swapchainFramebuffers, commandBuffers);
 
 		synchronizationGenerator.Create(logicalDevice);

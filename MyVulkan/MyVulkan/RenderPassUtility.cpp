@@ -7,7 +7,7 @@ RenderpassGenerator::RenderpassGenerator()
 
 RenderpassGenerator::~RenderpassGenerator()
 {
-    Destroy(m_LogicalDevice);
+
 }
 
 void RenderpassGenerator::Create(vk::Device logicalDevice, const vk::SurfaceFormatKHR imageFormat)
@@ -19,6 +19,11 @@ void RenderpassGenerator::Create(vk::Device logicalDevice, const vk::SurfaceForm
 
 void RenderpassGenerator::Destroy(vk::Device logicalDevice)
 {
+    //作成フラグが立っていない場合は解放処理も行わない
+    if (m_bCreated == false) return;
+    m_bCreated = false;
+
+    // レンダーパスの解放
     vkDestroyRenderPass(logicalDevice, m_RenderPass, nullptr);
 }
 

@@ -74,6 +74,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice(vk::Surfac
         QueueFamilySelector queueFamily(device);
         if (queueFamily.GetGraphicIndex()               != Number_NoneQueue &&
             queueFamily.GetPresentationIndex(surface)   != Number_NoneQueue &&
+            CheckSupportSurface(device,surface) == true                     &&
             CheckExtensionNames(device, { VK_KHR_SWAPCHAIN_EXTENSION_NAME }) == true)
         {
             // 適切なデバイスが見つかった
@@ -105,6 +106,12 @@ std::vector<vk::DeviceQueueCreateInfo> PhysicalDeviceSelector::CreateQueueInfos(
     	}
     
     	return queueCreateInfos;
+}
+
+bool PhysicalDeviceSelector::CheckSupportSurface(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+{
+    return !physicalDevice.getSurfaceFormatsKHR(surface).empty() ||
+        !physicalDevice.getSurfacePresentModesKHR(surface).empty();
 }
 
 bool PhysicalDeviceSelector::CheckExtensionNames(vk::PhysicalDevice physicalDevice, std::vector<std::string> extensionNames)

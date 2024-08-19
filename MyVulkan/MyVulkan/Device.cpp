@@ -24,6 +24,10 @@ void DeviceGenerator::Create(CDeviceExtensionManager extensionManager, vk::Insta
 	auto queueInfo = selectorResult.QueueInfo;
 	auto logicalDeviceInfo = CreateDeviceInfo(extensionManager, m_PhysicalDevice, queueInfo);
 	m_LogicalDevice = m_PhysicalDevice.createDevice(logicalDeviceInfo);
+
+
+	// コマンドバッファの作成
+	m_CommandGenerator.Create(m_LogicalDevice, m_PhysicalDevice, 3);
 }
 
 void DeviceGenerator::Destroy()

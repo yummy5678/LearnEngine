@@ -12,25 +12,25 @@ QueueFamilySelector::~QueueFamilySelector()
 
 int QueueFamilySelector::GetGraphicIndex()
 {
-	if(m_GraphicsFamilyIndex == Number_NoneQueue) SearchGraphicsFamily();
+	if(m_GraphicsFamilyIndex == Number_NoneQueue) m_GraphicsFamilyIndex = SearchGraphicsFamily();
 	return m_GraphicsFamilyIndex;
 }
 
 int QueueFamilySelector::GetComputeIndex()
 {
-	if (m_ComputeFamilyIndex == Number_NoneQueue) SearchComputeFamily();
+	if (m_ComputeFamilyIndex == Number_NoneQueue) m_ComputeFamilyIndex = SearchComputeFamily();
 	return m_ComputeFamilyIndex;
 }
 
 int QueueFamilySelector::GetTransferIndex()
 {
-	if (m_TransferFamilyIndex == Number_NoneQueue) SearchTransferFamily();
+	if (m_TransferFamilyIndex == Number_NoneQueue) m_TransferFamilyIndex = SearchTransferFamily();
 	return m_TransferFamilyIndex;
 }
 
 int QueueFamilySelector::GetPresentationIndex(vk::SurfaceKHR surface)
 {
-	if (m_PresentationFamilyIndex == Number_NoneQueue) SearchPresentationFamily(surface);
+	if (m_PresentationFamilyIndex == Number_NoneQueue) m_PresentationFamilyIndex = SearchPresentationFamily(surface);
 	return m_PresentationFamilyIndex;
 }
 

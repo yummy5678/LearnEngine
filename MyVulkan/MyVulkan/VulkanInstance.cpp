@@ -10,7 +10,7 @@ InstanceGenerator::InstanceGenerator()
 
 InstanceGenerator::~InstanceGenerator()
 {
-	std::cout << m_ClassName << "のデストラクタが呼ばれました" << std::endl;
+
 }
 
 void InstanceGenerator::Create(InstanceExtensionManager extensionManager)
@@ -40,10 +40,13 @@ void InstanceGenerator::Create(InstanceExtensionManager extensionManager)
 
 void InstanceGenerator::Destroy()
 {
+	//作成フラグが立っていない場合は解放処理も行わない
 	if (m_bCreated == false) return;
-	throw std::runtime_error("インスタンスを破壊しました！");
-	vkDestroyInstance(m_Instance, nullptr);
 	m_bCreated = false;
+
+	// インスタンスの解放
+	vkDestroyInstance(m_Instance, nullptr);
+	throw std::runtime_error("インスタンスを解放しました！");
 }
 
 vk::Instance InstanceGenerator::GetInstanse()

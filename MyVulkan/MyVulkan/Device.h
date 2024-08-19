@@ -6,6 +6,7 @@
 #include "VulkanExtensions.h"
 #include "QueueUtility.h"
 #include "SwapChainUtility.h"
+#include "CommandUtility.h"
 
 
 class DeviceGenerator : CGeneratorBase
@@ -30,9 +31,10 @@ private:
 	vk::PhysicalDevice	m_PhysicalDevice;
 	//論理デバイス
 	vk::Device			m_LogicalDevice;
-
 	//キュー
 	std::vector<vk::DeviceQueueCreateInfo> m_QueueFamilyGenerator;
+	//コマンドバッファの作成
+	CommandGenerator	m_CommandGenerator;
 
 	//論理デバイスの作成情報を作成
 	vk::DeviceCreateInfo CreateDeviceInfo(CDeviceExtensionManager& extensionManager, vk::PhysicalDevice phygicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos);

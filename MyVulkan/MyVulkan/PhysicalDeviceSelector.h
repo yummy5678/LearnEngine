@@ -37,6 +37,9 @@ private:
 
     std::vector<vk::DeviceQueueCreateInfo> CreateQueueInfos(std::set<int> queues);
 
+    //物理デバイスがサーフェスに対応しているか確認
+    bool CheckSupportSurface(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+
     //物理デバイスか指定した拡張機能に対応しているか確認
     bool CheckExtensionNames(vk::PhysicalDevice physicalDevice, std::vector<std::string> extensionNames);
 
