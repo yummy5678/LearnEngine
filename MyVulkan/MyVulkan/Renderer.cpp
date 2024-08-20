@@ -7,14 +7,13 @@ VulkanRenderer::VulkanRenderer() :
 	m_InstanceGenerator(),
 	m_SurfaceGenerator(m_InstanceExtension),
 	m_DeviceGenerator(),
+	m_ImageGenerator(),
 	m_SwapchainGenerator(m_DeviceExtension),
 	m_RenderpassGenerator(),
 	m_PipelineGenerator(),
-	m_FramebufferGenerator(),
-	m_CommandGenerator()
+	m_FramebufferGenerator()
+	//m_CommandGenerator()
 {
-
-
 }
 
 int VulkanRenderer::init(GameWindow renderWindow)
@@ -39,19 +38,20 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		auto physicalDevice			= m_DeviceGenerator.GetPhysicalDevice();
 		auto surfaceCapabilities	= m_SurfaceGenerator.GetCapabilities(physicalDevice);
 		auto windowExtent			= surfaceCapabilities.currentExtent;
+		auto surfaceFomat = m_SurfaceGenerator.GetFomat(physicalDevice);
 
 		//論理デバイスを取得
 		auto logicalDevice	= m_DeviceGenerator.GetLogicalDevice();
 
+		m_ImageGenerator.CreateForSurface(logicalDevice, physicalDevice, surface);
+		//auto images = m_ImageGenerator.GetImages();
+		//auto imageInfo = m_ImageGenerator.GetImageInfo();
+
 		//スワップチェインの作成
 		m_SwapchainGenerator.Create(logicalDevice, physicalDevice, surface);
-		auto swapchain			= m_SwapchainGenerator.GetSwapchain();
-		auto swapChainImages	= m_SwapchainGenerator.GetSwapChainImages();//swapChainImagesを作成しておく
-		auto swapSurfaceFormat	= m_SwapchainGenerator.GetSwapSurfaceFormat();
-		//auto swapChainExtent = swapchainGenerator.Get2DExtent();
 
 		//レンダーパスの作成
-		m_RenderpassGenerator.Create(logicalDevice, swapSurfaceFormat);
+		m_RenderpassGenerator.Create(logicalDevice, surfaceFomat[0]);
 		auto renderPass = m_RenderpassGenerator.GetRenderpass();
 
 		//パイプラインの作成
@@ -59,11 +59,11 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		auto graphicsPipeline = m_PipelineGenerator.GetPipeline();
 		
 		//フレームバッファの作成
-		m_FramebufferGenerator.Create(logicalDevice, swapChainImages, renderPass, windowExtent);
-		auto swapchainFramebuffers = m_FramebufferGenerator.GetFramebuffers();
+		//m_FramebufferGenerator.Create(logicalDevice, swapChainImages, renderPass, windowExtent);
+		//auto swapchainFramebuffers = m_FramebufferGenerator.GetFramebuffers();
 
 		//コマンドバッファの作成
-		m_CommandGenerator.Create(logicalDevice, physicalDevice, 3);
+		//m_CommandGenerator.Create(logicalDevice, physicalDevice, 3);
 		//auto graphicsCommandPool = commandGenerator.GetPool();
 		//auto commandBuffers = m_CommandGenerator.GetBuffers();
 

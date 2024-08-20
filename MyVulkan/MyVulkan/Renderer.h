@@ -14,11 +14,12 @@
 #include "VulkanInstance.h"
 #include "Surface.h"
 #include "Device.h"
+#include "ImagesGenerator.h"
 #include "SwapChainUtility.h"
 #include "RenderPassUtility.h"
 #include "GraphicsPipelineUtility.h"
 #include "FramebufferGenerator.h"
-#include "CommandUtility.h"
+//#include "CommandUtility.h"
 #include "SynchronizationGenerator.h"
 
 
@@ -37,17 +38,20 @@ private:
 
 	int currentFrame = 0;
 
+	// 拡張機能
 	InstanceExtensionManager	m_InstanceExtension;
 	CDeviceExtensionManager		m_DeviceExtension;
 
+	// オブジェクト
 	InstanceGenerator		m_InstanceGenerator;
 	SurfaceGenerator		m_SurfaceGenerator;
 	DeviceGenerator			m_DeviceGenerator;
+	CImagesGenerator		m_ImageGenerator;
 	SwapchainGenerator		m_SwapchainGenerator;
 	RenderpassGenerator		m_RenderpassGenerator;
 	PipelineGenerator		m_PipelineGenerator;
 	FramebufferGenerator	m_FramebufferGenerator;
-	CommandGenerator		m_CommandGenerator;
+	//CommandGenerator		m_CommandGenerator;
 
 
 	

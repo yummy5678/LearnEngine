@@ -43,6 +43,12 @@ vk::SurfaceCapabilitiesKHR SurfaceGenerator::GetCapabilities(vk::PhysicalDevice 
 	return physicalDevice.getSurfaceCapabilitiesKHR(m_Surface);
 }
 
+std::vector<vk::SurfaceFormatKHR> SurfaceGenerator::GetFomat(vk::PhysicalDevice physicalDevice)
+{
+	CheckCreated();
+	return physicalDevice.getSurfaceFormatsKHR(m_Surface);
+}
+
 void SurfaceGenerator::Destroy(vk::Instance instance)
 {
 	vkDestroySurfaceKHR(instance, m_Surface, nullptr);

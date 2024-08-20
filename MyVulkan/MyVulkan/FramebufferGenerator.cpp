@@ -1,5 +1,5 @@
 #include "FramebufferGenerator.h"
-#include "VulkanUtility.h"
+
 
 FramebufferGenerator::FramebufferGenerator()
 {
@@ -8,10 +8,10 @@ FramebufferGenerator::FramebufferGenerator()
 
 FramebufferGenerator::~FramebufferGenerator()
 {
-    Destroy(m_LogicalDevice);
+
 }
 
-void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
+void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
 {
     m_bCreated = true;
     // logicalDeviceが有効であるか確認
@@ -21,8 +21,8 @@ void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<Swapchai
     }
     m_LogicalDevice = logicalDevice;
 
-    //作成情報を作成
-    m_FramebufferInfos = CreateFramebufferInfos(swapChainImages, renderPass, extent);
+    //フレームバッファ作成情報を作成
+    m_FramebufferInfos = CreateFramebufferInfos(imageViews, renderPass, extent);
 
     //作成情報からフレームバッファを作成
     for (const auto& info : m_FramebufferInfos)
@@ -31,20 +31,24 @@ void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<Swapchai
     }
 }
 
-void FramebufferGenerator::Destroy(vk::Device logicalDevice)
+void FramebufferGenerator::Destroy()
 {
+    //中身が作成されていないなら解放処理も行わない
+    if (m_bCreated == false) return;
+    m_bCreated = false;
+
+    // フレームバッファの解放
     for (const auto& framebuffer : m_Framebuffers)
-        vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
+        m_LogicalDevice.destroyFramebuffer(framebuffer);
 }
 
 std::vector<vk::Framebuffer> FramebufferGenerator::GetFramebuffers()
 {
     CheckCreated();
     return m_Framebuffers;
-    ;
 }
 
-std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferInfos(std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent)
+std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferInfos(std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
 {
     // renderPassが有効であるか確認
     if (!renderPass)
@@ -53,22 +57,22 @@ std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferIn
     }
 
     // swapChainImagesが空でないことを確認
-    if (swapChainImages.empty())
+    if (imageViews.empty())
     {
         throw std::runtime_error("swapChainImagesが空です！");
     }
 
     std::vector<vk::FramebufferCreateInfo> framebufferInfos;
-    framebufferInfos.reserve(swapChainImages.size());
+    framebufferInfos.reserve(imageViews.size());
 
-    for (const auto& swapChainImage : swapChainImages)
+    for (const auto& imageView : imageViews)
     {
-        if (!swapChainImage.imageView)
+        if (!imageView)
         {
             throw std::runtime_error("ImageViewが無効です！");
         }
 
-        m_Attachments = { swapChainImage.imageView };
+        m_Attachments = { imageView };
 
         vk::FramebufferCreateInfo createInfo;
         createInfo.renderPass       = renderPass;

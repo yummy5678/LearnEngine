@@ -1,7 +1,5 @@
 #include "Device.h"
 
-
-
 DeviceGenerator::DeviceGenerator()
 {
 }
@@ -25,7 +23,7 @@ void DeviceGenerator::Create(CDeviceExtensionManager extensionManager, vk::Insta
 	auto logicalDeviceInfo = CreateDeviceInfo(extensionManager, m_PhysicalDevice, queueInfo);
 	m_LogicalDevice = m_PhysicalDevice.createDevice(logicalDeviceInfo);
 
-
+	//将来コマンドは別の場所で作るようにする
 	// コマンドバッファの作成
 	m_CommandGenerator.Create(m_LogicalDevice, m_PhysicalDevice, 3);
 }
@@ -46,23 +44,6 @@ vk::Device DeviceGenerator::GetLogicalDevice()
 	CheckCreated();
 	return m_LogicalDevice;
 }
-
-//vk::Queue DeviceGenerator::GetGraphicsQueue()
-//{
-//	CheckCreated();
-//	return m_LogicalDevice.getQueue(m_QueueFamilyGenerator.GetGraphicIndex(), 0u);
-//}
-
-//vk::Queue DeviceGenerator::GetPresentationQueue()
-//{
-//	CheckCreated();
-//	return m_LogicalDevice.getQueue(m_QueueFamilyGenerator.GetPresentationIndex(), 0u);
-//}
-
-//int DeviceGenerator::GetQueueIndex()
-//{
-//	return m_QueueFamilyGenerator.GetGraphicIndex();//ここではグラフィックスキューを渡しておく(後で修正)
-//}
 
 vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(CDeviceExtensionManager& extensionManager, vk::PhysicalDevice phygicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
 {

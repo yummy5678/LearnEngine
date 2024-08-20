@@ -6,8 +6,6 @@
 #include "DeviceExtensionManager.h"
 //#include "Utilities.h"
 
-const int MAX_FRAME_DRAWS = 3;
-
 
 //struct SwapchainImage 
 //{
@@ -32,8 +30,6 @@ public:
 	void Destroy(vk::Device logicalDevice);
 
 	vk::SwapchainKHR			GetSwapchain();
-	vk::Extent2D				Get2DExtent();
-	vk::SurfaceFormatKHR		GetSwapSurfaceFormat();
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
 	//std::vector<SwapchainImage>	GetSwapChainImages();
 
@@ -41,11 +37,6 @@ private:
 	vk::Device m_LogicalDevice;
 	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
 	vk::SwapchainKHR					m_Swapchain;
-
-	//vk::SurfaceCapabilitiesKHR		m_SurfaceCapabilities;
-	vk::SurfaceFormatKHR				m_SurfaceFormat;
-	vk::Extent2D						m_Extent;
-	vk::PresentModeKHR					m_PresentMode;
 
 	//std::vector<SwapchainImage>			m_Images;
 	

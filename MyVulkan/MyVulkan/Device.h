@@ -19,12 +19,7 @@ public:
 	void Destroy();
 
 	vk::PhysicalDevice	GetPhysicalDevice();
-	vk::Device			GetLogicalDevice();
-
-	vk::Queue			GetGraphicsQueue();
-	vk::Queue			GetPresentationQueue();
-	int					GetQueueIndex();
-	
+	vk::Device			GetLogicalDevice();	
 
 private:
 	//物理デバイス

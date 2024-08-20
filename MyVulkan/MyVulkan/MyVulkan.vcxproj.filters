@@ -75,7 +75,7 @@
     <ClCompile Include="PhysicalDeviceSelector.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="CImagesGenerator.cpp">
+    <ClCompile Include="ImagesGenerator.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -155,7 +155,7 @@
     <ClInclude Include="PhysicalDeviceSelector.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="CImagesGenerator.h">
+    <ClInclude Include="ImagesGenerator.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -67,7 +67,7 @@ void CommandGenerator::RecordCommands(vk::RenderPass renderPass, vk::Extent2D ex
         //// レンダーパスを終了する
         //m_Buffers[i].endRenderPass();
 
-        // コマンドバッファの記録を終了する
+        //// コマンドバッファの記録を終了する
         //result = commandBuffers[i].end();
         m_Buffers[i].end();
         //if (result != vk::Result::eSuccess)

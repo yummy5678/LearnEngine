@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include "GeneratorBase.h"
+#include "VulkanUtility.h"
 #include "SwapChainUtility.h"
 
 class FramebufferGenerator : public CGeneratorBase
@@ -9,7 +10,7 @@ public:
 	FramebufferGenerator();
 	~FramebufferGenerator();
 
-	void Create(vk::Device logicalDevice, std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent);
+	void Create(vk::Device logicalDevice, std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent);
 
 
 
@@ -20,8 +21,8 @@ private:
 	std::vector<vk::FramebufferCreateInfo>	m_FramebufferInfos;
 	std::array<vk::ImageView, 1>			m_Attachments;
 
-	void Destroy(vk::Device logicalDevice);
-	std::vector<vk::FramebufferCreateInfo> CreateFramebufferInfos(std::vector<SwapchainImage> swapChainImages, vk::RenderPass renderPass, vk::Extent2D extent);
+	void Destroy();
+	std::vector<vk::FramebufferCreateInfo> CreateFramebufferInfos(std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent);
 
 };
 

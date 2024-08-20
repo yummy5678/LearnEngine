@@ -2,7 +2,6 @@
 #include <vulkan/vulkan.hpp>
 #include "GeneratorBase.h"
 #include "QueueUtility.h"
-#include "Device.h"
 
 class CommandGenerator : public CGeneratorBase
 {
@@ -11,7 +10,6 @@ public:
 	~CommandGenerator();
 
 	void Create(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice, uint32_t commandSize);
-	void Create(DeviceGenerator , std::vector<vk::Framebuffer> framebuffers);
 	void Destroy(vk::Device logicalDevice);
 
 	void RecordCommands(vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline);
