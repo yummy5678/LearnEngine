@@ -59,7 +59,7 @@ vk::AttachmentDescription* RenderpassGenerator::CreateColorAttachment(const vk::
 {
     // カラーバッファアタッチメントの記述
     m_ColorAttachment.flags;
-    m_ColorAttachment.format = imageFormat.format;                          // スワップチェインのイメージフォーマット
+    m_ColorAttachment.format = imageFormat.format;                          // スワップチェーンのイメージフォーマット
     m_ColorAttachment.samples = vk::SampleCountFlagBits::e1;                // マルチサンプリングのサンプル数
     m_ColorAttachment.loadOp = vk::AttachmentLoadOp::eClear;                // レンダーパスの開始時にカラーバッファをクリア
     m_ColorAttachment.storeOp = vk::AttachmentStoreOp::eStore;              // レンダーパスの終了時にカラーバッファを保存

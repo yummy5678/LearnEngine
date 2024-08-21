@@ -13,7 +13,7 @@ std::vector<const char*>* CDeviceExtensionManager::GetExtensions(vk::PhysicalDev
 	//リストを初期化
 	m_ExtensionList.clear();
 
-	//スワップチェインが有効な場合、拡張機能を追加
+	//スワップチェーンが有効な場合、拡張機能を追加
 	if (m_bSwapchain = true) CreateSwapChainExtension();
 
 	if (CheckExtensionsSupport(m_ExtensionList, physicalDevice) == false)
@@ -27,7 +27,7 @@ std::vector<const char*>* CDeviceExtensionManager::GetExtensions(vk::PhysicalDev
 	return &m_ExtensionList;
 }
 
-//スワップチェインの拡張機能を有効化(フラグで管理している)
+//スワップチェーンの拡張機能を有効化(フラグで管理している)
 void CDeviceExtensionManager::UseSwapchain()
 {
 	m_bSwapchain = true;

@@ -27,7 +27,7 @@ Khronos Validation Layers (検証レイヤ)
 VulkanLoder
 
 
-
+スワップチェインは本ではスワップチェーンと書かれている
 
 https://www.youtube.com/watch?v=p56oTgvPpbo
 

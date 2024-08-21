@@ -29,7 +29,7 @@ void SwapchainGenerator::Destroy(vk::Device logicalDevice)
     if (m_bCreated == false) return;
     m_bCreated = false;
     
-    //スワップチェインの解放
+    //スワップチェーンの解放
     m_LogicalDevice.destroySwapchainKHR(m_Swapchain);
 }
 
@@ -45,6 +45,11 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::GetSwapchainInfo()
     return m_SwapchainInfo;
 }
 
+uint32_t SwapchainGenerator::GetImageCount()
+{
+    return m_SwapchainInfo.minImageCount;
+}
+
 //std::vector<SwapchainImage> SwapchainGenerator::GetSwapChainImages()
 //{
 //    CheckCreated();
@@ -53,11 +58,11 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::GetSwapchainInfo()
 
 
 /// <summary>
-/// スワップチェインインフォの作成
+/// スワップチェーンインフォの作成
 /// </summary>
 vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
-    // スワップチェインの設定を行う
+    // スワップチェーンの設定を行う
     // サーフェスの機能を取得
     auto surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
     std::vector<vk::SurfaceFormatKHR> surfaceFormats = physicalDevice.getSurfaceFormatsKHR(surface);
@@ -70,32 +75,32 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
 
 
 
-    // スワップチェインに必要なイメージの数を決定
+    // スワップチェーンに必要なイメージの数を決定
     uint32_t imageCount = surfaceCapabilities.minImageCount + 1;
     if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount)
     {
         imageCount = surfaceCapabilities.maxImageCount;
     }
 
-    // スワップチェイン作成情報の設定
+    // スワップチェーン作成情報の設定
     vk::SwapchainCreateInfoKHR swapchainInfo;
     swapchainInfo.pNext;                       // 拡張チェーンへのポインタ
     swapchainInfo.flags;                       // 作成フラグ
-    swapchainInfo.surface = surface;           // スワップチェインがターゲットとするサーフェス
-    swapchainInfo.minImageCount = imageCount;  // スワップチェインに含まれる最小イメージ数
+    swapchainInfo.surface = surface;           // スワップチェーンがターゲットとするサーフェス
+    swapchainInfo.minImageCount = imageCount;  // スワップチェーンに含まれる最小イメージ数
     swapchainInfo.imageFormat = swapchainFormat.format;          // イメージフォーマット
     swapchainInfo.imageColorSpace = swapchainFormat.colorSpace;  // カラースペース
-    swapchainInfo.imageExtent = surfaceCapabilities.currentExtent;      // スワップチェインの幅と高さ
-    swapchainInfo.imageArrayLayers = 1;        // イメージの配列層数
-    swapchainInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;   // イメージの使用用途
-    swapchainInfo.imageSharingMode = vk::SharingMode::eExclusive;          // イメージの共有モード（初期設定は排他的モード）
+    swapchainInfo.imageExtent = surfaceCapabilities.currentExtent;         // スワップチェーンの幅と高さ
+    swapchainInfo.imageArrayLayers = 1;                                    // 画像の配列層数(平面画像なら"1"にする)
+    swapchainInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;   // 画像の使用用途
+    swapchainInfo.imageSharingMode = vk::SharingMode::eExclusive;          // 画像の共有モード（初期設定は排他的モード）
     swapchainInfo.queueFamilyIndexCount;                                   // キューファミリーインデックスの数
     swapchainInfo.pQueueFamilyIndices;                                     // キューファミリーインデックスの配列へのポインタ
-    swapchainInfo.preTransform = surfaceCapabilities.currentTransform;     // サーフェスのトランスフォーム
+    swapchainInfo.preTransform = surfaceCapabilities.currentTransform;     // サーフェスのトランスフォーム(変形情報)
     swapchainInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque; // アルファ合成モード
     swapchainInfo.presentMode = swapchainPresentMode;   // プレゼンテーションモード
     swapchainInfo.clipped = VK_TRUE;                    // クリップされるかどうか
-    swapchainInfo.oldSwapchain = nullptr;               // 古いスワップチェインへのポインタ
+    swapchainInfo.oldSwapchain = VK_NULL_HANDLE;       // 古いスワップチェーンへのポインタ
 
     // グラフィックスキューファミリのインデックスを取得する
     // キューファミリのインデックスを取得
@@ -128,7 +133,7 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
 //    swapChainImages.reserve(images.size());
 //
 //
-//    // スワップチェイン作成時に取得したのと同じ情報が欲しい
+//    // スワップチェーン作成時に取得したのと同じ情報が欲しい
 //    vk::SurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(GetSurfaceFormats(physicalDevice, surface));
 //
 //    for (vk::Image image : images)

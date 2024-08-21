@@ -15,12 +15,14 @@ public:
 	void Destroy();
 
 	std::vector<vk::Image>		GetImages();
-	std::vector<vk::ImageView>	GetSwapChainImageViews();
+	std::vector<vk::ImageView>	GetImageViews();
 	vk::ImageCreateInfo			GetImageInfo();
 	vk::Format					GetFomat();
+	uint32_t					GetSize();
 
 private:
 	vk::Device m_LogicalDevice;
+	uint32_t m_Size;
 	std::vector<vk::Image> m_Images;
 	std::vector<vk::ImageView> m_ImageViews;
 	std::vector<vk::DeviceMemory> m_ImageMemory;

@@ -17,7 +17,7 @@ public:
 	VkSurfaceKHR GetSurface();
 	// サーフェスの機能を取得
 	vk::SurfaceCapabilitiesKHR GetCapabilities(vk::PhysicalDevice physicalDevice);
-	std::vector<vk::SurfaceFormatKHR> GetFomat(vk::PhysicalDevice physicalDevice);
+	std::vector<vk::SurfaceFormatKHR> GetFomats(vk::PhysicalDevice physicalDevice);
 
 	void Destroy(vk::Instance instance);
 

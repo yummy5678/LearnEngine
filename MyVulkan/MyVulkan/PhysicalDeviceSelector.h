@@ -27,7 +27,7 @@ public:
     // データの転送処理に適したデバイスを選択
     PhysicalDeviceContainer SelectTransferDevice();
 
-    // スワップチェイン、画面表示に適したデバイスを選択
+    // スワップチェーン、画面表示に適したデバイスを選択
     PhysicalDeviceContainer SelectSwapchainDevice(vk::SurfaceKHR surface);
 
 

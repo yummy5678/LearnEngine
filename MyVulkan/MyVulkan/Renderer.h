@@ -19,7 +19,7 @@
 #include "RenderPassUtility.h"
 #include "GraphicsPipelineUtility.h"
 #include "FramebufferGenerator.h"
-//#include "CommandUtility.h"
+#include "CommandUtility.h"
 #include "SynchronizationGenerator.h"
 
 
@@ -51,7 +51,7 @@ private:
 	RenderpassGenerator		m_RenderpassGenerator;
 	PipelineGenerator		m_PipelineGenerator;
 	FramebufferGenerator	m_FramebufferGenerator;
-	//CommandGenerator		m_CommandGenerator;
+	CommandGenerator		m_CommandGenerator;
 
 
 	
@@ -70,7 +70,7 @@ private:
 	//VkQueue graphicsQueue;
 	//VkQueue presentationQueue;
 
-	//スワップチェイン
+	//スワップチェーン
 	//vk::UniqueSurfaceKHR				surface;
 	//vk::UniqueSwapchainKHR			swapchain;
 	//std::vector<SwapchainImage>			swapChainImages;
@@ -131,19 +131,6 @@ private:
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 	bool checkValidationLayerSupport();
 	bool checkDeviceSuitable(VkPhysicalDevice device) { return false; };
-
-	// -- Getter Functions
-	//QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device);
-	SwapChainDetails getSwapChainDetails(VkPhysicalDevice device) { return SwapChainDetails{}; };
-
-	// -- Choose Functions
-	VkSurfaceFormatKHR chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats);
-	VkPresentModeKHR chooseBestPresentationMode(const std::vector<VkPresentModeKHR> presentationModes);
-	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
-
-	// -- Create Functions
-	//VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-	//VkShaderModule createShaderModule(const std::vector<char>& code);
 };
 
 // VulkanRendererクラスについて
@@ -153,17 +140,17 @@ private:
 // ・画面に図形を表示するまでに必要なこと
 // 1. インスタンスの作成
 // Vulkanを使用する際は何よりもまずインスタンスを作成する。
-// インスタンスはVulkanの機能を使用するのに必要なものである。
+// インスタンスはVulkanの機能を使用するのに必要なもの。
 // 
 // 2. サーフェスの作成
 // サーフェス(Vulkanのイメージの表示先)の情報を得る。
-// 今回の場合はGLFWを通して作成したウィンドウから情報を得る。
+// 今回はGLFW(ウィンドウ作成用ライブラリ)で作成したウィンドウから情報を得る。
 // 
 // 3. 物理デバイスの選択
 // Vulkanが利用できる物理デバイス(GPU)を選択する。
 // (GPUについての詳しい説明はDeviceGenerator.hに記載)
 // インスタンスを介して接続されているGPUを全て取得して
-// 使用に適したものをここで選んでおく。
+// 使用したい機能に対応したものをここで選んでおく。
 // 
 // 4. 論理デバイスと処理命令(キュー)の作成
 // GPUと通信するために、論理デバイスを作成する。
@@ -177,9 +164,9 @@ private:
 // 内容が多いので詳細はSwapChainGenerator.hを参照。
 // 
 // 6. レンダーパスの設定
-// 画像を作成する際の処理手順を設定するためのもの。
-// スワップチェインの作成情報を渡しているのは、
-// 画像データの色の形式をスワップチェインと一致させるため。
+// 画像を作成する際の処理手順を設定するためのもの。		 /////////////////////////////////////////後で修正
+// スワップチェーンの作成情報を渡しているのは、		   /  ////////////////////////////////////////後で修正
+// 画像データの色の形式をスワップチェーンと一致させるため/////////////////////////////////////////後で修正
 // 
 // 7. グラフィックスパイプラインの設定
 // 3Dオブジェクトのデータを描画する際に施す処理の設定。
@@ -193,11 +180,11 @@ private:
 // 
 // 9. コマンドバッファの作成と記録
 // GPUに送る用の描画命令(コマンドバッファ)を
-// スワップチェインに必要な枚数分作成する。
+// スワップチェーンに必要な枚数分作成する。
 // ※CPUからGPUに処理命令を投げる時の名前がコマンドバッファ、GPUが命令を読み取るときの呼び方がキュー
 // 
 // 10. 同期オブジェクトの作成
-// 同期オブジェクト(今回はセマフォとフェンス)を作成して、描画の進行状況を管理する。
+// 同期オブジェクト(セマフォとフェンス)を作成して、描画の進行状況を管理する。
 // 同期オブジェクトはGPUの描画処理とディスプレイの表示速度を合わせるためのもの。
 // GPUの計算は凄く速いので、速度を合わせないと画面への表示が追いつかなくなる。
 // 

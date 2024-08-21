@@ -5,7 +5,7 @@
 constexpr uint32_t windowWidth  = 800;	//ウィンドウの横幅
 constexpr uint32_t windowHeight = 600;	//ウィンドウの縦幅
 
-// スワップチェインで使用するイメージの数
+// スワップチェーンで使用するイメージの数
 constexpr int MAX_FRAME_DRAWS = 3;
 
 // Vulkanの設定情報

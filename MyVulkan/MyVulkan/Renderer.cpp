@@ -11,8 +11,8 @@ VulkanRenderer::VulkanRenderer() :
 	m_SwapchainGenerator(m_DeviceExtension),
 	m_RenderpassGenerator(),
 	m_PipelineGenerator(),
-	m_FramebufferGenerator()
-	//m_CommandGenerator()
+	m_FramebufferGenerator(),
+	m_CommandGenerator()
 {
 }
 
@@ -38,20 +38,20 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		auto physicalDevice			= m_DeviceGenerator.GetPhysicalDevice();
 		auto surfaceCapabilities	= m_SurfaceGenerator.GetCapabilities(physicalDevice);
 		auto windowExtent			= surfaceCapabilities.currentExtent;
-		auto surfaceFomat = m_SurfaceGenerator.GetFomat(physicalDevice);
+		auto surfaceFomat			= m_SurfaceGenerator.GetFomats(physicalDevice)[0];
 
 		//論理デバイスを取得
 		auto logicalDevice	= m_DeviceGenerator.GetLogicalDevice();
 
 		m_ImageGenerator.CreateForSurface(logicalDevice, physicalDevice, surface);
-		//auto images = m_ImageGenerator.GetImages();
-		//auto imageInfo = m_ImageGenerator.GetImageInfo();
+		auto imageViews = m_ImageGenerator.GetImageViews();
 
-		//スワップチェインの作成
+		//スワップチェーンの作成
 		m_SwapchainGenerator.Create(logicalDevice, physicalDevice, surface);
+		uint32_t swapchainCount = m_SwapchainGenerator.GetImageCount();
 
 		//レンダーパスの作成
-		m_RenderpassGenerator.Create(logicalDevice, surfaceFomat[0]);
+		m_RenderpassGenerator.Create(logicalDevice, surfaceFomat);
 		auto renderPass = m_RenderpassGenerator.GetRenderpass();
 
 		//パイプラインの作成
@@ -59,17 +59,16 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		auto graphicsPipeline = m_PipelineGenerator.GetPipeline();
 		
 		//フレームバッファの作成
-		//m_FramebufferGenerator.Create(logicalDevice, swapChainImages, renderPass, windowExtent);
-		//auto swapchainFramebuffers = m_FramebufferGenerator.GetFramebuffers();
+		m_FramebufferGenerator.Create(logicalDevice, imageViews, renderPass, windowExtent);
+		auto swapchainFramebuffers = m_FramebufferGenerator.GetFramebuffers();
 
 		//コマンドバッファの作成
-		//m_CommandGenerator.Create(logicalDevice, physicalDevice, 3);
+		m_CommandGenerator.Create(logicalDevice, physicalDevice, swapchainCount);
 		//auto graphicsCommandPool = commandGenerator.GetPool();
 		//auto commandBuffers = m_CommandGenerator.GetBuffers();
 
 		//コマンドの記録
-		//m_CommandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
-		//CommandUtility::recordCommands(renderPass, swapChainExtent, graphicsPipeline, swapchainFramebuffers, commandBuffers);
+		m_CommandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
 
 		synchronizationGenerator.Create(logicalDevice);
 		//createSynchronisation();
@@ -386,16 +385,16 @@ void VulkanRenderer::createLogicalDevice()
 //
 //
 //	/*//////////////////////////
-//	* スワップチェインの作成
+//	* スワップチェーンの作成
 //	*///////////////////////////
 //	VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
-//	swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;					// スワップチェインのタイプ
-//	swapChainCreateInfo.surface = surface.get();												// スワップチェインの対象となるSurface
-//	swapChainCreateInfo.imageFormat = surfaceFormat.format;										// スワップチェインの画像フォーマット
-//	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;								// スワップチェインのカラースペース
-//	swapChainCreateInfo.presentMode = presentMode;												// スワップチェインのプレゼンテーションモード
-//	swapChainCreateInfo.imageExtent = extent;													// スワップチェインの画像のサイズ
-//	swapChainCreateInfo.minImageCount = imageCount;												// スワップチェイン内の最小画像数
+//	swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;					// スワップチェーンのタイプ
+//	swapChainCreateInfo.surface = surface.get();												// スワップチェーンの対象となるSurface
+//	swapChainCreateInfo.imageFormat = surfaceFormat.format;										// スワップチェーンの画像フォーマット
+//	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;								// スワップチェーンのカラースペース
+//	swapChainCreateInfo.presentMode = presentMode;												// スワップチェーンのプレゼンテーションモード
+//	swapChainCreateInfo.imageExtent = extent;													// スワップチェーンの画像のサイズ
+//	swapChainCreateInfo.minImageCount = imageCount;												// スワップチェーン内の最小画像数
 //	swapChainCreateInfo.imageArrayLayers = 1;													// 画像の配列レイヤー数
 //	swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;						// 画像がどのように使用されるか
 //	swapChainCreateInfo.preTransform = swapChainDetails.surfaceCapabilities.currentTransform;	// Swapchain画像に対して行う変換
@@ -442,7 +441,7 @@ void VulkanRenderer::createLogicalDevice()
 //	swapChainExtent = extent;
 //
 //	// Swapchainの画像を取得する（数を取得し、値を取得する）
-//	uint32_t swapChainImageCount;	//スワップチェインの画像数
+//	uint32_t swapChainImageCount;	//スワップチェーンの画像数
 //	vkGetSwapchainImagesKHR(logicalDevice.get(), swapchain.get(), &swapChainImageCount, nullptr);
 //	std::vector<VkImage> images(swapChainImageCount);
 //	vkGetSwapchainImagesKHR(logicalDevice.get(), swapchain.get(), &swapChainImageCount, images.data());
@@ -644,10 +643,10 @@ void VulkanRenderer::createGraphicsPipeline()
 
 void VulkanRenderer::createFramebuffers()
 {
-	//// スワップチェインの画像数に合わせてフレームバッファの数をリサイズする
+	//// スワップチェーンの画像数に合わせてフレームバッファの数をリサイズする
 	//swapChainFramebuffers.resize(swapChainImages.size());
 
-	//// 各スワップチェイン画像に対してフレームバッファを作成する
+	//// 各スワップチェーン画像に対してフレームバッファを作成する
 	//for (size_t i = 0; i < swapChainFramebuffers.size(); i++)
 	//{
 	//	// VkImageViewの確認
@@ -1087,25 +1086,25 @@ bool VulkanRenderer::checkValidationLayerSupport()
 //}
 
 
-VkPresentModeKHR VulkanRenderer::chooseBestPresentationMode(const std::vector<VkPresentModeKHR> presentationModes)
-{
-	// メールボックス（Mailbox）プレゼンテーションモードを探す
-	// メールボックスモードは、バッファのスワップ処理を行う際に、最新のフレームのみを保持し、古いフレームを破棄するため、
-	// レンダリングの遅延を最小限に抑えることができます。
-	// もしメールボックスモードが利用可能であれば、それを選択します。
-	for (const auto& presentationMode : presentationModes)
-	{
-		if (presentationMode == VK_PRESENT_MODE_MAILBOX_KHR)
-		{
-			return presentationMode;
-		}
-	}
-
-	// メールボックスモードが見つからない場合、Vulkan 仕様により FIFO モードを使用することが保証されています。
-	// FIFO モードは、キューに溜まったフレームを順番に処理するため、レンダリングの安定性が保たれますが、
-	// レイテンシは比較的高くなる場合があります。
-	return VK_PRESENT_MODE_FIFO_KHR;
-}
+//VkPresentModeKHR VulkanRenderer::chooseBestPresentationMode(const std::vector<VkPresentModeKHR> presentationModes)
+//{
+//	// メールボックス（Mailbox）プレゼンテーションモードを探す
+//	// メールボックスモードは、バッファのスワップ処理を行う際に、最新のフレームのみを保持し、古いフレームを破棄するため、
+//	// レンダリングの遅延を最小限に抑えることができます。
+//	// もしメールボックスモードが利用可能であれば、それを選択します。
+//	for (const auto& presentationMode : presentationModes)
+//	{
+//		if (presentationMode == VK_PRESENT_MODE_MAILBOX_KHR)
+//		{
+//			return presentationMode;
+//		}
+//	}
+//
+//	// メールボックスモードが見つからない場合、Vulkan 仕様により FIFO モードを使用することが保証されています。
+//	// FIFO モードは、キューに溜まったフレームを順番に処理するため、レンダリングの安定性が保たれますが、
+//	// レイテンシは比較的高くなる場合があります。
+//	return VK_PRESENT_MODE_FIFO_KHR;
+//}
 
 #pragma region VkPresentModeKHR解説
 // VkPresentModeKHR	: それぞれのモードについての解説(ChatGPTで作成)
@@ -1139,34 +1138,34 @@ VkPresentModeKHR VulkanRenderer::chooseBestPresentationMode(const std::vector<Vk
 
 
 
-VkExtent2D VulkanRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities)
-{
-	// 現在の extent が数値の限界にある場合、extent は変化する可能性があります。それ以外の場合はウィンドウのサイズになります。
-	if (surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-	{
-		// 数値の限界でない場合、現在の extent を返します。
-		return surfaceCapabilities.currentExtent;
-	}
-	else
-	{
-		// extent が変化する場合は手動で設定する必要があります。
-
-		// ウィンドウのサイズを取得します
-		int width, height;
-		glfwGetFramebufferSize(m_pWindow, &width, &height);
-
-		// ウィンドウサイズを使用して新しい extent を作成します
-		VkExtent2D newExtent = {};
-		newExtent.width = static_cast<uint32_t>(width);
-		newExtent.height = static_cast<uint32_t>(height);
-
-		// Surface は最大および最小の extent を定義していますので、値が境界内にあることを確認するためにクランプします
-		newExtent.width = std::max(surfaceCapabilities.minImageExtent.width, std::min(surfaceCapabilities.maxImageExtent.width, newExtent.width));
-		newExtent.height = std::max(surfaceCapabilities.minImageExtent.height, std::min(surfaceCapabilities.maxImageExtent.height, newExtent.height));
-
-		return newExtent;
-	}
-}
+//VkExtent2D VulkanRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities)
+//{
+//	// 現在の extent が数値の限界にある場合、extent は変化する可能性があります。それ以外の場合はウィンドウのサイズになります。
+//	if (surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+//	{
+//		// 数値の限界でない場合、現在の extent を返します。
+//		return surfaceCapabilities.currentExtent;
+//	}
+//	else
+//	{
+//		// extent が変化する場合は手動で設定する必要があります。
+//
+//		// ウィンドウのサイズを取得します
+//		int width, height;
+//		glfwGetFramebufferSize(m_pWindow, &width, &height);
+//
+//		// ウィンドウサイズを使用して新しい extent を作成します
+//		VkExtent2D newExtent = {};
+//		newExtent.width = static_cast<uint32_t>(width);
+//		newExtent.height = static_cast<uint32_t>(height);
+//
+//		// Surface は最大および最小の extent を定義していますので、値が境界内にあることを確認するためにクランプします
+//		newExtent.width = std::max(surfaceCapabilities.minImageExtent.width, std::min(surfaceCapabilities.maxImageExtent.width, newExtent.width));
+//		newExtent.height = std::max(surfaceCapabilities.minImageExtent.height, std::min(surfaceCapabilities.maxImageExtent.height, newExtent.height));
+//
+//		return newExtent;
+//	}
+//}
 
 
 //VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)

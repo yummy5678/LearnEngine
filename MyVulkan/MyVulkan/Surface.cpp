@@ -43,7 +43,7 @@ vk::SurfaceCapabilitiesKHR SurfaceGenerator::GetCapabilities(vk::PhysicalDevice 
 	return physicalDevice.getSurfaceCapabilitiesKHR(m_Surface);
 }
 
-std::vector<vk::SurfaceFormatKHR> SurfaceGenerator::GetFomat(vk::PhysicalDevice physicalDevice)
+std::vector<vk::SurfaceFormatKHR> SurfaceGenerator::GetFomats(vk::PhysicalDevice physicalDevice)
 {
 	CheckCreated();
 	return physicalDevice.getSurfaceFormatsKHR(m_Surface);

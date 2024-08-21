@@ -70,7 +70,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice(vk::Surfac
     for (const auto& device : m_PhysicalDevices)
     {
         //描画用キューと表示用キューが存在し、
-        //スワップチェイン拡張機能にも対応している
+        //スワップチェーン拡張機能にも対応している
         QueueFamilySelector queueFamily(device);
         if (queueFamily.GetGraphicIndex()               != Number_NoneQueue &&
             queueFamily.GetPresentationIndex(surface)   != Number_NoneQueue &&
@@ -83,7 +83,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice(vk::Surfac
     }
 
     // 利用可能なデバイスがない場合
-    throw std::runtime_error("スワップチェイン用に使用できるGPUが見つかりません！");
+    throw std::runtime_error("スワップチェーン用に使用できるGPUが見つかりません！");
 }
 
 std::vector<vk::DeviceQueueCreateInfo> PhysicalDeviceSelector::CreateQueueInfos(std::set<int> queueFamilyIndices)

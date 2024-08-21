@@ -15,6 +15,7 @@ void CImagesGenerator::Create(uint32_t ImageNum, vk::Extent2D extent, vk::Device
     m_bCreated = true;
 
     m_LogicalDevice = logicalDevice;
+    m_Size = ImageNum;
 
     m_Images.resize(ImageNum);
     m_ImageMemory.resize(ImageNum);
@@ -110,7 +111,7 @@ std::vector<vk::Image> CImagesGenerator::GetImages()
 	return m_Images;
 }
 
-std::vector<vk::ImageView> CImagesGenerator::GetSwapChainImageViews()
+std::vector<vk::ImageView> CImagesGenerator::GetImageViews()
 {
     CheckCreated();
     return m_ImageViews;
@@ -126,6 +127,11 @@ vk::Format CImagesGenerator::GetFomat()
 {
     CheckCreated();
     return m_Fomat;
+}
+
+uint32_t CImagesGenerator::GetSize()
+{
+    return m_Size;
 }
 
 
