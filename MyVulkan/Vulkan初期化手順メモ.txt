@@ -64,7 +64,7 @@ Vulkanでは、通常、GLSLでシェーダーを記述し、それをSPIR-V形�
 https://qiita.com/tositada_nakada/items/db0f01c1c8c2945f786b
 
 
-
+https://www.youtube.com/watch?v=Ow-ouwxxfP8
 
 
 

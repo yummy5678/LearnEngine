@@ -50,6 +50,9 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		m_SwapchainGenerator.Create(logicalDevice, physicalDevice, surface);
 		uint32_t swapchainCount = m_SwapchainGenerator.GetImageCount();
 
+		//コマンドバッファの作成
+		m_CommandGenerator.Create(logicalDevice, physicalDevice, swapchainCount);
+
 		//レンダーパスの作成
 		m_RenderpassGenerator.Create(logicalDevice, surfaceFomat);
 		auto renderPass = m_RenderpassGenerator.GetRenderpass();
@@ -62,13 +65,10 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		m_FramebufferGenerator.Create(logicalDevice, imageViews, renderPass, windowExtent);
 		auto swapchainFramebuffers = m_FramebufferGenerator.GetFramebuffers();
 
-		//コマンドバッファの作成
-		m_CommandGenerator.Create(logicalDevice, physicalDevice, swapchainCount);
-		//auto graphicsCommandPool = commandGenerator.GetPool();
-		//auto commandBuffers = m_CommandGenerator.GetBuffers();
+
 
 		//コマンドの記録
-		m_CommandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
+		//m_CommandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
 
 		synchronizationGenerator.Create(logicalDevice);
 		//createSynchronisation();

@@ -15,9 +15,11 @@ SwapchainGenerator::~SwapchainGenerator()
 
 void SwapchainGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
+    std::cout  << m_ClassName << "を作成" << std::endl;
     m_bCreated = true;
     m_LogicalDevice = logicalDevice;
     m_SwapchainInfo = CreateSwapchainInfo(physicalDevice, surface);
+
     m_Swapchain = logicalDevice.createSwapchainKHR(m_SwapchainInfo);
 
     //m_Images = CreateSwapChainImages(logicalDevice, physicalDevice, surface, m_Swapchain);
@@ -68,16 +70,13 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
     std::vector<vk::SurfaceFormatKHR> surfaceFormats = physicalDevice.getSurfaceFormatsKHR(surface);
     std::vector<vk::PresentModeKHR> surfacePresentModes = physicalDevice.getSurfacePresentModesKHR(surface);
 
-    vk::SurfaceFormatKHR swapchainFormat = surfaceFormats[0];
-    vk::PresentModeKHR swapchainPresentMode = surfacePresentModes[0];
-
-    QueueFamilySelector queueFamilySelector(physicalDevice);
-
-
+    // サーフェスから取得した情報の中から最適なものを選ぶ
+    vk::SurfaceFormatKHR format = SelectSurfaceFormat(surfaceFormats);
+    vk::PresentModeKHR presentMode = SelectPresentMode(surfacePresentModes);
 
     // スワップチェーンに必要なイメージの数を決定
     uint32_t imageCount = surfaceCapabilities.minImageCount + 1;
-    if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount)
+    if (imageCount > surfaceCapabilities.maxImageCount)
     {
         imageCount = surfaceCapabilities.maxImageCount;
     }
@@ -87,10 +86,10 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
     swapchainInfo.pNext;                       // 拡張チェーンへのポインタ
     swapchainInfo.flags;                       // 作成フラグ
     swapchainInfo.surface = surface;           // スワップチェーンがターゲットとするサーフェス
-    swapchainInfo.minImageCount = imageCount;  // スワップチェーンに含まれる最小イメージ数
-    swapchainInfo.imageFormat = swapchainFormat.format;          // イメージフォーマット
-    swapchainInfo.imageColorSpace = swapchainFormat.colorSpace;  // カラースペース
-    swapchainInfo.imageExtent = surfaceCapabilities.currentExtent;         // スワップチェーンの幅と高さ
+    swapchainInfo.minImageCount = imageCount;  // スワップチェーンに含まれる最小画像数
+    swapchainInfo.imageFormat = format.format;          // 画像フォーマット
+    swapchainInfo.imageColorSpace = format.colorSpace;  // カラースペース
+    swapchainInfo.imageExtent = surfaceCapabilities.currentExtent;         // 画像の幅と高さ
     swapchainInfo.imageArrayLayers = 1;                                    // 画像の配列層数(平面画像なら"1"にする)
     swapchainInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;   // 画像の使用用途
     swapchainInfo.imageSharingMode = vk::SharingMode::eExclusive;          // 画像の共有モード（初期設定は排他的モード）
@@ -98,25 +97,21 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
     swapchainInfo.pQueueFamilyIndices;                                     // キューファミリーインデックスの配列へのポインタ
     swapchainInfo.preTransform = surfaceCapabilities.currentTransform;     // サーフェスのトランスフォーム(変形情報)
     swapchainInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque; // アルファ合成モード
-    swapchainInfo.presentMode = swapchainPresentMode;   // プレゼンテーションモード
-    swapchainInfo.clipped = VK_TRUE;                    // クリップされるかどうか
-    swapchainInfo.oldSwapchain = VK_NULL_HANDLE;       // 古いスワップチェーンへのポインタ
+    swapchainInfo.presentMode = presentMode;        // プレゼンテーションモード
+    swapchainInfo.clipped = VK_TRUE;                // クリップされるかどうか
+    swapchainInfo.oldSwapchain = VK_NULL_HANDLE;    // 古いスワップチェーンへのポインタ
 
-    // グラフィックスキューファミリのインデックスを取得する
-    // キューファミリのインデックスを取得
-    //QueueFamilyIndices indices = VulkanUtility::GetQueueFamilies(physicalDevice, surface);
-    // キューファミリーインデックスの配列を作成
-    //uint32_t queueFamilyIndices[] = { indices.m_GraphicsFamilyIndex, indices.presentationFamily };
-    
-    uint32_t queueFamilyIndices[] = { queueFamilySelector.GetGraphicIndex(), queueFamilySelector.GetPresentationIndex(surface) };
-
+    //////////////////////////////
+    // キューの共有設定
+    //////////////////////////////
     // キューファミリが異なる場合は共有モードを設定
-    //if (indices.m_GraphicsFamilyIndex != indices.presentationFamily)
+    QueueFamilySelector queueFamilySelector(physicalDevice);
     if (queueFamilySelector.GetGraphicIndex() != queueFamilySelector.GetPresentationIndex(surface))
     {
-        swapchainInfo.imageSharingMode = vk::SharingMode::eConcurrent; // 並行モードに設定
-        swapchainInfo.queueFamilyIndexCount = 2;                       // キューファミリーインデックスの数を設定
-        swapchainInfo.pQueueFamilyIndices = queueFamilyIndices;        // キューファミリーインデックスの配列を設定
+        std::vector<uint32_t> queueFamilyIndices = { queueFamilySelector.GetGraphicIndex(), queueFamilySelector.GetPresentationIndex(surface) };
+        swapchainInfo.imageSharingMode = vk::SharingMode::eConcurrent;      // 並行モードに設定
+        swapchainInfo.queueFamilyIndexCount = queueFamilyIndices.size();    // キューファミリーインデックスの数を設定
+        swapchainInfo.pQueueFamilyIndices = queueFamilyIndices.data();      // キューファミリーインデックスの配列を設定
     }
 
     return swapchainInfo;
@@ -183,18 +178,12 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
 //
 //}
 
-
-//vk::SurfaceCapabilitiesKHR SwapchainGenerator::GetSurfaceCapabilities(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
-//{
-//    return physicalDevice.getSurfaceCapabilitiesKHR(surface);
-//}
-
-vk::SurfaceFormatKHR SwapchainGenerator::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
+vk::SurfaceFormatKHR SwapchainGenerator::SelectSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
 {
     for (const auto& availableFormat : availableFormats)
     {
-        if (availableFormat.format == vk::Format::eB8G8R8A8Unorm &&
-            availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+        if (availableFormat.format == vk::Format::eB8G8R8A8Unorm &&             
+            availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)    
         {
             return availableFormat;
         }
@@ -203,40 +192,18 @@ vk::SurfaceFormatKHR SwapchainGenerator::ChooseSwapSurfaceFormat(const std::vect
     return availableFormats[0];
 }
 
-vk::PresentModeKHR SwapchainGenerator::ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
+vk::PresentModeKHR SwapchainGenerator::SelectPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
 {
     for (const auto& availablePresentMode : availablePresentModes)
     {
+        // サーフェスの使用可能なモードの中に
+        // メールボックスモードがあればそれにする
         if (availablePresentMode == vk::PresentModeKHR::eMailbox)
         {
+
             return availablePresentMode;
         }
     }
-
-    return vk::PresentModeKHR::eFifo; // ファイフォキューを使用する（必ずサポートされている）
-}
-
-vk::Extent2D SwapchainGenerator::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities)
-{
-    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-    {
-        return capabilities.currentExtent;
-    }
-    else
-    {
-        vk::Extent2D actualExtent = { windowWidth, windowHeight }; // 自分のウィンドウのサイズを設定する
-        actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-        actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
-        return actualExtent;
-    }
-}
-
-std::vector<vk::SurfaceFormatKHR> SwapchainGenerator::GetSurfaceFormats(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
-{
-    return physicalDevice.getSurfaceFormatsKHR(surface);
-}
-
-std::vector<vk::PresentModeKHR> SwapchainGenerator::GetPresentModes(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
-{
-    return physicalDevice.getSurfacePresentModesKHR(surface);
+    // 無ければFIFOキューを使用する(必ずサポートされている)
+    return vk::PresentModeKHR::eFifo; 
 }

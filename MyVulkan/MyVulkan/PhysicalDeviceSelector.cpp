@@ -86,7 +86,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice(vk::Surfac
     throw std::runtime_error("スワップチェーン用に使用できるGPUが見つかりません！");
 }
 
-std::vector<vk::DeviceQueueCreateInfo> PhysicalDeviceSelector::CreateQueueInfos(std::set<int> queueFamilyIndices)
+std::vector<vk::DeviceQueueCreateInfo> PhysicalDeviceSelector::CreateQueueInfos(std::set<uint32_t> queueFamilyIndices)
 {
        	// キュー作成情報用のベクター
     	std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;

@@ -35,7 +35,7 @@ private:
     std::vector<vk::PhysicalDevice> m_PhysicalDevices;
     vk::Instance m_instance;
 
-    std::vector<vk::DeviceQueueCreateInfo> CreateQueueInfos(std::set<int> queues);
+    std::vector<vk::DeviceQueueCreateInfo> CreateQueueInfos(std::set<uint32_t> queues);
 
     //物理デバイスがサーフェスに対応しているか確認
     bool CheckSupportSurface(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);

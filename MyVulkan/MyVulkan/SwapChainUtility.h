@@ -35,16 +35,12 @@ private:
 	//vk::ImageView CreateImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags);
 	// サーフェスの機能を取得
 	//vk::SurfaceCapabilitiesKHR GetSurfaceCapabilities(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
-	// スワップチェーンのフォーマットを選択する関数
-	vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
-	// スワップチェーンのプレゼントモードを選択する関数
-	vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
-	// スワップチェーンのエクステントを選択する関数
-	vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities);
 
-	
-	std::vector<vk::SurfaceFormatKHR> GetSurfaceFormats(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
-	std::vector<vk::PresentModeKHR> GetPresentModes(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	// スワップチェーンのフォーマットを選択する関数
+	vk::SurfaceFormatKHR SelectSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
+	// スワップチェーンのプレゼントモードを選択する関数
+	vk::PresentModeKHR SelectPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
+
 };
 
 // スワップチェーンについて
@@ -59,7 +55,7 @@ private:
 // サーフェスによって上限・下限枚数が決まっているのでその範囲内の数値を入れる。
 // 作成した画像をそのまま表示するだけなら"1"
 // ダブル・トリプルバッファリングにするなら"2"や"3"にする
-// オススメは"3"
+// なるべく"3"にしたほうが滑らかになる
 
 // imageFormat		:画像の形式(色のビット深度、チャネルの順序、圧縮形式、データの符号化方法等...)
 // imageColorSpace	:画像の色空間
@@ -75,8 +71,8 @@ private:
 
 // imageArrayLayers
 // よく分からない項目。
-// とりあえず2次元の画像なら"1"にしとけばOK
-// 
+// とりあえず平面の画像なら"1"にしとけばOK
+
 
 // imageUsage
 // 画像の使用用途の設定。
@@ -144,7 +140,7 @@ private:
 
 // clipped
 // 画面の表示されていない部分まで計算するか決める
-// TRUEで画面外は計算しなくなる
+// "TRUE"で画面外は計算しなくなる
  
 // oldSwapchain
 // ウィンドウのサイズ変更や表示モードの変更等で

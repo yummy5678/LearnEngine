@@ -55,11 +55,11 @@ vk::RenderPass RenderpassGenerator::GetRenderpass()
     //m_pLogicalDevice->destroyRenderPass(m_RenderPass, nullptr);
 //}
 
-vk::AttachmentDescription* RenderpassGenerator::CreateColorAttachment(const vk::SurfaceFormatKHR imageFormat)
+std::vector<vk::AttachmentDescription> RenderpassGenerator::CreateColorAttachment(const vk::SurfaceFormatKHR imageFormat)
 {
     // カラーバッファアタッチメントの記述
     m_ColorAttachment.flags;
-    m_ColorAttachment.format = imageFormat.format;                          // スワップチェーンのイメージフォーマット
+    m_ColorAttachment.format = imageFormat.format;                          // 画像フォーマット(画像作成時の設定と同じにする)
     m_ColorAttachment.samples = vk::SampleCountFlagBits::e1;                // マルチサンプリングのサンプル数
     m_ColorAttachment.loadOp = vk::AttachmentLoadOp::eClear;                // レンダーパスの開始時にカラーバッファをクリア
     m_ColorAttachment.storeOp = vk::AttachmentStoreOp::eStore;              // レンダーパスの終了時にカラーバッファを保存
@@ -68,10 +68,10 @@ vk::AttachmentDescription* RenderpassGenerator::CreateColorAttachment(const vk::
     m_ColorAttachment.initialLayout = vk::ImageLayout::eUndefined;          // レンダーパス開始前のレイアウト
     m_ColorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;        // レンダーパス終了後のレイアウト（表示用）
     
-    return &m_ColorAttachment;
+    return std::vector{ m_ColorAttachment };
 }
 
-vk::SubpassDescription* RenderpassGenerator::CreateSubpass()
+std::vector<vk::SubpassDescription> RenderpassGenerator::CreateSubpass()
 {
     // アタッチメント参照
     // サブパスからレンダリング結果の色を出力するアタッチメントがどれかを指定します
@@ -90,10 +90,10 @@ vk::SubpassDescription* RenderpassGenerator::CreateSubpass()
     m_Subpass.preserveAttachmentCount;
     m_Subpass.pPreserveAttachments = nullptr;
 
-    return &m_Subpass;
+    return std::vector{ m_Subpass };
 }
 
-std::vector<vk::SubpassDependency>* RenderpassGenerator::CreateDependencies()
+std::vector<vk::SubpassDependency> RenderpassGenerator::CreateDependencies()
 {
     // サブパス依存関係の記述
     // レイアウト遷移が発生するタイミングをサブパス依存関係を使用して決定する必要があります
@@ -115,25 +115,28 @@ std::vector<vk::SubpassDependency>* RenderpassGenerator::CreateDependencies()
     m_Dependencies[1].srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput; // パイプラインステージ
     m_Dependencies[1].srcAccessMask = vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite; // ステージアクセスマスク
     // しかし、次の前で発生する必要があります...
-    m_Dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;                       // サブパスのインデックス
-    m_Dependencies[1].dstStageMask = vk::PipelineStageFlagBits::eBottomOfPipe; // パイプラインステージ
-    m_Dependencies[1].dstAccessMask = vk::AccessFlagBits::eMemoryRead;        // ステージアクセスマスク
-    m_Dependencies[1].dependencyFlags = vk::DependencyFlags();                // 依存関係フラグ
+    m_Dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;                         // サブパスのインデックス
+    m_Dependencies[1].dstStageMask = vk::PipelineStageFlagBits::eBottomOfPipe;  // パイプラインステージ
+    m_Dependencies[1].dstAccessMask = vk::AccessFlagBits::eMemoryRead;          // ステージアクセスマスク
+    m_Dependencies[1].dependencyFlags = vk::DependencyFlags();                  // 依存関係フラグ
 
-    return &m_Dependencies;
+    return m_Dependencies;
 }
 
-vk::RenderPassCreateInfo RenderpassGenerator::CreateInfo(vk::AttachmentDescription* colorAttachment, vk::SubpassDescription* subpass, std::vector<vk::SubpassDependency>* dependencies)
+vk::RenderPassCreateInfo RenderpassGenerator::CreateInfo(
+    std::vector<vk::AttachmentDescription>& colorAttachment, 
+    std::vector<vk::SubpassDescription>& subpass, 
+    std::vector<vk::SubpassDependency>& dependencies)
 {
     // レンダーパスの記述
-    m_RenderPassInfo.pNext = nullptr;
-    m_RenderPassInfo.flags = {};
-    m_RenderPassInfo.attachmentCount = 1;                // アタッチメントの数
-    m_RenderPassInfo.pAttachments = colorAttachment; // アタッチメントの記述
-    m_RenderPassInfo.subpassCount = 1;                // サブパスの数
-    m_RenderPassInfo.pSubpasses = subpass;         // サブパスの記述
-    m_RenderPassInfo.dependencyCount = (uint32_t)dependencies->size();   // サブパス依存関係の数
-    m_RenderPassInfo.pDependencies = dependencies->data();      // サブパス依存関係の記述
+    m_RenderPassInfo.pNext;
+    m_RenderPassInfo.flags;
+    m_RenderPassInfo.attachmentCount    = colorAttachment.size();   // アタッチメントの数
+    m_RenderPassInfo.pAttachments       = colorAttachment.data();   // アタッチメントの記述
+    m_RenderPassInfo.subpassCount       = subpass.size();           // サブパスの数
+    m_RenderPassInfo.pSubpasses         = subpass.data();           // サブパスの記述
+    m_RenderPassInfo.dependencyCount    = dependencies.size();      // サブパス依存関係の数
+    m_RenderPassInfo.pDependencies      = dependencies.data();      // サブパス依存関係の記述
 
     return m_RenderPassInfo;
 }
