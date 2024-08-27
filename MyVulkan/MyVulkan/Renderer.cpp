@@ -68,6 +68,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 
 
 		//コマンドの記録
+		m_CommandGenerator.Create(logicalDevice, physicalDevice, 3);
 		//m_CommandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
 
 		synchronizationGenerator.Create(logicalDevice);

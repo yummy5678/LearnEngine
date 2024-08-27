@@ -305,7 +305,7 @@ vk::GraphicsPipelineCreateInfo PipelineGenerator::CreateGraphicsPipelineInfo(vk:
 	pipelineInfo.flags;
 	pipelineInfo.stageCount			= m_ShaderStageInfos.size();	// シェーダーステージの数
 	pipelineInfo.pStages			= m_ShaderStageInfos.data();	// シェーダーステージのリスト
-	pipelineInfo.pVertexInputState	= &m_VertexInputCreateInfo;	// すべての固定機能パイプラインステート
+	pipelineInfo.pVertexInputState	= &m_VertexInputCreateInfo;		// すべての固定機能パイプラインステート
 	pipelineInfo.pInputAssemblyState= &m_InputAssemblyInfo;
 	pipelineInfo.pTessellationState	= nullptr;					//未作成
 	pipelineInfo.pViewportState		= viewportStateCreateInfo;

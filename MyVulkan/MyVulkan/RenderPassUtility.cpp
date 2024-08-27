@@ -57,25 +57,26 @@ vk::RenderPass RenderpassGenerator::GetRenderpass()
 
 std::vector<vk::AttachmentDescription> RenderpassGenerator::CreateColorAttachment(const vk::SurfaceFormatKHR imageFormat)
 {
+    vk::AttachmentDescription attachment;
     // カラーバッファアタッチメントの記述
-    m_ColorAttachment.flags;
-    m_ColorAttachment.format = imageFormat.format;                          // 画像フォーマット(画像作成時の設定と同じにする)
-    m_ColorAttachment.samples = vk::SampleCountFlagBits::e1;                // マルチサンプリングのサンプル数
-    m_ColorAttachment.loadOp = vk::AttachmentLoadOp::eClear;                // レンダーパスの開始時にカラーバッファをクリア
-    m_ColorAttachment.storeOp = vk::AttachmentStoreOp::eStore;              // レンダーパスの終了時にカラーバッファを保存
-    m_ColorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;      // ステンシルバッファを使用しない
-    m_ColorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;    // ステンシルバッファを使用しない
-    m_ColorAttachment.initialLayout = vk::ImageLayout::eUndefined;          // レンダーパス開始前のレイアウト
-    m_ColorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;        // レンダーパス終了後のレイアウト（表示用）
+    attachment.flags;
+    attachment.format = imageFormat.format;                          // 画像フォーマット(画像作成時の設定と同じにする)
+    attachment.samples = vk::SampleCountFlagBits::e1;                // マルチサンプリングのサンプル数
+    attachment.loadOp = vk::AttachmentLoadOp::eClear;                // レンダーパスの開始時にカラーバッファをクリア
+    attachment.storeOp = vk::AttachmentStoreOp::eStore;              // レンダーパスの終了時にカラーバッファを保存
+    attachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;      // ステンシルバッファを使用しない
+    attachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;    // ステンシルバッファを使用しない
+    attachment.initialLayout = vk::ImageLayout::eUndefined;          // レンダーパス開始前のレイアウト
+    attachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;        // レンダーパス終了後のレイアウト（表示用）
     
-    return std::vector{ m_ColorAttachment };
+    return std::vector{ attachment };
 }
 
 std::vector<vk::SubpassDescription> RenderpassGenerator::CreateSubpass()
 {
     // アタッチメント参照
     // サブパスからレンダリング結果の色を出力するアタッチメントがどれかを指定します
-    m_ColorAttachmentRef.attachment = 0;                                        // アタッチメントのインデックス
+    m_ColorAttachmentRef.attachment = 0;                                    // アタッチメントのインデックス
     m_ColorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal; // アタッチメントのレイアウト
 
     // サブパスの記述

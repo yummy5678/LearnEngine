@@ -35,67 +35,61 @@ private:
 };
 
 // レンダーパスについて
-// 描画の処理順序を定義した情報が入るオブジェクト
+// 描画の処理手順を定義するオブジェクト
 // アタッチメント、サブパス、サブパス依存関係の3つの要素で構成されている。
-// 
-// アタッチメントについて
-// 作成関数のアタッチメントの値はnullptrにしても構わないが、
-// 基本的には何かしらの値が入る
+
+// アタッチメント(画像データ)について
+// レンダーパスで扱う画像データの詳細を定義するための構造体
+
 // fomat
-// 画像の形式フォーマット。描画対象の画像データと同じものを入れる。
+// 画像の形式フォーマット。(色の種類、ビット深度)
+// 描画対象の画像データと同じものを入れる。
 // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkFormat.html
-// 
+
 // samples
 // マルチサンプリングのサンプル数。
 // (画像の色の平均を細かく取って、物体の輪郭をぼかす技術。数値が大きいほど計算量が増える)
 // 1～64まで2のべき数で好きな値を入れる。描画対象の画像データと同じものを入れる。
+
+// loadOpとは
+// 描画を始める前の画像をどう扱うかの情報。
+// 画像を綺麗にリセットして書き直すか、
+// 前に書いた情報に上から書くか、といった内容。
 // 
-// loadOp
-// レンダーパス開始時にアタッチメントをどう扱うかを決める。
-// VK_ATTACHMENT_LOAD_OP_LOAD		: アタッチメントの既存の内容をそのまま使用します。
-// VK_ATTACHMENT_LOAD_OP_CLEAR		: レンダーパス開始時にアタッチメントを指定した値(クリアカラーや深度値)でクリアします。
-// VK_ATTACHMENT_LOAD_OP_DONT_CARE	: アタッチメントの初期内容を気にしないことを示します。
-// VK_ATTACHMENT_LOAD_OP_NONE_KHR	:アタッチメントの内容を扱わず、特定の初期化操作を行わないことを示します。
+// VK_ATTACHMENT_LOAD_OP_LOAD		: 前回の描画で入っていた画像データをそのまま使う。
+// VK_ATTACHMENT_LOAD_OP_CLEAR		: 値を指定した値(通常は0)で初期化する。
+// VK_ATTACHMENT_LOAD_OP_DONT_CARE	: 前回の描画で入っていた画像データを無視する。初期状態が関係ない時に使う。
+// VK_ATTACHMENT_LOAD_OP_NONE_KHR	: 前回の描画で入っていた画像データを無視する。(詳細は知らん)
 // ※デバイスのVK_KHR_maintenance2拡張機能で利用できる
-// (VK_ATTACHMENT_LOAD_OP_NONE_EXT)	:アタッチメントの内容を扱わず、特定の初期化操作を行わないことを示します。
+// (VK_ATTACHMENT_LOAD_OP_NONE_EXT)	: 前回の描画で入っていた画像データを無視する。(詳細は知らん)
 // ※デバイスのVK_EXT_attachment_feedback_loop拡張機能で利用できる
+
+// storeOpとは
+// 描画した画像データをどう扱うかの情報。
+// 内容を保存するか、しないかといった内容。
 // 
-// storeOp
-// レンダーパスの終了時に描画結果を保持するかどうか決める
-// VK_ATTACHMENT_STORE_OP_STORE		:内容をレンダーパス終了時に保存する。出力にデータを引き継ぐ必要がある。
-// VK_ATTACHMENT_STORE_OP_DONT_CARE	:アタッチメントの内容を保存しない。レンダーパス終了時にデータは無効になる。
-// VK_ATTACHMENT_STORE_OP_NONE		:アタッチメントの内容を保存しない。
-// (VK_ATTACHMENT_STORE_OP_NONE_KHR):アタッチメントの内容を保存しない。
+// VK_ATTACHMENT_STORE_OP_STORE		:描画結果を保存する
+// VK_ATTACHMENT_STORE_OP_DONT_CARE	:描画結果を保存しない。
+// VK_ATTACHMENT_STORE_OP_NONE		:アタッチメントの内容を保存しない。(詳細は知らん)
+// VK_ATTACHMENT_STORE_OP_NONE_KHR  :アタッチメントの内容を保存しない。(詳細は知らん)
 // ※デバイスのVK_KHR_maintenance2拡張機能で利用できる
-//(VK_ATTACHMENT_STORE_OP_NONE_QCOM):アタッチメントの内容を保存しない。
+// VK_ATTACHMENT_STORE_OP_NONE_QCOM :アタッチメントの内容を保存しない。(詳細は知らん)
 // ※デバイスのVK_QCOM_render_pass_transform拡張機能で利用できる
-// (VK_ATTACHMENT_STORE_OP_NONE_EXT):アタッチメントの内容を保存しない。
+// VK_ATTACHMENT_STORE_OP_NONE_EXT  :アタッチメントの内容を保存しない。(詳細は知らん)
 // ※デバイスのVK_EXT_attachment_feedback_loop拡張機能で利用できる
+
+// ステンシルとは
+// 3D描画において、マスク処理のような
+// 描画する場所や、しない場所の画像情報
+
+// レイアウトとは
+// 画像データが描画される前後で、どのようにメモリに配置されるかの定義情報。
 // 
-// stencilLoadOp
-// VK_ATTACHMENT_LOAD_OP_LOAD		:ステンシルバッファの既存の内容をそのまま使用する。
-// VK_ATTACHMENT_LOAD_OP_CLEAR		:ステンシルバッファの内容をレンダーパス開始時に指定した値で初期化する
-// VK_ATTACHMENT_LOAD_OP_DONT_CARE	:ステンシルバッファを使用しない
-// VK_ATTACHMENT_LOAD_OP_NONE_EXT	:
-// ※デバイスのVK_EXT_attachment_feedback_loop拡張機能で利用できる
-// VK_ATTACHMENT_LOAD_OP_NONE_KHR	:
-// ※デバイスのVK_KHR_maintenance2拡張機能で利用できる
-// 
-// stencilStoreOp
-// VK_ATTACHMENT_STORE_OP_STORE		:レンダーパス終了時にステンシルバッファの内容を次に保存する。
-// VK_ATTACHMENT_STORE_OP_DONT_CARE	:ステンシルバッファの内容を次に保存しない。
-// VK_ATTACHMENT_STORE_OP_NONE		:ステンシルバッファを使用しない。
-// VK_ATTACHMENT_STORE_OP_NONE_KHR	:
-// ※デバイスのVK_KHR_maintenance2拡張機能で利用できる
-// VK_ATTACHMENT_STORE_OP_NONE_QCOM	:
-// ※デバイスのVK_QCOM_render_pass_transform拡張機能で利用できる
-// VK_ATTACHMENT_STORE_OP_NONE_EXT	:
-// ※デバイスのVK_EXT_attachment_feedback_loop拡張機能で利用できる
-// 
-// initialLayout
-// 
-// 
-// 
+// VK_IMAGE_LAYOUT_UNDEFINED				:使い道が未定義なレイアウト
+// VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL	:描画結果を保存するレイアウト
+// VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL	:シェーダーが画像を読み取るだけなレイアウト
+// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR			:画面に画像を表示するレイアウト
+
 // 
 // 
 // 
