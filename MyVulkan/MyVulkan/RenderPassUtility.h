@@ -10,22 +10,36 @@ public:
 	~RenderpassGenerator();
 
 	void Create(vk::Device logicalDevice, const vk::SurfaceFormatKHR imageFormat);
-	void Destroy(vk::Device logicalDevice);
+	void Destroy();
 
 	vk::RenderPass							GetRenderpass();
 
 private:
 	vk::Device								m_LogicalDevice;
 	vk::AttachmentDescription				m_ColorAttachment;
+
+	// アタッチメントリファレンス(アタッチメントの参照情報)
+	vk::AttachmentReference					m_InputAttachmentRef;
 	vk::AttachmentReference					m_ColorAttachmentRef;
+	vk::AttachmentReference					m_ResolveAttachmentRef;
+	vk::AttachmentReference					m_DepthStencilAttachmentRef;
+	vk::AttachmentReference					m_PreserveAttachmentRef;
+
 	vk::SubpassDescription					m_Subpass;
 	std::vector<vk::SubpassDependency>		m_Dependencies;
 	vk::RenderPassCreateInfo				m_RenderPassInfo;
 	vk::RenderPass							m_RenderPass;
 
-	vk::RenderPass							CreateRenderpass(vk::Device logicalDevice, const vk::SurfaceFormatKHR imageFormat);
-	std::vector<vk::AttachmentDescription>	CreateColorAttachment(const vk::SurfaceFormatKHR imageFormat);
-	std::vector<vk::SubpassDescription>		CreateSubpass();
+	// プライベート関数
+	vk::AttachmentDescription				CreateColorAttachment(const vk::SurfaceFormatKHR imageFormat);
+	vk::AttachmentReference					CreateColorAttachmentReference();
+	std::vector<vk::SubpassDescription>		CreateSubpass(
+		std::vector<vk::AttachmentReference> inputReferences		= {},
+		std::vector<vk::AttachmentReference> colorReferences		= {},
+		std::vector<vk::AttachmentReference> resolveReferences		= {},
+		std::vector<vk::AttachmentReference> depthStencilReferences	= {},
+		std::vector<vk::AttachmentReference> preserveReferences		= {}
+	);
 	std::vector<vk::SubpassDependency>		CreateDependencies();
 
 	vk::RenderPassCreateInfo				CreateInfo(	std::vector<vk::AttachmentDescription>& colorAttachment, 
@@ -82,22 +96,38 @@ private:
 // 3D描画において、マスク処理のような
 // 描画する場所や、しない場所の画像情報
 
-// レイアウトとは
-// 画像データが描画される前後で、どのようにメモリに配置されるかの定義情報。
+// (イメージ)レイアウトとは
+// 画像データが描画される前後で、どのようにメモリに配置、最適化されるかの定義情報。
 // 
 // VK_IMAGE_LAYOUT_UNDEFINED				:使い道が未定義なレイアウト
 // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL	:描画結果を保存するレイアウト
 // VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL	:シェーダーが画像を読み取るだけなレイアウト
 // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR			:画面に画像を表示するレイアウト
+// その他レイアウト	:https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImageLayout.html
 
-// 
-// 
-// 
-// 
+
+
 // サブパスについて
+// 画像データをどう処理するかについて定義するための構造体
+// 使用しないアタッチメントについては省略して書いても構わない。
+// 以下サブパスに入るアタッチメントの内容
+// inputAttachments(入力アタッチメント)					:前のサブパスの画像データを指定
+// colorAttachments(カラーアタッチメント)				:描画結果を保持するアタッチメントを指定
+// resolveAttachments(リゾルブアタッチメント)			:マルチサンプリングされた画像を、通常の画像に変換して保存するアタッチメントを指定
+// depthStencilAttachment(深度ステンシルアタッチメント)	:深度(奥行き)やステンシル(ピクセル単位の描画制御)情報を保存するアタッチメントを指定
+// preserveAttachments(保存アタッチメント)				:次のサブパスで引き続き使うために保存しておくアタッチメントを指定
+
+// vk::AttachmentReferenceについて
+// attachment	:使用するアタッチメントを指定するインデックス番号(よく分らん)
+// layout		:そのアタッチメントがどのようなイメージレイアウトで使用されるかを指定する。
+
+// pipelineBindPoint
+// 描画処理に使うか計算処理に使うかを決める
 // 
-// 
-// 
+// VK_PIPELINE_BIND_POINT_GRAPHICS	:描画用のパイプラインに結び付ける
+// VK_PIPELINE_BIND_POINT_COMPUTE	:計算用のパイプラインに結び付ける
+
+
 // サブパス依存関係について
 // 
 // 

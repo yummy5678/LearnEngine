@@ -14,34 +14,27 @@ void RenderpassGenerator::Create(vk::Device logicalDevice, const vk::SurfaceForm
 {
     m_bCreated = true;
     m_LogicalDevice = logicalDevice;
-    m_RenderPass = CreateRenderpass(logicalDevice, imageFormat);
+
+    auto colorAttachment = CreateColorAttachment(imageFormat);
+    auto subpass = CreateSubpass();
+    auto dependencies = CreateDependencies();
+
+    auto createInfo = CreateInfo(colorAttachment, subpass, dependencies);
+    m_RenderPass = logicalDevice.createRenderPass(createInfo);
+    //if (!renderPass)
+    //{
+    //    throw std::runtime_error("レンダーパスの作成に失敗しました!");
+    //}
 }
 
-void RenderpassGenerator::Destroy(vk::Device logicalDevice)
+void RenderpassGenerator::Destroy()
 {
     //作成フラグが立っていない場合は解放処理も行わない
     if (m_bCreated == false) return;
     m_bCreated = false;
 
     // レンダーパスの解放
-    vkDestroyRenderPass(logicalDevice, m_RenderPass, nullptr);
-}
-
-vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice, const vk::SurfaceFormatKHR imageFormat)
-{
-    auto colorAttachment = CreateColorAttachment(imageFormat);
-    auto subpass = CreateSubpass();
-    auto dependencies = CreateDependencies();
-
-    auto createInfo = CreateInfo(colorAttachment, subpass, dependencies);
-
-    //レンダーパスを作成
-
-    return logicalDevice.createRenderPass(createInfo);
-    //if (!renderPass)
-    //{
-    //    throw std::runtime_error("レンダーパスの作成に失敗しました!");
-    //}
+    m_LogicalDevice.destroyRenderPass(m_RenderPass);
 }
 
 vk::RenderPass RenderpassGenerator::GetRenderpass()
@@ -72,26 +65,42 @@ std::vector<vk::AttachmentDescription> RenderpassGenerator::CreateColorAttachmen
     return std::vector{ attachment };
 }
 
-std::vector<vk::SubpassDescription> RenderpassGenerator::CreateSubpass()
+vk::AttachmentReference RenderpassGenerator::CreateColorAttachmentReference()
+{
+    vk::AttachmentReference reference;
+    // サブパスから描画結果の色を出力するアタッチメントがどれかを指定します
+    reference.attachment = 0;                                    // アタッチメントのインデックス
+    reference.layout = vk::ImageLayout::eColorAttachmentOptimal; // アタッチメントのレイアウト
+    return reference;
+}
+
+std::vector<vk::SubpassDescription> RenderpassGenerator::CreateSubpass(
+    std::vector<vk::AttachmentReference> inputReferences = {},
+    std::vector<vk::AttachmentReference> colorReferences = {},
+    std::vector<vk::AttachmentReference> resolveReferences = {},
+    std::vector<vk::AttachmentReference> depthStencilReferences = {},
+    std::vector<vk::AttachmentReference> preserveReferences = {})
 {
     // アタッチメント参照
-    // サブパスからレンダリング結果の色を出力するアタッチメントがどれかを指定します
-    m_ColorAttachmentRef.attachment = 0;                                    // アタッチメントのインデックス
-    m_ColorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal; // アタッチメントのレイアウト
+    // サブパスから描画結果の色を出力するアタッチメントがどれかを指定します
+    //m_ColorAttachmentRef.attachment = 0;                                    // アタッチメントのインデックス
+    //m_ColorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal; // アタッチメントのレイアウト
 
     // サブパスの記述
-    m_Subpass.flags = {};
-    m_Subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;  // グラフィックスパイプラインにバインド
-    m_Subpass.inputAttachmentCount;
-    m_Subpass.pInputAttachments = nullptr;
-    m_Subpass.colorAttachmentCount = 1;  // カラーバッファアタッチメントの数
-    m_Subpass.pColorAttachments = &m_ColorAttachmentRef;  // カラーバッファアタッチメントの参照
-    m_Subpass.pResolveAttachments = nullptr;
-    m_Subpass.pDepthStencilAttachment = nullptr;
-    m_Subpass.preserveAttachmentCount;
-    m_Subpass.pPreserveAttachments = nullptr;
+    vk::SubpassDescription subpass;
+    subpass.flags;
+    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;  // グラフィックスパイプラインにバインド
+    subpass.inputAttachmentCount;
+    subpass.pInputAttachments = nullptr;
+    subpass.colorAttachmentCount = colorReferences.size();  // カラーバッファアタッチメントの数
+    subpass.pColorAttachments = colorReferences.data();  // カラーバッファアタッチメントの参照
+    subpass.resolveAttachmentCount
+    subpass.pResolveAttachments = resolveReferences.data();
+    subpass.pDepthStencilAttachment = nullptr;
+    subpass.preserveAttachmentCount = preserveReferences.size();
+    subpass.pPreserveAttachments = preserveReferences.data();
 
-    return std::vector{ m_Subpass };
+    return std::vector{ subpass };
 }
 
 std::vector<vk::SubpassDependency> RenderpassGenerator::CreateDependencies()
