@@ -34,17 +34,16 @@ private:
 	vk::AttachmentDescription				CreateColorAttachment(const vk::SurfaceFormatKHR imageFormat);
 	vk::AttachmentReference					CreateColorAttachmentReference();
 	std::vector<vk::SubpassDescription>		CreateSubpass(
-		std::vector<vk::AttachmentReference> inputReferences		= {},
-		std::vector<vk::AttachmentReference> colorReferences		= {},
-		std::vector<vk::AttachmentReference> resolveReferences		= {},
-		std::vector<vk::AttachmentReference> depthStencilReferences	= {},
-		std::vector<vk::AttachmentReference> preserveReferences		= {}
-	);
+		std::vector<vk::AttachmentReference> inputReferences = {},
+		std::vector<vk::AttachmentReference> colorReferences = {},
+		vk::AttachmentReference resolveReferences			 = {},
+		vk::AttachmentReference depthStencilReferences		 = {},
+		std::vector<uint32_t> preserveReferences			 = {});
 	std::vector<vk::SubpassDependency>		CreateDependencies();
 
 	vk::RenderPassCreateInfo				CreateInfo(	std::vector<vk::AttachmentDescription>& colorAttachment, 
-														std::vector<vk::SubpassDescription>& subpass, 
-														std::vector<vk::SubpassDependency>& dependencies);
+														std::vector<vk::SubpassDescription>&	subpass, 
+														std::vector<vk::SubpassDependency>&		dependencies);
 
 };
 
@@ -53,7 +52,7 @@ private:
 // アタッチメント、サブパス、サブパス依存関係の3つの要素で構成されている。
 
 // アタッチメント(画像データ)について
-// レンダーパスで扱う画像データの詳細を定義するための構造体
+// レンダーパスで扱う画像データを定義するための構造体
 
 // fomat
 // 画像の形式フォーマット。(色の種類、ビット深度)
@@ -80,7 +79,7 @@ private:
 
 // storeOpとは
 // 描画した画像データをどう扱うかの情報。
-// 内容を保存するか、しないかといった内容。
+// レンダーパス終了時に内容を保存するか、しないかといった内容。
 // 
 // VK_ATTACHMENT_STORE_OP_STORE		:描画結果を保存する
 // VK_ATTACHMENT_STORE_OP_DONT_CARE	:描画結果を保存しない。
@@ -111,11 +110,13 @@ private:
 // 画像データをどう処理するかについて定義するための構造体
 // 使用しないアタッチメントについては省略して書いても構わない。
 // 以下サブパスに入るアタッチメントの内容
-// inputAttachments(入力アタッチメント)					:前のサブパスの画像データを指定
-// colorAttachments(カラーアタッチメント)				:描画結果を保持するアタッチメントを指定
-// resolveAttachments(リゾルブアタッチメント)			:マルチサンプリングされた画像を、通常の画像に変換して保存するアタッチメントを指定
-// depthStencilAttachment(深度ステンシルアタッチメント)	:深度(奥行き)やステンシル(ピクセル単位の描画制御)情報を保存するアタッチメントを指定
-// preserveAttachments(保存アタッチメント)				:次のサブパスで引き続き使うために保存しておくアタッチメントを指定
+// inputAttachments(入力アタッチメント)					:読み込むデータ(アタッチメント)
+// colorAttachments(カラーアタッチメント)				:出力結果を書き込むデータ(アタッチメント)
+// resolveAttachments(リゾルブアタッチメント)			:マルチサンプリングされた画像を、通常の画像に変換して保存するデータ(アタッチメント)
+// ※リゾルブアタッチメントの数はカラーアタッチメントの数と同じと自動で推測される
+// depthStencilAttachment(深度ステンシルアタッチメント)	:深度(奥行き)やステンシル(ピクセル単位の描画制御)情報を保存するデータ(アタッチメント)
+// ※深度ステンシルは1つしかないので数を書き込む必要がない
+// preserveAttachments(保存アタッチメント)				:次のサブパスで引き続き使うために保存しておくデータ(アタッチメント)を指定
 
 // vk::AttachmentReferenceについて
 // attachment	:使用するアタッチメントを指定するインデックス番号(よく分らん)
@@ -125,10 +126,21 @@ private:
 // 描画処理に使うか計算処理に使うかを決める
 // 
 // VK_PIPELINE_BIND_POINT_GRAPHICS	:描画用のパイプラインに結び付ける
-// VK_PIPELINE_BIND_POINT_COMPUTE	:計算用のパイプラインに結び付ける
+// VK_PIPELINE_BIND_POINT_COMPUTE	:計算用のパイプラインに結び付ける(拡張機能が必要)
 
 
 // サブパス依存関係について
+// サブパス間の依存関係を定義するための構造体。
+// あるサブパスが他のサブパスの処理が終わるまで待つように指示できる。
+// 
+// srcSubpass(ソースサブパス)
+// dstSubpass(デスティネーションサブパス)について
+// ソースサブパスは先に処理されるサブパス
+// デスティネーションサブパスはソースサブパスの後に処理される
+
+// StageMask()
+// 
+// 
 // 
 // 
 // 

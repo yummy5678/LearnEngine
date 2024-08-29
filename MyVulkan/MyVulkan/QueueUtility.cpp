@@ -14,28 +14,28 @@ QueueFamilySelector::~QueueFamilySelector()
 
 uint32_t QueueFamilySelector::GetGraphicIndex()
 {	
-	if(m_GraphicsFamilyIndex == Number_NoneQueue) m_GraphicsFamilyIndex = SearchGraphicsFamily();
+	if(m_GraphicsFamilyIndex == NoneQueueNumber) m_GraphicsFamilyIndex = SearchGraphicsFamily();
 	std::cout << "描画ファミリー" << m_GraphicsFamilyIndex << "を返します" << std::endl;
 	return m_GraphicsFamilyIndex;
 }
 
 uint32_t QueueFamilySelector::GetComputeIndex()
 {
-	if (m_ComputeFamilyIndex == Number_NoneQueue) m_ComputeFamilyIndex = SearchComputeFamily();
+	if (m_ComputeFamilyIndex == NoneQueueNumber) m_ComputeFamilyIndex = SearchComputeFamily();
 	std::cout << "計算ファミリー" << m_GraphicsFamilyIndex << "を返します" << std::endl;
 	return m_ComputeFamilyIndex;
 }
 
 uint32_t QueueFamilySelector::GetTransferIndex()
 {
-	if (m_TransferFamilyIndex == Number_NoneQueue) m_TransferFamilyIndex = SearchTransferFamily();
+	if (m_TransferFamilyIndex == NoneQueueNumber) m_TransferFamilyIndex = SearchTransferFamily();
 	std::cout << "転送ファミリー" << m_GraphicsFamilyIndex << "を返します" << std::endl;
 	return m_TransferFamilyIndex;
 }
 
 uint32_t QueueFamilySelector::GetPresentationIndex(vk::SurfaceKHR surface)
 {
-	if (m_PresentationFamilyIndex == Number_NoneQueue) m_PresentationFamilyIndex = SearchPresentationFamily(surface);
+	if (m_PresentationFamilyIndex == NoneQueueNumber) m_PresentationFamilyIndex = SearchPresentationFamily(surface);
 	std::cout << "表示ファミリー" << m_GraphicsFamilyIndex << "を返します" << std::endl;
 	return m_PresentationFamilyIndex;
 }
@@ -46,7 +46,7 @@ uint32_t QueueFamilySelector::SearchGraphicsFamily()
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
 	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
-	uint32_t index = Number_NoneQueue;
+	uint32_t index = NoneQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
 	{
@@ -68,7 +68,7 @@ uint32_t QueueFamilySelector::SearchComputeFamily()
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
 	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
-	uint32_t index = Number_NoneQueue;
+	uint32_t index = NoneQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
 	{
@@ -90,7 +90,7 @@ uint32_t QueueFamilySelector::SearchTransferFamily()
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
 	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
-	uint32_t index = Number_NoneQueue;
+	uint32_t index = NoneQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
 	{
@@ -112,7 +112,7 @@ uint32_t QueueFamilySelector::SearchPresentationFamily(vk::SurfaceKHR surface)
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
 	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
-	uint32_t index = Number_NoneQueue;
+	uint32_t index = NoneQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
 	{

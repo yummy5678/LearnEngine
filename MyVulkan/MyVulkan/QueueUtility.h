@@ -4,7 +4,7 @@
 #include <set>
 
 //キューを作成するときの初期値
-constexpr uint32_t Number_NoneQueue = -1;
+constexpr uint32_t NoneQueueNumber = UINT32_MAX;   //キューが見つかったかの判定に使う値
 
 class QueueFamilySelector
 {
@@ -20,10 +20,10 @@ public:
 
 private:   
     vk::PhysicalDevice m_PhysicalDevice;
-    uint32_t m_GraphicsFamilyIndex       = Number_NoneQueue;  // 描画用キューファミリーの場所
-    uint32_t m_ComputeFamilyIndex        = Number_NoneQueue;  // 計算用キューファミリーの場所
-    uint32_t m_TransferFamilyIndex       = Number_NoneQueue;  // 転送用キューファミリーの場所
-    uint32_t m_PresentationFamilyIndex   = Number_NoneQueue;  // プレゼンテーションキューファミリー(画像の表示)の場所
+    uint32_t m_GraphicsFamilyIndex       = NoneQueueNumber;  // 描画用キューファミリーの場所
+    uint32_t m_ComputeFamilyIndex        = NoneQueueNumber;  // 計算用キューファミリーの場所
+    uint32_t m_TransferFamilyIndex       = NoneQueueNumber;  // 転送用キューファミリーの場所
+    uint32_t m_PresentationFamilyIndex   = NoneQueueNumber;  // プレゼンテーションキューファミリー(画像の表示)の場所
 
     // キュー作成情報用のベクター
     std::vector<vk::DeviceQueueCreateInfo> m_QueueCreateInfos;

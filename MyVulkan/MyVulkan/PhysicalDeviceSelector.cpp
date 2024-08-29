@@ -19,7 +19,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectGraphicsDevice()
 	{
         QueueFamilySelector queueFamily(device);
 		//デバイスが使用する拡張機能、
-		if (queueFamily.GetGraphicIndex() != Number_NoneQueue)
+		if (queueFamily.GetGraphicIndex() != NoneQueueNumber)
 		{
 			// 適切なデバイスが見つかった
             return { device, CreateQueueInfos({queueFamily.GetGraphicIndex()}) };
@@ -36,7 +36,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectComputeDevice()
     for (const auto& device : m_PhysicalDevices)
     {
         QueueFamilySelector queueFamily(device);
-        if (queueFamily.GetComputeIndex() != Number_NoneQueue)
+        if (queueFamily.GetComputeIndex() != NoneQueueNumber)
         {
             // 適切なデバイスが見つかった
             return { device, CreateQueueInfos({queueFamily.GetComputeIndex()}) };
@@ -53,7 +53,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectTransferDevice()
     for (const auto& device : m_PhysicalDevices)
     {
         QueueFamilySelector queueFamily(device);
-        if (queueFamily.GetTransferIndex() != Number_NoneQueue)
+        if (queueFamily.GetTransferIndex() != NoneQueueNumber)
         {
             // 適切なデバイスが見つかった
             return { device, CreateQueueInfos({queueFamily.GetComputeIndex()}) };
@@ -72,8 +72,8 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice(vk::Surfac
         //描画用キューと表示用キューが存在し、
         //スワップチェーン拡張機能にも対応している
         QueueFamilySelector queueFamily(device);
-        if (queueFamily.GetGraphicIndex()               != Number_NoneQueue &&
-            queueFamily.GetPresentationIndex(surface)   != Number_NoneQueue &&
+        if (queueFamily.GetGraphicIndex()               != NoneQueueNumber &&
+            queueFamily.GetPresentationIndex(surface)   != NoneQueueNumber &&
             CheckSupportSurface(device,surface) == true                     &&
             CheckExtensionNames(device, { VK_KHR_SWAPCHAIN_EXTENSION_NAME }) == true)
         {
