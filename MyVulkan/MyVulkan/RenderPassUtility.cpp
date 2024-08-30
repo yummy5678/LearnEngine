@@ -84,21 +84,21 @@ std::vector<vk::SubpassDescription> RenderpassGenerator::CreateSubpass(
 {
     // アタッチメント参照
     // サブパスから描画結果の色を出力するアタッチメントがどれかを指定します
-    //m_ColorAttachmentRef.attachment = 0;                                    // アタッチメントのインデックス
-    //m_ColorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal; // アタッチメントのレイアウト
+    m_ColorAttachmentRef.attachment = 0;                                    // アタッチメントのインデックス
+    m_ColorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal; // アタッチメントのレイアウト
 
     // サブパスの記述
     vk::SubpassDescription subpass;
     subpass.flags;
     subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;  // グラフィックスパイプラインにバインド
-    subpass.inputAttachmentCount = inputReferences.size();
-    subpass.pInputAttachments = inputReferences.data();
-    subpass.colorAttachmentCount = colorReferences.size();  // カラーバッファアタッチメントの数
-    subpass.pColorAttachments = colorReferences.data();  // カラーバッファアタッチメントの参照
-    subpass.pResolveAttachments = &resolveReferences;
-    subpass.pDepthStencilAttachment = &depthStencilReferences;
-    subpass.preserveAttachmentCount = preserveReferences.size();
-    subpass.pPreserveAttachments = preserveReferences.data();
+    subpass.inputAttachmentCount = 0;
+    subpass.pInputAttachments = nullptr;
+    subpass.colorAttachmentCount = 1;  // カラーバッファアタッチメントの数
+    subpass.pColorAttachments = &m_ColorAttachmentRef;  // カラーバッファアタッチメントの参照
+    subpass.pResolveAttachments = nullptr;
+    subpass.pDepthStencilAttachment = nullptr;
+    subpass.preserveAttachmentCount = 0;
+    subpass.pPreserveAttachments = nullptr;
 
     return std::vector{ subpass };
 }
