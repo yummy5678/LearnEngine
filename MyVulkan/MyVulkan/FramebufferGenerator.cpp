@@ -14,15 +14,13 @@ FramebufferGenerator::~FramebufferGenerator()
 void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
 {
     m_bCreated = true;
-    // logicalDeviceが有効であるか確認
-    if (!logicalDevice)
-    {
-        throw std::runtime_error("logicalDeviceが無効です！");
-    }
+
     m_LogicalDevice = logicalDevice;
 
+    auto attachments = CreateAttachments(imageViews);
+
     //フレームバッファ作成情報を作成
-    m_FramebufferInfos = CreateFramebufferInfos(imageViews, renderPass, extent);
+    m_FramebufferInfos = CreateFramebufferInfos(attachments, renderPass, extent);
 
     //作成情報からフレームバッファを作成
     for (const auto& info : m_FramebufferInfos)
@@ -42,48 +40,46 @@ void FramebufferGenerator::Destroy()
         m_LogicalDevice.destroyFramebuffer(framebuffer);
 }
 
+std::vector<std::vector<vk::ImageView>> FramebufferGenerator::CreateAttachments(std::vector<vk::ImageView> imageViews)
+{
+    std::vector<std::vector<vk::ImageView>> attachments;
+    attachments.reserve(imageViews.size());
+
+    for (auto &imageView : imageViews)
+    {
+        //1つのフレームに保存する画像の種類
+        std::vector<vk::ImageView> attachment = { imageView };   //ここでは最終出力の色データのみ  
+        attachments.push_back(attachment);
+    }
+
+    return attachments;
+}
+
 std::vector<vk::Framebuffer> FramebufferGenerator::GetFramebuffers()
 {
     CheckCreated();
     return m_Framebuffers;
 }
 
-std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferInfos(std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
+std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferInfos(std::vector<std::vector<vk::ImageView>> attachments, vk::RenderPass renderPass, vk::Extent2D extent)
 {
-    // renderPassが有効であるか確認
-    if (!renderPass)
-    {
-        throw std::runtime_error("renderPassが無効です！");
-    }
-
-    // swapChainImagesが空でないことを確認
-    if (imageViews.empty())
-    {
-        throw std::runtime_error("swapChainImagesが空です！");
-    }
-
     std::vector<vk::FramebufferCreateInfo> framebufferInfos;
-    framebufferInfos.reserve(imageViews.size());
+    framebufferInfos.resize(attachments.size());
 
-    for (const auto& imageView : imageViews)
+    for (int i = 0;i < framebufferInfos.size();i++)
     {
-        if (!imageView)
-        {
-            throw std::runtime_error("ImageViewが無効です！");
-        }
-
-        m_Attachments = { imageView };
-
         vk::FramebufferCreateInfo createInfo;
-        createInfo.renderPass       = renderPass;
-        createInfo.attachmentCount  = (uint32_t)m_Attachments.size();
-        createInfo.pAttachments     = m_Attachments.data();
-        createInfo.width            = extent.width;
-        createInfo.height           = extent.height;
-        createInfo.layers           = 1;
+        createInfo.pNext;
+        createInfo.flags;
+        createInfo.renderPass       = renderPass;                   //依存しているレンダーパス
+        createInfo.attachmentCount  = (uint32_t)attachments[i].size(); //画像の種類数
+        createInfo.pAttachments     = attachments[i].data();           //画像のデータ
+        createInfo.width            = extent.width;                 //画像の幅
+        createInfo.height           = extent.height;                //画像の高さ
+        createInfo.layers           = 1;                            //視点の数
 
         // vk::Framebufferをvk::UniqueFramebufferに変換する
-        framebufferInfos.push_back(createInfo);
+        framebufferInfos[i] = createInfo;
     }
 
     return framebufferInfos;
