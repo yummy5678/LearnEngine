@@ -61,7 +61,7 @@ std::vector<vk::Framebuffer> FramebufferGenerator::GetFramebuffers()
     return m_Framebuffers;
 }
 
-std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferInfos(std::vector<std::vector<vk::ImageView>> attachments, vk::RenderPass renderPass, vk::Extent2D extent)
+std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferInfos(std::vector<std::vector<vk::ImageView>>& attachments, vk::RenderPass renderPass, vk::Extent2D extent)
 {
     std::vector<vk::FramebufferCreateInfo> framebufferInfos;
     framebufferInfos.resize(attachments.size());
