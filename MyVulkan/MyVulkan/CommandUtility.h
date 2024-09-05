@@ -9,53 +9,49 @@ public:
 	CommandGenerator();
 	~CommandGenerator();
 
+	// 作成関数
 	void Create(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice, uint32_t commandSize);
-	void Destroy(vk::Device logicalDevice);
 
-	void RecordCommands(vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline);
+	// 破棄関数
+	void Destroy();
 
-	vk::CommandPool GetPool();
-	std::vector<vk::CommandBuffer> GetBuffers();
+	// コマンドの作成
+	void RecordGraphicCommands(std::vector<vk::Framebuffer> framebuffers, vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline);
+	void RecordGraphicCommands(vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline);
+
+	// 作成されたコマンドプールの取得
+	vk::CommandPool GetCammandPool();
+
+	// 作成されたコマンドバッファ配列の取得
+	std::vector<vk::CommandBuffer> GetCommandBuffers();
 
 
 private:
-	vk::Device						m_LogicalDevice;
-	vk::CommandPool					m_Pool;
-	std::vector<vk::CommandBuffer>	m_Buffers;
+	vk::Device						m_LogicalDevice;	//破棄用に論理デバイスの情報を持っておく
+	vk::CommandPool					m_CommandPool;		//コマンドプール
+	std::vector<vk::CommandBuffer>	m_Buffers;			//コマンドバッファ
 
+	//コマンドプールの作成
 	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice);
+
+	//コマンドバッファの作成(コマンドプールの割り当て)
 	std::vector<vk::CommandBuffer> CreateCommandBuffers(vk::Device logicalDevice, uint32_t commandSize, vk::CommandPool commandPool);
 
 };
 
+// コマンドバッファについて
+// GPUに送る命令の書かれたオブジェクト。
+// GPUにコマンド(命令)を送るには
+// まず、コマンドプール(メモリ上のコマンドを置く為の領域)を確保。
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
 //
-//次のオブジェクト タイプは、Vulkan コマンドに渡されたときに消費され、
-//作成に使用されたオブジェクトによってそれ以上アクセスされることはありません。
-//渡される API コマンドの実行中は破棄してはなりません。
-//VkShaderModule
-//VkPipelineCache
-//VkValidationCacheEXT
-
-//以下コマンドバッファに関するメモ
-//次の Vulkan オブジェクトは、そのオブジェクトを使用するコマンド バッファが保留状態にある間は破棄してはなりません。
-//VkEvent
-//VkQueryPool
-//VkBuffer
-//VkBufferView
-//VkImage
-//VkImageView
-//VkPipeline
-//VkSampler
-//VkSamplerYcbcrConversion
-//VkDescriptorPool
-//VkFramebuffer
-//VkRenderPass
-//VkCommandBuffer
-//VkCommandPool
-//VkDeviceMemory
-//VkDescriptorSet
-//VkIndirectCommandsLayoutNV
-//VkAccelerationStructureNV
-//VkAccelerationStructureKHR
-//VkVideoSessionKHR
-//VkVideoSessionParametersKHR

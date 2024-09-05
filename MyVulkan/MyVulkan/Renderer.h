@@ -52,7 +52,7 @@ private:
 	PipelineGenerator		m_PipelineGenerator;
 	FramebufferGenerator	m_FramebufferGenerator;
 	CommandGenerator		m_CommandGenerator;
-
+	SynchronizationGenerator m_SynchroGenerator;
 
 	
 	// Vulkan Components

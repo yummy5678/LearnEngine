@@ -71,12 +71,12 @@ std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferIn
         vk::FramebufferCreateInfo createInfo;
         createInfo.pNext;
         createInfo.flags;
-        createInfo.renderPass       = renderPass;                   //依存しているレンダーパス
-        createInfo.attachmentCount  = (uint32_t)attachments[i].size(); //画像の種類数
-        createInfo.pAttachments     = attachments[i].data();           //画像のデータ
-        createInfo.width            = extent.width;                 //画像の幅
-        createInfo.height           = extent.height;                //画像の高さ
-        createInfo.layers           = 1;                            //視点の数
+        createInfo.renderPass       = renderPass;                       //依存しているレンダーパス
+        createInfo.attachmentCount  = (uint32_t)attachments[i].size();  //画像の種類数
+        createInfo.pAttachments     = attachments[i].data();            //画像のデータ
+        createInfo.width            = extent.width;                     //画像の幅
+        createInfo.height           = extent.height;                    //画像の高さ
+        createInfo.layers           = 1;                                //視点の数
 
         // vk::Framebufferをvk::UniqueFramebufferに変換する
         framebufferInfos[i] = createInfo;

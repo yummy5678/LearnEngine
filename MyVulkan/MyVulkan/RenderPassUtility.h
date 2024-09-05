@@ -45,6 +45,8 @@ private:
 														std::vector<vk::SubpassDescription>&	subpass, 
 														std::vector<vk::SubpassDependency>&		dependencies);
 
+	vk::RenderPass							CreateRenderpass(vk::Device logicalDevice);
+
 };
 
 // レンダーパスについて

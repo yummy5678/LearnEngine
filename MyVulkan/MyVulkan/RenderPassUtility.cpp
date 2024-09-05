@@ -15,13 +15,14 @@ void RenderpassGenerator::Create(vk::Device logicalDevice, const vk::SurfaceForm
     m_bCreated = true;
     m_LogicalDevice = logicalDevice;
 
-    auto colorAttachment = CreateColorAttachment(imageFormat);
-    auto colorAttachmentReference = CreateColorAttachmentReference();
-    auto subpass = CreateSubpass({}, { colorAttachmentReference }, {}, {}, {});
-    auto dependencies = CreateDependencies();
-    std::vector<vk::AttachmentDescription> a{ colorAttachment };
-    auto createInfo = CreateInfo(a, subpass, dependencies);
-    m_RenderPass = logicalDevice.createRenderPass(createInfo);
+    //auto colorAttachment = CreateColorAttachment(imageFormat);
+    //auto colorAttachmentReference = CreateColorAttachmentReference();
+    //auto subpass = CreateSubpass({}, { colorAttachmentReference }, {}, {}, {});
+    //auto dependencies = CreateDependencies();
+    //std::vector<vk::AttachmentDescription> a{ colorAttachment };
+    //auto createInfo = CreateInfo(a, subpass, dependencies);
+    //m_RenderPass = logicalDevice.createRenderPass(createInfo);
+    m_RenderPass = CreateRenderpass(logicalDevice);
     //if (!renderPass)
     //{
     //    throw std::runtime_error("レンダーパスの作成に失敗しました!");
@@ -149,4 +150,36 @@ vk::RenderPassCreateInfo RenderpassGenerator::CreateInfo(
     m_RenderPassInfo.pDependencies      = dependencies.data();      // サブパス依存関係の記述
 
     return m_RenderPassInfo;
+}
+
+vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice)
+{
+    vk::AttachmentDescription attachments[1];
+    attachments[0].format = vk::Format::eR8G8B8A8Unorm;
+    attachments[0].samples = vk::SampleCountFlagBits::e1;
+    attachments[0].loadOp = vk::AttachmentLoadOp::eDontCare;
+    attachments[0].storeOp = vk::AttachmentStoreOp::eStore;
+    attachments[0].stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    attachments[0].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    attachments[0].initialLayout = vk::ImageLayout::eUndefined;
+    attachments[0].finalLayout = vk::ImageLayout::eGeneral;
+
+    vk::AttachmentReference subpass0_attachmentRefs[1];
+    subpass0_attachmentRefs[0].attachment = 0;
+    subpass0_attachmentRefs[0].layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+    vk::SubpassDescription subpasses[1];
+    subpasses[0].pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+    subpasses[0].colorAttachmentCount = 1;
+    subpasses[0].pColorAttachments = subpass0_attachmentRefs;
+
+    vk::RenderPassCreateInfo renderpassCreateInfo;
+    renderpassCreateInfo.attachmentCount = 1;
+    renderpassCreateInfo.pAttachments = attachments;
+    renderpassCreateInfo.subpassCount = 1;
+    renderpassCreateInfo.pSubpasses = subpasses;
+    renderpassCreateInfo.dependencyCount = 0;
+    renderpassCreateInfo.pDependencies = nullptr;
+
+    return logicalDevice.createRenderPass(renderpassCreateInfo);
 }

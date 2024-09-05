@@ -20,12 +20,13 @@ int main()
 	{
 		return EXIT_FAILURE;
 	}
-
+	vulkanRenderer.draw();
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!m_pWindow.checkCloseWindow())
 	{
 		//ここで毎フレーム更新を行う
 		glfwPollEvents();
+
 	}
 
 	vulkanRenderer.cleanup();

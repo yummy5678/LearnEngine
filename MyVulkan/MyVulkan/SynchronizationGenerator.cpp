@@ -13,6 +13,7 @@ SynchronizationGenerator::~SynchronizationGenerator()
 
 void SynchronizationGenerator::Create(vk::Device logicalDevice)
 {
+	m_bCreated = true;
 	CreateSynchronisation(logicalDevice);
 }
 

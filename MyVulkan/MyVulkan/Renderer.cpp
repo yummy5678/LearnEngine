@@ -12,7 +12,8 @@ VulkanRenderer::VulkanRenderer() :
 	m_RenderpassGenerator(),
 	m_PipelineGenerator(),
 	m_FramebufferGenerator(),
-	m_CommandGenerator()
+	m_CommandGenerator(),
+	m_SynchroGenerator()
 {
 }
 
@@ -63,15 +64,15 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		
 		//フレームバッファの作成
 		m_FramebufferGenerator.Create(logicalDevice, imageViews, renderPass, windowExtent);
-		auto swapchainFramebuffers = m_FramebufferGenerator.GetFramebuffers();
+		auto framebuffers = m_FramebufferGenerator.GetFramebuffers();
 
 
 
 		//コマンドの記録
 		m_CommandGenerator.Create(logicalDevice, physicalDevice, 3);
-		//m_CommandGenerator.RecordCommands(renderPass, windowExtent, graphicsPipeline);
+		m_CommandGenerator.RecordGraphicCommands(framebuffers, renderPass, windowExtent, graphicsPipeline);
 
-		synchronizationGenerator.Create(logicalDevice);
+		m_SynchroGenerator.Create(logicalDevice);
 		//createSynchronisation();
 	}
 	catch (const std::runtime_error& e) {
@@ -85,64 +86,75 @@ int VulkanRenderer::init(GameWindow renderWindow)
 
 void VulkanRenderer::draw()
 {
-	//// -- GET NEXT IMAGE --
-	//// Wait for given fence to signal (open) from last draw before continuing
-	////論理デバイスを取得
-	//auto logicalDevice = deviceGenerator.GetLogicalDevice();
-	//auto swapchain = swapchainGenerator.GetSwapchain();
-	//auto commandBuffers = commandGenerator.GetBuffers();
-	//auto drawFences = synchronizationGenerator.GetDrawFences();
-	//auto imageAvailable = synchronizationGenerator.GetImageAvailable();
-	//auto renderFinished = synchronizationGenerator.GetRenderFinished();
+	// -- 次の描画対象のイメージを取得 --
+	// 前回の描画が完了するまでフェンスがシグナル（開かれる）のを待機します。
+	// フェンスは、GPUの操作が完了したかどうかを確認するための同期オブジェクトです。
+	auto logicalDevice = m_DeviceGenerator.GetLogicalDevice();
+	auto physicalDevice = m_DeviceGenerator.GetPhysicalDevice();
+	auto swapchain = m_SwapchainGenerator.GetSwapchain();
+	auto commandBuffers = m_CommandGenerator.GetCommandBuffers();
+	auto drawFences = m_SynchroGenerator.GetDrawFences();
+	auto imageAvailable = m_SynchroGenerator.GetImageAvailable();
+	auto renderFinished = m_SynchroGenerator.GetRenderFinished();
 
-	//vkWaitForFences(logicalDevice, 1, &drawFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
-	//// Manually reset (close) fences
-	//vkResetFences(logicalDevice, 1, &drawFences[currentFrame]);
+	// 使用するキュー（グラフィックキューやプレゼントキューなど）のインデックスを取得
+	auto queueSelector = QueueFamilySelector(physicalDevice);
 
-	//// Get index of next image to be drawn to, and signal semaphore when ready to be drawn to
-	//uint32_t imageIndex;
-	//vkAcquireNextImageKHR(logicalDevice, swapchain, std::numeric_limits<uint64_t>::max(), imageAvailable[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	// フェンスがシグナル状態（完了）になるまで無限に待機します。
+	logicalDevice.waitForFences(drawFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 
-	//// -- SUBMIT COMMAND BUFFER TO RENDER --
-	//// Queue submission information
-	//vk::SubmitInfo submitInfo = {};
-	//submitInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
-	//submitInfo.pWaitSemaphores = &imageAvailable[currentFrame];				// List of semaphores to wait on
-	//vk::PipelineStageFlags waitStages[] = {
-	//	VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
-	//};
-	//submitInfo.pWaitDstStageMask = waitStages;						// Stages to check semaphores at
-	//submitInfo.commandBufferCount = 1;								// Number of command buffers to submit
-	//submitInfo.pCommandBuffers = &commandBuffers[imageIndex];		// Command buffer to submit
-	//submitInfo.signalSemaphoreCount = 1;							// Number of semaphores to signal
-	//submitInfo.pSignalSemaphores = &renderFinished[currentFrame];	// Semaphores to signal when command buffer finishes
+	// フェンスを手動でリセットします。これで次回の描画で再びフェンスを待機できるようにします。
+	logicalDevice.resetFences(drawFences[currentFrame]);
 
-	//// Submit command buffer to queue
-	//VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]);
-	//if (result != VK_SUCCESS)
-	//{
-	//	throw std::runtime_error("Failed to submit Command Buffer to Queue!");
-	//}
+	// スワップチェーンから次に描画するイメージ（フレームバッファのようなもの）のインデックスを取得します。
+	uint32_t imageIndex;
+	vk::Result result = logicalDevice.acquireNextImageKHR(
+		swapchain,                                       // スワップチェーン
+		std::numeric_limits<uint64_t>::max(),            // タイムアウトの設定（ここでは無限待機）
+		imageAvailable[currentFrame],                    // イメージが使用可能になるのを通知するセマフォ
+		nullptr,                                         // フェンス（ここでは使用しないのでnullptr）
+		&imageIndex                                      // イメージのインデックスが格納される
+	);
+	// イメージ取得に失敗した場合、エラーメッセージを投げる
+	if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("スワップチェーンからイメージを取得できませんでした！");
+	}
 
+	// -- コマンドバッファを送信してレンダリング --
+	// GPUがセマフォに対応する操作を待機するステージ（パイプラインステージ）を指定
+	vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
 
-	//// -- PRESENT RENDERED IMAGE TO SCREEN --
-	//VkPresentInfoKHR presentInfo = {};
-	//presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	//presentInfo.waitSemaphoreCount = 1;										// Number of semaphores to wait on
-	//presentInfo.pWaitSemaphores = &renderFinished[currentFrame];			// Semaphores to wait on
-	//presentInfo.swapchainCount = 1;											// Number of swapchains to present to
-	//presentInfo.pSwapchains = &swapchain;									// Swapchains to present images to
-	//presentInfo.pImageIndices = &imageIndex;								// Index of images in swapchains to present
+	// コマンドバッファの送信情報をセット
+	vk::SubmitInfo submitInfo = {};
+	submitInfo.setWaitSemaphores(imageAvailable[currentFrame])   // 待機するセマフォ（イメージ取得完了）
+		.setWaitDstStageMask(waitStages)                   // セマフォのシグナルを待つパイプラインステージ
+		.setCommandBuffers(commandBuffers[imageIndex])      // 実行するコマンドバッファ
+		.setSignalSemaphores(renderFinished[currentFrame]); // レンダリング完了時にシグナルされるセマフォ
 
-	//// Present image
-	//result = vkQueuePresentKHR(presentationQueue, &presentInfo);
-	//if (result != VK_SUCCESS)
-	//{
-	//	throw std::runtime_error("Failed to present Image!");
-	//}
+	// グラフィックキューを取得し、コマンドバッファを送信
+	auto graphicsQueue = logicalDevice.getQueue(queueSelector.GetGraphicIndex(), 0);
+	graphicsQueue.submit(submitInfo, drawFences[currentFrame]);
 
-	//// Get next frame (use % MAX_FRAME_DRAWS to keep value below MAX_FRAME_DRAWS)
-	//currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
+	// -- 描画したイメージを画面にプレゼント（表示） --
+	// 表示のためのプレゼント情報をセット
+	vk::PresentInfoKHR presentInfo = {};
+	presentInfo.setWaitSemaphores(renderFinished[currentFrame])   // レンダリング完了セマフォを待つ
+		.setSwapchains(swapchain)                          // プレゼントするスワップチェーン
+		.setImageIndices(imageIndex);                      // スワップチェーン内のイメージインデックス
+
+	// プレゼントキューを取得して、イメージを表示
+	auto presentQueue = logicalDevice.getQueue(queueSelector.GetPresentationIndex(m_SurfaceGenerator.GetSurface()), 0);
+	result = presentQueue.presentKHR(presentInfo);
+
+	// プレゼントに失敗した場合、エラーメッセージを投げる
+	if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("イメージの表示に失敗しました！");
+	}
+
+	// フレームインデックスを次に進めます（フレーム数を超えないようにループ）
+	currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
 }
 
 void VulkanRenderer::cleanup()
