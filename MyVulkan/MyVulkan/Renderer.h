@@ -21,7 +21,7 @@
 #include "FramebufferGenerator.h"
 #include "CommandUtility.h"
 #include "SynchronizationGenerator.h"
-
+#include "WriteImage.cpp"
 
 class VulkanRenderer
 {
@@ -43,67 +43,21 @@ private:
 	CDeviceExtensionManager		m_DeviceExtension;
 
 	// オブジェクト
-	InstanceGenerator		m_InstanceGenerator;
-	SurfaceGenerator		m_SurfaceGenerator;
-	DeviceGenerator			m_DeviceGenerator;
-	CImagesGenerator		m_ImageGenerator;
-	SwapchainGenerator		m_SwapchainGenerator;
-	RenderpassGenerator		m_RenderpassGenerator;
-	PipelineGenerator		m_PipelineGenerator;
-	FramebufferGenerator	m_FramebufferGenerator;
-	CommandGenerator		m_CommandGenerator;
-	SynchronizationGenerator m_SynchroGenerator;
-
-	
-	// Vulkan Components
-	//VkInstance instance;
-	//vk::UniqueInstance instance;
+	InstanceGenerator			m_InstanceGenerator;
+	SurfaceGenerator			m_SurfaceGenerator;
+	DeviceGenerator				m_DeviceGenerator;
+	//ImagesGenerator			m_ImageGenerator;
+	SwapchainGenerator			m_SwapchainGenerator;
+	RenderpassGenerator			m_RenderpassGenerator;
+	PipelineGenerator			m_PipelineGenerator;
+	FramebufferGenerator		m_FramebufferGenerator;
+	CommandGenerator			m_CommandGenerator;
+	SynchronizationGenerator	m_SynchroGenerator;
 
 	//コールバック
 	VkDebugReportCallbackEXT callback;
 
-	//メインデバイス
-	//vk::PhysicalDevice physicalDevice;	//物理デバイス(ただの構造体なので破棄の必要はない)
-	//vk::UniqueDevice logicalDevice;		//論理デバイス
 
-	//キュー
-	//VkQueue graphicsQueue;
-	//VkQueue presentationQueue;
-
-	//スワップチェーン
-	//vk::UniqueSurfaceKHR				surface;
-	//vk::UniqueSwapchainKHR			swapchain;
-	//std::vector<SwapchainImage>			swapChainImages;
-	//std::vector<vk::Framebuffer>		swapChainFramebuffers;
-	//std::vector<vk::CommandBuffer>		commandBuffers;
-
-	// - Pipeline
-	//vk::UniquePipeline			graphicsPipeline;
-	//vk::UniquePipelineLayout	pipelineLayout;
-	//vk::UniqueRenderPass		renderPass;
-
-	// - Pools
-	//vk::UniqueCommandPool graphicsCommandPool;
-
-	// - Utility
-	//VkFormat swapChainImageFormat;
-	//vk::Extent2D swapChainExtent = {
-	//	windowWidth,
-	//	windowHeight
-	//};
-
-	// - Synchronisation
-	SynchronizationGenerator synchronizationGenerator;
-	//std::vector<VkSemaphore> imageAvailable;
-	//std::vector<VkSemaphore> renderFinished;
-	//std::vector<VkFence>	 drawFences;
-
-	// Vulkan Functions
-	// - Create Functions
-	//インスタンスの作成
-	//void createInstance();
-	// インスタンス拡張機能のリストを作成する
-	//std::vector<const char*> m_InstanceExtensions;
 
 	//デバイスの作成
 	void createDebugCallback();

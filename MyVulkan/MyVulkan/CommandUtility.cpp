@@ -1,7 +1,11 @@
 #include "CommandUtility.h"
 
 
-CommandGenerator::CommandGenerator()
+CommandGenerator::CommandGenerator():
+    m_LogicalDevice(),
+    m_PhysicalDevice(),
+    m_CommandPool(),
+    m_CommandBuffers()
 {
     m_ClassName = "CommandGenerator";
 }
@@ -11,15 +15,23 @@ CommandGenerator::~CommandGenerator()
 
 }
 
-void CommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice, uint32_t commandSize)
+void CommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t commandSize)
 {
     m_bCreated = true;
 
+    m_LogicalDevice = logicalDevice;
+    m_PhysicalDevice = physicalDevice;
+
+    // セマフォの作成
+    m_SignalSemaphore.Create(logicalDevice, commandSize);
+
     //コマンドプール(コマンドを置く領域)を作成
-    m_CommandPool = CreateCommandPool(logicalDevice, phygicalDevice);
+    m_CommandPool = CreateCommandPool(logicalDevice, physicalDevice);
 
     //コマンドプールにコマンドバッファを割り当て
-    m_Buffers = CreateCommandBuffers(logicalDevice, commandSize, m_CommandPool);
+    m_CommandBuffers = CreateCommandBuffers(logicalDevice, commandSize, m_CommandPool);
+
+
 
 
 }
@@ -29,8 +41,8 @@ void CommandGenerator::Destroy()
     //コマンドプールの解放
     m_LogicalDevice.freeCommandBuffers(
         m_CommandPool,
-        m_Buffers.size(),
-        m_Buffers.data());
+        m_CommandBuffers.size(),
+        m_CommandBuffers.data());
 
     //コマンドプールの破棄
     m_LogicalDevice.destroyCommandPool(m_CommandPool);
@@ -56,34 +68,32 @@ void CommandGenerator::RecordGraphicCommands(std::vector<vk::Framebuffer> frameb
     renderPassBeginInfo.pClearValues = clearValues.data();                   // クリアする値のリスト
 
 
-
-    //とりあえず空のコマンドを作成
-    for (size_t i = 0; i < m_Buffers.size(); i++)
+    for (size_t i = 0; i < m_CommandBuffers.size(); i++)
     {
         renderPassBeginInfo.framebuffer = framebuffers[i];          // 使用するフレームバッファを設定する
 
         // コマンドバッファの記録を開始する
-        vk::Result result = m_Buffers[i].begin(&bufferBeginInfo);
+        vk::Result result = m_CommandBuffers[i].begin(&bufferBeginInfo);
         if (result != vk::Result::eSuccess)
         {
             throw std::runtime_error("コマンドバッファの記録の開始に失敗しました！");
         }
 
         // レンダーパスを開始する
-        m_Buffers[i].beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
+        m_CommandBuffers[i].beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
 
         // 使用するパイプラインをバインドする
-        m_Buffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
+        m_CommandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
 
         // パイプラインを実行する
-        m_Buffers[i].draw(3, 1, 0, 0);
+        m_CommandBuffers[i].draw(3, 1, 0, 0);
 
         // レンダーパスを終了する
-        m_Buffers[i].endRenderPass();
+        m_CommandBuffers[i].endRenderPass();
 
         // コマンドバッファの記録を終了する
         //result = m_Buffers[i].end();
-        m_Buffers[i].end();
+        m_CommandBuffers[i].end();
         if (result != vk::Result::eSuccess)
         {
             throw std::runtime_error("コマンドバッファの記録の終了に失敗しました！");
@@ -155,12 +165,73 @@ vk::CommandPool CommandGenerator::GetCammandPool()
 std::vector<vk::CommandBuffer> CommandGenerator::GetCommandBuffers()
 {
     CheckCreated();
-    return m_Buffers;
+    return m_CommandBuffers;
 }
 
-vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice)
+void CommandGenerator::DrawFrame(vk::CommandBuffer buffer, vk::RenderPass renderpass, vk::Framebuffer framebuffer, vk::Rect2D renderArea, vk::Pipeline graphicsPipeline)
 {
-    QueueFamilySelector queue(phygicalDevice);
+    //指定したフレームバッファにレンダーパスとパイプラインを関連付けて
+    //書き込むコマンドの作成と送信を行う関数
+
+    //フレームの初期化する色
+    vk::ClearValue clearVal;
+    clearVal.color.float32[0] = 0.0f;
+    clearVal.color.float32[1] = 0.0f;
+    clearVal.color.float32[2] = 0.0f;
+    clearVal.color.float32[3] = 1.0f;
+
+
+
+    vk::CommandBufferBeginInfo cmdBeginInfo;
+    if (m_CommandBuffers[0].begin(&cmdBeginInfo) != vk::Result::eSuccess)
+    {
+        throw std::runtime_error("コマンドバッファの開始に失敗しました！");
+    }
+
+    vk::RenderPassBeginInfo renderpassBeginInfo;
+    renderpassBeginInfo.renderPass = renderpass;
+    renderpassBeginInfo.framebuffer = framebuffer;
+    renderpassBeginInfo.renderArea = renderArea;
+    renderpassBeginInfo.clearValueCount = 1;
+    renderpassBeginInfo.pClearValues = &clearVal;
+
+    buffer.beginRenderPass(renderpassBeginInfo, vk::SubpassContents::eInline);
+
+    // 使用するパイプラインをバインドする
+    buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
+
+    // ここでサブパス0番の処理
+    buffer.draw(3, 1, 0, 0);
+
+    buffer.endRenderPass();
+
+    buffer.end();
+
+
+
+
+    auto submit = CreateSubmitInfo(buffer);
+
+    // 使用するキュー（グラフィックキューやプレゼントキューなど）のインデックスを取得
+    auto queueFamily = QueueFamilySelector(m_PhysicalDevice);
+    auto graphicsQueue = m_LogicalDevice.getQueue(queueFamily.GetGraphicIndex(), 0);
+
+    graphicsQueue.submit(submit, nullptr);
+
+    //vk::PresentInfoKHR presentInfo;
+    //presentInfo.pNext;
+    //presentInfo.waitSemaphoreCount;
+    //presentInfo.pWaitSemaphores = nullptr;
+    //presentInfo.swapchainCount;
+    //presentInfo.pSwapchains = nullptr;
+    //presentInfo.pImageIndices = &imageIndex;
+    //presentInfo.pResults;
+    //graphicsQueue.presentKHR(presentInfo);
+}
+
+vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
+{
+    QueueFamilySelector queue(physicalDevice);
     // コマンドプールの作成に必要な情報を設定する
     vk::CommandPoolCreateInfo poolInfo;
     poolInfo.pNext;
@@ -195,6 +266,38 @@ std::vector<vk::CommandBuffer> CommandGenerator::CreateCommandBuffers(vk::Device
     }
 
     return commandBuffers;
+}
+
+vk::SubmitInfo CommandGenerator::CreateSubmitInfo(std::vector<vk::CommandBuffer>& commandBuffers, std::vector<vk::Semaphore>& signalSemaphores, std::vector<vk::Semaphore>& waitSemaphores)
+{
+    vk::SubmitInfo submitInfo;
+    //submitInfo.pNext;
+    //submitInfo.signalSemaphoreCount;
+    //submitInfo.pSignalSemaphores;
+    //submitInfo.allowDuplicate;
+    //submitInfo.pWaitDstStageMask;
+    //submitInfo.waitSemaphoreCount;
+    //submitInfo.pWaitSemaphores;
+    submitInfo.commandBufferCount = commandBuffers.size();
+    submitInfo.pCommandBuffers = commandBuffers.data();
+
+    return submitInfo;
+}
+
+vk::SubmitInfo CommandGenerator::CreateSubmitInfo(vk::CommandBuffer& commandBuffer)
+{
+    vk::SubmitInfo submitInfo;
+    //submitInfo.pNext;
+    //submitInfo.signalSemaphoreCount;
+    //submitInfo.pSignalSemaphores;
+    //submitInfo.allowDuplicate;
+    //submitInfo.pWaitDstStageMask;
+    //submitInfo.waitSemaphoreCount;
+    //submitInfo.pWaitSemaphores;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    return submitInfo;
 }
 
 

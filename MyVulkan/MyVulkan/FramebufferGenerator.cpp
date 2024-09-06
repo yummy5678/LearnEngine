@@ -78,7 +78,6 @@ std::vector<vk::FramebufferCreateInfo> FramebufferGenerator::CreateFramebufferIn
         createInfo.height           = extent.height;                    //‰æ‘œ‚Ì‚‚³
         createInfo.layers           = 1;                                //‹“_‚Ì”
 
-        // vk::Framebuffer‚ğvk::UniqueFramebuffer‚É•ÏŠ·‚·‚é
         framebufferInfos[i] = createInfo;
     }
 

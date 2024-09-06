@@ -10,19 +10,19 @@ RenderpassGenerator::~RenderpassGenerator()
 
 }
 
-void RenderpassGenerator::Create(vk::Device logicalDevice, const vk::SurfaceFormatKHR imageFormat)
+void RenderpassGenerator::Create(vk::Device logicalDevice, vk::Format imageFomat)
 {
     m_bCreated = true;
     m_LogicalDevice = logicalDevice;
 
-    //auto colorAttachment = CreateColorAttachment(imageFormat);
-    //auto colorAttachmentReference = CreateColorAttachmentReference();
-    //auto subpass = CreateSubpass({}, { colorAttachmentReference }, {}, {}, {});
-    //auto dependencies = CreateDependencies();
-    //std::vector<vk::AttachmentDescription> a{ colorAttachment };
-    //auto createInfo = CreateInfo(a, subpass, dependencies);
-    //m_RenderPass = logicalDevice.createRenderPass(createInfo);
-    m_RenderPass = CreateRenderpass(logicalDevice);
+    auto colorAttachment = CreateColorAttachment(imageFomat);
+    auto colorAttachmentReference = CreateColorAttachmentReference();
+    auto subpass = CreateSubpass({}, { colorAttachmentReference }, {}, {}, {});
+    auto dependencies = CreateDependencies();
+    std::vector<vk::AttachmentDescription> a{ colorAttachment };
+    auto createInfo = CreateInfo(a, subpass, dependencies);
+    m_RenderPass = logicalDevice.createRenderPass(createInfo);
+    //m_RenderPass = CreateRenderpass(logicalDevice, imageFomat);
     //if (!renderPass)
     //{
     //    throw std::runtime_error("レンダーパスの作成に失敗しました!");
@@ -50,19 +50,19 @@ vk::RenderPass RenderpassGenerator::GetRenderpass()
     //m_pLogicalDevice->destroyRenderPass(m_RenderPass, nullptr);
 //}
 
-vk::AttachmentDescription RenderpassGenerator::CreateColorAttachment(const vk::SurfaceFormatKHR imageFormat)
+vk::AttachmentDescription RenderpassGenerator::CreateColorAttachment(const vk::Format imageFormat)
 {
     vk::AttachmentDescription attachment;
     // カラーバッファアタッチメントの記述
     attachment.flags;
-    attachment.format = imageFormat.format;                          // 画像フォーマット(画像作成時の設定と同じにする)
-    attachment.samples = vk::SampleCountFlagBits::e1;                // マルチサンプリングのサンプル数
-    attachment.loadOp = vk::AttachmentLoadOp::eClear;                // レンダーパスの開始時にカラーバッファをクリア
-    attachment.storeOp = vk::AttachmentStoreOp::eStore;              // レンダーパスの終了時にカラーバッファを保存
-    attachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;      // ステンシルバッファを使用しない
-    attachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;    // ステンシルバッファを使用しない
-    attachment.initialLayout = vk::ImageLayout::eUndefined;          // レンダーパス開始時のレイアウト
-    attachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;        // レンダーパス終了時のレイアウト(表示用)
+    attachment.format = imageFormat;                                // 画像フォーマット(画像作成時の設定と同じにする)
+    attachment.samples = vk::SampleCountFlagBits::e1;               // マルチサンプリングのサンプル数
+    attachment.loadOp = vk::AttachmentLoadOp::eClear;               // レンダーパスの開始時にカラーバッファをクリア
+    attachment.storeOp = vk::AttachmentStoreOp::eStore;             // レンダーパスの終了時にカラーバッファを保存
+    attachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;     // ステンシルバッファを使用しない
+    attachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;   // ステンシルバッファを使用しない
+    attachment.initialLayout = vk::ImageLayout::eUndefined;         // レンダーパス開始時のレイアウト
+    attachment.finalLayout = vk::ImageLayout::eSharedPresentKHR;    // レンダーパス終了時のレイアウト(表示用)
     
     return attachment;
 }
@@ -152,34 +152,32 @@ vk::RenderPassCreateInfo RenderpassGenerator::CreateInfo(
     return m_RenderPassInfo;
 }
 
-vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice)
+vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice, vk::Format imageFomat)
 {
-    vk::AttachmentDescription attachments[1];
-    attachments[0].format = vk::Format::eR8G8B8A8Unorm;
-    attachments[0].samples = vk::SampleCountFlagBits::e1;
-    attachments[0].loadOp = vk::AttachmentLoadOp::eDontCare;
-    attachments[0].storeOp = vk::AttachmentStoreOp::eStore;
-    attachments[0].stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    attachments[0].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    attachments[0].initialLayout = vk::ImageLayout::eUndefined;
-    attachments[0].finalLayout = vk::ImageLayout::eGeneral;
+    vk::AttachmentDescription colorAttachment{};
+    colorAttachment.format = imageFomat;
+    colorAttachment.samples = vk::SampleCountFlagBits::e1;
+    colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+    colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
+    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
 
-    vk::AttachmentReference subpass0_attachmentRefs[1];
-    subpass0_attachmentRefs[0].attachment = 0;
-    subpass0_attachmentRefs[0].layout = vk::ImageLayout::eColorAttachmentOptimal;
+    vk::AttachmentReference colorAttachmentRef{};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
 
-    vk::SubpassDescription subpasses[1];
-    subpasses[0].pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-    subpasses[0].colorAttachmentCount = 1;
-    subpasses[0].pColorAttachments = subpass0_attachmentRefs;
+    vk::SubpassDescription subpass{};
+    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
 
-    vk::RenderPassCreateInfo renderpassCreateInfo;
-    renderpassCreateInfo.attachmentCount = 1;
-    renderpassCreateInfo.pAttachments = attachments;
-    renderpassCreateInfo.subpassCount = 1;
-    renderpassCreateInfo.pSubpasses = subpasses;
-    renderpassCreateInfo.dependencyCount = 0;
-    renderpassCreateInfo.pDependencies = nullptr;
+    vk::RenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
 
-    return logicalDevice.createRenderPass(renderpassCreateInfo);
+    return logicalDevice.createRenderPass(renderPassInfo);
 }

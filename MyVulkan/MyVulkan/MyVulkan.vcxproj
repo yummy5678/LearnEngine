@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FenceGenerator.cpp" />
     <ClCompile Include="ImagesGenerator.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
     <ClCompile Include="CommandUtility.cpp" />
@@ -140,6 +141,8 @@
     <ClCompile Include="GraphicsPipelineUtility.cpp" />
     <ClCompile Include="InstanceExtensionManager.cpp" />
     <ClCompile Include="PhysicalDeviceSelector.cpp" />
+    <ClCompile Include="SemaphoreGenerator.cpp" />
+    <ClCompile Include="SwapGraphicCommandController.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
@@ -151,11 +154,13 @@
     <ClCompile Include="SynchronizationGenerator.cpp" />
     <ClCompile Include="ViewportGenerator.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
+    <ClCompile Include="WriteImage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FenceGenerator.h" />
     <ClInclude Include="ImagesGenerator.h" />
     <ClInclude Include="DeviceExtensionManager.h" />
     <ClInclude Include="CommandUtility.h" />
@@ -167,6 +172,8 @@
     <ClInclude Include="GraphicsPipelineUtility.h" />
     <ClInclude Include="InstanceExtensionManager.h" />
     <ClInclude Include="PhysicalDeviceSelector.h" />
+    <ClInclude Include="SemaphoreGenerator.h" />
+    <ClInclude Include="SwapGraphicCommandController.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="Renderer.h" />
