@@ -4,6 +4,7 @@
 #include "QueueUtility.h"
 #include "GraphicsDefine.h"
 #include "DeviceExtensionManager.h"
+#include "ImagesGenerator.h"
 
 
 class SwapchainGenerator : public CGeneratorBase
@@ -17,20 +18,19 @@ public:
 
 	vk::SwapchainKHR			GetSwapchain();
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
-	uint32_t					GetImageCount();
-	//std::vector<SwapchainImage>	GetSwapChainImages();
+	ImagesGenerator				GetImagesViews();
 
 private:
 	vk::Device m_LogicalDevice;
 	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
 	vk::SwapchainKHR					m_Swapchain;
 
-	//std::vector<SwapchainImage>			m_Images;
+	ImagesGenerator						m_Images;
 
 	// スワップチェーンの作成関数
 	vk::SwapchainCreateInfoKHR CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 
-	//std::vector<SwapchainImage> CreateSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, vk::SwapchainKHR swapchain);
+	//void CreateSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
 
 	//vk::ImageView CreateImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags);
 	// サーフェスの機能を取得

@@ -1,16 +1,16 @@
 #include "ImagesGenerator.h"
 
-CImagesGenerator::CImagesGenerator()
+ImagesGenerator::ImagesGenerator()
 {
 	m_ClassName = "ImagesGenerator";
 }
 
-CImagesGenerator::~CImagesGenerator()
+ImagesGenerator::~ImagesGenerator()
 {
 }
 
 
-void CImagesGenerator::Create(uint32_t ImageNum, vk::Extent2D extent, vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
+void ImagesGenerator::Create(uint32_t ImageNum, vk::Extent2D extent, vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
 {
     m_bCreated = true;
 
@@ -42,18 +42,46 @@ void CImagesGenerator::Create(uint32_t ImageNum, vk::Extent2D extent, vk::Device
     }
 }
 
-void CImagesGenerator::CreateForSurface(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+void ImagesGenerator::CreateForSwapchain(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainCreateInfoKHR m_SwapchainInfo)
 {
     m_bCreated = true;
     m_LogicalDevice = logicalDevice;
 
-    // サーフェスの機能を取得
-    auto surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
-    std::vector<vk::SurfaceFormatKHR> surfaceFormats = physicalDevice.getSurfaceFormatsKHR(surface);
+    m_Size                      = m_SwapchainInfo.minImageCount;
+    m_Fomat                     = m_SwapchainInfo.imageFormat;
+    vk::Extent2D imageExtent    = m_SwapchainInfo.imageExtent;
 
-    int imageCount = surfaceCapabilities.minImageCount + 1;
-    vk::Extent2D extent = surfaceCapabilities.currentExtent;
-    m_Fomat = surfaceFormats[0].format;
+    m_Images.resize(m_Size);
+    m_ImageMemory.resize(m_Size);
+    m_ImageViews.resize(m_Size);
+
+    std::vector<vk::ImageViewCreateInfo> viewInfo;
+    viewInfo.resize(m_Size);
+
+
+    m_ImageInfo = CreateImageInfo(imageExtent, m_Fomat, vk::ImageLayout::eUndefined);
+    for (uint32_t i = 0; i < m_Size; i++)
+    {
+        //画像を作成
+        m_Images[i] = m_LogicalDevice.createImage(m_ImageInfo);
+
+        //画像のメモリを確保
+        auto allocInfo = AllocateImageMemory(m_Images[i], logicalDevice, physicalDevice);
+        m_ImageMemory[i] = m_LogicalDevice.allocateMemory(allocInfo);
+        m_LogicalDevice.bindImageMemory(m_Images[i], m_ImageMemory[i], 0);  // バインド
+
+        //画像を扱う際の情報を設定
+        auto viewInfo = CreateImageViewInfo(m_Images[i], m_Fomat);
+        m_ImageViews[i] = m_LogicalDevice.createImageView(viewInfo);
+    }
+}
+
+void ImagesGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t imageCount, vk::Format fomat, vk::Extent2D extent)
+{
+    m_bCreated = true;
+    m_LogicalDevice = logicalDevice;
+
+    m_Fomat = fomat;
 
     m_Images.resize(imageCount);
     m_ImageMemory.resize(imageCount);
@@ -80,7 +108,7 @@ void CImagesGenerator::CreateForSurface(vk::Device logicalDevice, vk::PhysicalDe
     }
 }
 
-void CImagesGenerator::Destroy()
+void ImagesGenerator::Destroy()
 {
 	//中身が作成されていないなら解放処理も行わない
 	if (m_bCreated == false) return;
@@ -105,46 +133,46 @@ void CImagesGenerator::Destroy()
     }
 }
 
-std::vector<vk::Image> CImagesGenerator::GetImages()
+std::vector<vk::Image> ImagesGenerator::GetImages()
 {
 	CheckCreated();
 	return m_Images;
 }
 
-std::vector<vk::ImageView> CImagesGenerator::GetImageViews()
+std::vector<vk::ImageView> ImagesGenerator::GetImageViews()
 {
     CheckCreated();
     return m_ImageViews;
 }
 
-vk::ImageCreateInfo CImagesGenerator::GetImageInfo()
+vk::ImageCreateInfo ImagesGenerator::GetImageInfo()
 {
     CheckCreated();
     return m_ImageInfo;
 }
 
-vk::Format CImagesGenerator::GetFomat()
+vk::Format ImagesGenerator::GetFomat()
 {
     CheckCreated();
     return m_Fomat;
 }
 
-uint32_t CImagesGenerator::GetSize()
+uint32_t ImagesGenerator::GetSize()
 {
     return m_Size;
 }
 
 
-vk::ImageCreateInfo CImagesGenerator::CreateImageInfo(vk::Extent2D extent, vk::Format fomat)
+vk::ImageCreateInfo ImagesGenerator::CreateImageInfo(vk::Extent2D extent, vk::Format fomat)
 {
     vk::ImageCreateInfo imageCreateInfo;
     imageCreateInfo.pNext;
     imageCreateInfo.flags;
     imageCreateInfo.imageType = vk::ImageType::e2D;
-    imageCreateInfo.format = fomat;                         // イメージのフォーマット
-    imageCreateInfo.extent.width = extent.width;            // イメージの幅
-    imageCreateInfo.extent.height = extent.height;          // イメージの高さ
-    imageCreateInfo.extent.depth = 1;                       // イメージの奥行き
+    imageCreateInfo.format = fomat;                         // 画像のフォーマット
+    imageCreateInfo.extent.width = extent.width;            // 画像の幅
+    imageCreateInfo.extent.height = extent.height;          // 画像の高さ
+    imageCreateInfo.extent.depth = 1;                       // 画像の奥行き
     imageCreateInfo.mipLevels = 1;                          // ミップマップレベル
     imageCreateInfo.arrayLayers = 1;                        // レイヤー数
     imageCreateInfo.samples = vk::SampleCountFlagBits::e1;  // サンプル数
@@ -156,7 +184,28 @@ vk::ImageCreateInfo CImagesGenerator::CreateImageInfo(vk::Extent2D extent, vk::F
     return imageCreateInfo;
 }
 
-vk::ImageViewCreateInfo CImagesGenerator::CreateImageViewInfo(vk::Image image, vk::Format fomat)
+vk::ImageCreateInfo ImagesGenerator::CreateImageInfo(vk::Extent2D extent, vk::Format fomat, vk::ImageLayout layout)
+{
+    vk::ImageCreateInfo imageCreateInfo;
+    imageCreateInfo.pNext;
+    imageCreateInfo.flags;
+    imageCreateInfo.imageType = vk::ImageType::e2D;
+    imageCreateInfo.format = fomat;                         // 画像のフォーマット
+    imageCreateInfo.extent.width = extent.width;            // 画像の幅
+    imageCreateInfo.extent.height = extent.height;          // 画像の高さ
+    imageCreateInfo.extent.depth = 1;                       // 画像の奥行き
+    imageCreateInfo.mipLevels = 1;                          // ミップマップレベル
+    imageCreateInfo.arrayLayers = 1;                        // レイヤー数
+    imageCreateInfo.samples = vk::SampleCountFlagBits::e1;  // サンプル数
+    imageCreateInfo.tiling = vk::ImageTiling::eOptimal;     // タイリング方式
+    imageCreateInfo.usage = vk::ImageUsageFlagBits::eColorAttachment;   // 使用方法
+    imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;          // 共有モード
+    imageCreateInfo.initialLayout = layout;        // 初期レイアウト
+
+    return imageCreateInfo;
+}
+
+vk::ImageViewCreateInfo ImagesGenerator::CreateImageViewInfo(vk::Image image, vk::Format fomat)
 {
     // 画像ビュー作成情報の初期化
     vk::ImageViewCreateInfo imageViewCreateInfo;
@@ -180,7 +229,7 @@ vk::ImageViewCreateInfo CImagesGenerator::CreateImageViewInfo(vk::Image image, v
     return imageViewCreateInfo;
 }
 
-vk::MemoryAllocateInfo CImagesGenerator::AllocateImageMemory(vk::Image image, vk::Device device, vk::PhysicalDevice physicalDevice)
+vk::MemoryAllocateInfo ImagesGenerator::AllocateImageMemory(vk::Image image, vk::Device device, vk::PhysicalDevice physicalDevice)
 {
     // イメージのメモリ要件を取得
     vk::MemoryRequirements memoryRequirements = device.getImageMemoryRequirements(image);
@@ -194,7 +243,7 @@ vk::MemoryAllocateInfo CImagesGenerator::AllocateImageMemory(vk::Image image, vk
     return allocateInfo;
 }
 
-uint32_t CImagesGenerator::FindMemoryType(vk::PhysicalDevice physicalDevice, uint32_t typeFilter)
+uint32_t ImagesGenerator::FindMemoryType(vk::PhysicalDevice physicalDevice, uint32_t typeFilter)
 {
     // 物理デバイスからメモリプロパティを取得。
     vk::PhysicalDeviceMemoryProperties memoryProperties = physicalDevice.getMemoryProperties();

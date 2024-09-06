@@ -22,7 +22,7 @@ void SwapchainGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice phy
 
     m_Swapchain = logicalDevice.createSwapchainKHR(m_SwapchainInfo);
 
-    //m_Images = CreateSwapChainImages(logicalDevice, physicalDevice, surface, m_Swapchain);
+    m_Images.CreateForSwapchain(logicalDevice, physicalDevice, m_SwapchainInfo);
 }
 
 void SwapchainGenerator::Destroy(vk::Device logicalDevice)
@@ -47,17 +47,11 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::GetSwapchainInfo()
     return m_SwapchainInfo;
 }
 
-uint32_t SwapchainGenerator::GetImageCount()
+ImagesGenerator SwapchainGenerator::GetImagesViews()
 {
-    return m_SwapchainInfo.minImageCount;
+    CheckCreated();
+    return m_Images;
 }
-
-//std::vector<SwapchainImage> SwapchainGenerator::GetSwapChainImages()
-//{
-//    CheckCreated();
-//    return m_Images;
-//}
-
 
 /// <summary>
 /// スワップチェーンインフォの作成
@@ -117,60 +111,31 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
     return swapchainInfo;
 }
 
-//std::vector<SwapchainImage> SwapchainGenerator::CreateSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, vk::SwapchainKHR swapchain)
-//{
-//    // スワップチェーンを構成するイメージのベクターを取得
-//    std::vector<vk::Image> images = logicalDevice.getSwapchainImagesKHR(swapchain);
-//
-//
-//    // Swapchainの画像を格納するベクターを作成
-//    std::vector<SwapchainImage> swapChainImages;
-//    swapChainImages.reserve(images.size());
-//
-//
-//    // スワップチェーン作成時に取得したのと同じ情報が欲しい
-//    vk::SurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(GetSurfaceFormats(physicalDevice, surface));
-//
-//    for (vk::Image image : images)
-//    {
-//        // 画像ハンドルを保存する
-//        SwapchainImage swapChainImage;
-//        swapChainImage.image = image;
-//        //フォーマットはchooseSwapSurfaceFormatで使用したのと同じものでなければならない
-//        swapChainImage.imageView = CreateImageView(logicalDevice, image, surfaceFormat.format, vk::ImageAspectFlagBits::eColor);
-//
-//        // Swapchain画像リストに追加する
-//        swapChainImages.push_back(swapChainImage);
-//    }
-//
-//    return swapChainImages;
-//}
-
 //vk::ImageView SwapchainGenerator::CreateImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags)
 //{
 //    // 画像ビュー作成情報の初期化
 //    vk::ImageViewCreateInfo imageViewCreateInfo;
-//    imageViewCreateInfo.image = image;                                            // View を作成するための Image
-//    imageViewCreateInfo.viewType = vk::ImageViewType::e2D;                         // Image の種類 (1D, 2D, 3D, Cube など)
-//    imageViewCreateInfo.format = format;                                          // Image データのフォーマット
-//    imageViewCreateInfo.components.r = vk::ComponentSwizzle::eIdentity;             // RGBA コンポーネントを他の RGBA 値にリマップすることができます
+//    imageViewCreateInfo.image = image;                                  // View を作成するための Image
+//    imageViewCreateInfo.viewType = vk::ImageViewType::e2D;              // Image の種類(1D, 2D, 3D, Cube など)
+//    imageViewCreateInfo.format = format;                                // Image データのフォーマット
+//    imageViewCreateInfo.components.r = vk::ComponentSwizzle::eIdentity; // RGBA コンポーネントを他の RGBA 値にリマップすることができます
 //    imageViewCreateInfo.components.g = vk::ComponentSwizzle::eIdentity;
 //    imageViewCreateInfo.components.b = vk::ComponentSwizzle::eIdentity;
 //    imageViewCreateInfo.components.a = vk::ComponentSwizzle::eIdentity;
 //
 //    // Subresource は Image の一部だけを表示するための設定です
-//    imageViewCreateInfo.subresourceRange.aspectMask = aspectFlags;                 // Image のどの面を表示するか (例: COLOR_BIT は色を表示するため)
-//    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;                         // 表示を開始する Mipmap レベル
-//    imageViewCreateInfo.subresourceRange.levelCount = 1;                           // 表示する Mipmap レベルの数
-//    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;                       // 表示を開始する配列レベル
-//    imageViewCreateInfo.subresourceRange.layerCount = 1;                           // 表示する配列レベルの数
+//    imageViewCreateInfo.subresourceRange.aspectMask = aspectFlags;      // Image のどの面を表示するか(例: COLOR_BIT は色を表示するため)
+//    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;              // 表示を開始する Mipmap レベル
+//    imageViewCreateInfo.subresourceRange.levelCount = 1;                // 表示する Mipmap レベルの数
+//    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;            // 表示を開始する配列レベル
+//    imageViewCreateInfo.subresourceRange.layerCount = 1;                // 表示する配列レベルの数
 //
 //    //イメージビューを作成
 //    vk::ImageView imageView = logicalDevice.createImageView(imageViewCreateInfo);
 //    // vkCreateImageView の結果が成功ではない場合、エラーをスローします
 //    if (!imageView)
 //    {
-//        throw std::runtime_error("Failed to create an Image View!");
+//        throw std::runtime_error("イメージビューの作成に失敗しました!");
 //    }
 //
 //    // 作成した Image View のハンドルを返します

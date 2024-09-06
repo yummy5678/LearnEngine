@@ -10,7 +10,7 @@ public:
 	~CommandGenerator();
 
 	// 作成関数
-	void Create(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice, uint32_t commandSize);
+	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t commandSize);
 
 	// 破棄関数
 	void Destroy();
@@ -25,18 +25,23 @@ public:
 	// 作成されたコマンドバッファ配列の取得
 	std::vector<vk::CommandBuffer> GetCommandBuffers();
 
+	void DrawFrame(vk::RenderPass renderpass, vk::Framebuffer framebuffer, vk::Rect2D renderArea, vk::Pipeline graphicsPipeline);
+
 
 private:
-	vk::Device						m_LogicalDevice;	//破棄用に論理デバイスの情報を持っておく
+	vk::Device						m_LogicalDevice;	
+	vk::PhysicalDevice				m_PhysicalDevice;
+	//QueueFamilySelector				m_QueueFamily;
 	vk::CommandPool					m_CommandPool;		//コマンドプール
-	std::vector<vk::CommandBuffer>	m_Buffers;			//コマンドバッファ
+	std::vector<vk::CommandBuffer>	m_CommandBuffers;	//コマンドバッファ
 
 	//コマンドプールの作成
-	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice phygicalDevice);
+	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice);
 
 	//コマンドバッファの作成(コマンドプールの割り当て)
 	std::vector<vk::CommandBuffer> CreateCommandBuffers(vk::Device logicalDevice, uint32_t commandSize, vk::CommandPool commandPool);
 
+	vk::SubmitInfo					CreateSubmitInfo(vk::CommandBuffer commandBuffer);
 };
 
 // コマンドバッファについて
