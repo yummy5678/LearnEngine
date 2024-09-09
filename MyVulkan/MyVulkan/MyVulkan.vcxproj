@@ -154,7 +154,6 @@
     <ClCompile Include="SynchronizationGenerator.cpp" />
     <ClCompile Include="ViewportGenerator.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
-    <ClCompile Include="WriteImage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

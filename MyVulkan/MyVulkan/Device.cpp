@@ -45,9 +45,9 @@ vk::Device DeviceGenerator::GetLogicalDevice()
 	return m_LogicalDevice;
 }
 
-vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(CDeviceExtensionManager& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
+vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(CDeviceExtensionManager& extensionManager, vk::PhysicalDevice phygicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
 {
-	auto extension = extensionManager.GetExtensions(physicalDevice);
+	auto extension = extensionManager.GetExtensions(phygicalDevice);
 
 	// 論理デバイスを作成するための情報を設定する
 	vk::DeviceCreateInfo deviceInfo;
