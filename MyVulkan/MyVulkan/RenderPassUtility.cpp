@@ -62,7 +62,7 @@ vk::AttachmentDescription RenderpassGenerator::CreateColorAttachment(const vk::F
     attachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;     // ステンシルバッファを使用しない
     attachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;   // ステンシルバッファを使用しない
     attachment.initialLayout = vk::ImageLayout::eUndefined;         // レンダーパス開始時のレイアウト
-    attachment.finalLayout = vk::ImageLayout::eSharedPresentKHR;    // レンダーパス終了時のレイアウト(表示用)
+    attachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;       // レンダーパス終了時のレイアウト(表示用)
     
     return attachment;
 }

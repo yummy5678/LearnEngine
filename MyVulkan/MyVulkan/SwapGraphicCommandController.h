@@ -10,10 +10,11 @@
 class SwapGraphicCommandController
 {
 public:
-	SwapGraphicCommandController(CDeviceExtensionManager& deviceExtensionManager);
+	SwapGraphicCommandController(DeviceExtensionManager& deviceExtensionManager);
 	~SwapGraphicCommandController();
 
 	void Initialize(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface);
+	void Destroy();
 	void DrawFrame();
 	void PresentFrame();
 
@@ -21,9 +22,9 @@ public:
 
 private:
 	// オブジェクト
-	vk::SurfaceKHR			m_Surface;
-	vk::PhysicalDevice		m_PhysicalDevice;
-	vk::Device				m_LogicalDevice;
+	vk::SurfaceKHR				m_Surface;
+	vk::PhysicalDevice			m_PhysicalDevice;
+	vk::Device					m_LogicalDevice;
 
 
 	SwapchainGenerator			m_SwapchainGenerator;
@@ -31,7 +32,7 @@ private:
 	PipelineGenerator			m_PipelineGenerator;
 	FramebufferGenerator		m_FramebufferGenerator;
 	CommandGenerator			m_CommandGenerator;
-	SynchronizationGenerator	m_SynchroGenerator;
+	//SynchronizationGenerator	m_SynchroGenerator;
 
 
 	int							m_CurrentFrame = 0;

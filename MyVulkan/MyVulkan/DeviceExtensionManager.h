@@ -4,11 +4,11 @@
 #include <iostream>
 
 
-class CDeviceExtensionManager
+class DeviceExtensionManager
 {
 public:
-	CDeviceExtensionManager();	//コンストラクタ
-	~CDeviceExtensionManager();	//デストラクタ
+	DeviceExtensionManager();	//コンストラクタ
+	~DeviceExtensionManager();	//デストラクタ
 
 	//拡張機能のリストを受け取る
 	std::vector<const char*>* GetExtensions(vk::PhysicalDevice physicalDevice);

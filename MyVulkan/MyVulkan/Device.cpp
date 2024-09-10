@@ -8,7 +8,7 @@ DeviceGenerator::~DeviceGenerator()
 {
 }
 
-void DeviceGenerator::Create(CDeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface)
+void DeviceGenerator::Create(DeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface)
 {
 	m_bCreated = true;
 
@@ -23,9 +23,7 @@ void DeviceGenerator::Create(CDeviceExtensionManager extensionManager, vk::Insta
 	auto logicalDeviceInfo = CreateDeviceInfo(extensionManager, m_PhysicalDevice, queueInfo);
 	m_LogicalDevice = m_PhysicalDevice.createDevice(logicalDeviceInfo);
 
-	//将来コマンドは別の場所で作るようにする
-	// コマンドバッファの作成
-	m_CommandGenerator.Create(m_LogicalDevice, m_PhysicalDevice, 3);
+
 }
 
 void DeviceGenerator::Destroy()
@@ -45,7 +43,7 @@ vk::Device DeviceGenerator::GetLogicalDevice()
 	return m_LogicalDevice;
 }
 
-vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(CDeviceExtensionManager& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
+vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(DeviceExtensionManager& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
 {
 	auto extension = extensionManager.GetExtensions(physicalDevice);
 

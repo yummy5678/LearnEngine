@@ -6,6 +6,8 @@ PhysicalDeviceSelector::PhysicalDeviceSelector(vk::Instance instance)
     //インスタンスから接続されている物理デバイスを全て取得
     m_PhysicalDevices = instance.enumeratePhysicalDevices();
 
+
+
     //物理デバイス自体を見つけられなかった場合
     if (m_PhysicalDevices.empty()) {
         throw std::runtime_error("VulkanをサポートしているGPUが見つかりません!");
@@ -15,7 +17,7 @@ PhysicalDeviceSelector::PhysicalDeviceSelector(vk::Instance instance)
 PhysicalDeviceContainer PhysicalDeviceSelector::SelectGraphicsDevice()
 {
 	// 適切なデバイスが見つかるまでループする
-	for (const auto& device : m_PhysicalDevices)
+	for (auto& device : m_PhysicalDevices)
 	{
         QueueFamilySelector queueFamily(device);
 		//デバイスが使用する拡張機能、
@@ -33,7 +35,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectGraphicsDevice()
 PhysicalDeviceContainer PhysicalDeviceSelector::SelectComputeDevice()
 {
     // 適切なデバイスが見つかるまでループする
-    for (const auto& device : m_PhysicalDevices)
+    for (auto& device : m_PhysicalDevices)
     {
         QueueFamilySelector queueFamily(device);
         if (queueFamily.GetComputeIndex() != NoneQueueNumber)
@@ -50,7 +52,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectComputeDevice()
 PhysicalDeviceContainer PhysicalDeviceSelector::SelectTransferDevice()
 {
     // 適切なデバイスが見つかるまでループする
-    for (const auto& device : m_PhysicalDevices)
+    for (auto& device : m_PhysicalDevices)
     {
         QueueFamilySelector queueFamily(device);
         if (queueFamily.GetTransferIndex() != NoneQueueNumber)
@@ -67,7 +69,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectTransferDevice()
 PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice(vk::SurfaceKHR surface)
 {
     // 適切なデバイスが見つかるまでループする
-    for (const auto& device : m_PhysicalDevices)
+    for (auto& device : m_PhysicalDevices)
     {
         //描画用キューと表示用キューが存在し、
         //スワップチェーン拡張機能にも対応している

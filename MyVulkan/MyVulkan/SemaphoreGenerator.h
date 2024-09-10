@@ -12,11 +12,13 @@ public:
     void Create(vk::Device logicalDevice, uint32_t semaphoreCount);
     void Destroy();
 
-    std::vector<vk::Semaphore> GetSemaphore();
+    std::vector<vk::Semaphore> GetSignalSemaphores();
+    std::vector<vk::Semaphore> GetWaitSemaphores();
 
 private:
     vk::Device m_LogicalDevice;
-    std::vector<vk::Semaphore> m_Semaphores;
+    std::vector<vk::Semaphore> m_Signals;
+    std::vector<vk::Semaphore> m_RenderWaits;
 
     std::vector<vk::Semaphore> CreateSemaphore(vk::Device logicalDevice, uint32_t semaphoreCount);
 };

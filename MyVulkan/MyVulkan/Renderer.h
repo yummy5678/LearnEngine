@@ -22,6 +22,7 @@
 #include "CommandUtility.h"
 #include "SynchronizationGenerator.h"
 #include "WriteImage.cpp"
+#include "SwapGraphicCommandController.h"
 
 class VulkanRenderer
 {
@@ -40,7 +41,7 @@ private:
 
 	// 拡張機能
 	InstanceExtensionManager	m_InstanceExtension;
-	CDeviceExtensionManager		m_DeviceExtension;
+	DeviceExtensionManager		m_DeviceExtension;
 
 	// オブジェクト
 	InstanceGenerator			m_InstanceGenerator;
@@ -53,6 +54,8 @@ private:
 	FramebufferGenerator		m_FramebufferGenerator;
 	CommandGenerator			m_CommandGenerator;
 	SynchronizationGenerator	m_SynchroGenerator;
+
+	SwapGraphicCommandController	m_GraphicController;
 
 	//コールバック
 	VkDebugReportCallbackEXT callback;

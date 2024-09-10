@@ -9,7 +9,7 @@ constexpr uint32_t NoneQueueNumber = UINT32_MAX;   //ƒLƒ…[‚ªŒ©‚Â‚©‚Á‚½‚©‚Ì”»’è‚
 class QueueFamilySelector
 {
 public:
-    QueueFamilySelector(vk::PhysicalDevice physicalDevice);
+    QueueFamilySelector(vk::PhysicalDevice& physicalDevice);
     ~QueueFamilySelector();
 
     uint32_t GetGraphicIndex();
@@ -19,7 +19,7 @@ public:
     std::vector<vk::DeviceQueueCreateInfo> GetQueueInfos(); //ƒfƒoƒCƒX‚Ìì¬—p
 
 private:   
-    vk::PhysicalDevice m_PhysicalDevice;
+    vk::PhysicalDevice* m_pPhysicalDevice;
     uint32_t m_GraphicsFamilyIndex       = NoneQueueNumber;  // •`‰æ—pƒLƒ…[ƒtƒ@ƒ~ƒŠ[‚ÌêŠ
     uint32_t m_ComputeFamilyIndex        = NoneQueueNumber;  // ŒvZ—pƒLƒ…[ƒtƒ@ƒ~ƒŠ[‚ÌêŠ
     uint32_t m_TransferFamilyIndex       = NoneQueueNumber;  // “]‘——pƒLƒ…[ƒtƒ@ƒ~ƒŠ[‚ÌêŠ

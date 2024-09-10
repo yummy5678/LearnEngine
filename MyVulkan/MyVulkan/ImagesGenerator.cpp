@@ -25,7 +25,7 @@ void ImagesGenerator::Create(uint32_t ImageNum, vk::Extent2D extent, vk::Device 
     viewInfo.resize(ImageNum);
 
 
-    m_ImageInfo = CreateImageInfo(extent,m_Fomat);
+    m_ImageInfo = CreateImageInfo(extent, m_Fomat);
     for (uint32_t i = 0; i < ImageNum; i++)
     {
         //画像を作成
@@ -42,7 +42,7 @@ void ImagesGenerator::Create(uint32_t ImageNum, vk::Extent2D extent, vk::Device 
     }
 }
 
-void ImagesGenerator::CreateForSwapchain(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainCreateInfoKHR m_SwapchainInfo)
+void ImagesGenerator::CreateForSwapchain(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice,vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo)
 {
     m_bCreated = true;
     m_LogicalDevice = logicalDevice;
@@ -51,8 +51,11 @@ void ImagesGenerator::CreateForSwapchain(vk::Device logicalDevice, vk::PhysicalD
     m_Fomat                     = m_SwapchainInfo.imageFormat;
     vk::Extent2D imageExtent    = m_SwapchainInfo.imageExtent;
 
-    m_Images.resize(m_Size);
-    m_ImageMemory.resize(m_Size);
+    // 注:スワップチェインの画像はgetSwapchainImagesKHRから
+    // 取得したものを使用しなければならない。
+    m_Images = logicalDevice.getSwapchainImagesKHR(swapchain);
+
+    //m_ImageMemory.resize(m_Size);
     m_ImageViews.resize(m_Size);
 
     std::vector<vk::ImageViewCreateInfo> viewInfo;
@@ -62,14 +65,6 @@ void ImagesGenerator::CreateForSwapchain(vk::Device logicalDevice, vk::PhysicalD
     m_ImageInfo = CreateImageInfo(imageExtent, m_Fomat, vk::ImageLayout::eUndefined);
     for (uint32_t i = 0; i < m_Size; i++)
     {
-        //画像を作成
-        m_Images[i] = m_LogicalDevice.createImage(m_ImageInfo);
-
-        //画像のメモリを確保
-        auto allocInfo = AllocateImageMemory(m_Images[i], logicalDevice, physicalDevice);
-        m_ImageMemory[i] = m_LogicalDevice.allocateMemory(allocInfo);
-        m_LogicalDevice.bindImageMemory(m_Images[i], m_ImageMemory[i], 0);  // バインド
-
         //画像を扱う際の情報を設定
         auto viewInfo = CreateImageViewInfo(m_Images[i], m_Fomat);
         m_ImageViews[i] = m_LogicalDevice.createImageView(viewInfo);
@@ -149,6 +144,9 @@ std::vector<vk::ImageView> ImagesGenerator::GetImageViews()
 // 画像データをCPU側から読み取れるデータに展開する
 std::vector<void*> ImagesGenerator::GetImageData()
 {
+    // 作成中
+    // メモリからデータを読み込めないとエラー
+
     std::vector<void*> imageData;
     imageData.resize(m_ImageMemory.size());
 
@@ -217,7 +215,7 @@ vk::ImageCreateInfo ImagesGenerator::CreateImageInfo(vk::Extent2D extent, vk::Fo
     imageCreateInfo.tiling = vk::ImageTiling::eOptimal;     // タイリング方式
     imageCreateInfo.usage = vk::ImageUsageFlagBits::eColorAttachment;   // 使用方法
     imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;          // 共有モード
-    imageCreateInfo.initialLayout = layout;        // 初期レイアウト
+    imageCreateInfo.initialLayout = layout;                 // 初期レイアウト
 
     return imageCreateInfo;
 }
@@ -251,23 +249,27 @@ vk::MemoryAllocateInfo ImagesGenerator::AllocateImageMemory(vk::Image image, vk:
     // イメージのメモリ要件を取得
     vk::MemoryRequirements memoryRequirements = device.getImageMemoryRequirements(image);
 
+    // 探しているメモリプロパティのフラグ
+    vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eDeviceLocal;
+    //vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eHostVisible;
+
     // メモリの割り当て情報を設定
     vk::MemoryAllocateInfo allocateInfo;
     allocateInfo.pNext;
     allocateInfo.allocationSize = memoryRequirements.size;  // 画像のメモリサイズ
-    allocateInfo.memoryTypeIndex = FindMemoryType(physicalDevice, memoryRequirements.memoryTypeBits);   // メモリタイプ
+    allocateInfo.memoryTypeIndex = FindMemoryType(device, physicalDevice, image, properties);   // メモリタイプ
 
     return allocateInfo;
 }
 
-uint32_t ImagesGenerator::FindMemoryType(vk::PhysicalDevice physicalDevice, uint32_t typeFilter)
+uint32_t ImagesGenerator::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Image image, vk::MemoryPropertyFlags findType)
 {
+    // イメージのメモリ要件を取得
+    vk::MemoryRequirements memoryRequirements = logicalDevice.getImageMemoryRequirements(image);
+    auto typeFilter = memoryRequirements.memoryTypeBits;
+
     // 物理デバイス(GPU)からメモリプロパティを取得。
     vk::PhysicalDeviceMemoryProperties memoryProperties = physicalDevice.getMemoryProperties();
-
-    // 探しているメモリプロパティのフラグ
-    //vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eDeviceLocal;
-    vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eHostVisible;
 
     for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
     {
@@ -275,7 +277,8 @@ uint32_t ImagesGenerator::FindMemoryType(vk::PhysicalDevice physicalDevice, uint
         // ここでは、typeFilterのビットがi番目のメモリタイプに対応するかどうかを確認しています。
         // (1 << i)は、iビット目のビットを1にしたビットマスクです。
         // typeFilter & (1 << i) は、iビット目のビットが立っているかを確認します。
-        if ((typeFilter & (1 << i)) && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+        if ((typeFilter & (1 << i)) && 
+            (memoryProperties.memoryTypes[i].propertyFlags & findType) == findType)
         {
             return i;
         }

@@ -19,7 +19,9 @@ private:
     vk::Device m_LogicalDevice;
     std::vector<vk::Fence> m_Fences;
 
-    std::vector<vk::Fence> CreateFence(vk::Device logicalDevice, uint32_t semaphoreCount);
+    std::vector<vk::Fence> CreateFences(vk::Device logicalDevice, uint32_t semaphoreCount);
 
 };
 
+// フェンスについて
+// GPUの操作が完了したかを確認するための同期オブジェクト。

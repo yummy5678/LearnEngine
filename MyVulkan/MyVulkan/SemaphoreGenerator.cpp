@@ -2,7 +2,8 @@
 
 SemaphoreGenerator::SemaphoreGenerator():
 	m_LogicalDevice(VK_NULL_HANDLE),
-	m_Semaphores()
+	m_Signals(),
+	m_RenderWaits()
 {
 	m_ClassName = "SemaphoreGenerator";
 }
@@ -17,7 +18,9 @@ void SemaphoreGenerator::Create(vk::Device logicalDevice, uint32_t semaphoreCoun
 
 	m_LogicalDevice = logicalDevice;
 
-	m_Semaphores = CreateSemaphore(logicalDevice, semaphoreCount);
+	// セマフォの作成
+	m_Signals		= CreateSemaphore(logicalDevice, semaphoreCount);
+	m_RenderWaits	= CreateSemaphore(logicalDevice, semaphoreCount);
 
 }
 
@@ -34,10 +37,16 @@ void SemaphoreGenerator::Destroy()
 	}
 }
 
-std::vector<vk::Semaphore> SemaphoreGenerator::GetSemaphore()
+std::vector<vk::Semaphore> SemaphoreGenerator::GetSignalSemaphores()
 {
 	CheckCreated();
-	return m_Semaphores;
+	return m_Signals;
+}
+
+std::vector<vk::Semaphore> SemaphoreGenerator::GetWaitSemaphores()
+{
+	CheckCreated();
+	return m_RenderWaits;
 }
 
 std::vector<vk::Semaphore> SemaphoreGenerator::CreateSemaphore(vk::Device logicalDevice ,uint32_t semaphoreCount)
@@ -58,6 +67,7 @@ std::vector<vk::Semaphore> SemaphoreGenerator::CreateSemaphore(vk::Device logica
 			// セマフォを作成する
 			semaphores[i] = logicalDevice.createSemaphore(semaphoreCreateInfo);
 		}
+		return semaphores;
 	}
 	catch (vk::SystemError& err) 
 	{

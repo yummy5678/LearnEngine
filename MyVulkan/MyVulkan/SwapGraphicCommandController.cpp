@@ -1,14 +1,15 @@
 #include "SwapGraphicCommandController.h"
+#include "WriteImage.cpp"
 
-SwapGraphicCommandController::SwapGraphicCommandController(CDeviceExtensionManager& deviceExtensionManager):
+SwapGraphicCommandController::SwapGraphicCommandController(DeviceExtensionManager& deviceExtensionManager):
 	m_LogicalDevice(VK_NULL_HANDLE),
 	m_PhysicalDevice(VK_NULL_HANDLE),
 	m_Surface(VK_NULL_HANDLE),
 	m_SwapchainGenerator(deviceExtensionManager),
 	m_RenderpassGenerator(),
 	m_FramebufferGenerator(),
-	m_PipelineGenerator(),
-	m_SynchroGenerator()
+	m_PipelineGenerator()
+	//m_SynchroGenerator()
 {
 }
 
@@ -24,6 +25,7 @@ void SwapGraphicCommandController::Initialize(vk::Device logicalDevice, vk::Phys
 
 	//スワップチェーンの作成
 	m_SwapchainGenerator.Create(logicalDevice, physicalDevice, surface);
+	auto swapchain = m_SwapchainGenerator.GetSwapchain();
 	auto swapchainInfo = m_SwapchainGenerator.GetSwapchainInfo();
 	auto extent = swapchainInfo.imageExtent;
 	auto swapchainImage = m_SwapchainGenerator.GetImages();
@@ -49,13 +51,21 @@ void SwapGraphicCommandController::Initialize(vk::Device logicalDevice, vk::Phys
 	auto commandBuffers = m_CommandGenerator.GetCommandBuffers();
 	//m_CommandGenerator.RecordGraphicCommands(framebuffers, renderPass, windowExtent, graphicsPipeline);
 
-	m_CommandGenerator.DrawFrame(commandBuffers[0], renderPass, framebuffers[0], { {0,0},extent }, graphicsPipeline);
+	for (int i = 0; i < swapchainInfo.minImageCount; i++)
+	{
+		m_CommandGenerator.DrawFrame(commandBuffers[i], renderPass, framebuffers[i], { {0,0}, extent }, graphicsPipeline);
+
+	}
+	//WriteVulkanImage("../frame0.bmp", swapchainImage.GetImageData()[0], extent);
+	m_CommandGenerator.PresentFrame(swapchain);
 	//WriteVulkanImage("../frame0.bmp", swapchainImage.GetImageData()[0], windowExtent);
 
+	//m_SynchroGenerator.Create(logicalDevice);
 
-	m_SynchroGenerator.Create(logicalDevice);
+}
 
-
+void SwapGraphicCommandController::Destroy()
+{
 }
 
 void SwapGraphicCommandController::DrawFrame()
@@ -66,27 +76,21 @@ void SwapGraphicCommandController::DrawFrame()
 void SwapGraphicCommandController::PresentFrame()
 {
 
-	// -- 描画したイメージを画面にプレゼント（表示） --
-	// 表示のためのプレゼント情報をセット
-	vk::PresentInfoKHR presentInfo;
-	presentInfo.pNext;
-	presentInfo.pResults;
-	presentInfo.setImageIndices(imageIndex);	// スワップチェーン内のイメージインデックス
-	
-	presentInfo.pSwapchains = &swapchain;		// プレゼントするスワップチェーン
-	presentInfo.pWaitSemaphores = &renderFinished[currentFrame];// レンダリング完了セマフォを待つ
-						
-	
-	// プレゼントキューを取得して、イメージを表示
-	auto presentQueue = logicalDevice.getQueue(queueSelector.GetPresentationIndex(m_SurfaceGenerator.GetSurface()), 0);
-	result = presentQueue.presentKHR(presentInfo);
-	
-	// プレゼントに失敗した場合、エラーメッセージを投げる
-	if (result != vk::Result::eSuccess)
-	{
-		throw std::runtime_error("イメージの表示に失敗しました！");
-	}
-	
-	// フレームインデックスを次に進めます（フレーム数を超えないようにループ）
-	currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

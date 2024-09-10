@@ -23,7 +23,13 @@ void CommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physi
     m_PhysicalDevice = physicalDevice;
 
     // セマフォの作成
-    m_SignalSemaphore.Create(logicalDevice, commandSize);
+    m_SemaphoreGenerator.Create(logicalDevice, commandSize);
+    m_SignalSemaphores = m_SemaphoreGenerator.GetSignalSemaphores();
+    m_WaitSemaphores = m_SemaphoreGenerator.GetWaitSemaphores();
+
+    //フェンスの作成
+    m_FenceGenerator.Create(logicalDevice, commandSize);
+    m_Fences = m_FenceGenerator.GetFence();
 
     //コマンドプール(コマンドを置く領域)を作成
     m_CommandPool = CreateCommandPool(logicalDevice, physicalDevice);
@@ -183,7 +189,7 @@ void CommandGenerator::DrawFrame(vk::CommandBuffer buffer, vk::RenderPass render
 
 
     vk::CommandBufferBeginInfo cmdBeginInfo;
-    if (m_CommandBuffers[0].begin(&cmdBeginInfo) != vk::Result::eSuccess)
+    if (buffer.begin(&cmdBeginInfo) != vk::Result::eSuccess)
     {
         throw std::runtime_error("コマンドバッファの開始に失敗しました！");
     }
@@ -207,9 +213,6 @@ void CommandGenerator::DrawFrame(vk::CommandBuffer buffer, vk::RenderPass render
 
     buffer.end();
 
-
-
-
     auto submit = CreateSubmitInfo(buffer);
 
     // 使用するキュー（グラフィックキューやプレゼントキューなど）のインデックスを取得
@@ -217,6 +220,9 @@ void CommandGenerator::DrawFrame(vk::CommandBuffer buffer, vk::RenderPass render
     auto graphicsQueue = m_LogicalDevice.getQueue(queueFamily.GetGraphicIndex(), 0);
 
     graphicsQueue.submit(submit, nullptr);
+
+    // 終了待機
+    //graphicsQueue.waitIdle();
 
     //vk::PresentInfoKHR presentInfo;
     //presentInfo.pNext;
@@ -227,6 +233,31 @@ void CommandGenerator::DrawFrame(vk::CommandBuffer buffer, vk::RenderPass render
     //presentInfo.pImageIndices = &imageIndex;
     //presentInfo.pResults;
     //graphicsQueue.presentKHR(presentInfo);
+}
+
+void CommandGenerator::PresentFrame(vk::SwapchainKHR swapchain)
+{
+    vk::PresentInfoKHR presentInfo;
+
+    auto index = AcquireSwapchainNextImage(swapchain);
+
+    auto presentSwapchains = { swapchain };
+    auto imgIndices = { index };
+
+    presentInfo.swapchainCount = presentSwapchains.size();
+    presentInfo.pSwapchains = presentSwapchains.begin();
+    presentInfo.pImageIndices = imgIndices.begin();
+
+    // 使用するキュー(グラフィックキューやプレゼントキューなど)のインデックスを取得
+    auto queueFamily = QueueFamilySelector(m_PhysicalDevice);
+    auto graphicsQueue = m_LogicalDevice.getQueue(queueFamily.GetGraphicIndex(), 0);
+
+    if (graphicsQueue.presentKHR(presentInfo) != vk::Result::eSuccess)
+    {
+        throw std::runtime_error("スワップチェーンの画像の表示に失敗しました！");
+    }
+
+    // graphicsQueue.waitIdle();
 }
 
 vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
@@ -272,12 +303,12 @@ vk::SubmitInfo CommandGenerator::CreateSubmitInfo(std::vector<vk::CommandBuffer>
 {
     vk::SubmitInfo submitInfo;
     //submitInfo.pNext;
-    //submitInfo.signalSemaphoreCount;
-    //submitInfo.pSignalSemaphores;
-    //submitInfo.allowDuplicate;
-    //submitInfo.pWaitDstStageMask;
-    //submitInfo.waitSemaphoreCount;
-    //submitInfo.pWaitSemaphores;
+    submitInfo.signalSemaphoreCount = m_SignalSemaphores.size();
+    submitInfo.pSignalSemaphores = m_SignalSemaphores.data();
+    submitInfo.allowDuplicate;
+    submitInfo.pWaitDstStageMask;
+    submitInfo.waitSemaphoreCount = m_WaitSemaphores.size();
+    submitInfo.pWaitSemaphores = m_WaitSemaphores.data();
     submitInfo.commandBufferCount = commandBuffers.size();
     submitInfo.pCommandBuffers = commandBuffers.data();
 
@@ -298,6 +329,27 @@ vk::SubmitInfo CommandGenerator::CreateSubmitInfo(vk::CommandBuffer& commandBuff
     submitInfo.pCommandBuffers = &commandBuffer;
 
     return submitInfo;
+}
+
+uint32_t CommandGenerator::AcquireSwapchainNextImage(vk::SwapchainKHR swapchain)
+{
+    // スワップチェーンから次に描画するイメージ（フレームバッファのようなもの）のインデックスを取得します。
+    uint32_t imageIndex;
+    vk::Result result = m_LogicalDevice.acquireNextImageKHR(
+	    swapchain,                              // スワップチェーン
+	    std::numeric_limits<uint64_t>::max(),   // タイムアウトの設定（ここでは無限待機）
+	    //imageAvailable[currentFrame],         // イメージが使用可能になるのを通知するセマフォ
+	    nullptr,                                // イメージが使用可能になるのを通知するセマフォ
+	    nullptr,                                // フェンス（ここでは使用しないのでnullptr）
+	    &imageIndex                             // イメージのインデックスが格納される
+    );
+    // イメージ取得に失敗した場合、エラーメッセージを投げる
+    if (result != vk::Result::eSuccess)
+    {
+	    throw std::runtime_error("スワップチェーンからイメージを取得できませんでした！");
+    }
+
+    return imageIndex;
 }
 
 

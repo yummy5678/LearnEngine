@@ -1,7 +1,7 @@
 #include "SwapChainUtility.h"
 
 
-SwapchainGenerator::SwapchainGenerator(CDeviceExtensionManager& deviceExtensionManager)
+SwapchainGenerator::SwapchainGenerator(DeviceExtensionManager& deviceExtensionManager)
 {
     m_ClassName = "SwapchainGenerator";
 
@@ -22,7 +22,7 @@ void SwapchainGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice phy
 
     m_Swapchain = logicalDevice.createSwapchainKHR(m_SwapchainInfo);
 
-    m_Images.CreateForSwapchain(logicalDevice, physicalDevice, m_SwapchainInfo);
+    m_Images.CreateForSwapchain(logicalDevice, physicalDevice, m_Swapchain, m_SwapchainInfo);
 }
 
 void SwapchainGenerator::Destroy(vk::Device logicalDevice)

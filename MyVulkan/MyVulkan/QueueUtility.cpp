@@ -2,10 +2,10 @@
 
 
 
-QueueFamilySelector::QueueFamilySelector(vk::PhysicalDevice physicalDevice)
+QueueFamilySelector::QueueFamilySelector(vk::PhysicalDevice& physicalDevice)
 {
 	std::cout << "QueueFamilySelectorが作成されました" << std::endl;
-	m_PhysicalDevice = physicalDevice;
+	m_pPhysicalDevice = &physicalDevice;
 }
 
 QueueFamilySelector::~QueueFamilySelector()
@@ -45,7 +45,7 @@ uint32_t QueueFamilySelector::GetPresentationIndex(vk::SurfaceKHR surface)
 uint32_t QueueFamilySelector::SearchGraphicsFamily()
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
-	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
+	const auto queueFamilyList = m_pPhysicalDevice->getQueueFamilyProperties();
 	uint32_t index = NoneQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
@@ -60,14 +60,13 @@ uint32_t QueueFamilySelector::SearchGraphicsFamily()
 		}
 	}
 
-	printf("描画用キューの探索結果： %d\n", index);
 	return index;
 }
 
 uint32_t QueueFamilySelector::SearchComputeFamily()
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
-	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
+	const auto queueFamilyList = m_pPhysicalDevice->getQueueFamilyProperties();
 	uint32_t index = NoneQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
@@ -82,14 +81,13 @@ uint32_t QueueFamilySelector::SearchComputeFamily()
 		}
 	}
 
-	printf("計算用キューの探索結果： %d\n", index);
 	return index;
 }
 
 uint32_t QueueFamilySelector::SearchTransferFamily()
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
-	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
+	const auto queueFamilyList = m_pPhysicalDevice->getQueueFamilyProperties();
 	uint32_t index = NoneQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
@@ -104,28 +102,26 @@ uint32_t QueueFamilySelector::SearchTransferFamily()
 		}
 	}
 
-	printf("転送用キューの探索結果： %d\n", index);
 	return index;
 }
 
 uint32_t QueueFamilySelector::SearchPresentationFamily(vk::SurfaceKHR surface)
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
-	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
+	const auto queueFamilyList = m_pPhysicalDevice->getQueueFamilyProperties();
 	uint32_t index = NoneQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
 	{
 		// 1. キューファミリーを1つでもキューを持っているか確認する
 		// 2. 画像の表示機能があるか確認する
-		if (queueFamilyList[i].queueCount > 0 && m_PhysicalDevice.getSurfaceSupportKHR(i, surface))
+		if (queueFamilyList[i].queueCount > 0 && m_pPhysicalDevice->getSurfaceSupportKHR(i, surface))
 		{
 			index = i;	// キューファミリーが有効であれば、そのインデックスを取得する
 			break;
 		}
 	}
 
-	printf("プレゼンテーションキューの探索結果： %d\n", index);
 	return index;
 }
 

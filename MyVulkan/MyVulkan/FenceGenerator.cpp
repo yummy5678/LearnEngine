@@ -17,7 +17,7 @@ void FenceGenerator::Create(vk::Device logicalDevice, uint32_t fenceCount)
 
 	m_LogicalDevice = logicalDevice;
 
-	m_Fences = CreateFence(logicalDevice, fenceCount);
+	m_Fences = CreateFences(logicalDevice, fenceCount);
 }
 
 void FenceGenerator::Destroy()
@@ -39,7 +39,7 @@ std::vector<vk::Fence> FenceGenerator::GetFence()
 	return m_Fences;
 }
 
-std::vector<vk::Fence> FenceGenerator::CreateFence(vk::Device logicalDevice, uint32_t fenceCount)
+std::vector<vk::Fence> FenceGenerator::CreateFences(vk::Device logicalDevice, uint32_t fenceCount)
 {
 	// 作成分領域を確保する
 	std::vector<vk::Fence> fenes;
@@ -57,6 +57,7 @@ std::vector<vk::Fence> FenceGenerator::CreateFence(vk::Device logicalDevice, uin
 			// フェンスを作成する
 			fenes[i] = logicalDevice.createFence(fenceCreateInfo);
 		}
+		return fenes;
 	}
 	catch (vk::SystemError& err)
 	{

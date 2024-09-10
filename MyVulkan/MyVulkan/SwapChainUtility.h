@@ -10,7 +10,7 @@
 class SwapchainGenerator : public CGeneratorBase
 {
 public:
-	SwapchainGenerator(CDeviceExtensionManager& deviceExtensionManager);
+	SwapchainGenerator(DeviceExtensionManager& deviceExtensionManager);
 	~SwapchainGenerator();
 
 	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);

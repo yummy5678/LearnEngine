@@ -11,7 +11,7 @@ public:
 	~ImagesGenerator();
 
 	void Create(uint32_t ImageNum, vk::Extent2D extent, vk::Device logicalDevice, vk::PhysicalDevice physicalDevice);
-	void CreateForSwapchain(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
+	void CreateForSwapchain(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
 	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t imageCount, vk::Format fomat, vk::Extent2D extent);
 	void Destroy();
 
@@ -41,7 +41,7 @@ private:
 
 
 	vk::MemoryAllocateInfo AllocateImageMemory(vk::Image image, vk::Device device, vk::PhysicalDevice physicalDevice);
-	uint32_t FindMemoryType(vk::PhysicalDevice physicalDevice, uint32_t typeFilter);
+	uint32_t FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Image image, vk::MemoryPropertyFlags findType);
 
 };
 

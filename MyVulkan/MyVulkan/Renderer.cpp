@@ -14,7 +14,8 @@ VulkanRenderer::VulkanRenderer() :
 	m_PipelineGenerator(),
 	m_FramebufferGenerator(),
 	m_CommandGenerator(),
-	m_SynchroGenerator()
+	m_SynchroGenerator(),
+	m_GraphicController(m_DeviceExtension)
 {
 }
 
@@ -53,38 +54,38 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		//m_ImageGenerator.CreateForSurface(logicalDevice, physicalDevice, surface);
 		//auto imageViews = m_ImageGenerator.GetImageViews();
 
-		//スワップチェーンの作成
-		m_SwapchainGenerator.Create(logicalDevice, physicalDevice, surface);
-		auto swapchainImage = m_SwapchainGenerator.GetImages();
+		////スワップチェーンの作成
+		//m_SwapchainGenerator.Create(logicalDevice, physicalDevice, surface);
+		//auto swapchainImage = m_SwapchainGenerator.GetImages();
 
-		//コマンドバッファの作成
-		m_CommandGenerator.Create(logicalDevice, physicalDevice, swapchainImage.GetSize());
+		////コマンドバッファの作成
+		//m_CommandGenerator.Create(logicalDevice, physicalDevice, swapchainImage.GetSize());
 
-		//レンダーパスの作成
-		m_RenderpassGenerator.Create(logicalDevice, swapchainImage.GetFomat());
-		auto renderPass = m_RenderpassGenerator.GetRenderpass();
+		////レンダーパスの作成
+		//m_RenderpassGenerator.Create(logicalDevice, swapchainImage.GetFomat());
+		//auto renderPass = m_RenderpassGenerator.GetRenderpass();
 
-		//パイプラインの作成
-		m_PipelineGenerator.Create(logicalDevice, windowExtent, renderPass);
-		auto graphicsPipeline = m_PipelineGenerator.GetPipeline();
-		
-		//フレームバッファの作成
-		m_FramebufferGenerator.Create(logicalDevice, swapchainImage.GetImageViews(), renderPass, windowExtent);
-		auto framebuffers = m_FramebufferGenerator.GetFramebuffers();
+		////パイプラインの作成
+		//m_PipelineGenerator.Create(logicalDevice, windowExtent, renderPass);
+		//auto graphicsPipeline = m_PipelineGenerator.GetPipeline();
+		//
+		////フレームバッファの作成
+		//m_FramebufferGenerator.Create(logicalDevice, swapchainImage.GetImageViews(), renderPass, windowExtent);
+		//auto framebuffers = m_FramebufferGenerator.GetFramebuffers();
 
+		////コマンドの記録
+		//m_CommandGenerator.Create(logicalDevice, physicalDevice, 3);
+		//auto commandBuffers = m_CommandGenerator.GetCommandBuffers();
+		////m_CommandGenerator.RecordGraphicCommands(framebuffers, renderPass, windowExtent, graphicsPipeline);
 
-
-		//コマンドの記録
-		m_CommandGenerator.Create(logicalDevice, physicalDevice, 3);
-		auto commandBuffers = m_CommandGenerator.GetCommandBuffers();
-		//m_CommandGenerator.RecordGraphicCommands(framebuffers, renderPass, windowExtent, graphicsPipeline);
-
-		m_CommandGenerator.DrawFrame(commandBuffers[0], renderPass, framebuffers[0], { {0,0},windowExtent }, graphicsPipeline);
-		WriteVulkanImage("../frame0.bmp", swapchainImage.GetImageData()[0], windowExtent);
+		//m_CommandGenerator.DrawFrame(commandBuffers[0], renderPass, framebuffers[0], { {0,0},windowExtent }, graphicsPipeline);
+		////WriteVulkanImage("../frame0.bmp", swapchainImage.GetImageData()[0], windowExtent);
 
 
-		m_SynchroGenerator.Create(logicalDevice);
-		//createSynchronisation();
+		//m_SynchroGenerator.Create(logicalDevice);
+		////createSynchronisation();
+
+		m_GraphicController.Initialize(logicalDevice, physicalDevice, surface);
 	}
 	catch (const std::runtime_error& e) {
 		//エラーメッセージ受け取り
@@ -119,11 +120,11 @@ void VulkanRenderer::draw()
 	//// フェンスを手動でリセットします。これで次回の描画で再びフェンスを待機できるようにします。
 	//logicalDevice.resetFences(drawFences[currentFrame]);
 
-	//// スワップチェーンから次に描画するイメージ（フレームバッファのようなもの）のインデックスを取得します。
+	//// スワップチェーンから次に描画するイメージ（フレームバッファのようなもの）のインデックスを取得。
 	//uint32_t imageIndex;
 	//vk::Result result = logicalDevice.acquireNextImageKHR(
 	//	swapchain,                                       // スワップチェーン
-	//	std::numeric_limits<uint64_t>::max(),            // タイムアウトの設定（ここでは無限待機）
+	//	std::numeric_limits<uint64_t>::max(),            // タイムアウトの設定(ここでは無限待機)
 	//	imageAvailable[currentFrame],                    // イメージが使用可能になるのを通知するセマフォ
 	//	nullptr,                                         // フェンス（ここでは使用しないのでnullptr）
 	//	&imageIndex                                      // イメージのインデックスが格納される
