@@ -1,22 +1,29 @@
 #version 450 		// Use GLSL 4.5
 
-layout(location = 0) out vec3 fragColour;	// Output colour for vertex (location is required)
+layout(location = 0) in vec3 pos;
+layout(location = 1) in vec3 col;
+layout(location = 2) in vec2 tex;
 
-// Triangle vertex positions (will put in to vertex buffer later!)
-vec3 positions[3] = vec3[](
-	vec3(0.0, -0.4, 0.0),
-	vec3(0.4, 0.4, 0.0),
-	vec3(-0.4, 0.4, 0.0)
-);
+layout(set = 0, binding = 0) uniform UboViewProjection {
+	mat4 projection;
+	mat4 view;
+} uboViewProjection;
 
-// Triangle vertex colours
-vec3 colours[3] = vec3[](
-	vec3(1.0, 0.0, 0.0),
-	vec3(0.0, 1.0, 0.0),
-	vec3(0.0, 0.0, 1.0)
-);
+// NOT IN USE, LEFT FOR REFERENCE
+layout(set = 0, binding = 1) uniform UboModel {
+	mat4 model;
+} uboModel;
+
+layout(push_constant) uniform PushModel {
+	mat4 model;
+} pushModel;
+
+layout(location = 0) out vec3 fragCol;
+layout(location = 1) out vec2 fragTex;
 
 void main() {
-	gl_Position = vec4(positions[gl_VertexIndex], 1.0);
-	fragColour = colours[gl_VertexIndex];
+	gl_Position = uboViewProjection.projection * uboViewProjection.view * pushModel.model * vec4(pos, 1.0);
+	
+	fragCol = col;
+	fragTex = tex;
 }

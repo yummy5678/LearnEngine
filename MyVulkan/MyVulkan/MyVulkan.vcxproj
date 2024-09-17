@@ -140,6 +140,8 @@
     <ClCompile Include="GeneratorBase.cpp" />
     <ClCompile Include="GraphicsPipelineUtility.cpp" />
     <ClCompile Include="InstanceExtensionManager.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshModel.cpp" />
     <ClCompile Include="PhysicalDeviceSelector.cpp" />
     <ClCompile Include="SemaphoreGenerator.cpp" />
     <ClCompile Include="SwapGraphicCommandController.cpp" />
@@ -171,8 +173,11 @@
     <ClInclude Include="GraphicsDefine.h" />
     <ClInclude Include="GraphicsPipelineUtility.h" />
     <ClInclude Include="InstanceExtensionManager.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshModel.h" />
     <ClInclude Include="PhysicalDeviceSelector.h" />
     <ClInclude Include="SemaphoreGenerator.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="SwapGraphicCommandController.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />
