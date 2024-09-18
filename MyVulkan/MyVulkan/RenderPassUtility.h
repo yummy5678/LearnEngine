@@ -31,20 +31,6 @@ private:
 	vk::RenderPass							m_RenderPass;
 
 	// プライベート関数
-	vk::AttachmentDescription				CreateColorAttachment(const vk::Format imageFormat);
-	vk::AttachmentReference					CreateColorAttachmentReference();
-	std::vector<vk::SubpassDescription>		CreateSubpass(
-		std::vector<vk::AttachmentReference> inputReferences = {},
-		std::vector<vk::AttachmentReference> colorReferences = {},
-		vk::AttachmentReference resolveReferences			 = {},
-		vk::AttachmentReference depthStencilReferences		 = {},
-		std::vector<uint32_t> preserveReferences			 = {});
-	std::vector<vk::SubpassDependency>		CreateDependencies();
-
-	vk::RenderPassCreateInfo				CreateInfo(	std::vector<vk::AttachmentDescription>& colorAttachment, 
-														std::vector<vk::SubpassDescription>&	subpass, 
-														std::vector<vk::SubpassDependency>&		dependencies);
-
 	vk::RenderPass							CreateRenderpass(vk::Device logicalDevice, vk::Format imageFomat);
 
 };

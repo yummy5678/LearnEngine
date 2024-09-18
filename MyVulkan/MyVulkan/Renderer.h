@@ -89,41 +89,31 @@ private:
 	int createMeshModel(std::string modelFile);
 	void updateModel(int modelId, glm::mat4 newModel);
 
-	// Scene Objects
-	std::vector<MeshModel> modelList;
-
-	// Scene Settings
-	struct UboViewProjection {
-		glm::mat4 projection;
-		glm::mat4 view;
-	} uboViewProjection;
 
 
-	std::vector<VkImage> colourBufferImage;
-	std::vector<VkDeviceMemory> colourBufferImageMemory;
-	std::vector<VkImageView> colourBufferImageView;
 
-	std::vector<VkImage> depthBufferImage;
-	std::vector<VkDeviceMemory> depthBufferImageMemory;
-	std::vector<VkImageView> depthBufferImageView;
+	//std::vector<VkImage> colourBufferImage;
+	//std::vector<VkDeviceMemory> colourBufferImageMemory;
+	//std::vector<VkImageView> colourBufferImageView;
 
-	VkSampler textureSampler;
+	//std::vector<VkImage> depthBufferImage;
+	//std::vector<VkDeviceMemory> depthBufferImageMemory;
+	//std::vector<VkImageView> depthBufferImageView;
+
+	
 
 	// - Descriptors
-	VkDescriptorSetLayout descriptorSetLayout;
-	VkDescriptorSetLayout samplerSetLayout;
-	VkDescriptorSetLayout inputSetLayout;
-	VkPushConstantRange pushConstantRange;
+	VkDescriptorSetLayout	descriptorSetLayout;
+	VkDescriptorSetLayout	samplerSetLayout;
+	VkDescriptorSetLayout	inputSetLayout;
+	VkPushConstantRange		pushConstantRange;
 
-	VkDescriptorPool descriptorPool;
-	VkDescriptorPool samplerDescriptorPool;
-	VkDescriptorPool inputDescriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;
-	std::vector<VkDescriptorSet> samplerDescriptorSets;
-	std::vector<VkDescriptorSet> inputDescriptorSets;
 
-	std::vector<VkBuffer> vpUniformBuffer;
-	std::vector<VkDeviceMemory> vpUniformBufferMemory;
+	
+	
+
+
+
 
 	std::vector<VkBuffer> modelDUniformBuffer;
 	std::vector<VkDeviceMemory> modelDUniformBufferMemory;
@@ -132,29 +122,18 @@ private:
 	//size_t modelUniformAlignment;
 	//UboModel * modelTransferSpace;
 
-	// - Assets
 
-	std::vector<VkImage> textureImages;
-	std::vector<VkDeviceMemory> textureImageMemory;
-	std::vector<VkImageView> textureImageViews;
 
 	VkPipeline secondPipeline;
 	VkPipelineLayout secondPipelineLayout;
 
-	void createDescriptorSetLayout();
+	
 	void createPushConstantRange();
 
 	void createColourBufferImage();
 	void createDepthBufferImage();
 
-	void createTextureSampler();
-
-	void createUniformBuffers();
-	void createDescriptorPool();
-	void createDescriptorSets();
-	void createInputDescriptorSets();
-
-	void updateUniformBuffers(uint32_t imageIndex);
+	
 
 	void recordCommands(uint32_t currentImage);
 

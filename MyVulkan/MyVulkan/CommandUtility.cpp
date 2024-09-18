@@ -261,21 +261,28 @@ void CommandGenerator::PresentFrame(vk::SwapchainKHR swapchain)
 }
 
 vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
-{
+{ 
+    // Get indices of queue families from device
     QueueFamilySelector queue(physicalDevice);
+
     // コマンドプールの作成に必要な情報を設定する
-    vk::CommandPoolCreateInfo poolInfo;
-    poolInfo.pNext;
-    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;    // コマンドバッファのリセットを許可する場合はフラグを追加する
-    poolInfo.queueFamilyIndex = queue.GetGraphicIndex();	            // このコマンドプールが使用するキューファミリータイプ
-    poolInfo.allowDuplicate;
+    VkCommandPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;	// コマンドバッファのリセットを許可する場合はフラグを追加する
+    poolInfo.queueFamilyIndex = queue.GetGraphicIndex();	            // このコマンドプールが使用するキューファミリー
 
     // グラフィックスキューファミリー用のコマンドプールを作成する
-    return logicalDevice.createCommandPool(poolInfo);
-    //if (!commandPool)
-    //{
-    //    throw std::runtime_error("コマンドプールの作成に失敗しました！");
-    //}
+    vk::CommandPool pool;
+    try
+    {
+        pool = logicalDevice.createCommandPool(poolInfo);
+    }
+    catch (const std::exception&)
+    {
+        throw std::runtime_error("コマンドプールの作成に失敗しました！");
+    }
+
+    return pool;
 }
 
 std::vector<vk::CommandBuffer> CommandGenerator::CreateCommandBuffers(vk::Device logicalDevice, uint32_t commandSize, vk::CommandPool commandPool)

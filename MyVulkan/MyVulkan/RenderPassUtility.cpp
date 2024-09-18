@@ -15,14 +15,7 @@ void RenderpassGenerator::Create(vk::Device logicalDevice, vk::Format imageFomat
     m_bCreated = true;
     m_LogicalDevice = logicalDevice;
 
-    auto colorAttachment = CreateColorAttachment(imageFomat);
-    auto colorAttachmentReference = CreateColorAttachmentReference();
-    auto subpass = CreateSubpass({}, { colorAttachmentReference }, {}, {}, {});
-    auto dependencies = CreateDependencies();
-    std::vector<vk::AttachmentDescription> a{ colorAttachment };
-    auto createInfo = CreateInfo(a, subpass, dependencies);
-    m_RenderPass = logicalDevice.createRenderPass(createInfo);
-    //m_RenderPass = CreateRenderpass(logicalDevice, imageFomat);
+    m_RenderPass = CreateRenderpass(logicalDevice, imageFomat);
     //if (!renderPass)
     //{
     //    throw std::runtime_error("レンダーパスの作成に失敗しました!");
@@ -45,139 +38,139 @@ vk::RenderPass RenderpassGenerator::GetRenderpass()
     return m_RenderPass;
 }
 
-//void RenderpassGenerator::Release()
-//{
-    //m_pLogicalDevice->destroyRenderPass(m_RenderPass, nullptr);
-//}
 
-vk::AttachmentDescription RenderpassGenerator::CreateColorAttachment(const vk::Format imageFormat)
+vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice, vk::Format imageFormat)
 {
-    vk::AttachmentDescription attachment;
-    // カラーバッファアタッチメントの記述
-    attachment.flags;
-    attachment.format = imageFormat;                                // 画像フォーマット(画像作成時の設定と同じにする)
-    attachment.samples = vk::SampleCountFlagBits::e1;               // マルチサンプリングのサンプル数
-    attachment.loadOp = vk::AttachmentLoadOp::eClear;               // レンダーパスの開始時にカラーバッファをクリア
-    attachment.storeOp = vk::AttachmentStoreOp::eStore;             // レンダーパスの終了時にカラーバッファを保存
-    attachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;     // ステンシルバッファを使用しない
-    attachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;   // ステンシルバッファを使用しない
-    attachment.initialLayout = vk::ImageLayout::eUndefined;         // レンダーパス開始時のレイアウト
-    attachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;       // レンダーパス終了時のレイアウト(表示用)
-    
-    return attachment;
-}
+    // アタッチメントの設定
+    vk::AttachmentDescription colorAttachment = {};
+    colorAttachment.setFormat(chooseSupportedFormat(
+        { vk::Format::eR8G8B8A8Unorm },
+        vk::ImageTiling::eOptimal,
+        vk::FormatFeatureFlagBits::eColorAttachment));
+    colorAttachment.setSamples(vk::SampleCountFlagBits::e1); // マルチサンプリングのサンプル数
+    colorAttachment.setLoadOp(vk::AttachmentLoadOp::eClear); // レンダーパス開始時にクリア
+    colorAttachment.setStoreOp(vk::AttachmentStoreOp::eDontCare); // 終了時に保存しない
+    colorAttachment.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare); // ステンシルを使用しない
+    colorAttachment.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare);
+    colorAttachment.setInitialLayout(vk::ImageLayout::eUndefined); // 開始時のレイアウト
+    colorAttachment.setFinalLayout(vk::ImageLayout::eColorAttachmentOptimal); // 終了時のレイアウト
 
-vk::AttachmentReference RenderpassGenerator::CreateColorAttachmentReference()
-{
-    vk::AttachmentReference reference;
-    // サブパスから描画結果の色を出力するアタッチメントがどれかを指定します
-    reference.attachment = 0;                                    // アタッチメントのインデックス
-    reference.layout = vk::ImageLayout::eColorAttachmentOptimal; // アタッチメントのレイアウト
-    return reference;
-}
+    vk::AttachmentDescription depthAttachment = {};
+    depthAttachment.setFormat(chooseSupportedFormat(
+        { vk::Format::eD32SfloatS8Uint, vk::Format::eD32Sfloat, vk::Format::eD24UnormS8Uint },
+        vk::ImageTiling::eOptimal,
+        vk::FormatFeatureFlagBits::eDepthStencilAttachment));
+    depthAttachment.setSamples(vk::SampleCountFlagBits::e1);
+    depthAttachment.setLoadOp(vk::AttachmentLoadOp::eClear);
+    depthAttachment.setStoreOp(vk::AttachmentStoreOp::eDontCare);
+    depthAttachment.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare);
+    depthAttachment.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare);
+    depthAttachment.setInitialLayout(vk::ImageLayout::eUndefined);
+    depthAttachment.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
-std::vector<vk::SubpassDescription> RenderpassGenerator::CreateSubpass(
-    std::vector<vk::AttachmentReference> inputReferences,
-    std::vector<vk::AttachmentReference> colorReferences,
-    vk::AttachmentReference resolveReferences,
-    vk::AttachmentReference depthStencilReferences,
-    std::vector<uint32_t> preserveReferences)
-{
-    // アタッチメント参照
-    // サブパスから描画結果の色を出力するアタッチメントがどれかを指定します
-    m_ColorAttachmentRef.attachment = 0;                                    // アタッチメントのインデックス
-    m_ColorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal; // アタッチメントのレイアウト
+    // カラーバッファの参照を設定
+    vk::AttachmentReference colorAttachmentReference = {};
+    colorAttachmentReference.setAttachment(1); // アタッチメントのインデックス
+    colorAttachmentReference.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
 
-    // サブパスの記述
-    vk::SubpassDescription subpass;
-    subpass.flags;
-    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;  // グラフィックスパイプラインにバインド
-    subpass.inputAttachmentCount = 0;
-    subpass.pInputAttachments = nullptr;
-    subpass.colorAttachmentCount = 1;  // カラーバッファアタッチメントの数
-    subpass.pColorAttachments = &m_ColorAttachmentRef;  // カラーバッファアタッチメントの参照
-    subpass.pResolveAttachments = nullptr;
-    subpass.pDepthStencilAttachment = nullptr;
-    subpass.preserveAttachmentCount = 0;
-    subpass.pPreserveAttachments = nullptr;
+    // デプスバッファの参照を設定
+    vk::AttachmentReference depthAttachmentReference = {};
+    depthAttachmentReference.setAttachment(2);
+    depthAttachmentReference.setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
-    return std::vector{ subpass };
-}
+    // サブパス1の設定
+    vk::SubpassDescription subpass1 = {};
+    subpass1.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics);
+    subpass1.setColorAttachmentCount(1);
+    subpass1.setPColorAttachments(&colorAttachmentReference); // カラーアタッチメントの参照
+    subpass1.setPDepthStencilAttachment(&depthAttachmentReference); // デプスアタッチメントの参照
 
-std::vector<vk::SubpassDependency> RenderpassGenerator::CreateDependencies()
-{
+    // スワップチェイン用のカラーバッファアタッチメント
+    vk::AttachmentDescription swapchainColorAttachment = {};
+    swapchainColorAttachment.setFormat(imageFormat); // スワップチェインのフォーマット
+    swapchainColorAttachment.setSamples(vk::SampleCountFlagBits::e1);
+    swapchainColorAttachment.setLoadOp(vk::AttachmentLoadOp::eClear);
+    swapchainColorAttachment.setStoreOp(vk::AttachmentStoreOp::eStore); // レンダーパス後に保存
+    swapchainColorAttachment.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare);
+    swapchainColorAttachment.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare);
+    swapchainColorAttachment.setInitialLayout(vk::ImageLayout::eUndefined);
+    swapchainColorAttachment.setFinalLayout(vk::ImageLayout::ePresentSrcKHR); // プレゼントのためのレイアウト
 
-    std::vector<vk::SubpassDependency> dependencies;
-    dependencies.resize(2); 
+    // スワップチェインのカラーバッファの参照を設定
+    vk::AttachmentReference swapchainColorAttachmentReference = {};
+    swapchainColorAttachmentReference.setAttachment(0);
+    swapchainColorAttachmentReference.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
 
-    // サブパス依存関係の記述
-    // レイアウト遷移が発生するタイミングをサブパス依存関係を使用して決定する必要があります
-    
-    // VK_IMAGE_LAYOUT_UNDEFINED から VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL への変換
-    dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;                           // サブパスのインデックス (VK_SUBPASS_EXTERNAL = レンダーパスの外部を意味する特別な値)
-    dependencies[0].srcStageMask = vk::PipelineStageFlagBits::eBottomOfPipe;    // パイプラインステージ
-    dependencies[0].srcAccessMask = vk::AccessFlagBits::eMemoryRead;            // ステージアクセスマスク (メモリアクセス)
-    dependencies[0].dstSubpass = 0;                                             // サブパスのインデックス
-    dependencies[0].dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput; // パイプラインステージ
-    dependencies[0].dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite; // ステージアクセスマスク
-    dependencies[0].dependencyFlags = vk::DependencyFlags();                    // 依存関係フラグ
-    
-    // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL から VK_IMAGE_LAYOUT_PRESENT_SRC_KHR への変換
-    dependencies[1].srcSubpass = 0;                                             // サブパスのインデックス
-    dependencies[1].srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput; // パイプラインステージ
-    dependencies[1].srcAccessMask = vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite; // ステージアクセスマスク
-    dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;                           // サブパスのインデックス
-    dependencies[1].dstStageMask = vk::PipelineStageFlagBits::eBottomOfPipe;    // パイプラインステージ
-    dependencies[1].dstAccessMask = vk::AccessFlagBits::eMemoryRead;            // ステージアクセスマスク
-    dependencies[1].dependencyFlags = vk::DependencyFlags();                    // 依存関係フラグ
+    // サブパス2の入力アタッチメントの参照を設定
+    std::array<vk::AttachmentReference, 2> inputReferences = {
+        vk::AttachmentReference{1, vk::ImageLayout::eShaderReadOnlyOptimal}, // サブパス1のカラーアタッチメント
+        vk::AttachmentReference{2, vk::ImageLayout::eShaderReadOnlyOptimal}  // サブパス1のデプスアタッチメント
+    };
 
-    return dependencies;
-}
+    // サブパス2の設定
+    vk::SubpassDescription subpass2 = {};
+    subpass2.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics);
+    subpass2.setColorAttachmentCount(1);
+    subpass2.setPColorAttachments(&swapchainColorAttachmentReference); // スワップチェインのカラーアタッチメント
+    subpass2.setInputAttachmentCount(static_cast<uint32_t>(inputReferences.size()));
+    subpass2.setPInputAttachments(inputReferences.data()); // 入力アタッチメントの参照
 
-vk::RenderPassCreateInfo RenderpassGenerator::CreateInfo(
-    std::vector<vk::AttachmentDescription>& colorAttachment, 
-    std::vector<vk::SubpassDescription>& subpass, 
-    std::vector<vk::SubpassDependency>& dependencies)
-{
-    // レンダーパスの記述
-    m_RenderPassInfo.pNext;
-    m_RenderPassInfo.flags;
-    m_RenderPassInfo.attachmentCount    = colorAttachment.size();   // アタッチメントの数
-    m_RenderPassInfo.pAttachments       = colorAttachment.data();   // アタッチメントの記述
-    m_RenderPassInfo.subpassCount       = subpass.size();           // サブパスの数
-    m_RenderPassInfo.pSubpasses         = subpass.data();           // サブパスの記述
-    m_RenderPassInfo.dependencyCount    = dependencies.size();      // サブパス依存関係の数
-    m_RenderPassInfo.pDependencies      = dependencies.data();      // サブパス依存関係の記述
+    // サブパス依存関係の設定
+    std::array<vk::SubpassDependency, 3> subpassDependencies;
 
-    return m_RenderPassInfo;
-}
+    // 外部からの色アタッチメントへのレイアウト変換
+    subpassDependencies[0] = vk::SubpassDependency{
+        vk::SubpassExternal,
+        0,
+        vk::PipelineStageFlagBits::eBottomOfPipe,
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,
+        vk::AccessFlagBits::eMemoryRead,
+        vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite,
+        {}
+    };
 
-vk::RenderPass RenderpassGenerator::CreateRenderpass(vk::Device logicalDevice, vk::Format imageFomat)
-{
-    vk::AttachmentDescription colorAttachment{};
-    colorAttachment.format = imageFomat;
-    colorAttachment.samples = vk::SampleCountFlagBits::e1;
-    colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-    colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+    // サブパス1からサブパス2へのレイアウト変換
+    subpassDependencies[1] = vk::SubpassDependency{
+        0,
+        1,
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,
+        vk::PipelineStageFlagBits::eFragmentShader,
+        vk::AccessFlagBits::eColorAttachmentWrite,
+        vk::AccessFlagBits::eShaderRead,
+        {}
+    };
 
-    vk::AttachmentReference colorAttachmentRef{};
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+    // サブパス1から外部へのレイアウト変換
+    subpassDependencies[2] = vk::SubpassDependency{
+        0,
+        vk::SubpassExternal,
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,
+        vk::PipelineStageFlagBits::eBottomOfPipe,
+        vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite,
+        vk::AccessFlagBits::eMemoryRead,
+        {}
+    };
 
-    vk::SubpassDescription subpass{};
-    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
+    // レンダーパスのアタッチメントを設定
+    std::array<vk::AttachmentDescription, 3> renderPassAttachments = { swapchainColorAttachment, colorAttachment, depthAttachment };
 
-    vk::RenderPassCreateInfo renderPassInfo{};
-    renderPassInfo.attachmentCount = 1;
-    renderPassInfo.pAttachments = &colorAttachment;
-    renderPassInfo.subpassCount = 1;
-    renderPassInfo.pSubpasses = &subpass;
+    // レンダーパス作成情報の設定
+    vk::RenderPassCreateInfo renderPassCreateInfo = {};
+    renderPassCreateInfo.setAttachmentCount(static_cast<uint32_t>(renderPassAttachments.size()));
+    renderPassCreateInfo.setPAttachments(renderPassAttachments.data());
+    renderPassCreateInfo.setSubpassCount(static_cast<uint32_t>(2));
+    std::array<vk::SubpassDescription, 2> subpasses = { subpass1, subpass2 };
+    renderPassCreateInfo.setPSubpasses(subpasses.data());
+    renderPassCreateInfo.setDependencyCount(static_cast<uint32_t>(subpassDependencies.size()));
+    renderPassCreateInfo.setPDependencies(subpassDependencies.data());
 
-    return logicalDevice.createRenderPass(renderPassInfo);
+    // レンダーパスの作成
+    auto renderPass = logicalDevice.createRenderPass(renderPassCreateInfo);
+
+    // エラーチェック
+    if (!renderPass) {
+        throw std::runtime_error("Failed to create a Render Pass!"); // レンダーパス作成失敗時
+    }
+
+    return renderPass; // 作成したレンダーパスを返す
 }
