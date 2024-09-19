@@ -30,6 +30,8 @@ void CScene::init(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, v
 	createDescriptorSets(logicalDevice, swapchainInfo.minImageCount);
 
 	createUniformBuffers(logicalDevice, physicalDevice, swapchainInfo.minImageCount);
+
+	createInputDescriptorSets(logicalDevice, swapchainInfo.minImageCount);
 }
 
 void CScene::updateModel(int modelId, glm::mat4 newModel)
@@ -194,11 +196,11 @@ int CScene::createTexture(vk::Device logicalDevice, vk::PhysicalDevice physicalD
 	int textureImageLoc = createTextureImage(logicalDevice,physicalDevice, fileName);
 
 	// Create Image View and add to list
-	VkImageView imageView = createImageView(textureImages[textureImageLoc], VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
+	VkImageView imageView = createImageView(logicalDevice, textureImages[textureImageLoc], VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
 	textureImageViews.push_back(imageView);
 
 	// Create Texture Descriptor
-	int descriptorLoc = createTextureDescriptor(imageView);
+	int descriptorLoc = createTextureDescriptor(logicalDevice, imageView);
 
 	// Return location of set with texture
 	return descriptorLoc;
@@ -223,7 +225,7 @@ int CScene::createTextureDescriptor(vk::Device logicalDevice, VkImageView textur
 	}
 
 	// Texture Image Info
-	VkDescriptorImageInfo imageInfo = {};
+	VkDescriptorImageInfo imagedInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;	// Image layout when in use
 	imageInfo.imageView = textureImage;									// Image to bind to set
 	imageInfo.sampler = textureSampler;									// Sampler to use for set
@@ -269,7 +271,40 @@ stbi_uc* CScene::loadTextureFile(std::string fileName, int* width, int* height, 
 
 }
 
-void CScene::createDescriptorSetLayout()
+void CScene::createColourBufferImage(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t ImageNum, vk::Extent2D extent)
+{
+	// Get supported format for colour attachment
+	std::vector<vk::Format> sourceFomat = { vk::Format::eR8G8B8A8Unorm };
+	vk::Format colourFormat = chooseSupportedFormat(
+		physicalDevice,
+		sourceFomat,
+		vk::ImageTiling::eOptimal,
+		vk::FormatFeatureFlagBits::eColorAttachment);
+
+	vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment;
+
+	colourBufferImage.Create(logicalDevice, physicalDevice, ImageNum, colourFormat, extent, usage, vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+}
+
+
+void CScene::createDepthBufferImage(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t ImageNum, vk::Extent2D extent)
+{
+	// Get supported format for depth buffer
+	std::vector<vk::Format> sourceFomat = { vk::Format::eD32SfloatS8Uint, vk::Format::eD32Sfloat, vk::Format::eD24UnormS8Uint };
+	vk::Format depthFormat = chooseSupportedFormat(
+		physicalDevice, // 使用する物理デバイス
+		sourceFomat, // サポートされる深度フォーマットのリスト
+		vk::ImageTiling::eOptimal, // オプティマルタイリングを指定
+		vk::FormatFeatureFlagBits::eDepthStencilAttachment); // 深度・ステンシルアタッチメント用のフォーマット機能を要求
+
+	vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment;
+
+	depthBufferImage.Create(logicalDevice, physicalDevice, ImageNum, depthFormat, extent, usage, vk::MemoryPropertyFlagBits::eDeviceLocal);
+}
+
+
+void CScene::createDescriptorSetLayout(vk::Device logicalDevice)
 {
 	// UNIFORM VALUES DESCRIPTOR SET LAYOUT
 // UboViewProjection Binding Info
@@ -359,79 +394,77 @@ void CScene::createDescriptorSetLayout()
 
 void CScene::createDescriptorPool(vk::Device logicalDevice, uint32_t imageCount)
 {
-	// CREATE UNIFORM DESCRIPTOR POOL
-// Type of descriptors + how many DESCRIPTORS, not Descriptor Sets (combined makes the pool size)
-// ViewProjection Pool
-	VkDescriptorPoolSize vpPoolSize = {};
-	vpPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	vpPoolSize.descriptorCount = static_cast<uint32_t>(vpUniformBuffer.size());
+	// UNIFORM デスクリプタプールの作成
+	// デスクリプタのタイプと、そのデスクリプタの数を指定します
+	// ViewProjectionプール
+	vk::DescriptorPoolSize vpPoolSize = {};
+	vpPoolSize.setType(vk::DescriptorType::eUniformBuffer); // デスクリプタタイプ
+	vpPoolSize.setDescriptorCount(static_cast<uint32_t>(vpUniformBuffer.size())); // デスクリプタの数を設定
 
-	// Model Pool (DYNAMIC)
-	/*VkDescriptorPoolSize modelPoolSize = {};
-	modelPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-	modelPoolSize.descriptorCount = static_cast<uint32_t>(modelDUniformBuffer.size());*/
+	// モデルプール（ダイナミック用）
+	/*
+	vk::DescriptorPoolSize modelPoolSize = {};
+	modelPoolSize.setType(vk::DescriptorType::eUniformBufferDynamic);
+	modelPoolSize.setDescriptorCount(static_cast<uint32_t>(modelDUniformBuffer.size()));
+	*/
 
-	// List of pool sizes
-	std::vector<VkDescriptorPoolSize> descriptorPoolSizes = { vpPoolSize };
+	// プールサイズのリストを作成
+	std::vector<vk::DescriptorPoolSize> descriptorPoolSizes = { vpPoolSize };
 
-	// Data to create Descriptor Pool
-	VkDescriptorPoolCreateInfo poolCreateInfo = {};
-	poolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolCreateInfo.maxSets = static_cast<uint32_t>(imageCount);					// Maximum number of Descriptor Sets that can be created from pool
-	poolCreateInfo.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size());		// Amount of Pool Sizes being passed
-	poolCreateInfo.pPoolSizes = descriptorPoolSizes.data();									// Pool Sizes to create pool with
+	// デスクリプタプールを作成するためのデータを設定
+	vk::DescriptorPoolCreateInfo poolCreateInfo = {};
+	poolCreateInfo.setMaxSets(static_cast<uint32_t>(imageCount)); // プールから作成可能なデスクリプタセットの最大数
+	poolCreateInfo.setPoolSizeCount(static_cast<uint32_t>(descriptorPoolSizes.size())); // プールサイズの数
+	poolCreateInfo.setPPoolSizes(descriptorPoolSizes.data()); // プールサイズを設定
 
-	// Create Descriptor Pool
-	VkResult result = vkCreateDescriptorPool(logicalDevice, &poolCreateInfo, nullptr, &descriptorPool);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create a Descriptor Pool!");
-	}
+	// デスクリプタプールを作成
+	auto result = logicalDevice.createDescriptorPool(poolCreateInfo);
+	//if (result != vk::Result::eSuccess) // 成功かどうかを確認
+	//{
+	//	throw std::runtime_error("Failed to create a Descriptor Pool!");
+	//}
 
-	// CREATE SAMPLER DESCRIPTOR POOL
-	// Texture sampler pool
-	VkDescriptorPoolSize samplerPoolSize = {};
-	samplerPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerPoolSize.descriptorCount = MAX_OBJECTS;
+	// SAMPLER デスクリプタプールの作成
+	// テクスチャサンプラープール
+	vk::DescriptorPoolSize samplerPoolSize = {};
+	samplerPoolSize.setType(vk::DescriptorType::eCombinedImageSampler); // デスクリプタタイプ
+	samplerPoolSize.setDescriptorCount(MAX_OBJECTS); // デスクリプタの数を設定
 
-	VkDescriptorPoolCreateInfo samplerPoolCreateInfo = {};
-	samplerPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	samplerPoolCreateInfo.maxSets = MAX_OBJECTS;
-	samplerPoolCreateInfo.poolSizeCount = 1;
-	samplerPoolCreateInfo.pPoolSizes = &samplerPoolSize;
+	vk::DescriptorPoolCreateInfo samplerPoolCreateInfo = {};
+	samplerPoolCreateInfo.setMaxSets(MAX_OBJECTS); // 最大セット数を設定
+	samplerPoolCreateInfo.setPoolSizeCount(1); // プールサイズの数を設定
+	samplerPoolCreateInfo.setPPoolSizes(&samplerPoolSize); // プールサイズを設定
 
-	result = vkCreateDescriptorPool(logicalDevice, &samplerPoolCreateInfo, nullptr, &samplerDescriptorPool);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create a Descriptor Pool!");
-	}
+	result = logicalDevice.createDescriptorPool(samplerPoolCreateInfo);
+	//if (result != vk::Result::eSuccess) // 成功かどうかを確認
+	//{
+	//	throw std::runtime_error("Failed to create a Descriptor Pool!");
+	//}
 
+	// INPUT ATTACHMENT デスクリプタプールの作成
+	// カラーアタッチメントプールサイズ
+	vk::DescriptorPoolSize colourInputPoolSize = {};
+	colourInputPoolSize.setType(vk::DescriptorType::eInputAttachment); // デスクリプタタイプ
+	colourInputPoolSize.setDescriptorCount(static_cast<uint32_t>(colourBufferImage.GetSize())); // デスクリプタの数を設定
 
-	// CREATE INPUT ATTACHMENT DESCRIPTOR POOL
-	// Colour Attachment Pool Size
-	VkDescriptorPoolSize colourInputPoolSize;
-	colourInputPoolSize.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-	colourInputPoolSize.descriptorCount = static_cast<uint32_t>(colourBufferImage.GetSize());
+	// 深度アタッチメントプールサイズ
+	vk::DescriptorPoolSize depthInputPoolSize = {};
+	depthInputPoolSize.setType(vk::DescriptorType::eInputAttachment); // デスクリプタタイプ
+	depthInputPoolSize.setDescriptorCount(static_cast<uint32_t>(depthBufferImage.GetSize())); // デスクリプタの数を設定
 
-	// Depth Attachment Pool Size
-	VkDescriptorPoolSize depthInputPoolSize = {};
-	depthInputPoolSize.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-	depthInputPoolSize.descriptorCount = static_cast<uint32_t>(depthBufferImage.GetSize());
+	std::vector<vk::DescriptorPoolSize> inputPoolSizes = { colourInputPoolSize, depthInputPoolSize };
 
-	std::vector<VkDescriptorPoolSize> inputPoolSizes = { colourInputPoolSize, depthInputPoolSize };
+	// 入力アタッチメントプールを作成するための情報を設定
+	vk::DescriptorPoolCreateInfo inputPoolCreateInfo = {};
+	inputPoolCreateInfo.setMaxSets(imageCount); // 最大セット数を設定
+	inputPoolCreateInfo.setPoolSizeCount(static_cast<uint32_t>(inputPoolSizes.size())); // プールサイズの数を設定
+	inputPoolCreateInfo.setPPoolSizes(inputPoolSizes.data()); // プールサイズを設定
 
-	// Create input attachment pool
-	VkDescriptorPoolCreateInfo inputPoolCreateInfo = {};
-	inputPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	inputPoolCreateInfo.maxSets = imageCount;
-	inputPoolCreateInfo.poolSizeCount = static_cast<uint32_t>(inputPoolSizes.size());
-	inputPoolCreateInfo.pPoolSizes = inputPoolSizes.data();
-
-	result = vkCreateDescriptorPool(logicalDevice, &inputPoolCreateInfo, nullptr, &inputDescriptorPool);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create a Descriptor Pool!");
-	}
+	result = logicalDevice.createDescriptorPool(inputPoolCreateInfo);
+	//if (result != vk::Result::eSuccess) // 成功かどうかを確認
+	//{
+	//	throw std::runtime_error("Failed to create a Descriptor Pool!");
+	//}
 }
 
 void CScene::createDescriptorSets(vk::Device logicalDevice, uint32_t imageCount)
@@ -552,70 +585,64 @@ void CScene::createTextureSampler(vk::Device logicalDevice)
 	}
 }
 
-void CScene::createInputDescriptorSets()
+void CScene::createInputDescriptorSets(vk::Device logicalDevice, uint32_t imageCount)
 {
-	// Resize array to hold descriptor set for each swap chain image
-	inputDescriptorSets.resize(swapChainImages.size());
+	// スワップチェーンの各イメージに対するデスクリプタセットを保持するために配列をリサイズ
+	inputDescriptorSets.resize(imageCount);
 
-	// Fill array of layouts ready for set creation
-	std::vector<VkDescriptorSetLayout> setLayouts(swapChainImages.size(), inputSetLayout);
+	// デスクリプタセット作成のためのレイアウトを設定
+	std::vector<vk::DescriptorSetLayout> setLayouts(imageCount, inputSetLayout);
 
-	// Input Attachment Descriptor Set Allocation Info
-	VkDescriptorSetAllocateInfo setAllocInfo = {};
-	setAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	setAllocInfo.descriptorPool = inputDescriptorPool;
-	setAllocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size());
-	setAllocInfo.pSetLayouts = setLayouts.data();
+	// デスクリプタセットの割り当て情報を作成
+	vk::DescriptorSetAllocateInfo setAllocInfo = {};
+	setAllocInfo.setDescriptorPool(inputDescriptorPool); // デスクリプタプールを指定
+	setAllocInfo.setDescriptorSetCount(imageCount); // 割り当てるデスクリプタセットの数
+	setAllocInfo.setPSetLayouts(setLayouts.data()); // レイアウトの配列を指定
 
-	// Allocate Descriptor Sets
-	VkResult result = vkAllocateDescriptorSets(logicalDevice, &setAllocInfo, inputDescriptorSets.data());
-	if (result != VK_SUCCESS)
+	// デスクリプタセットの割り当てを行う
+	auto result = logicalDevice.allocateDescriptorSets(setAllocInfo);
+	//if (result.result != vk::Result::eSuccess) // 成功かどうかを確認
+	//{
+	//	throw std::runtime_error("Failed to allocate Input Attachment Descriptor Sets!");
+	//}
+
+	// 各デスクリプタセットを入力アタッチメントで更新する
+	for (size_t i = 0; i < imageCount; i++)
 	{
-		throw std::runtime_error("Failed to allocate Input Attachment Descriptor Sets!");
+		// カラーアタッチメントのデスクリプタ情報を作成
+		vk::DescriptorImageInfo colourAttachmentDescriptor = {};
+		colourAttachmentDescriptor.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal); // 画像のレイアウトを設定
+		colourAttachmentDescriptor.setImageView(colourBufferImage.GetImageViews()[i]); // イメージビューを設定
+		colourAttachmentDescriptor.setSampler(vk::Sampler()); // サンプラは無効に設定
+
+		// カラーアタッチメントのデスクリプタ書き込み情報を作成
+		vk::WriteDescriptorSet colourWrite = {};
+		colourWrite.setDstSet(inputDescriptorSets[i]); // 更新するデスクリプタセット
+		colourWrite.setDstBinding(0); // バインディングインデックス
+		colourWrite.setDescriptorType(vk::DescriptorType::eInputAttachment); // デスクリプタタイプ
+		colourWrite.setDescriptorCount(1); // デスクリプタの数
+		colourWrite.setPImageInfo(&colourAttachmentDescriptor); // 画像情報のポインタ
+
+		// デプスアタッチメントのデスクリプタ情報を作成
+		vk::DescriptorImageInfo depthAttachmentDescriptor = {};
+		depthAttachmentDescriptor.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal); // 画像のレイアウトを設定
+		depthAttachmentDescriptor.setImageView(depthBufferImage.GetImageViews()[i]); // デプスのイメージビューを設定
+		depthAttachmentDescriptor.setSampler(vk::Sampler()); // サンプラは無効に設定
+
+		// デプスアタッチメントのデスクリプタ書き込み情報を作成
+		vk::WriteDescriptorSet depthWrite = {};
+		depthWrite.setDstSet(inputDescriptorSets[i]); // 更新するデスクリプタセット
+		depthWrite.setDstBinding(1); // バインディングインデックス
+		depthWrite.setDescriptorType(vk::DescriptorType::eInputAttachment); // デスクリプタタイプ
+		depthWrite.setDescriptorCount(1); // デスクリプタの数
+		depthWrite.setPImageInfo(&depthAttachmentDescriptor); // 画像情報のポインタ
+
+		// デスクリプタセットの更新リストを作成
+		std::vector<vk::WriteDescriptorSet> setWrites = { colourWrite, depthWrite };
+
+		// デスクリプタセットを更新
+		logicalDevice.updateDescriptorSets(setWrites, nullptr); // nullptrはデスクリプタの削除情報を無視することを意味する
 	}
-
-	// Update each descriptor set with input attachment
-	for (size_t i = 0; i < swapChainImages.size(); i++)
-	{
-		// Colour Attachment Descriptor
-		VkDescriptorImageInfo colourAttachmentDescriptor = {};
-		colourAttachmentDescriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		colourAttachmentDescriptor.imageView = colourBufferImageView[i];
-		colourAttachmentDescriptor.sampler = VK_NULL_HANDLE;
-
-		// Colour Attachment Descriptor Write
-		VkWriteDescriptorSet colourWrite = {};
-		colourWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		colourWrite.dstSet = inputDescriptorSets[i];
-		colourWrite.dstBinding = 0;
-		colourWrite.dstArrayElement = 0;
-		colourWrite.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		colourWrite.descriptorCount = 1;
-		colourWrite.pImageInfo = &colourAttachmentDescriptor;
-
-		// Depth Attachment Descriptor
-		VkDescriptorImageInfo depthAttachmentDescriptor = {};
-		depthAttachmentDescriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		depthAttachmentDescriptor.imageView = depthBufferImageView[i];
-		depthAttachmentDescriptor.sampler = VK_NULL_HANDLE;
-
-		// Depth Attachment Descriptor Write
-		VkWriteDescriptorSet depthWrite = {};
-		depthWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		depthWrite.dstSet = inputDescriptorSets[i];
-		depthWrite.dstBinding = 1;
-		depthWrite.dstArrayElement = 0;
-		depthWrite.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		depthWrite.descriptorCount = 1;
-		depthWrite.pImageInfo = &depthAttachmentDescriptor;
-
-		// List of input descriptor set writes
-		std::vector<VkWriteDescriptorSet> setWrites = { colourWrite, depthWrite };
-
-		// Update descriptor sets
-		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(setWrites.size()), setWrites.data(), 0, nullptr);
-	}
-
 }
 
 void CScene::updateUniformBuffers(vk::Device logicalDevice, uint32_t imageIndex)
@@ -638,3 +665,74 @@ void CScene::updateUniformBuffers(vk::Device logicalDevice, uint32_t imageIndex)
 	memcpy(data, modelTransferSpace, modelUniformAlignment * meshList.size());
 	vkUnmapMemory(mainDevice.logicalDevice, modelDUniformBufferMemory[imageIndex]);*/
 }
+
+
+VkImageView CScene::createImageView(vk::Device logicalDevice, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+{
+	VkImageViewCreateInfo viewCreateInfo = {};
+	viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	viewCreateInfo.image = image;											// Image to create view for
+	viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;						// Type of image (1D, 2D, 3D, Cube, etc)
+	viewCreateInfo.format = format;											// Format of image data
+	viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;			// Allows remapping of rgba components to other rgba values
+	viewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+	viewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+	viewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+	// Subresources allow the view to view only a part of an image
+	viewCreateInfo.subresourceRange.aspectMask = aspectFlags;				// Which aspect of image to view (e.g. COLOR_BIT for viewing colour)
+	viewCreateInfo.subresourceRange.baseMipLevel = 0;						// Start mipmap level to view from
+	viewCreateInfo.subresourceRange.levelCount = 1;							// Number of mipmap levels to view
+	viewCreateInfo.subresourceRange.baseArrayLayer = 0;						// Start array level to view from
+	viewCreateInfo.subresourceRange.layerCount = 1;							// Number of array levels to view
+
+	// Create image view and return it
+	VkImageView imageView;
+	VkResult result = vkCreateImageView(logicalDevice, &viewCreateInfo, nullptr, &imageView);
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create an Image View!");
+	}
+
+	return imageView;
+}
+
+vk::Format CScene::chooseSupportedFormat(vk::PhysicalDevice physicalDevice, std::vector<vk::Format>& formats, vk::ImageTiling tiling, vk::FormatFeatureFlags featureFlags)
+{
+	// 利用可能なフォーマットの中から互換性のあるものを探す
+	for (vk::Format format : formats)
+	{
+		// 指定したフォーマットのプロパティを取得
+		vk::FormatProperties properties;
+		physicalDevice.getFormatProperties(format, &properties);
+
+		// タイリングの選択に応じて、異なるビットフラグをチェック
+		if (tiling == vk::ImageTiling::eLinear && (properties.linearTilingFeatures & featureFlags) == featureFlags)
+		{
+			// リニアタイリングがサポートされている場合
+			return format;
+		}
+		else if (tiling == vk::ImageTiling::eOptimal && (properties.optimalTilingFeatures & featureFlags) == featureFlags)
+		{
+			// オプティマルタイリングがサポートされている場合
+			return format;
+		}
+	}
+
+	// 互換性のあるフォーマットが見つからない場合はエラーをスロー
+	throw std::runtime_error("Failed to find a matching format!");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

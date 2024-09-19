@@ -29,6 +29,24 @@ void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<vk::Imag
     }
 }
 
+void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<std::vector<vk::ImageView>> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
+{
+    m_bCreated = true;
+
+    m_LogicalDevice = logicalDevice;
+
+    auto attachments = CreateAttachments(imageViews);
+
+    //フレームバッファ作成情報を作成
+    m_FramebufferInfos = CreateFramebufferInfos(attachments, renderPass, extent);
+
+    //作成情報からフレームバッファを作成
+    for (const auto& info : m_FramebufferInfos)
+    {
+        m_Framebuffers.push_back(logicalDevice.createFramebuffer(info));
+    }
+}
+
 void FramebufferGenerator::Destroy()
 {
     //中身が作成されていないなら解放処理も行わない
@@ -47,8 +65,34 @@ std::vector<std::vector<vk::ImageView>> FramebufferGenerator::CreateAttachments(
 
     for (auto &imageView : imageViews)
     {
+
         //1つのフレームに保存する画像の種類
         std::vector<vk::ImageView> attachment = { imageView };   //ここでは最終出力の色データのみ  
+        attachments.push_back(attachment);
+    }
+
+    return attachments;
+}
+
+std::vector<std::vector<vk::ImageView>> FramebufferGenerator::CreateAttachments(std::vector<std::vector<vk::ImageView>> imageViews)
+{
+    std::vector<std::vector<vk::ImageView>> attachments;
+    attachments.reserve(imageViews.size());
+
+    std::array<VkImageView, 3> attachments = {	//追加
+
+    };
+
+
+    for (auto& imageView : imageViews)
+    {
+        std::vector<vk::ImageView> attachment;
+        //1つのフレームに保存する画像の種類
+        for (int i = 0; i < imageView.size(); i++)
+        {
+            attachment.push_back(imageView[i]);   //ここでは最終出力の色データのみ  
+        }
+
         attachments.push_back(attachment);
     }
 

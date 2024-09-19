@@ -12,9 +12,9 @@ const int MAX_FRAME_DRAWS = 2;
 // Vertex data representation
 struct Vertex
 {
-    glm::vec3 pos; // Vertex Position (x, y, z)
-    glm::vec3 col; // Vertex Colour (r, g, b)
-    glm::vec2 tex; // Texture Coords (u, v)
+    glm::vec3 position; // Vertex Position (x, y, z)
+    glm::vec3 color; // Vertex Colour (r, g, b)
+    glm::vec2 texture; // Texture Coords (u, v)
 };
 
 //ÉtÉ@ÉCÉãì«Ç›çûÇ›ä÷êî
@@ -156,7 +156,7 @@ static void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool tra
 	VkCommandBuffer transferCommandBuffer = beginCommandBuffer(device, transferCommandPool);
 
 	// Region of data to copy from and to
-	VkBufferCopy bufferCopyRegion = {};
+	VkBufferCopy bufferCopyRegion;
 	bufferCopyRegion.srcOffset = 0;
 	bufferCopyRegion.dstOffset = 0;
 	bufferCopyRegion.size = bufferSize;

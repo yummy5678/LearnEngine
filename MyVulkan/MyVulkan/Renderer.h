@@ -102,11 +102,7 @@ private:
 
 	
 
-	// - Descriptors
-	VkDescriptorSetLayout	descriptorSetLayout;
-	VkDescriptorSetLayout	samplerSetLayout;
-	VkDescriptorSetLayout	inputSetLayout;
-	VkPushConstantRange		pushConstantRange;
+
 
 
 	
@@ -115,8 +111,8 @@ private:
 
 
 
-	std::vector<VkBuffer> modelDUniformBuffer;
-	std::vector<VkDeviceMemory> modelDUniformBufferMemory;
+	//std::vector<VkBuffer> modelDUniformBuffer;
+	//std::vector<VkDeviceMemory> modelDUniformBufferMemory;
 
 	//VkDeviceSize minUniformBufferOffset;
 	//size_t modelUniformAlignment;
@@ -130,8 +126,7 @@ private:
 	
 	void createPushConstantRange();
 
-	void createColourBufferImage();
-	void createDepthBufferImage();
+
 
 	
 

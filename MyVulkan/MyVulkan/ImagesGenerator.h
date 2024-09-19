@@ -10,9 +10,9 @@ public:
 	ImagesGenerator();
 	~ImagesGenerator();
 
-	void Create(uint32_t ImageNum, vk::Extent2D extent, vk::Device logicalDevice, vk::PhysicalDevice physicalDevice);
 	void CreateForSwapchain(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
-	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t imageCount, vk::Format fomat, vk::Extent2D extent);
+	void CreateDepthImage(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t imageCount, vk::Format fomat, vk::Extent2D extent, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags propertyFlags);
+	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t imageCount, vk::Format fomat, vk::Extent2D extent, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags propertyFlags);
 	void Destroy();
 
 	std::vector<vk::Image>		GetImages();
@@ -35,12 +35,11 @@ private:
 
 	vk::ImageCreateInfo m_ImageInfo;
 
-	vk::ImageCreateInfo CreateImageInfo(vk::Extent2D extent, vk::Format fomat);
-	vk::ImageCreateInfo CreateImageInfo(vk::Extent2D extent, vk::Format fomat, vk::ImageLayout layout);
-	vk::ImageViewCreateInfo CreateImageViewInfo(vk::Image image, vk::Format fomat);
+	vk::ImageCreateInfo CreateImageInfo(vk::Extent2D extent, vk::Format fomat, vk::ImageUsageFlags usage);
+	vk::ImageViewCreateInfo CreateImageViewInfo(vk::Image image, vk::Format fomat, vk::ImageAspectFlags aspectFlag);
 
 
-	vk::MemoryAllocateInfo AllocateImageMemory(vk::Image image, vk::Device device, vk::PhysicalDevice physicalDevice);
+	vk::MemoryAllocateInfo AllocateImageMemory(vk::Device device, vk::PhysicalDevice physicalDevice,vk::Image image, vk::MemoryPropertyFlags propertyFlags);
 	uint32_t FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Image image, vk::MemoryPropertyFlags findType);
 
 };

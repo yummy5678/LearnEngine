@@ -11,6 +11,7 @@ public:
 	~FramebufferGenerator();
 
 	void Create(vk::Device logicalDevice, std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent);
+	void Create(vk::Device logicalDevice, std::vector<std::vector<vk::ImageView>> imageViews, vk::RenderPass renderPass, vk::Extent2D extent);
 
 
 
@@ -22,6 +23,7 @@ private:
 
 	void Destroy();
 	std::vector<std::vector<vk::ImageView>> CreateAttachments(std::vector<vk::ImageView> imageViews);
+	std::vector<std::vector<vk::ImageView>> CreateAttachments(std::vector<std::vector<vk::ImageView>> imageViews);
 	std::vector<vk::FramebufferCreateInfo> CreateFramebufferInfos(std::vector<std::vector<vk::ImageView>>& attachments, vk::RenderPass renderPass, vk::Extent2D extent);
 
 };

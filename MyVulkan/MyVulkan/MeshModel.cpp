@@ -112,20 +112,20 @@ Mesh MeshModel::LoadMesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice,
 	for (size_t i = 0; i < mesh->mNumVertices; i++)
 	{
 		// Set position
-		vertices[i].pos = { mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
+		vertices[i].position = { mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
 
 		// Set tex coords (if they exist)
 		if (mesh->mTextureCoords[0])
 		{
-			vertices[i].tex = { mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
+			vertices[i].texture = { mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
 		}
 		else
 		{
-			vertices[i].tex = { 0.0f, 0.0f };
+			vertices[i].texture = { 0.0f, 0.0f };
 		}
 
 		// Set colour (just use white for now)
-		vertices[i].col = { 1.0f, 1.0f, 1.0f };
+		vertices[i].color = { 1.0f, 1.0f, 1.0f };
 	}
 
 	// Iterate over indices through faces and copy across

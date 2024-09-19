@@ -91,7 +91,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		//allocateDynamicBufferTransferSpace();
 		//createUniformBuffers();
 
-		createInputDescriptorSets();
+		
 
 
 
@@ -129,88 +129,40 @@ void VulkanRenderer::createPushConstantRange()
 }
 
 
-void VulkanRenderer::createColourBufferImage()
-{
-	// Resize supported format for colour attachment
-	colourBufferImage.resize(swapChainImages.size());
-	colourBufferImageMemory.resize(swapChainImages.size());
-	colourBufferImageView.resize(swapChainImages.size());
-
-	// Get supported format for colour attachment
-	VkFormat colourFormat = chooseSupportedFormat(
-		{ VK_FORMAT_R8G8B8A8_UNORM },
-		VK_IMAGE_TILING_OPTIMAL,
-		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-	);
-
-	for (size_t i = 0; i < swapChainImages.size(); i++)
-	{
-		// Create Colour Buffer Image
-		colourBufferImage[i] = createImage(swapChainExtent.width, swapChainExtent.height, colourFormat, VK_IMAGE_TILING_OPTIMAL,
-			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &colourBufferImageMemory[i]);
-
-		// Create Colour Buffer Image View
-		colourBufferImageView[i] = createImageView(colourBufferImage[i], colourFormat, VK_IMAGE_ASPECT_COLOR_BIT);
-	}
-}
-
-
-void VulkanRenderer::createDepthBufferImage()
-{
-	depthBufferImage.resize(swapChainImages.size());
-	depthBufferImageMemory.resize(swapChainImages.size());
-	depthBufferImageView.resize(swapChainImages.size());
-
-	// Get supported format for depth buffer
-	VkFormat depthFormat = chooseSupportedFormat(
-		{ VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D32_SFLOAT, VK_FORMAT_D24_UNORM_S8_UINT },
-		VK_IMAGE_TILING_OPTIMAL,
-		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
-
-	for (size_t i = 0; i < swapChainImages.size(); i++)
-	{
-		// Create Depth Buffer Image
-		depthBufferImage[i] = createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL,
-			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &depthBufferImageMemory[i]);
-
-		// Create Depth Buffer Image View
-		depthBufferImageView[i] = createImageView(depthBufferImage[i], depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-	}
-}
 
 
 
 
-void VulkanRenderer::createFramebuffers()
-{
-	// Resize framebuffer count to equal swap chain image count
-	swapChainFramebuffers.resize(swapChainImages.size());
-
-	// Create a framebuffer for each swap chain image
-	for (size_t i = 0; i < swapChainFramebuffers.size(); i++)
-	{
-		std::array<VkImageView, 3> attachments = {	//’Ç‰Á
-			swapChainImages[i].imageView,
-			colourBufferImageView[i],
-			depthBufferImageView[i]
-		};
-
-		VkFramebufferCreateInfo framebufferCreateInfo = {};
-		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferCreateInfo.renderPass = renderPass;										// Render Pass layout the Framebuffer will be used with
-		framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-		framebufferCreateInfo.pAttachments = attachments.data();							// List of attachments (1:1 with Render Pass)
-		framebufferCreateInfo.width = swapChainExtent.width;								// Framebuffer width
-		framebufferCreateInfo.height = swapChainExtent.height;								// Framebuffer height
-		framebufferCreateInfo.layers = 1;													// Framebuffer layers
-
-		VkResult result = vkCreateFramebuffer(logicalDevice, &framebufferCreateInfo, nullptr, &swapChainFramebuffers[i]);
-		if (result != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create a Framebuffer!");
-		}
-	}
-}
+//void VulkanRenderer::createFramebuffers()
+//{
+//	// Resize framebuffer count to equal swap chain image count
+//	swapChainFramebuffers.resize(swapChainImages.size());
+//
+//	// Create a framebuffer for each swap chain image
+//	for (size_t i = 0; i < swapChainFramebuffers.size(); i++)
+//	{
+//		std::array<VkImageView, 3> attachments = {	//’Ç‰Á
+//			swapChainImages[i].imageView,
+//			colourBufferImageView[i],
+//			depthBufferImageView[i]
+//		};
+//
+//		VkFramebufferCreateInfo framebufferCreateInfo = {};
+//		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+//		framebufferCreateInfo.renderPass = renderPass;										// Render Pass layout the Framebuffer will be used with
+//		framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+//		framebufferCreateInfo.pAttachments = attachments.data();							// List of attachments (1:1 with Render Pass)
+//		framebufferCreateInfo.width = swapChainExtent.width;								// Framebuffer width
+//		framebufferCreateInfo.height = swapChainExtent.height;								// Framebuffer height
+//		framebufferCreateInfo.layers = 1;													// Framebuffer layers
+//
+//		VkResult result = vkCreateFramebuffer(logicalDevice, &framebufferCreateInfo, nullptr, &swapChainFramebuffers[i]);
+//		if (result != VK_SUCCESS)
+//		{
+//			throw std::runtime_error("Failed to create a Framebuffer!");
+//		}
+//	}
+//}
 
 
 void VulkanRenderer::recordCommands(uint32_t currentImage)

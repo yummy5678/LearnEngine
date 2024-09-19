@@ -37,6 +37,9 @@ private:
 	vk::Device				m_LogicalDevice;
 	vk::PhysicalDevice		m_PhysicalDevice;
 
+	// - Pools
+	VkCommandPool graphicsCommandPool;
+
 	ImagesGenerator  colourBufferImage;
 	ImagesGenerator  depthBufferImage;
 
@@ -55,6 +58,12 @@ private:
 
 	vk::Extent2D m_Extent;
 
+	// - Descriptors
+	VkDescriptorSetLayout	descriptorSetLayout;
+	VkDescriptorSetLayout	samplerSetLayout;
+	VkDescriptorSetLayout	inputSetLayout;
+	VkPushConstantRange		pushConstantRange;
+
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 	VkDescriptorPool inputDescriptorPool;
@@ -67,7 +76,8 @@ private:
 	std::vector<VkBuffer> vpUniformBuffer;
 	std::vector<VkDeviceMemory> vpUniformBufferMemory;
 
-
+	void createColourBufferImage(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t ImageNum, vk::Extent2D extent);
+	void createDepthBufferImage(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t ImageNum, vk::Extent2D extent);
 
 	// - Assets
 
@@ -75,12 +85,15 @@ private:
 	std::vector<VkDeviceMemory> textureImageMemory;
 	std::vector<VkImageView> textureImageViews;
 
-	void createDescriptorSetLayout();
+	void createDescriptorSetLayout(vk::Device logicalDevice);
 	void createDescriptorPool(vk::Device logicalDevice, uint32_t imageCount);
 	void createDescriptorSets(vk::Device logicalDevice, uint32_t imageCount);
 	void createUniformBuffers(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t imageCount);
 	void createTextureSampler(vk::Device logicalDevice);
-	void createInputDescriptorSets();
+	void createInputDescriptorSets(vk::Device logicalDevice, uint32_t imageCount);
 	void updateUniformBuffers(vk::Device logicalDevice, uint32_t imageIndex);
+	vk::Format chooseSupportedFormat(vk::PhysicalDevice physicalDevice, std::vector<vk::Format>& formats, vk::ImageTiling tiling, vk::FormatFeatureFlags featureFlags);
+	VkImageView createImageView(vk::Device logicalDevice, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+
 };
 

@@ -93,19 +93,19 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 	attributeDescriptions[0].binding = 0;							// Which binding the data is at (should be same as above)
 	attributeDescriptions[0].location = 0;							// Location in shader where data will be read from
 	attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;	// Format the data will take (also helps define size of data)
-	attributeDescriptions[0].offset = offsetof(Vertex, pos);		// Where this attribute is defined in the data for a single vertex
+	attributeDescriptions[0].offset = offsetof(Vertex, position);		// Where this attribute is defined in the data for a single vertex
 
 	// Colour Attribute
 	attributeDescriptions[1].binding = 0;
 	attributeDescriptions[1].location = 1;
 	attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributeDescriptions[1].offset = offsetof(Vertex, col);
+	attributeDescriptions[1].offset = offsetof(Vertex, color);
 
 	// Texture Attribute
 	attributeDescriptions[2].binding = 0;
 	attributeDescriptions[2].location = 2;
 	attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-	attributeDescriptions[2].offset = offsetof(Vertex, tex);
+	attributeDescriptions[2].offset = offsetof(Vertex, texture);
 
 	// -- VERTEX INPUT --
 	VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {};

@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BufferGenerator.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
     <ClCompile Include="ImagesGenerator.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
@@ -163,6 +164,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BufferGenerator.h" />
     <ClInclude Include="FenceGenerator.h" />
     <ClInclude Include="ImagesGenerator.h" />
     <ClInclude Include="DeviceExtensionManager.h" />
