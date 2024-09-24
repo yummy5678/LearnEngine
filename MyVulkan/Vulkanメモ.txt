@@ -32,6 +32,6 @@ VulkanLoder
 https://www.youtube.com/watch?v=p56oTgvPpbo
 
 
-
+https://gpuopen.com/v-ez-brings-easy-mode-vulkan/
 
 

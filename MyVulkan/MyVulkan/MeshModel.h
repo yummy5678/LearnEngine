@@ -1,11 +1,8 @@
 #pragma once
 
 #include <vector>
-
 #include <glm/glm.hpp>
-
 #include <assimp/scene.h>
-
 #include "Mesh.h"
 
 class MeshModel

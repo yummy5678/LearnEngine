@@ -14,7 +14,7 @@ struct Vertex
 {
     glm::vec3 position; // Vertex Position (x, y, z)
     glm::vec3 color; // Vertex Colour (r, g, b)
-    glm::vec2 texture; // Texture Coords (u, v)
+    glm::vec2 textureCoord; // Texture Coords (u, v)
 };
 
 //ƒtƒ@ƒCƒ‹“Ç‚İ‚İŠÖ”

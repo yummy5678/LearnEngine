@@ -143,6 +143,7 @@
     <ClCompile Include="InstanceExtensionManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshModel.cpp" />
+    <ClCompile Include="ModelLoder.cpp" />
     <ClCompile Include="PhysicalDeviceSelector.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SemaphoreGenerator.cpp" />
@@ -166,6 +167,7 @@
   <ItemGroup>
     <ClInclude Include="BufferGenerator.h" />
     <ClInclude Include="FenceGenerator.h" />
+    <ClInclude Include="glTFDefine.h" />
     <ClInclude Include="ImagesGenerator.h" />
     <ClInclude Include="DeviceExtensionManager.h" />
     <ClInclude Include="CommandUtility.h" />
@@ -178,6 +180,7 @@
     <ClInclude Include="InstanceExtensionManager.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshModel.h" />
+    <ClInclude Include="ModelLoder.h" />
     <ClInclude Include="PhysicalDeviceSelector.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SemaphoreGenerator.h" />

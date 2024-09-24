@@ -944,7 +944,7 @@ extern "C" {
 #define AI_MATKEY_NAME "?mat.name", 0, 0
 #define AI_MATKEY_TWOSIDED "$mat.twosided", 0, 0
 #define AI_MATKEY_SHADING_MODEL "$mat.shadingm", 0, 0
-#define AI_MATKEY_ENABLE_WIREFRAME "$mat.wireframe", 0, 0
+#define AI_MATKEY_ENABLE_WIREFRAME "$mat.wireframe", 0, 0f
 #define AI_MATKEY_BLEND_FUNC "$mat.blend", 0, 0
 #define AI_MATKEY_OPACITY "$mat.opacity", 0, 0
 #define AI_MATKEY_TRANSPARENCYFACTOR "$mat.transparencyfactor", 0, 0

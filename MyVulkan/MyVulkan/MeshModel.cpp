@@ -117,11 +117,11 @@ Mesh MeshModel::LoadMesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice,
 		// Set tex coords (if they exist)
 		if (mesh->mTextureCoords[0])
 		{
-			vertices[i].texture = { mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
+			vertices[i].textureCoord = { mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
 		}
 		else
 		{
-			vertices[i].texture = { 0.0f, 0.0f };
+			vertices[i].textureCoord = { 0.0f, 0.0f };
 		}
 
 		// Set colour (just use white for now)

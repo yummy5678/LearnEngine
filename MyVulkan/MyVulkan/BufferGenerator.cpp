@@ -28,13 +28,13 @@ void BufferGenerator::Destroy()
 {
 }
 
-vk::BufferCreateInfo BufferGenerator::CreateVertexBufferInfo(uint32_t vertexSize, vk::Format fomat, vk::ImageUsageFlags usage)
+vk::BufferCreateInfo BufferGenerator::CreateVertexBufferInfo(uint32_t vertexSize, vk::Format fomat, vk::BufferUsageFlags usage)
 {
 	vk::BufferCreateInfo bufferCreateInfo;
 	bufferCreateInfo.pNext;
 	bufferCreateInfo.flags;
 	bufferCreateInfo.size = vertexSize;
-	bufferCreateInfo.usage;
+	bufferCreateInfo.usage = usage;
 	bufferCreateInfo.sharingMode;
 	bufferCreateInfo.queueFamilyIndexCount;
 	bufferCreateInfo.pQueueFamilyIndices;

@@ -23,7 +23,8 @@ private:
     std::vector<vk::Buffer>         m_Buffer;
     std::vector<vk::DeviceMemory>   m_BufferMemory;
 
-    vk::BufferCreateInfo CreateVertexBufferInfo(uint32_t vertexSize, vk::Format fomat, vk::ImageUsageFlags usage);
+    vk::BufferCreateInfo CreateVertexBufferInfo(uint32_t vertexSize, vk::Format fomat, vk::BufferUsageFlags usage);
+
 
     vk::MemoryAllocateInfo AllocateBufferMemory(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags propertyFlags);
 
