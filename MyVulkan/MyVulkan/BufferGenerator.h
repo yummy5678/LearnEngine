@@ -1,7 +1,8 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include "GeneratorBase.h"
-#include "Utilities.h"
+//#include "Utilities.h"
+#include "ModelLoder.h"
 
 class BufferGenerator :
     public CGeneratorBase
@@ -10,7 +11,11 @@ public:
     BufferGenerator();
     ~BufferGenerator();
 
-    void CreateVertex(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t bufferCount);
+    void CreateMeshObject(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, MeshObject object);
+
+    // データをバッファにコピーするメソッド
+    void CopyDataToBuffer(void* data, VkDeviceSize size);
+
     void Destroy();
 
 
@@ -20,13 +25,14 @@ private:
     vk::PhysicalDevice		m_PhysicalDevice;
 
     uint32_t m_BufferCount;
-    std::vector<vk::Buffer>         m_Buffer;
-    std::vector<vk::DeviceMemory>   m_BufferMemory;
+    std::vector<vk::Buffer>         m_VertexBuffer;
+    std::vector<vk::DeviceMemory>   m_VertexBufferMemory;
 
-    vk::BufferCreateInfo CreateVertexBufferInfo(uint32_t vertexSize, vk::Format fomat, vk::BufferUsageFlags usage);
+    // 頂点データのバッファを作成
+    vk::BufferCreateInfo CreateVertexBufferInfo(std::vector<Vertex> vertices);
 
-
-    vk::MemoryAllocateInfo AllocateBufferMemory(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags propertyFlags);
-
+    // メモリ割り当て関数
+    vk::MemoryAllocateInfo AllocateBufferMemoryInfo(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags propertyFlags);
+    uint32_t FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags findType);
 };
 
