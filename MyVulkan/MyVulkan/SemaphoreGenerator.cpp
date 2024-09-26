@@ -12,7 +12,7 @@ SemaphoreGenerator::~SemaphoreGenerator()
 {
 }
 
-void SemaphoreGenerator::Create(vk::Device logicalDevice, uint32_t semaphoreCount)
+void SemaphoreGenerator::LoadShader(vk::Device logicalDevice, uint32_t semaphoreCount)
 {
 	m_bCreated = true;
 

@@ -12,7 +12,7 @@ public:
 	~CommandGenerator();
 
 	// çÏê¨ä÷êî
-	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t commandSize);
+	void LoadShader(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t commandSize);
 
 	// îjä¸ä÷êî
 	void Destroy();

@@ -13,7 +13,7 @@ SwapchainGenerator::~SwapchainGenerator()
 
 }
 
-void SwapchainGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+void SwapchainGenerator::LoadShader(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     std::cout  << m_ClassName << "‚ðì¬" << std::endl;
     m_bCreated = true;

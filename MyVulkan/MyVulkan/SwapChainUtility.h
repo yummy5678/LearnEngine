@@ -13,7 +13,7 @@ public:
 	SwapchainGenerator(DeviceExtensionManager& deviceExtensionManager);
 	~SwapchainGenerator();
 
-	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
+	void LoadShader(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 	void Destroy(vk::Device logicalDevice);
 
 	vk::SwapchainKHR			GetSwapchain();

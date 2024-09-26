@@ -283,7 +283,7 @@ void CScene::createColourBufferImage(vk::Device logicalDevice, vk::PhysicalDevic
 
 	vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment;
 
-	colourBufferImage.Create(logicalDevice, physicalDevice, ImageNum, colourFormat, extent, usage, vk::MemoryPropertyFlagBits::eDeviceLocal);
+	colourBufferImage.LoadShader(logicalDevice, physicalDevice, ImageNum, colourFormat, extent, usage, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
 }
 
@@ -300,7 +300,7 @@ void CScene::createDepthBufferImage(vk::Device logicalDevice, vk::PhysicalDevice
 
 	vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment;
 
-	depthBufferImage.Create(logicalDevice, physicalDevice, ImageNum, depthFormat, extent, usage, vk::MemoryPropertyFlagBits::eDeviceLocal);
+	depthBufferImage.LoadShader(logicalDevice, physicalDevice, ImageNum, depthFormat, extent, usage, vk::MemoryPropertyFlagBits::eDeviceLocal);
 }
 
 

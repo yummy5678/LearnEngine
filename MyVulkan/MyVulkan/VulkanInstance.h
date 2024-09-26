@@ -16,7 +16,7 @@ public:
 	InstanceGenerator();
 	~InstanceGenerator();
 
-	void Create(InstanceExtensionManager extensionManager);
+	void LoadShader(InstanceExtensionManager extensionManager);
 	void Destroy();
 
 	vk::Instance GetInstanse();

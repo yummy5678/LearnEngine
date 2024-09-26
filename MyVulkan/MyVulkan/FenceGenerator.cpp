@@ -11,7 +11,7 @@ FenceGenerator::~FenceGenerator()
 {
 }
 
-void FenceGenerator::Create(vk::Device logicalDevice, uint32_t fenceCount)
+void FenceGenerator::LoadShader(vk::Device logicalDevice, uint32_t fenceCount)
 {
 	m_bCreated = true;
 

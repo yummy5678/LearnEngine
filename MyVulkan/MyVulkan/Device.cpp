@@ -8,7 +8,7 @@ DeviceGenerator::~DeviceGenerator()
 {
 }
 
-void DeviceGenerator::Create(DeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface)
+void DeviceGenerator::LoadShader(DeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface)
 {
 	m_bCreated = true;
 

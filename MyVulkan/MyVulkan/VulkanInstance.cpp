@@ -13,7 +13,7 @@ InstanceGenerator::~InstanceGenerator()
 
 }
 
-void InstanceGenerator::Create(InstanceExtensionManager extensionManager)
+void InstanceGenerator::LoadShader(InstanceExtensionManager extensionManager)
 {
 	std::cout << m_ClassName << "作成関数が呼ばれました" << std::endl;
 	m_bCreated = true;	//作成フラグをオンにする(デバッグ用)

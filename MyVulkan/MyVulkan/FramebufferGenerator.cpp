@@ -11,7 +11,7 @@ FramebufferGenerator::~FramebufferGenerator()
 
 }
 
-void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
+void FramebufferGenerator::LoadShader(vk::Device logicalDevice, std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
 {
     m_bCreated = true;
 
@@ -29,7 +29,7 @@ void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<vk::Imag
     }
 }
 
-void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<std::vector<vk::ImageView>> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
+void FramebufferGenerator::LoadShader(vk::Device logicalDevice, std::vector<std::vector<vk::ImageView>> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
 {
     m_bCreated = true;
 
@@ -80,6 +80,7 @@ std::vector<std::vector<vk::ImageView>> FramebufferGenerator::CreateAttachments(
     attachments.reserve(imageViews.size());
 
     std::array<VkImageView, 3> attachments = {	//’Ç‰Á
+
 
     };
 

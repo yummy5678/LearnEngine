@@ -145,6 +145,7 @@
     <ClCompile Include="MeshModel.cpp" />
     <ClCompile Include="ModelLoder.cpp" />
     <ClCompile Include="PhysicalDeviceSelector.cpp" />
+    <ClCompile Include="PipelineShaderCreator.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SemaphoreGenerator.cpp" />
     <ClCompile Include="SwapGraphicCommandController.cpp" />
@@ -156,7 +157,6 @@
     <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SwapChainUtility.cpp" />
-    <ClCompile Include="SynchronizationGenerator.cpp" />
     <ClCompile Include="ViewportGenerator.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
     <ClCompile Include="WriteImage.cpp" />
@@ -182,6 +182,7 @@
     <ClInclude Include="MeshModel.h" />
     <ClInclude Include="ModelLoder.h" />
     <ClInclude Include="PhysicalDeviceSelector.h" />
+    <ClInclude Include="PipelineShaderCreator.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SemaphoreGenerator.h" />
     <ClInclude Include="stb_image.h" />
@@ -193,7 +194,6 @@
     <ClInclude Include="ShaderUtility.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="SwapChainUtility.h" />
-    <ClInclude Include="SynchronizationGenerator.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="ViewportGenerator.h" />
     <ClInclude Include="VulkanExtensions.h" />

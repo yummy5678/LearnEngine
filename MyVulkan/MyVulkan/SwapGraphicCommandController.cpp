@@ -24,7 +24,7 @@ void SwapGraphicCommandController::Initialize(vk::Device logicalDevice, vk::Phys
 	m_Surface = surface;
 
 	//スワップチェーンの作成
-	m_SwapchainGenerator.Create(logicalDevice, physicalDevice, surface);
+	m_SwapchainGenerator.LoadShader(logicalDevice, physicalDevice, surface);
 	auto swapchain = m_SwapchainGenerator.GetSwapchain();
 	auto swapchainInfo = m_SwapchainGenerator.GetSwapchainInfo();
 	auto extent = swapchainInfo.imageExtent;
@@ -32,22 +32,22 @@ void SwapGraphicCommandController::Initialize(vk::Device logicalDevice, vk::Phys
 
 
 	//コマンドバッファの作成
-	m_CommandGenerator.Create(logicalDevice, physicalDevice, swapchainImage.GetSize());
+	m_CommandGenerator.LoadShader(logicalDevice, physicalDevice, swapchainImage.GetSize());
 
 	//レンダーパスの作成
-	m_RenderpassGenerator.Create(logicalDevice, swapchainImage.GetFomat());
+	m_RenderpassGenerator.LoadShader(logicalDevice, swapchainImage.GetFomat());
 	auto renderPass = m_RenderpassGenerator.GetRenderpass();
 
 	//パイプラインの作成
-	m_PipelineGenerator.Create(logicalDevice, extent, renderPass);
+	m_PipelineGenerator.LoadShader(logicalDevice, extent, renderPass);
 	auto graphicsPipeline = m_PipelineGenerator.GetPipeline();
 
 	//フレームバッファの作成
-	m_FramebufferGenerator.Create(logicalDevice, swapchainImage.GetImageViews(), renderPass, extent);
+	m_FramebufferGenerator.LoadShader(logicalDevice, swapchainImage.GetImageViews(), renderPass, extent);
 	auto framebuffers = m_FramebufferGenerator.GetFramebuffers();
 
 	//コマンドの記録
-	m_CommandGenerator.Create(logicalDevice, physicalDevice, swapchainInfo.minImageCount);
+	m_CommandGenerator.LoadShader(logicalDevice, physicalDevice, swapchainInfo.minImageCount);
 	auto commandBuffers = m_CommandGenerator.GetCommandBuffers();
 	//m_CommandGenerator.RecordGraphicCommands(framebuffers, renderPass, windowExtent, graphicsPipeline);
 

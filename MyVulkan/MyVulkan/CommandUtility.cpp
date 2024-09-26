@@ -15,7 +15,7 @@ CommandGenerator::~CommandGenerator()
 
 }
 
-void CommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t commandSize)
+void CommandGenerator::LoadShader(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t commandSize)
 {
     m_bCreated = true;
 
@@ -23,12 +23,12 @@ void CommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physi
     m_PhysicalDevice = physicalDevice;
 
     // セマフォの作成
-    m_SemaphoreGenerator.Create(logicalDevice, commandSize);
+    m_SemaphoreGenerator.LoadShader(logicalDevice, commandSize);
     m_SignalSemaphores = m_SemaphoreGenerator.GetSignalSemaphores();
     m_WaitSemaphores = m_SemaphoreGenerator.GetWaitSemaphores();
 
     //フェンスの作成
-    m_FenceGenerator.Create(logicalDevice, commandSize);
+    m_FenceGenerator.LoadShader(logicalDevice, commandSize);
     m_Fences = m_FenceGenerator.GetFence();
 
     //コマンドプール(コマンドを置く領域)を作成

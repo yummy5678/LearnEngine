@@ -11,7 +11,7 @@ PipelineGenerator::~PipelineGenerator()
 {
 }
 
-void PipelineGenerator::Create(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
+void PipelineGenerator::LoadShader(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
 {
 	m_bCreated = true;
 
@@ -51,28 +51,9 @@ vk::PipelineLayout PipelineGenerator::GetPipelineLayout()
 
 vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
 {
-	// Read in SPIR-V code of shaders
-	auto vertexShaderCode = readFile("Shaders/vert.spv");
-	auto fragmentShaderCode = readFile("Shaders/frag.spv");
 
-	// Create Shader Modules
-	VkShaderModule vertexShaderModule = CreateShaderModule(vertexShaderCode);
-	VkShaderModule fragmentShaderModule = CreateShaderModule(fragmentShaderCode);
 
-	// -- SHADER STAGE CREATION INFORMATION --
-	// Vertex Stage creation information
-	VkPipelineShaderStageCreateInfo vertexShaderCreateInfo = {};
-	vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	vertexShaderCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;				// Shader Stage name
-	vertexShaderCreateInfo.module = vertexShaderModule;						// Shader module to be used by stage
-	vertexShaderCreateInfo.pName = "main";									// Entry point in to shader
 
-	// Fragment Stage creation information
-	VkPipelineShaderStageCreateInfo fragmentShaderCreateInfo = {};
-	fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	fragmentShaderCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;				// Shader Stage name
-	fragmentShaderCreateInfo.module = fragmentShaderModule;						// Shader module to be used by stage
-	fragmentShaderCreateInfo.pName = "main";									// Entry point in to shader
 
 	// Put shader stage creation info in to array
 	// Graphics Pipeline creation info requires array of shader stage creates
@@ -86,7 +67,7 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 	// VK_VERTEX_INPUT_RATE_INDEX		: Move on to the next vertex
 	// VK_VERTEX_INPUT_RATE_INSTANCE	: Move to a vertex for the next instance
 
-// How the data for an attribute is defined within a vertex
+	// How the data for an attribute is defined within a vertex
 	std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions;
 
 	// Position Attribute
@@ -262,9 +243,7 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 		throw std::runtime_error("Failed to create a Graphics Pipeline!");
 	}
 
-	// Destroy Shader Modules, no longer needed after Pipeline created
-	vkDestroyShaderModule(logicalDevice, fragmentShaderModule, nullptr);
-	vkDestroyShaderModule(logicalDevice, vertexShaderModule, nullptr);
+
 
 
 	// CREATE SECOND PASS PIPELINE

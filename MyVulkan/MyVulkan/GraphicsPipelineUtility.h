@@ -11,7 +11,7 @@ public:
 	PipelineGenerator();
 	~PipelineGenerator();
 
-	void Create(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass);
+	void LoadShader(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass);
 	void Destroy(vk::Device logicalDevice);
 
 	vk::Pipeline		GetPipeline();

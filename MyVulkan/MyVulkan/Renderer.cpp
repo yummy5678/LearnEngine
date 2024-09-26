@@ -30,7 +30,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	
 	try {
 		//インスタンスの作成
-		m_InstanceGenerator.Create(m_InstanceExtension);
+		m_InstanceGenerator.LoadShader(m_InstanceExtension);
 		auto instance = m_InstanceGenerator.GetInstanse();
 
 		createDebugCallback();
@@ -41,7 +41,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 
 
 		//物理・論理デバイスの作成
-		m_DeviceGenerator.Create(m_DeviceExtension, instance, surface);
+		m_DeviceGenerator.LoadShader(m_DeviceExtension, instance, surface);
 		//物理デバイスを取得
 		auto physicalDevice			= m_DeviceGenerator.GetPhysicalDevice();
 		auto surfaceCapabilities	= m_SurfaceGenerator.GetCapabilities(physicalDevice);
@@ -133,36 +133,36 @@ void VulkanRenderer::createPushConstantRange()
 
 
 
-//void VulkanRenderer::createFramebuffers()
-//{
-//	// Resize framebuffer count to equal swap chain image count
-//	swapChainFramebuffers.resize(swapChainImages.size());
-//
-//	// Create a framebuffer for each swap chain image
-//	for (size_t i = 0; i < swapChainFramebuffers.size(); i++)
-//	{
-//		std::array<VkImageView, 3> attachments = {	//追加
-//			swapChainImages[i].imageView,
-//			colourBufferImageView[i],
-//			depthBufferImageView[i]
-//		};
-//
-//		VkFramebufferCreateInfo framebufferCreateInfo = {};
-//		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-//		framebufferCreateInfo.renderPass = renderPass;										// Render Pass layout the Framebuffer will be used with
-//		framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-//		framebufferCreateInfo.pAttachments = attachments.data();							// List of attachments (1:1 with Render Pass)
-//		framebufferCreateInfo.width = swapChainExtent.width;								// Framebuffer width
-//		framebufferCreateInfo.height = swapChainExtent.height;								// Framebuffer height
-//		framebufferCreateInfo.layers = 1;													// Framebuffer layers
-//
-//		VkResult result = vkCreateFramebuffer(logicalDevice, &framebufferCreateInfo, nullptr, &swapChainFramebuffers[i]);
-//		if (result != VK_SUCCESS)
-//		{
-//			throw std::runtime_error("Failed to create a Framebuffer!");
-//		}
-//	}
-//}
+void VulkanRenderer::createFramebuffers()
+{
+	// Resize framebuffer count to equal swap chain image count
+	swapChainFramebuffers.resize(swapChainImages.size());
+
+	// Create a framebuffer for each swap chain image
+	for (size_t i = 0; i < swapChainFramebuffers.size(); i++)
+	{
+		std::array<VkImageView, 3> attachments = {	//追加
+			swapChainImages[i].imageView,
+			colourBufferImageView[i],
+			depthBufferImageView[i]
+		};
+
+		VkFramebufferCreateInfo framebufferCreateInfo = {};
+		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferCreateInfo.renderPass = renderPass;										// Render Pass layout the Framebuffer will be used with
+		framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		framebufferCreateInfo.pAttachments = attachments.data();							// List of attachments (1:1 with Render Pass)
+		framebufferCreateInfo.width = swapChainExtent.width;								// Framebuffer width
+		framebufferCreateInfo.height = swapChainExtent.height;								// Framebuffer height
+		framebufferCreateInfo.layers = 1;													// Framebuffer layers
+
+		VkResult result = vkCreateFramebuffer(logicalDevice, &framebufferCreateInfo, nullptr, &swapChainFramebuffers[i]);
+		if (result != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create a Framebuffer!");
+		}
+	}
+}
 
 
 void VulkanRenderer::recordCommands(uint32_t currentImage)

@@ -8,7 +8,7 @@ public:
 	ViewportGenerator();
 	~ViewportGenerator();
 
-	void Create(vk::Extent2D extent);
+	void LoadShader(vk::Extent2D extent);
 
 
 	vk::Viewport	GetViewport();
