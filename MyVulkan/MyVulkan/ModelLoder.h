@@ -7,14 +7,13 @@
 #include <string>
 #include <iostream>
 
+// ※パイプラインにこれらの情報を渡すための定義は"PipelineInputUtility"に記載
 // 頂点情報を格納するための構造体
 struct Vertex
 {
 	glm::vec3 position;		// 頂点座標 (x, y, z)
 	glm::vec3 normal;		// 法線ベクトル(面の向き)
-	//glm::vec3 color;		// 頂点色 (r, g, b)
 	glm::vec2 textureCoord; // テクスチャ座標 (u, v)
-
 };
 
 // メッシュ(頂点とインデックス)の情報を格納するための構造体

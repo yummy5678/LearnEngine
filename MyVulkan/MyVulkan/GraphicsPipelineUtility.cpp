@@ -1,4 +1,6 @@
 #include "GraphicsPipelineUtility.h"
+#include "PipelineShaderCreator.h"
+#include "PipelineInputUtility.h"
 
 
 
@@ -52,56 +54,8 @@ vk::PipelineLayout PipelineGenerator::GetPipelineLayout()
 vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
 {
 
-
-
-
-	// Put shader stage creation info in to array
-	// Graphics Pipeline creation info requires array of shader stage creates
-	VkPipelineShaderStageCreateInfo shaderStages[] = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
-
-	// How the data for a single vertex (including info such as position, colour, texture coords, normals, etc) is as a whole
-	VkVertexInputBindingDescription bindingDescription = {};
-	bindingDescription.binding = 0;									// Can bind multiple streams of data, this defines which one
-	bindingDescription.stride = sizeof(Vertex);						// Size of a single vertex object
-	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;		// How to move between data after each vertex.
-	// VK_VERTEX_INPUT_RATE_INDEX		: Move on to the next vertex
-	// VK_VERTEX_INPUT_RATE_INSTANCE	: Move to a vertex for the next instance
-
-	// How the data for an attribute is defined within a vertex
-	std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions;
-
-	// Position Attribute
-	attributeDescriptions[0].binding = 0;							// Which binding the data is at (should be same as above)
-	attributeDescriptions[0].location = 0;							// Location in shader where data will be read from
-	attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;	// Format the data will take (also helps define size of data)
-	attributeDescriptions[0].offset = offsetof(Vertex, position);		// Where this attribute is defined in the data for a single vertex
-
-	// Colour Attribute
-	attributeDescriptions[1].binding = 0;
-	attributeDescriptions[1].location = 1;
-	attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-	// Texture Attribute
-	attributeDescriptions[2].binding = 0;
-	attributeDescriptions[2].location = 2;
-	attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-	attributeDescriptions[2].offset = offsetof(Vertex, texture);
-
-	// -- VERTEX INPUT --
-	VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {};
-	vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputCreateInfo.vertexBindingDescriptionCount = 1;
-	vertexInputCreateInfo.pVertexBindingDescriptions = &bindingDescription;											// List of Vertex Binding Descriptions (data spacing/stride information)
-	vertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-	vertexInputCreateInfo.pVertexAttributeDescriptions = attributeDescriptions.data();								// List of Vertex Attribute Descriptions (data format and where to bind to/from)
-
-
-	// -- INPUT ASSEMBLY --
-	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
-	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;		// Primitive type to assemble vertices as
-	inputAssembly.primitiveRestartEnable = VK_FALSE;					// Allow overriding of "strip" topology to start new primitives
+	PipelineShaderCreator shader;
+	shader.LoadShader(logicalDevice, "", "");
 
 
 	// -- VIEWPORT & SCISSOR --
@@ -215,13 +169,12 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 	depthStencilCreateInfo.stencilTestEnable = VK_FALSE;			// Enable Stencil Test
 
 
+	auto shaderStage = shader.GetShaderStages();
 	// -- GRAPHICS PIPELINE CREATION --
-	VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
-	pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	pipelineCreateInfo.stageCount = 2;									// Number of shader stages
-	pipelineCreateInfo.pStages = shaderStages;							// List of shader stages
-	pipelineCreateInfo.pVertexInputState = &vertexInputCreateInfo;		// All the fixed function pipeline states
-	pipelineCreateInfo.pInputAssemblyState = &inputAssembly;
+	vk::GraphicsPipelineCreateInfo pipelineCreateInfo;
+	pipelineCreateInfo.setStages(shaderStage);							// シェーダーステージ
+	pipelineCreateInfo.setPVertexInputState(&vertexInputInfo);		// All the fixed function pipeline states
+	pipelineCreateInfo.setPInputAssemblyState(&inputAssemblyInfo);
 	pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
 	pipelineCreateInfo.pDynamicState = nullptr;
 	pipelineCreateInfo.pRasterizationState = &rasterizerCreateInfo;

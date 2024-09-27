@@ -44,7 +44,7 @@ vk::ShaderModule PipelineShaderCreator::CreateShaderModule(vk::Device logicalDev
 	shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
 	try { return logicalDevice.createShaderModule(shaderModuleCreateInfo); }
-	catch(const std::exception&){ throw std::runtime_error("シェーダーモジュールの作成に失敗しました！!"); }
+	catch(const std::exception&){ throw std::runtime_error("シェーダーモジュールの作成に失敗しました!"); }
 }
 
 vk::PipelineShaderStageCreateInfo PipelineShaderCreator::CreateShaderStage(vk::ShaderModule module, vk::ShaderStageFlagBits type)

@@ -183,6 +183,7 @@
     <ClInclude Include="ModelLoder.h" />
     <ClInclude Include="PhysicalDeviceSelector.h" />
     <ClInclude Include="PipelineShaderCreator.h" />
+    <ClInclude Include="PipelineInputUtility.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SemaphoreGenerator.h" />
     <ClInclude Include="stb_image.h" />
