@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BufferGenerator.cpp" />
+    <ClCompile Include="DescriptorHandler.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
     <ClCompile Include="ImagesGenerator.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
@@ -166,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferGenerator.h" />
+    <ClInclude Include="DescriptorHandler.h" />
     <ClInclude Include="FenceGenerator.h" />
     <ClInclude Include="glTFDefine.h" />
     <ClInclude Include="ImagesGenerator.h" />
@@ -183,7 +185,7 @@
     <ClInclude Include="ModelLoder.h" />
     <ClInclude Include="PhysicalDeviceSelector.h" />
     <ClInclude Include="PipelineShaderCreator.h" />
-    <ClInclude Include="PipelineInputUtility.h" />
+    <ClInclude Include="PipelineDescriptions.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SemaphoreGenerator.h" />
     <ClInclude Include="stb_image.h" />

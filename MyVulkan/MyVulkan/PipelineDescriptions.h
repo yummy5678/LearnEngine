@@ -11,7 +11,7 @@
 //glm::vec3 normal;			// 法線ベクトル(面の向き)
 //glm::vec2 textureCoord;	// テクスチャ座標 (u, v)
 
-// バインディングの定義
+// バインディングの定義   //後でテンプレート化する
 constexpr vk::VertexInputBindingDescription bindingDescription = [] {
     vk::VertexInputBindingDescription binding;
     binding.binding = 0;
@@ -22,18 +22,18 @@ constexpr vk::VertexInputBindingDescription bindingDescription = [] {
 
 // 入力属性の定義
 constexpr std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions = [] {
-    std::array<vk::VertexInputAttributeDescription, 3> attrs;
+    std::array<vk::VertexInputAttributeDescription, 3> attribute;
 
     // 座標
-    attrs[0] = { 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position) };
+    attribute[0] = { 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position) };
 
     // 法線
-    attrs[1] = { 0, 1, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal) };
+    attribute[1] = { 0, 1, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal) };
 
     // テクスチャ座標
-    attrs[2] = { 0, 2, vk::Format::eR32G32Sfloat, offsetof(Vertex, textureCoord) };
+    attribute[2] = { 0, 2, vk::Format::eR32G32Sfloat, offsetof(Vertex, textureCoord) };
 
-    return attrs;
+    return attribute;
 }();
 
 // パイプライン頂点入力状態の作成

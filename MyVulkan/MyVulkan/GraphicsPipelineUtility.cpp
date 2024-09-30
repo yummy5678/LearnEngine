@@ -1,6 +1,6 @@
 #include "GraphicsPipelineUtility.h"
-#include "PipelineShaderCreator.h"
-#include "PipelineInputUtility.h"
+#include "Scene.h"
+
 
 
 
@@ -53,33 +53,11 @@ vk::PipelineLayout PipelineGenerator::GetPipelineLayout()
 
 vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
 {
-
+	// シェーダー読み込み
 	PipelineShaderCreator shader;
 	shader.LoadShader(logicalDevice, "", "");
 
-
-	// -- VIEWPORT & SCISSOR --
-	// Create a viewport info struct
-	VkViewport viewport = {};
-	viewport.x = 0.0f;									// x start coordinate
-	viewport.y = 0.0f;									// y start coordinate
-	viewport.width = (float)extent.width;		// width of viewport
-	viewport.height = (float)extent.height;	// height of viewport
-	viewport.minDepth = 0.0f;							// min framebuffer depth
-	viewport.maxDepth = 1.0f;							// max framebuffer depth
-
-	// Create a scissor info struct
-	VkRect2D scissor = {};
-	scissor.offset = { 0,0 };							// Offset to use region from
-	scissor.extent = extent;					// Extent to describe region to use, starting at offset
-
-	VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {};
-	viewportStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-	viewportStateCreateInfo.viewportCount = 1;
-	viewportStateCreateInfo.pViewports = &viewport;
-	viewportStateCreateInfo.scissorCount = 1;
-	viewportStateCreateInfo.pScissors = &scissor;
-
+	auto viewportInfo = CreateViewportStateInfo(extent);
 
 	// -- DYNAMIC STATES --
 	// Dynamic states to enable
@@ -94,52 +72,14 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 	//dynamicStateCreateInfo.pDynamicStates = dynamicStateEnables.data();
 
 
-	// -- RASTERIZER --
-	VkPipelineRasterizationStateCreateInfo rasterizerCreateInfo = {};
-	rasterizerCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-	rasterizerCreateInfo.depthClampEnable = VK_FALSE;					// Change if fragments beyond near/far planes are clipped (default) or clamped to plane
-	rasterizerCreateInfo.rasterizerDiscardEnable = VK_FALSE;			// Whether to discard data and skip rasterizer. Never creates fragments, only suitable for pipeline without framebuffer output
-	rasterizerCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;			// How to handle filling points between vertices
-	rasterizerCreateInfo.lineWidth = 1.0f;								// How thick lines should be when drawn
-	rasterizerCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;				// Which face of a tri to cull
-	rasterizerCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;	// Winding to determine which side is front
-	rasterizerCreateInfo.depthBiasEnable = VK_FALSE;					// Whether to add depth bias to fragments (good for stopping "shadow acne" in shadow mapping)
+	// ラスタライザーの設定
+	vk::PipelineRasterizationStateCreateInfo rasterizerInfo = CreateRasterizerStateInfo();
 
+	// マルチサンプリングの設定
+	auto multisamplingInfo = CreateMultisampleStateInfo(vk::SampleCountFlagBits::e1);
 
-	// -- MULTISAMPLING --
-	VkPipelineMultisampleStateCreateInfo multisamplingCreateInfo = {};
-	multisamplingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-	multisamplingCreateInfo.sampleShadingEnable = VK_FALSE;					// Enable multisample shading or not
-	multisamplingCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;	// Number of samples to use per fragment
-
-
-	// -- BLENDING --
-	// Blending decides how to blend a new colour being written to a fragment, with the old value
-
-	// Blend Attachment State (how blending is handled)
-	VkPipelineColorBlendAttachmentState colourState = {};
-	colourState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT	// Colours to apply blending to
-		| VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	colourState.blendEnable = VK_TRUE;													// Enable blending
-
-	// Blending uses equation: (srcColorBlendFactor * new colour) colorBlendOp (dstColorBlendFactor * old colour)
-	colourState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-	colourState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-	colourState.colorBlendOp = VK_BLEND_OP_ADD;
-
-	// Summarised: (VK_BLEND_FACTOR_SRC_ALPHA * new colour) + (VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA * old colour)
-	//			   (new colour alpha * new colour) + ((1 - new colour alpha) * old colour)
-
-	colourState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-	colourState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-	colourState.alphaBlendOp = VK_BLEND_OP_ADD;
-	// Summarised: (1 * new alpha) + (0 * old alpha) = new alpha
-
-	VkPipelineColorBlendStateCreateInfo colourBlendingCreateInfo = {};
-	colourBlendingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	colourBlendingCreateInfo.logicOpEnable = VK_FALSE;				// Alternative to calculations is to use logical operations
-	colourBlendingCreateInfo.attachmentCount = 1;
-	colourBlendingCreateInfo.pAttachments = &colourState;
+	// カラーブレンディングの設定
+	auto colorBlendingInfo = CreateColorBlendingStateInfo();
 
 	// -- PIPELINE LAYOUT --
 	std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = { descriptorSetLayout, samplerSetLayout };
@@ -160,13 +100,7 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 
 
 	// -- DEPTH STENCIL TESTING --
-	VkPipelineDepthStencilStateCreateInfo depthStencilCreateInfo = {};
-	depthStencilCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	depthStencilCreateInfo.depthTestEnable = VK_TRUE;				// Enable checking depth to determine fragment write
-	depthStencilCreateInfo.depthWriteEnable = VK_TRUE;				// Enable writing to depth buffer (to replace old values)
-	depthStencilCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS;		// Comparison operation that allows an overwrite (is in front)
-	depthStencilCreateInfo.depthBoundsTestEnable = VK_FALSE;		// Depth Bounds Test: Does the depth value exist between two bounds
-	depthStencilCreateInfo.stencilTestEnable = VK_FALSE;			// Enable Stencil Test
+	auto depthStencilInfo = CreateDepthStencilStateInfo(true,false);
 
 
 	auto shaderStage = shader.GetShaderStages();
@@ -175,19 +109,19 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 	pipelineCreateInfo.setStages(shaderStage);							// シェーダーステージ
 	pipelineCreateInfo.setPVertexInputState(&vertexInputInfo);		// All the fixed function pipeline states
 	pipelineCreateInfo.setPInputAssemblyState(&inputAssemblyInfo);
-	pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
-	pipelineCreateInfo.pDynamicState = nullptr;
-	pipelineCreateInfo.pRasterizationState = &rasterizerCreateInfo;
-	pipelineCreateInfo.pMultisampleState = &multisamplingCreateInfo;
-	pipelineCreateInfo.pColorBlendState = &colourBlendingCreateInfo;
-	pipelineCreateInfo.pDepthStencilState = &depthStencilCreateInfo;
-	pipelineCreateInfo.layout = pipelineLayout;							// Pipeline Layout pipeline should use
-	pipelineCreateInfo.renderPass = renderPass;							// Render pass description the pipeline is compatible with
-	pipelineCreateInfo.subpass = 0;										// Subpass of render pass to use with pipeline
+	pipelineCreateInfo.setPViewportState(&viewportInfo);
+	pipelineCreateInfo.setPDynamicState(nullptr);						//ダイナミックステートとは:パイプラインを作り直さなくても一部情報を変更できる機能
+	pipelineCreateInfo.setPRasterizationState(&rasterizerInfo);
+	pipelineCreateInfo.setPMultisampleState(&multisamplingInfo);
+	pipelineCreateInfo.setPColorBlendState(&colorBlendingInfo);
+	pipelineCreateInfo.setPDepthStencilState(&depthStencilInfo);
+	pipelineCreateInfo.layout = pipelineLayout;							// パイプラインと互換性があるレンダーパス
+	pipelineCreateInfo.renderPass = renderPass;							// 
+	pipelineCreateInfo.subpass = 0;										// パイプラインで使用するレンダー パスのサブパス
 
 	// Pipeline Derivatives : Can create multiple pipelines that derive from one another for optimisation
-	pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;	// Existing pipeline to derive from...
-	pipelineCreateInfo.basePipelineIndex = -1;				// or index of pipeline being created to derive from (in case creating multiple at once)
+	pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;	// 派生元の既存のパイプライン
+	pipelineCreateInfo.basePipelineIndex = -1;				// または派生元として作成中のパイプラインのインデックス (複数を同時に作成する場合)
 
 	// Create Graphics Pipeline
 	result = vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &graphicsPipeline);
@@ -195,62 +129,6 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 	{
 		throw std::runtime_error("Failed to create a Graphics Pipeline!");
 	}
-
-
-
-
-	// CREATE SECOND PASS PIPELINE
-	// Second pass shaders
-	auto secondVertexShaderCode = readFile("Shaders/second_vert.spv");
-	auto secondFragmentShaderCode = readFile("Shaders/second_frag.spv");
-
-	// Build shaders
-	VkShaderModule secondVertexShaderModule = createShaderModule(secondVertexShaderCode);
-	VkShaderModule secondFragmentShaderModule = createShaderModule(secondFragmentShaderCode);
-
-	// Set new shaders
-	vertexShaderCreateInfo.module = secondVertexShaderModule;
-	fragmentShaderCreateInfo.module = secondFragmentShaderModule;
-
-	VkPipelineShaderStageCreateInfo secondShaderStages[] = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
-
-	// No vertex data for second pass
-	vertexInputCreateInfo.vertexBindingDescriptionCount = 0;
-	vertexInputCreateInfo.pVertexBindingDescriptions = nullptr;
-	vertexInputCreateInfo.vertexAttributeDescriptionCount = 0;
-	vertexInputCreateInfo.pVertexAttributeDescriptions = nullptr;
-
-	// Don't want to write to depth buffer
-	depthStencilCreateInfo.depthWriteEnable = VK_FALSE;
-
-	// Create new pipeline layout
-	VkPipelineLayoutCreateInfo secondPipelineLayoutCreateInfo = {};
-	secondPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	secondPipelineLayoutCreateInfo.setLayoutCount = 1;
-	secondPipelineLayoutCreateInfo.pSetLayouts = &inputSetLayout;
-	secondPipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-	secondPipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
-
-	result = vkCreatePipelineLayout(logicalDevice, &secondPipelineLayoutCreateInfo, nullptr, &secondPipelineLayout);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create a Pipeline Layout!");
-	}
-
-	pipelineCreateInfo.pStages = secondShaderStages;	// Update second shader stage list
-	pipelineCreateInfo.layout = secondPipelineLayout;	// Change pipeline layout for input attachment descriptor sets
-	pipelineCreateInfo.subpass = 1;						// Use second subpass
-
-	// Create second pipeline
-	result = vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &secondPipeline);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create a Graphics Pipeline!");
-	}
-
-	// Destroy second shader modules
-	vkDestroyShaderModule(logicalDevice, secondFragmentShaderModule, nullptr);
-	vkDestroyShaderModule(logicalDevice, secondVertexShaderModule, nullptr);
 }
 
 
@@ -268,6 +146,142 @@ vk::PipelineLayout PipelineGenerator::CreatePipelineLayout(vk::Device logicalDev
 
 	try { return logicalDevice.createPipelineLayout(pipelineLayoutInfo); }
 	catch (const std::runtime_error& e) { throw std::runtime_error("パイプラインレイアウトの作成に失敗しました！"); }
+}
+
+inline vk::PipelineViewportStateCreateInfo PipelineGenerator::CreateViewportStateInfo(vk::Extent2D extent)
+{
+	// ビューポートの情報を構築する
+	vk::Viewport viewport;
+	viewport.setX(0.0f);									// x座標の開始位置
+	viewport.setY(0.0f);									// y座標の開始位置
+	viewport.setWidth(static_cast<float>(extent.width));	// ビューポートの幅
+	viewport.setHeight(static_cast<float>(extent.height));	// ビューポートの高さ
+	viewport.setMinDepth(0.0f);								// フレームバッファの最小深度
+	viewport.setMaxDepth(1.0f);								// フレームバッファの最大深度
+
+	// シザー(ビューポートの画面を切り抜く領域)の情報を構築する
+	vk::Rect2D scissor;
+	scissor.setOffset({ 0, 0 });							// 使用する領域のオフセット
+	scissor.setExtent(extent);								// 使用する領域のサイズ
+
+	// ビューポートとシザーの状態を設定するための構造体を作成
+	vk::PipelineViewportStateCreateInfo viewportStateCreateInfo = {};
+	viewportStateCreateInfo.setViewportCount(1);		// ビューポートの数
+	viewportStateCreateInfo.setPViewports(&viewport);	// ビューポートのポインタ
+	viewportStateCreateInfo.setScissorCount(1);			// シザーの数
+	viewportStateCreateInfo.setPScissors(&scissor);		// シザーのポインタ
+
+	return viewportStateCreateInfo;
+}
+
+inline vk::PipelineRasterizationStateCreateInfo PipelineGenerator::CreateRasterizerStateInfo()
+{
+	// ラスタライゼーションステートの設定
+	vk::PipelineRasterizationStateCreateInfo rasterizationInfo = {};
+	rasterizationInfo.setDepthClampEnable(VK_FALSE);										// 深度クランプを無効
+	rasterizationInfo.setRasterizerDiscardEnable(VK_FALSE);									// ラスタライザーを有効
+	rasterizationInfo.setPolygonMode(vk::PolygonMode::eFill);								// 塗りつぶしモード
+	rasterizationInfo.setCullMode(vk::CullModeFlagBits::eBack);								// 背面カリング
+	rasterizationInfo.setFrontFace(vk::FrontFace::eCounterClockwise);						// 順方向を反時計回りに設定
+	rasterizationInfo.setDepthBiasEnable(VK_FALSE);											// 深度バイアスを無効
+	rasterizationInfo.setDepthBiasConstantFactor(0.0f);										// 深度バイアスの定数因子
+	rasterizationInfo.setDepthBiasClamp(0.0f);												// 深度バイアスのクランプ値
+	rasterizationInfo.setDepthBiasSlopeFactor(0.0f);										// 深度バイアスのスロープ因子
+
+	return rasterizationInfo;
+}
+
+inline vk::PipelineMultisampleStateCreateInfo PipelineGenerator::CreateMultisampleStateInfo(vk::SampleCountFlagBits sampleValue)
+{
+	// マルチサンプリングの設定
+	vk::PipelineMultisampleStateCreateInfo multisamplingCreateInfo;
+	multisamplingCreateInfo.setRasterizationSamples(sampleValue);					// マルチサンプリングを指定
+	multisamplingCreateInfo.setSampleShadingEnable(VK_FALSE);						// サンプルシェーディングを無効
+	multisamplingCreateInfo.setMinSampleShading(1.0f);								// サンプルシェーディングの最小比率
+	multisamplingCreateInfo.setPSampleMask(nullptr);								// サンプルマスクを指定（通常はnullptr）
+	multisamplingCreateInfo.setAlphaToCoverageEnable(VK_FALSE);						// アルファカバレッジを無効
+	multisamplingCreateInfo.setAlphaToOneEnable(VK_FALSE);							// アルファ値を1に固定を無効
+
+	return multisamplingCreateInfo;
+}
+
+inline vk::PipelineColorBlendStateCreateInfo PipelineGenerator::CreateColorBlendingStateInfo()
+{
+	// カラーブレンディングの設定
+
+	// ブレンドアタッチメントステート (どのようにブレンディングを処理するかを設定)
+	vk::PipelineColorBlendAttachmentState colorState; // ブレンド状態を初期化
+
+	// 書き込みマスクを設定
+	// どの色成分にブレンディングを適用するかを指定
+	colorState.colorWriteMask = 
+		vk::ColorComponentFlagBits::eR |	// 赤
+		vk::ColorComponentFlagBits::eG |	// 緑
+		vk::ColorComponentFlagBits::eB |	// 青		
+		vk::ColorComponentFlagBits::eA;		// アルファ(透明度)
+
+	colorState.blendEnable = VK_TRUE; // ブレンディングを有効にする
+
+	// ブレンディングの計算に使用する要素を設定
+	// 新しい色と古い色をどのように合成するかを定義
+	colorState.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha; // 新しい色のアルファ値を使用
+	colorState.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha; // 古い色のアルファ値を反転
+
+	// ブレンド演算を加算に設定
+	colorState.colorBlendOp = vk::BlendOp::eAdd; // 新しい色と古い色を足し合わせる
+	// 新しい色のアルファ値 * 新しい色 + (1 - 新しい色のアルファ値) * 古い色
+
+	// アルファブレンドの設定
+	colorState.srcAlphaBlendFactor = vk::BlendFactor::eOne;		// 新しいアルファをそのまま使用
+	colorState.dstAlphaBlendFactor = vk::BlendFactor::eZero;	// 古いアルファは無視
+
+	// アルファブレンド演算も加算に設定
+	colorState.alphaBlendOp = vk::BlendOp::eAdd;				// 新しいアルファと古いアルファを足し合わせる
+	// 1 * 新しいアルファ + 0 * 古いアルファ = 新しいアルファ
+
+	// 全体のブレンディング設定をまとめる
+	vk::PipelineColorBlendStateCreateInfo colorBlendingCreateInfo;	// ブレンド状態の初期化
+	colorBlendingCreateInfo.logicOpEnable = VK_FALSE;				// 論理演算を無効にする
+	colorBlendingCreateInfo.attachmentCount = 1;					// アタッチメントの数を1に設定
+	colorBlendingCreateInfo.pAttachments = &colorState;				// 設定したブレンド状態を指定
+
+	return colorBlendingCreateInfo;
+
+}
+
+inline vk::PipelineDepthStencilStateCreateInfo PipelineGenerator::CreateDepthStencilStateInfo(bool depth, bool stencil)
+{
+	// 深度およびステンシルステートの設定
+
+	// 深度およびステンシルステートの作成情報を初期化
+	vk::PipelineDepthStencilStateCreateInfo depthStencilCreateInfo;
+	depthStencilCreateInfo.depthTestEnable = depth;					// 深度テスト
+	depthStencilCreateInfo.depthWriteEnable = VK_TRUE;				// 深度バッファへの書き込み
+	depthStencilCreateInfo.depthCompareOp = vk::CompareOp::eLess;	// 深度比較オペレーションの設定
+	depthStencilCreateInfo.depthBoundsTestEnable = VK_FALSE;		// 深度バウンズテスト
+	depthStencilCreateInfo.stencilTestEnable = stencil;				// ステンシルテストを無効にする
+
+	if(stencil == true)
+	{
+		// ステンシルオペレーションの設定例（ステンシルテストを有効にした場合）
+		 depthStencilCreateInfo.front.failOp = vk::StencilOp::eKeep;			// フロント面での失敗時のオペレーション
+		 depthStencilCreateInfo.front.passOp = vk::StencilOp::eReplace;			// フロント面での成功時のオペレーション
+		 depthStencilCreateInfo.front.depthFailOp = vk::StencilOp::eReplace;	// フロント面での深度失敗時のオペレーション
+		 depthStencilCreateInfo.front.compareOp = vk::CompareOp::eAlways;		// フロント面での比較オペレーション
+		 depthStencilCreateInfo.front.compareMask = 0xFF;						// フロント面の比較マスク
+		 depthStencilCreateInfo.front.writeMask = 0xFF;							// フロント面の書き込みマスク
+		 depthStencilCreateInfo.front.reference = 1;							// フロント面のリファレンス値
+		
+		 depthStencilCreateInfo.back.failOp = vk::StencilOp::eKeep;				// バック面での失敗時のオペレーション
+		 depthStencilCreateInfo.back.passOp = vk::StencilOp::eReplace;			// バック面での成功時のオペレーション
+		 depthStencilCreateInfo.back.depthFailOp = vk::StencilOp::eReplace;		// バック面での深度失敗時のオペレーション
+		 depthStencilCreateInfo.back.compareOp = vk::CompareOp::eAlways;		// バック面での比較オペレーション
+		 depthStencilCreateInfo.back.compareMask = 0xFF;						// バック面の比較マスク
+		 depthStencilCreateInfo.back.writeMask = 0xFF;							// バック面の書き込みマスク
+		 depthStencilCreateInfo.back.reference = 1;								// バック面のリファレンス値
+	}
+
+	return depthStencilCreateInfo;
 }
 
 std::vector<vk::PipelineShaderStageCreateInfo> PipelineGenerator::GetShaderStageInfo(vk::Device logicalDevice)

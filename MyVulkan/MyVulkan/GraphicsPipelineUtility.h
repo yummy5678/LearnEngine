@@ -4,6 +4,8 @@
 #include "Utilities.h"
 #include "ShaderUtility.h"
 #include "ViewportGenerator.h"
+#include "PipelineShaderCreator.h"
+#include "PipelineDescriptions.h"
 
 class PipelineGenerator : CGeneratorBase
 {
@@ -31,7 +33,7 @@ private:
 	//vk::PipelineMultisampleStateCreateInfo			m_MultisamplingInfo;
 	//vk::PipelineVertexInputStateCreateInfo			m_VertexInputCreateInfo;
 	//vk::PipelineInputAssemblyStateCreateInfo			m_InputAssemblyInfo;
-	ViewportGenerator									m_viewportGenerator;
+	//ViewportGenerator									m_viewportGenerator;
 	//vk::PipelineRasterizationStateCreateInfo			m_RasterizerCreateInfo;
 	//std::vector<vk::PipelineColorBlendAttachmentState>m_ColorBlendAttachment;
 	//vk::PipelineColorBlendStateCreateInfo				m_ColorBlendCreateInfo;
@@ -41,6 +43,12 @@ private:
 
 	vk::PipelineLayout CreatePipelineLayout(vk::Device logicalDevice);
 
+	inline vk::PipelineViewportStateCreateInfo		CreateViewportStateInfo(vk::Extent2D extent);
+	inline vk::PipelineRasterizationStateCreateInfo CreateRasterizerStateInfo();
+	inline vk::PipelineMultisampleStateCreateInfo	CreateMultisampleStateInfo(vk::SampleCountFlagBits sampleValue);
+	inline vk::PipelineColorBlendStateCreateInfo	CreateColorBlendingStateInfo();
+	inline vk::PipelineDepthStencilStateCreateInfo	CreateDepthStencilStateInfo(bool depth, bool stencil);
+	
 	std::vector<vk::PipelineShaderStageCreateInfo>		GetShaderStageInfo(vk::Device logicalDevice);
 	vk::PipelineVertexInputStateCreateInfo				GetVertexInputStateInfo();
 	vk::PipelineInputAssemblyStateCreateInfo			GetInputAssemblyStateInfo();
