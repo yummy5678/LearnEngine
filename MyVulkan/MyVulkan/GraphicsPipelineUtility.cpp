@@ -1,5 +1,5 @@
 #include "GraphicsPipelineUtility.h"
-#include "Scene.h"
+
 
 
 
@@ -81,22 +81,7 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 	// カラーブレンディングの設定
 	auto colorBlendingInfo = CreateColorBlendingStateInfo();
 
-	// -- PIPELINE LAYOUT --
-	std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = { descriptorSetLayout, samplerSetLayout };
 
-	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
-	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-	pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
-	pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
-	pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
-
-	// Create Pipeline Layout
-	VkResult result = vkCreatePipelineLayout(logicalDevice, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout);
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create Pipeline Layout!");
-	}
 
 
 	// -- DEPTH STENCIL TESTING --
@@ -137,14 +122,16 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 
 vk::PipelineLayout PipelineGenerator::CreatePipelineLayout(vk::Device logicalDevice)
 {
-	// -- パイプラインレイアウト (TODO: 将来のディスクリプタセットレイアウトを適用する) --
-	vk::PipelineLayoutCreateInfo pipelineLayoutInfo;
-	pipelineLayoutInfo.setLayoutCount = 0;
-	pipelineLayoutInfo.pSetLayouts = nullptr;
-	pipelineLayoutInfo.pushConstantRangeCount = 0;
-	pipelineLayoutInfo.pPushConstantRanges = nullptr;
+	// -- PIPELINE LAYOUT --
+	std::array<vk::DescriptorSetLayout, 2> descriptorSetLayouts = { descriptorSetLayout, samplerSetLayout };
 
-	try { return logicalDevice.createPipelineLayout(pipelineLayoutInfo); }
+	vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
+	pipelineLayoutCreateInfo.setLayoutCount = descriptorSetLayouts.size();
+	pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
+	pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+	pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantModelRange;
+
+	try { return logicalDevice.createPipelineLayout(pipelineLayoutCreateInfo); }
 	catch (const std::runtime_error& e) { throw std::runtime_error("パイプラインレイアウトの作成に失敗しました！"); }
 }
 
@@ -404,3 +391,23 @@ vk::PipelineColorBlendStateCreateInfo PipelineGenerator::GetColorBlendStateInfo(
 
 	return colorBlendingInfo;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

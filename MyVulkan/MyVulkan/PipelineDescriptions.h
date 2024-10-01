@@ -1,6 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
-#include "ModelLoder.h"
+#include "MeshObject.h"
 
 //・・・・・・・・・・・・・・・・・・・・・・・・
 // パイプラインに渡す情報の定義
@@ -54,3 +54,52 @@ constexpr vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo = [] {
     info.primitiveRestartEnable = VK_FALSE;                 // プリミティブ再開を無効にする
     return info;
     }();
+
+
+
+
+
+
+
+
+
+///////////////////////////////////
+// プッシュ定数
+///////////////////////////////////
+// Model
+constexpr vk::PushConstantRange   pushConstantModelRange = [] {
+    // プッシュ定数に作成情報とかは必要ない
+
+    vk::PushConstantRange	pushConstantRange;
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;	// 渡したいシェーダーステージ
+    pushConstantRange.offset = 0;								        // 渡したデータからどの位置のデータを見るか
+    pushConstantRange.size = sizeof(Model);						        // 渡したいデータのサイズ
+
+    return pushConstantRange;
+}();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,17 +1,11 @@
-#include "ModelLoder.h"
+#include "MeshManager.h"
 
 
-ModelLoder::ModelLoder()
+bool MeshManager::Load(std::string filePath)
 {
-}
+    // Assimpのインポーターを作成
+    Assimp::Importer importer;  
 
-ModelLoder::~ModelLoder()
-{
-}
-
-bool ModelLoder::Load(std::string filePath)
-{
-    Assimp::Importer importer;  // Assimpのインポーターを作成
     // モデルファイルを読み込み、必要な後処理オプションを指定
     const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -22,33 +16,39 @@ bool ModelLoder::Load(std::string filePath)
     }
 
     // シーンのルートノードから再帰的にノードを処理していく
-    ProcessNode(scene->mRootNode, scene);
-    return true; // モデルの読み込みに成功したらtrueを返す
+    m_MeshList[filePath] = ProcessNode(scene->mRootNode, scene);
+
+    // 読み込みに成功
+    return true; 
 }
 
-MeshObject ModelLoder::GetModel()
+MeshObject MeshManager::GetMesh(std::string filePath)
 {
-    return m_Model;
+    return MeshObject();
 }
 
 // シーンのノードを再帰的に処理するメソッド
-void ModelLoder::ProcessNode(aiNode* node, const aiScene* scene)
+MeshObject MeshManager::ProcessNode(aiNode* node, const aiScene* scene)
 {
+    MeshObject object;
     // ノードが持つメッシュをすべて処理
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]]; // ノード内のメッシュを取得
-        m_Model.meshes.push_back(ProcessMesh(mesh, scene)); // メッシュを処理し、結果を保存
+        object.meshes.push_back(ProcessMesh(mesh, scene)); // メッシュを処理し、結果を保存
     }
 
     // 子ノードがある場合、再帰的に処理する（シーン全体を探索）
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
         ProcessNode(node->mChildren[i], scene); // 子ノードを再帰的に処理
     }
+
+    return object;
 }
 
 // メッシュを処理し、頂点やインデックスデータを抽出するメソッド
-Mesh ModelLoder::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
+Mesh MeshManager::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     Mesh resultMesh; // メッシュを格納するための変数
+    std::vector<Material> resultMaterials;
 
     // メッシュの各頂点を処理
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
@@ -97,14 +97,14 @@ Mesh ModelLoder::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     // メッシュに関連するマテリアルがある場合、マテリアルを処理
     if (mesh->mMaterialIndex >= 0) {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex]; // マテリアルを取得
-        m_Model.materials.push_back(ProcessMaterial(material)); // マテリアルを処理し、結果を保存
+        resultMaterials.push_back(ProcessMaterial(material)); // マテリアルを処理し、結果を保存        
     }
 
     return resultMesh; // 処理したメッシュを返す
 }
 
 // マテリアルを処理し、色やテクスチャの情報を抽出するメソッド
-Material ModelLoder::ProcessMaterial(aiMaterial* material) {
+Material MeshManager::ProcessMaterial(aiMaterial* material) {
     Material resultMaterial; // マテリアル情報を格納するための変数
 
     // マテリアルの色を取得（存在しない場合、デフォルト値を使用）
@@ -132,4 +132,5 @@ Material ModelLoder::ProcessMaterial(aiMaterial* material) {
 
     return resultMaterial; // 処理したマテリアルを返す
 }
+
 

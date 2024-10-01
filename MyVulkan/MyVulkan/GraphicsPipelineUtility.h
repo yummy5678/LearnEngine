@@ -6,6 +6,7 @@
 #include "ViewportGenerator.h"
 #include "PipelineShaderCreator.h"
 #include "PipelineDescriptions.h"
+#include "Scene.h"
 
 class PipelineGenerator : CGeneratorBase
 {
@@ -19,6 +20,8 @@ public:
 	vk::Pipeline		GetPipeline();
 	vk::PipelineLayout	GetPipelineLayout();
 
+	int createTextureDescriptor(vk::Device logicalDevice, VkImageView textureImage);
+
 private:
 	vk::Device						m_LogicalDevice;
 
@@ -28,6 +31,11 @@ private:
 	vk::PipelineLayout				m_PipelineLayout;
 	//vk::PipelineLayoutCreateInfo	m_PipelineLayoutCreateInfo;
 
+	// デスクリプタ
+	DescriptorHandler		m_SamplerSetLayout;
+
+	VkDescriptorSetLayout	descriptorSetLayout;
+	VkDescriptorSetLayout	samplerSetLayout;
 
 	//std::vector<vk::PipelineShaderStageCreateInfo>	m_ShaderStageInfos;
 	//vk::PipelineMultisampleStateCreateInfo			m_MultisamplingInfo;

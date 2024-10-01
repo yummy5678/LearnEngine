@@ -38,9 +38,10 @@
 #include "GraphicsPipelineUtility.h"
 #include "FramebufferGenerator.h"
 #include "CommandUtility.h"
-#include "SynchronizationGenerator.h"
 #include "WriteImage.cpp"
 #include "SwapGraphicCommandController.h"
+#include "Scene.h"
+
 
 class VulkanRenderer
 {
@@ -49,11 +50,16 @@ public:
 	~VulkanRenderer();
 
 	int init(GameWindow renderWindow);
+	void setScene(Scene *scene);
+
 	void draw();
 	void cleanup();
 
 private:
 	GLFWwindow* m_pWindow;
+
+	
+	Scene*		m_pScene;	// 描画したいオブジェクトやカメラ情報が入ったクラス
 
 	int currentFrame = 0;
 
@@ -71,7 +77,6 @@ private:
 	PipelineGenerator			m_PipelineGenerator;
 	FramebufferGenerator		m_FramebufferGenerator;
 	CommandGenerator			m_CommandGenerator;
-	SynchronizationGenerator	m_SynchroGenerator;
 
 	SwapGraphicCommandController	m_GraphicController;
 

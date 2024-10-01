@@ -108,6 +108,11 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	return EXIT_SUCCESS;
 }
 
+void VulkanRenderer::setScene(Scene* scene)
+{
+	m_pScene = scene;
+}
+
 
 //void draw{
 //		recordCommands(imageIndex);

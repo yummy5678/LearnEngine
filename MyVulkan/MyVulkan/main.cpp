@@ -22,9 +22,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	float angle = 0.0f;
-	float deltaTime = 0.0f;
-	float lastTime = 0.0f;
+	Scene scene;
 
 	int helicopter = vulkanRenderer.createMeshModel("Models/uh60.obj");
 
@@ -34,17 +32,8 @@ int main()
 	{
 		//ここで毎フレーム更新を行う
 		glfwPollEvents();
+		scene.Update();
 
-		float now = glfwGetTime();
-		deltaTime = now - lastTime;
-		lastTime = now;
-
-		angle += 10.0f * deltaTime;
-		if (angle > 360.0f) { angle -= 360.0f; }
-
-		glm::mat4 testMat = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-		testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		vulkanRenderer.updateModel(helicopter, testMat);
 
 		vulkanRenderer.draw();
 	}
