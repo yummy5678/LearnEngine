@@ -42,6 +42,8 @@
 #include "SwapGraphicCommandController.h"
 #include "Scene.h"
 
+#include "RenderPipeline.h"
+
 
 class VulkanRenderer
 {
@@ -49,7 +51,7 @@ public:
 	VulkanRenderer();
 	~VulkanRenderer();
 
-	int init(GameWindow renderWindow);
+	int init(GameWindow renderWindow, RenderPipeline bindPipeline);
 	void setScene(Scene *scene);
 
 	void draw();
@@ -59,7 +61,7 @@ private:
 	GLFWwindow* m_pWindow;
 
 	
-	Scene*		m_pScene;	// 描画したいオブジェクトやカメラ情報が入ったクラス
+	Scene*		m_pScene;	// 描画したいオブジェクトの情報が入ったクラス
 
 	int currentFrame = 0;
 

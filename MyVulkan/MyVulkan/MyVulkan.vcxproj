@@ -153,6 +153,7 @@
     <ClCompile Include="SemaphoreGenerator.cpp" />
     <ClCompile Include="SwapGraphicCommandController.cpp" />
     <ClCompile Include="ModelTexture.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="SwapGraphicCommandController.h" />
     <ClInclude Include="ModelTexture.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="Renderer.h" />

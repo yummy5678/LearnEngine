@@ -3,6 +3,7 @@
 #include <stb/stb_image.h>
 #include <glm/ext/matrix_transform.hpp>
 #include "SceneObject.h"
+#include "MeshManager.h"
 #include "RenderPipeline.h"
 
 
@@ -21,7 +22,7 @@ public:
 	void Initialize();
 	void Update();
 	void Render(RenderPipeline &pipeline);
-	SceneObject GetObjects();
+	// void Render(RenderPipeline &pipeline, Camera camera);
 
 
 

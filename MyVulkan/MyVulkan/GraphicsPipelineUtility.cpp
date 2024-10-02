@@ -1,9 +1,6 @@
 #include "GraphicsPipelineUtility.h"
 
 
-
-
-
 PipelineGenerator::PipelineGenerator()
 {
 	m_ClassName = "PipelineGenerator";
@@ -13,7 +10,7 @@ PipelineGenerator::~PipelineGenerator()
 {
 }
 
-void PipelineGenerator::LoadShader(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
+void PipelineGenerator::Create(vk::Device logicalDevice)
 {
 	m_bCreated = true;
 
@@ -21,11 +18,51 @@ void PipelineGenerator::LoadShader(vk::Device logicalDevice, vk::Extent2D extent
 	m_LogicalDevice = logicalDevice;
 
 	//パイプラインレイアウトの作成
-	m_PipelineLayout = CreatePipelineLayout(logicalDevice);
+	m_PipelineLayout = logicalDevice.createPipelineLayout(m_PipelineLayoutInfo);
 
 	//パイプラインの作成
-	m_Pipeline = CreateGraphicsPipeline(logicalDevice, extent, renderPass);
+	m_Pipeline = logicalDevice.createGraphicsPipeline(m_PipelineInfo);
+		//CreateGraphicsPipeline(logicalDevice, extent, renderPass);
 	
+}
+
+void PipelineGenerator::CreateInfo(vk::Extent2D extent, vk::RenderPass renderPass, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfo)
+{
+	// ビューポートの設定情報を作成
+	m_ViewportInfo = CreateViewportStateInfo(extent);
+
+	// ラスタライザーの設定
+	m_RasterizerInfo = CreateRasterizerStateInfo();
+
+	// マルチサンプリングの設定
+	m_MultisamplingInfo = CreateMultisampleStateInfo(vk::SampleCountFlagBits::e1);
+
+	// カラーブレンディングの設定
+	m_ColorBlendInfo = CreateColorBlendingStateInfo();
+
+	// -- DEPTH STENCIL TESTING --
+	m_DepthStencilInfo = CreateDepthStencilStateInfo(true,false);
+
+
+
+	m_PipelineInfo.setStages(shaderStageInfo);							// シェーダーステージ
+	m_PipelineInfo.setPVertexInputState(&vertexInputInfo);		// All the fixed function pipeline states
+	m_PipelineInfo.setPInputAssemblyState(&inputAssemblyInfo);
+	m_PipelineInfo.setPViewportState(&m_ViewportInfo);
+	m_PipelineInfo.setPDynamicState(nullptr);						//ダイナミックステートとは:パイプラインを作り直さなくても一部情報を変更できる機能
+	m_PipelineInfo.setPRasterizationState(&m_RasterizerInfo);
+	m_PipelineInfo.setPMultisampleState(&m_MultisamplingInfo);
+	m_PipelineInfo.setPColorBlendState(&m_ColorBlendInfo);
+	m_PipelineInfo.setPDepthStencilState(&m_DepthStencilInfo);
+	m_PipelineInfo.layout = m_PipelineLayout;							// パイプラインと互換性があるレンダーパス
+	m_PipelineInfo.renderPass = renderPass;
+	m_PipelineInfo.subpass = 0;										// パイプラインで使用するレンダー パスのサブパス
+
+	// Pipeline Derivatives : Can create multiple pipelines that derive from one another for optimisation
+	m_PipelineInfo.basePipelineHandle = VK_NULL_HANDLE;	// 派生元の既存のパイプライン
+	m_PipelineInfo.basePipelineIndex = -1;				// または派生元として作成中のパイプラインのインデックス (複数を同時に作成する場合)
+
+
 }
 
 void PipelineGenerator::Destroy(vk::Device logicalDevice)
@@ -54,10 +91,9 @@ vk::PipelineLayout PipelineGenerator::GetPipelineLayout()
 vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass)
 {
 	// シェーダー読み込み
-	PipelineShaderCreator shader;
-	shader.LoadShader(logicalDevice, "", "");
+	//m_ShaderLoader.LoadShader(logicalDevice, "", "");
 
-	auto viewportInfo = CreateViewportStateInfo(extent);
+	/*auto viewportInfo = CreateViewportStateInfo(extent);*/
 
 	// -- DYNAMIC STATES --
 	// Dynamic states to enable
@@ -73,19 +109,17 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 
 
 	// ラスタライザーの設定
-	vk::PipelineRasterizationStateCreateInfo rasterizerInfo = CreateRasterizerStateInfo();
+	//vk::PipelineRasterizationStateCreateInfo rasterizerInfo = CreateRasterizerStateInfo();
 
 	// マルチサンプリングの設定
-	auto multisamplingInfo = CreateMultisampleStateInfo(vk::SampleCountFlagBits::e1);
+	//auto multisamplingInfo = CreateMultisampleStateInfo(vk::SampleCountFlagBits::e1);
 
 	// カラーブレンディングの設定
-	auto colorBlendingInfo = CreateColorBlendingStateInfo();
-
-
+	//auto colorBlendingInfo = CreateColorBlendingStateInfo();
 
 
 	// -- DEPTH STENCIL TESTING --
-	auto depthStencilInfo = CreateDepthStencilStateInfo(true,false);
+	//auto depthStencilInfo = CreateDepthStencilStateInfo(true,false);
 
 
 	auto shaderStage = shader.GetShaderStages();
@@ -101,7 +135,7 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 	pipelineCreateInfo.setPColorBlendState(&colorBlendingInfo);
 	pipelineCreateInfo.setPDepthStencilState(&depthStencilInfo);
 	pipelineCreateInfo.layout = pipelineLayout;							// パイプラインと互換性があるレンダーパス
-	pipelineCreateInfo.renderPass = renderPass;							// 
+	pipelineCreateInfo.renderPass = renderPass;							
 	pipelineCreateInfo.subpass = 0;										// パイプラインで使用するレンダー パスのサブパス
 
 	// Pipeline Derivatives : Can create multiple pipelines that derive from one another for optimisation

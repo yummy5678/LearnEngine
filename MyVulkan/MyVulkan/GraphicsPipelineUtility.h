@@ -14,7 +14,8 @@ public:
 	PipelineGenerator();
 	~PipelineGenerator();
 
-	void LoadShader(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass);
+	void Create(vk::Device logicalDevice);
+	void CreateInfo(vk::Extent2D extent, vk::RenderPass renderPass, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfo);
 	void Destroy(vk::Device logicalDevice);
 
 	vk::Pipeline		GetPipeline();
@@ -26,25 +27,27 @@ private:
 	vk::Device						m_LogicalDevice;
 
 	vk::Pipeline					m_Pipeline;
-	//vk::GraphicsPipelineCreateInfo	m_PipelineCreateInfo;
 
 	vk::PipelineLayout				m_PipelineLayout;
-	//vk::PipelineLayoutCreateInfo	m_PipelineLayoutCreateInfo;
+
+	PipelineShaderCreator			m_ShaderLoader;
 
 	// デスクリプタ
-	DescriptorHandler		m_SamplerSetLayout;
-
 	VkDescriptorSetLayout	descriptorSetLayout;
 	VkDescriptorSetLayout	samplerSetLayout;
 
-	//std::vector<vk::PipelineShaderStageCreateInfo>	m_ShaderStageInfos;
-	//vk::PipelineMultisampleStateCreateInfo			m_MultisamplingInfo;
-	//vk::PipelineVertexInputStateCreateInfo			m_VertexInputCreateInfo;
-	//vk::PipelineInputAssemblyStateCreateInfo			m_InputAssemblyInfo;
-	//ViewportGenerator									m_viewportGenerator;
-	//vk::PipelineRasterizationStateCreateInfo			m_RasterizerCreateInfo;
-	//std::vector<vk::PipelineColorBlendAttachmentState>m_ColorBlendAttachment;
-	//vk::PipelineColorBlendStateCreateInfo				m_ColorBlendCreateInfo;
+
+	vk::GraphicsPipelineCreateInfo						m_PipelineInfo;
+	vk::PipelineLayoutCreateInfo						m_PipelineLayoutInfo;
+	std::vector<vk::PipelineShaderStageCreateInfo>		m_ShaderStageInfos;
+	vk::PipelineMultisampleStateCreateInfo				m_MultisamplingInfo;
+	vk::PipelineVertexInputStateCreateInfo				m_VertexInputCreateInfo;
+	vk::PipelineInputAssemblyStateCreateInfo			m_InputAssemblyInfo;
+	vk::PipelineViewportStateCreateInfo					m_ViewportInfo;
+	vk::PipelineRasterizationStateCreateInfo			m_RasterizerInfo;
+	std::vector<vk::PipelineColorBlendAttachmentState>	m_ColorBlendAttachment;
+	vk::PipelineColorBlendStateCreateInfo				m_ColorBlendInfo;
+	vk::PipelineDepthStencilStateCreateInfo				m_DepthStencilInfo;
 
 	vk::Pipeline CreateGraphicsPipeline(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass);
 

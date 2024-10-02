@@ -1,13 +1,13 @@
 #include "Scene.h"
-#include "ModelLoder.h"
+
 
 
 
 void Scene::Initialize()
 {
-	ModelLoder loder;
-	loder.Load("");
-	m_Object.mesh = loder.GetModel();
+	MeshManager& meshManager = MeshManager::getInstance();
+	meshManager.Load("");
+	m_Object.mesh = meshManager.GetMesh("");
 }
 
 void Scene::Update()
@@ -27,13 +27,8 @@ void Scene::Update()
 
 }
 
-void Scene::Render(RenderPipeline pipeline)
+void Scene::Render(RenderPipeline& pipeline)
 {
-
-	vulkanRenderer.updateModel(helicopter, testMat);
+	pipeline.updateModel(m_Object.mesh, m_Object.transform);
 }
 
-std::vector<MeshObject> Scene::GetObjects()
-{
-    return m_Objects;
-}

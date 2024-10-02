@@ -19,7 +19,7 @@ enum InstanceLayerList
 };
 
 //インスタンスの番号と名前を結びつける
-//constexpr const char VULKAN_LAYER_VALIDATION[] = "VK_LAYER_LUNARG_standard_validation";
+//constexpr const char VULKAN_LAYER_VALIDATION[] = "VK_LAYER_LUNARG_standard_validation";	// 旧バージョン
 constexpr const char VULKAN_LAYER_VALIDATION[] = "VK_LAYER_KHRONOS_validation";
 
 

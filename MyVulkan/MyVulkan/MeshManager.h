@@ -18,7 +18,7 @@ private:
 
 public:
 	bool Load(std::string filePath);
-	MeshObject GetMesh(std::string filePath);
+	MeshObject* GetMesh(std::string filePath);
 
 
 

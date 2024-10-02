@@ -22,9 +22,9 @@ bool MeshManager::Load(std::string filePath)
     return true; 
 }
 
-MeshObject MeshManager::GetMesh(std::string filePath)
+MeshObject* MeshManager::GetMesh(std::string filePath)
 {
-    return MeshObject();
+    return &m_MeshList[filePath];
 }
 
 // シーンのノードを再帰的に処理するメソッド

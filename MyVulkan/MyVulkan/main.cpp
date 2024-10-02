@@ -13,6 +13,11 @@ VulkanRenderer vulkanRenderer;	//レンダラー
 
 int main()
 {
+
+	
+	RenderPipeline renderPipeline;	// 描画方法の形式を決めるオブジェクト
+	renderPipeline.Initialize();
+
 	// ウィンドウを作成
 	m_pWindow.init("Vulkan Window", windowWidth, windowHeight);
 
@@ -23,6 +28,7 @@ int main()
 	}
 
 	Scene scene;
+	scene.Initialize();
 
 	int helicopter = vulkanRenderer.createMeshModel("Models/uh60.obj");
 
