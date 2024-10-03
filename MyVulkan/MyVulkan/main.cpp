@@ -15,7 +15,7 @@ int main()
 {
 
 	
-	RenderPipeline renderPipeline;	// 描画方法の形式を決めるオブジェクト
+	RenderConfig renderPipeline;	// 描画方法の形式を決めるオブジェクト
 	renderPipeline.Initialize();
 
 	// ウィンドウを作成
@@ -31,7 +31,7 @@ int main()
 	scene.Initialize();
 
 	int helicopter = vulkanRenderer.createMeshModel("Models/uh60.obj");
-
+	vulkanRenderer.setRenderConfig(renderPipeline);
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!m_pWindow.checkCloseWindow())

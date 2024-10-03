@@ -67,15 +67,14 @@ constexpr vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo = [] {
 // プッシュ定数
 ///////////////////////////////////
 // Model
-constexpr vk::PushConstantRange   pushConstantModelRange = [] {
+constexpr std::vector<vk::PushConstantRange> pushConstantModelRange = [] {
     // プッシュ定数に作成情報とかは必要ない
-
     vk::PushConstantRange	pushConstantRange;
     pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;	// 渡したいシェーダーステージ
     pushConstantRange.offset = 0;								        // 渡したデータからどの位置のデータを見るか
     pushConstantRange.size = sizeof(Model);						        // 渡したいデータのサイズ
 
-    return pushConstantRange;
+    return std::vector<vk::PushConstantRange> { pushConstantRange };
 }();
 
 

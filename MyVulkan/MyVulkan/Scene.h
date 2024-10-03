@@ -21,7 +21,7 @@ public:
 
 	void Initialize();
 	void Update();
-	void Render(RenderPipeline &pipeline);
+	void Render(RenderConfig &pipeline);
 	// void Render(RenderPipeline &pipeline, Camera camera);
 
 

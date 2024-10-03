@@ -27,7 +27,7 @@ void Scene::Update()
 
 }
 
-void Scene::Render(RenderPipeline& pipeline)
+void Scene::Render(RenderConfig& pipeline)
 {
 	pipeline.updateModel(m_Object.mesh, m_Object.transform);
 }

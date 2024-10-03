@@ -6,14 +6,16 @@ DescriptorHandler::DescriptorHandler()
 
 DescriptorHandler::~DescriptorHandler()
 {
-    if (m_Device) {
-        if (m_DescriptorSetLayout) {
-            m_Device.destroyDescriptorSetLayout(m_DescriptorSetLayout);
-        }
-        if (m_DescriptorPool) {
-            m_Device.destroyDescriptorPool(m_DescriptorPool);
-        }
+    if (m_DescriptorSetLayout) 
+    {
+        m_Device.destroyDescriptorSetLayout(m_DescriptorSetLayout);
     }
+
+    if (m_DescriptorPool) 
+    {
+        m_Device.destroyDescriptorPool(m_DescriptorPool);
+    }
+
 }
 
 void DescriptorHandler::Create(vk::Device device, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags)
@@ -28,7 +30,7 @@ void DescriptorHandler::Create(vk::Device device, vk::DescriptorType descriptorT
 
 void DescriptorHandler::CreateDescriptorPool(uint32_t descriptorCount)
 {
-    vk::DescriptorPoolSize poolSize{};
+    vk::DescriptorPoolSize poolSize;
     poolSize.type = m_DescriptorType;
     poolSize.descriptorCount = descriptorCount;
 

@@ -35,12 +35,11 @@
 #include "ImagesGenerator.h"
 #include "SwapChainUtility.h"
 #include "RenderPassUtility.h"
-#include "GraphicsPipelineUtility.h"
+#include "GraphicsPipelineCreator.h"
 #include "FramebufferGenerator.h"
 #include "CommandUtility.h"
 #include "WriteImage.cpp"
 #include "SwapGraphicCommandController.h"
-#include "Scene.h"
 
 #include "RenderPipeline.h"
 
@@ -51,16 +50,14 @@ public:
 	VulkanRenderer();
 	~VulkanRenderer();
 
-	int init(GameWindow renderWindow, RenderPipeline bindPipeline);
-	void setScene(Scene *scene);
+	int init(GameWindow renderWindow);
+	void setRenderConfig(RenderConfig renderConfig);
 
 	void draw();
 	void cleanup();
 
 private:
-	GLFWwindow* m_pWindow;
-
-	
+	GLFWwindow* m_pWindow;	
 	Scene*		m_pScene;	// 描画したいオブジェクトの情報が入ったクラス
 
 	int currentFrame = 0;
@@ -79,11 +76,17 @@ private:
 	PipelineGenerator			m_PipelineGenerator;
 	FramebufferGenerator		m_FramebufferGenerator;
 	CommandGenerator			m_CommandGenerator;
-
 	SwapGraphicCommandController	m_GraphicController;
+
+	vk::PhysicalDevice	m_PhysicalDevice;
+	vk::Device			m_LogicalDevice;
+	vk::RenderPass		m_Renderpass;
+	vk::Pipeline		m_GraphicsPipeline;
 
 	//コールバック
 	VkDebugReportCallbackEXT callback;
+
+
 
 
 

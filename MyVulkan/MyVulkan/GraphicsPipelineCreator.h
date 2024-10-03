@@ -14,8 +14,11 @@ public:
 	PipelineGenerator();
 	~PipelineGenerator();
 
-	void Create(vk::Device logicalDevice);
-	void CreateInfo(vk::Extent2D extent, vk::RenderPass renderPass, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfo);
+	void Create(
+		vk::Device logicalDevice, 
+		vk::RenderPass renderPass, 
+		vk::Extent2D extent, 
+		std::vector<vk::PipelineShaderStageCreateInfo>shaderStageInfos);
 	void Destroy(vk::Device logicalDevice);
 
 	vk::Pipeline		GetPipeline();
@@ -30,11 +33,10 @@ private:
 
 	vk::PipelineLayout				m_PipelineLayout;
 
-	PipelineShaderCreator			m_ShaderLoader;
+	//PipelineShaderCreator			m_ShaderLoader;
 
 	// デスクリプタ
-	VkDescriptorSetLayout	descriptorSetLayout;
-	VkDescriptorSetLayout	samplerSetLayout;
+	DescriptorHandler				m_TextureDescriptor;
 
 
 	vk::GraphicsPipelineCreateInfo						m_PipelineInfo;
@@ -49,25 +51,24 @@ private:
 	vk::PipelineColorBlendStateCreateInfo				m_ColorBlendInfo;
 	vk::PipelineDepthStencilStateCreateInfo				m_DepthStencilInfo;
 
-	vk::Pipeline CreateGraphicsPipeline(vk::Device logicalDevice, vk::Extent2D extent, vk::RenderPass renderPass);
+	vk::Pipeline		CreateGraphicsPipeline(vk::Device logicalDevice, vk::RenderPass renderPass, vk::Extent2D extent, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfo);
+	vk::PipelineLayout	CreatePipelineLayout(vk::Device logicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts);
 
 
-	vk::PipelineLayout CreatePipelineLayout(vk::Device logicalDevice);
-
-	inline vk::PipelineViewportStateCreateInfo		CreateViewportStateInfo(vk::Extent2D extent);
-	inline vk::PipelineRasterizationStateCreateInfo CreateRasterizerStateInfo();
-	inline vk::PipelineMultisampleStateCreateInfo	CreateMultisampleStateInfo(vk::SampleCountFlagBits sampleValue);
-	inline vk::PipelineColorBlendStateCreateInfo	CreateColorBlendingStateInfo();
-	inline vk::PipelineDepthStencilStateCreateInfo	CreateDepthStencilStateInfo(bool depth, bool stencil);
+	vk::PipelineViewportStateCreateInfo			CreateViewportStateInfo(vk::Extent2D extent);
+	vk::PipelineRasterizationStateCreateInfo	CreateRasterizerStateInfo();
+	vk::PipelineMultisampleStateCreateInfo		CreateMultisampleStateInfo(vk::SampleCountFlagBits sampleValue);
+	vk::PipelineColorBlendStateCreateInfo		CreateColorBlendingStateInfo();
+	vk::PipelineDepthStencilStateCreateInfo		CreateDepthStencilStateInfo(bool depth, bool stencil);
 	
-	std::vector<vk::PipelineShaderStageCreateInfo>		GetShaderStageInfo(vk::Device logicalDevice);
+/*	std::vector<vk::PipelineShaderStageCreateInfo>		GetShaderStageInfo(vk::Device logicalDevice);
 	vk::PipelineVertexInputStateCreateInfo				GetVertexInputStateInfo();
 	vk::PipelineInputAssemblyStateCreateInfo			GetInputAssemblyStateInfo();
 	vk::PipelineRasterizationStateCreateInfo			GetRasterizationStateInfo();
 
 	vk::PipelineMultisampleStateCreateInfo				GetMultisampleStateInfo();
 	std::vector<vk::PipelineColorBlendAttachmentState>	GetColorBlendAttachmentState();
-	vk::PipelineColorBlendStateCreateInfo				GetColorBlendStateInfo(std::vector<vk::PipelineColorBlendAttachmentState>* colorBlendAttachment);
+	vk::PipelineColorBlendStateCreateInfo				GetColorBlendStateInfo(std::vector<vk::PipelineColorBlendAttachmentState>* colorBlendAttachment)*/;
 
 };
 
@@ -137,7 +138,10 @@ private:
 // SPIRV-Cross	 : https://github.com/KhronosGroup/SPIRV-Cross
 // 
 
-
+// パイプラインレイアウトとは
+// 頂点に含まれる情報(座標や色など)やテクスチャ等を
+// シェーダーが読めるように定義するためのオブジェクト。
+// 
 
 
 

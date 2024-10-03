@@ -1,7 +1,8 @@
 #pragma once
 #include "MeshObject.h"
 #include "PipelineShaderCreator.h"
-#include "GraphicsPipelineUtility.h"
+#include "GraphicsPipelineCreator.h"
+#include "DescriptorHandler.h"
 
 // シーンクラスからVulkanのグラフィックパイプラインへの
 // 描画モデルの情報の橋渡しを行うクラス
@@ -10,15 +11,20 @@
 // ここで決められるようにしたい。
 
 // まだ仮クラス
-class RenderPipeline
+class RenderConfig
 {
 public:
-	RenderPipeline();
-	~RenderPipeline();
+	RenderConfig();
+	~RenderConfig();
 
 	void Initialize();
 	void updateModel(MeshObject* mesh, glm::mat4 transform);
 	void Destroy();
+
+	vk::Extent2D			GetExtent2D();
+	PipelineShaderCreator	GetPipelineShader();
+
+
 
 private:
 	// 画面サイズ
@@ -28,8 +34,10 @@ private:
 	PipelineShaderCreator	m_Shader;	
 
 
-	// デスクリプタ
 
+
+	// デスクリプタ
+	DescriptorHandler m_Descriptor;
 
 
 

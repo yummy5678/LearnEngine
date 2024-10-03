@@ -14,7 +14,6 @@ VulkanRenderer::VulkanRenderer() :
 	m_PipelineGenerator(),
 	m_FramebufferGenerator(),
 	m_CommandGenerator(),
-	m_SynchroGenerator(),
 	m_GraphicController(m_DeviceExtension)
 {
 }
@@ -108,9 +107,15 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	return EXIT_SUCCESS;
 }
 
-void VulkanRenderer::setScene(Scene* scene)
+void VulkanRenderer::setRenderConfig(RenderConfig config)
 {
-	m_pScene = scene;
+	auto extent = config.GetExtent2D();
+	auto shader = config.GetPipelineShader().GetShaderStages();
+	//パイプラインの作成
+	m_PipelineGenerator.Create(m_LogicalDevice, m_Renderpass, extent, shader);
+	m_GraphicsPipeline = m_PipelineGenerator.GetPipeline();
+	
+
 }
 
 
@@ -122,16 +127,6 @@ void VulkanRenderer::setScene(Scene* scene)
 
 //物理デバイス作成処理に追加
 //deviceFeatures.samplerAnisotropy = VK_TRUE;		// Enable Anisotropy
-
-
-
-void VulkanRenderer::createPushConstantRange()
-{
-	// Define push constant values (no 'create' needed!)
-	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;	// Shader stage push constant will go to
-	pushConstantRange.offset = 0;								// Offset into given data to pass to push constant
-	pushConstantRange.size = sizeof(Model);						// Size of data being passed
-}
 
 
 
