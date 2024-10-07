@@ -37,6 +37,7 @@ struct Material
 //		std::vector<Keyframe>;
 //};
 
+
 struct MeshObject
 {
 	std::vector<Mesh>		meshes;		// オブジェクトの形の情報

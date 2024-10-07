@@ -50,6 +50,9 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		//論理デバイスを取得
 		auto logicalDevice	= m_DeviceGenerator.GetLogicalDevice();
 
+		// アロケーターの作成
+		CreateAllocator(instance, logicalDevice, physicalDevice);
+
 		//m_ImageGenerator.CreateForSurface(logicalDevice, physicalDevice, surface);
 		//auto imageViews = m_ImageGenerator.GetImageViews();
 
@@ -355,6 +358,26 @@ VkFormat VulkanRenderer::chooseSupportedFormat(const std::vector<VkFormat>& form
 	}
 
 	throw std::runtime_error("Failed to find a matching format!");
+}
+
+void VulkanRenderer::CreateAllocator(vk::Instance instance, vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
+{
+	// アロケータ作成情報
+	VmaAllocatorCreateInfo allocatorInfo;
+	allocatorInfo.vulkanApiVersion = VK_API_VERSION_1_0;
+	allocatorInfo.instance			= instance;
+	allocatorInfo.device			= logicalDevice;
+	allocatorInfo.physicalDevice	= physicalDevice;
+
+
+	// アロケータの作成
+	auto result = vmaCreateAllocator(&allocatorInfo, &m_VmaAllocator);
+
+	// 失敗時
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("VMAアロケータの作成に失敗しました!");
+	}
 }
 
 

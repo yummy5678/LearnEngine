@@ -8,14 +8,14 @@ SceneObject::~SceneObject()
 {
 }
 
-void SceneObject::SetMesh(MeshObject* pMesh)
+void SceneObject::SetPMesh(MeshObject* pMesh)
 {
-	m_pMesh = pMesh;
+	m_Mesh = *pMesh;
 
 	m_VertexBuffer.CreateMeshObject();
 }
 
-MeshObject* SceneObject::GetPMesh()
+MeshObject SceneObject::GetMesh()
 {
-	return nullptr;
+	return m_Mesh;
 }

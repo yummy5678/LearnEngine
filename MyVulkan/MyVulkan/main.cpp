@@ -6,7 +6,7 @@
 #include <iostream>
 #include "GraphicsDefine.h"
 #include "GameWindow.h"
-#include "Renderer.h"	//Vulkanのレンダラー処理をまとめている
+#include "Renderer.h"		//Vulkanのレンダラー処理をまとめている
 
 GameWindow m_pWindow;
 VulkanRenderer vulkanRenderer;	//レンダラー
@@ -15,8 +15,8 @@ int main()
 {
 
 	
-	RenderConfig renderPipeline;	// 描画方法の形式を決めるオブジェクト
-	renderPipeline.Initialize();
+	RenderConfig renderConfig;	// 描画方法の形式を決めるオブジェクト
+	renderConfig.Initialize();
 
 	// ウィンドウを作成
 	m_pWindow.init("Vulkan Window", windowWidth, windowHeight);
@@ -30,8 +30,8 @@ int main()
 	Scene scene;
 	scene.Initialize();
 
-	int helicopter = vulkanRenderer.createMeshModel("Models/uh60.obj");
-	vulkanRenderer.setRenderConfig(renderPipeline);
+	//int helicopter = vulkanRenderer.createMeshModel("Models/uh60.obj");
+	vulkanRenderer.setRenderConfig(renderConfig);
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!m_pWindow.checkCloseWindow())

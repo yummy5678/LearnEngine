@@ -2,10 +2,9 @@
 #include <vulkan/vulkan.hpp>
 #include "SwapChainUtility.h"
 #include "RenderPassUtility.h"
-#include "GraphicsPipelineUtility.h"
+#include "GraphicsPipelineCreator.h"
 #include "FramebufferGenerator.h"
 #include "CommandUtility.h"
-#include "SynchronizationGenerator.h"
 
 class SwapGraphicCommandController
 {
@@ -13,7 +12,7 @@ public:
 	SwapGraphicCommandController(DeviceExtensionManager& deviceExtensionManager);
 	~SwapGraphicCommandController();
 
-	void Initialize(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface);
+	void Initialize(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface, RenderConfig* pRenderConfig);
 	void Destroy();
 	void DrawFrame();
 	void PresentFrame();
@@ -25,7 +24,7 @@ private:
 	vk::SurfaceKHR				m_Surface;
 	vk::PhysicalDevice			m_PhysicalDevice;
 	vk::Device					m_LogicalDevice;
-
+	RenderConfig*				m_pRenderConfig;
 
 	SwapchainGenerator			m_SwapchainGenerator;
 	RenderpassGenerator			m_RenderpassGenerator;

@@ -1,6 +1,8 @@
 #include "CommandUtility.h"
 
 
+
+
 CommandGenerator::CommandGenerator():
     m_LogicalDevice(),
     m_PhysicalDevice(),
@@ -174,19 +176,16 @@ std::vector<vk::CommandBuffer> CommandGenerator::GetCommandBuffers()
     return m_CommandBuffers;
 }
 
-void CommandGenerator::DrawFrame(vk::CommandBuffer buffer, vk::RenderPass renderpass, vk::Framebuffer framebuffer, vk::Rect2D renderArea, vk::Pipeline graphicsPipeline)
+void CommandGenerator::DrawFrame(vk::CommandBuffer buffer, vk::RenderPass renderpass, vk::Framebuffer framebuffer, vk::Rect2D renderArea, vk::Pipeline graphicsPipeline, std::vector<SceneObject> drawMeshes)
 {
     //指定したフレームバッファにレンダーパスとパイプラインを関連付けて
     //書き込むコマンドの作成と送信を行う関数
 
     //フレームの初期化する色
-    vk::ClearValue clearVal;
-    clearVal.color.float32[0] = 0.0f;
-    clearVal.color.float32[1] = 0.0f;
-    clearVal.color.float32[2] = 0.0f;
-    clearVal.color.float32[3] = 1.0f;
-
-
+    std::array<vk::ClearValue, 3> clearValues = {};
+    clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+    clearValues[1].color = { 0.6f, 0.65f, 0.4f, 1.0f };
+    clearValues[2].depthStencil.depth = 1.0f;
 
     vk::CommandBufferBeginInfo cmdBeginInfo;
     if (buffer.begin(&cmdBeginInfo) != vk::Result::eSuccess)
@@ -198,13 +197,57 @@ void CommandGenerator::DrawFrame(vk::CommandBuffer buffer, vk::RenderPass render
     renderpassBeginInfo.renderPass = renderpass;
     renderpassBeginInfo.framebuffer = framebuffer;
     renderpassBeginInfo.renderArea = renderArea;
-    renderpassBeginInfo.clearValueCount = 1;
-    renderpassBeginInfo.pClearValues = &clearVal;
+    renderpassBeginInfo.clearValueCount = clearValues.size();
+    renderpassBeginInfo.pClearValues = clearValues.data();
 
     buffer.beginRenderPass(renderpassBeginInfo, vk::SubpassContents::eInline);
 
     // 使用するパイプラインをバインドする
     buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
+
+    {////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        for (size_t j = 0; j < drawMeshes.size(); j++)
+        {
+            auto thisModel = drawMeshes[j];
+            auto thisMeshes = thisModel.GetMesh();
+
+            vkCmdPushConstants(
+                buffer,
+                pipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT,		// Stage to push constants to
+                0,								// Offset of push constants to update
+                sizeof(Transform),				// Size of data being pushed
+                &thisModel.GetTransform());			// Actual data being pushed (can be array)
+
+            for (size_t k = 0; k < thisMeshes.meshes.size(); k++)
+            {
+
+                VkBuffer vertexBuffers[] = { thisModel.GetMeshBuffer()};					// Buffers to bind
+                VkDeviceSize offsets[] = { 0 };												// Offsets into buffers being bound
+                vkCmdBindVertexBuffers(commandBuffers[currentImage], 0, 1, vertexBuffers, offsets);	// Command to bind vertex buffer before drawing with them
+
+                // Bind mesh index buffer, with 0 offset and using the uint32 type
+                vkCmdBindIndexBuffer(commandBuffers[currentImage], thisModel.getMesh(k)->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+
+                // Dynamic Offset Amount
+                // uint32_t dynamicOffset = static_cast<uint32_t>(modelUniformAlignment) * j;
+
+                // "Push" constants to given shader stage directly (no buffer)
+
+
+                std::array<VkDescriptorSet, 2> descriptorSetGroup = { descriptorSets[currentImage],
+                    samplerDescriptorSets[thisModel.getMesh(k)->getTexId()] };
+
+                // Bind Descriptor Sets
+                vkCmdBindDescriptorSets(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                    0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
+
+                // Execute pipeline
+                vkCmdDrawIndexed(commandBuffers[currentImage], thisModel.getMesh(k)->getIndexCount(), 1, 0, 0, 0);
+            }
+        }
+
+    }////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // ここでサブパス0番の処理
     buffer.draw(3, 1, 0, 0);

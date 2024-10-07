@@ -143,6 +143,7 @@
     <ClCompile Include="GraphicsPipelineCreator.cpp" />
     <ClCompile Include="InstanceExtensionManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshBuffer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MeshModel.cpp" />
     <ClCompile Include="PhysicalDeviceSelector.cpp" />
@@ -154,6 +155,8 @@
     <ClCompile Include="SwapGraphicCommandController.cpp" />
     <ClCompile Include="ModelTexture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="VBufferBase.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexDescription.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
@@ -186,6 +189,7 @@
     <ClInclude Include="GraphicsPipelineCreator.h" />
     <ClInclude Include="InstanceExtensionManager.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshBuffer.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MeshModel.h" />
     <ClInclude Include="MeshObject.h" />
@@ -201,6 +205,8 @@
     <ClInclude Include="SwapGraphicCommandController.h" />
     <ClInclude Include="ModelTexture.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="VBufferBase.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexDescription.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />

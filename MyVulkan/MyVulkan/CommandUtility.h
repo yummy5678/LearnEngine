@@ -4,6 +4,8 @@
 #include "QueueUtility.h"
 #include "SemaphoreGenerator.h"
 #include "FenceGenerator.h"
+#include "SceneObject.h"
+
 
 class CommandGenerator : public CGeneratorBase
 {
@@ -28,7 +30,7 @@ public:
 	std::vector<vk::CommandBuffer> GetCommandBuffers();
 
 	// GPU内で画像を描画
-	void DrawFrame(vk::CommandBuffer buffer, vk::RenderPass renderpass, vk::Framebuffer framebuffer, vk::Rect2D renderArea, vk::Pipeline graphicsPipeline);
+	void DrawFrame(vk::CommandBuffer buffer, vk::RenderPass renderpass, vk::Framebuffer framebuffer, vk::Rect2D renderArea, vk::Pipeline graphicsPipeline, std::vector<SceneObject> drawMeshes);
 
 	// スワップチェーンに従って画像を表示
 	void PresentFrame(vk::SwapchainKHR swapchain);

@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <array>
 
-
+#include <VMA/vk_mem_alloc.h>
 
 #include "GameWindow.h"
 #include "Utilities.h"
@@ -67,21 +67,23 @@ private:
 	DeviceExtensionManager		m_DeviceExtension;
 
 	// オブジェクト
-	InstanceGenerator			m_InstanceGenerator;
-	SurfaceGenerator			m_SurfaceGenerator;
-	DeviceGenerator				m_DeviceGenerator;
-	//ImagesGenerator			m_ImageGenerator;
-	SwapchainGenerator			m_SwapchainGenerator;
-	RenderpassGenerator			m_RenderpassGenerator;
-	PipelineGenerator			m_PipelineGenerator;
-	FramebufferGenerator		m_FramebufferGenerator;
-	CommandGenerator			m_CommandGenerator;
+	InstanceGenerator				m_InstanceGenerator;
+	SurfaceGenerator				m_SurfaceGenerator;
+	DeviceGenerator					m_DeviceGenerator;
+	//ImagesGenerator				m_ImageGenerator;
+	SwapchainGenerator				m_SwapchainGenerator;
+	RenderpassGenerator				m_RenderpassGenerator;
+	PipelineGenerator				m_PipelineGenerator;
+	FramebufferGenerator			m_FramebufferGenerator;
+	CommandGenerator				m_CommandGenerator;
 	SwapGraphicCommandController	m_GraphicController;
 
 	vk::PhysicalDevice	m_PhysicalDevice;
 	vk::Device			m_LogicalDevice;
+	VmaAllocator		m_VmaAllocator;			//アロケーター：物理デバイスのメモリ確保を補助してくれるオブジェクト
 	vk::RenderPass		m_Renderpass;
 	vk::Pipeline		m_GraphicsPipeline;
+
 
 	//コールバック
 	VkDebugReportCallbackEXT callback;
@@ -157,6 +159,9 @@ private:
 
 	// -- Loader Functions
 	stbi_uc* loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize);
+
+	// アロケーターの作成
+	void CreateAllocator(vk::Instance instance, vk::Device logicalDevice, vk::PhysicalDevice physicalDevice);
 
 
 };

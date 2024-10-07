@@ -3,14 +3,17 @@
 #include "BufferGenerator.h"
 #include "ImagesGenerator.h"
 
+using Transform = glm::mat4;
+
+
 class SceneObject
 {
 public:
 	SceneObject();
 	~SceneObject();
 
-	void		SetMesh(MeshObject* pMesh);
-	MeshObject* GetPMesh();
+	void		SetPMesh(MeshObject* pMesh);
+	MeshObject	GetMesh();
 
 	void		SetTransform(glm::mat4 transform);
 	glm::mat4	GetTransform();
@@ -20,8 +23,8 @@ public:
 
 
 private:
-	MeshObject*		m_pMesh;			// メッシュのポインタ(実態はメッシュマネージャーが管理)
-	glm::mat4		m_Transform;		// トランスフォーム(オブジェクトの座標とかの情報)
+	MeshObject		m_Mesh;			// メッシュのポインタ(実態はメッシュマネージャーが管理)
+	Transform		m_Transform;		// トランスフォーム(オブジェクトの座標とかの情報)
 
 	BufferGenerator m_VertexBuffer;		// 頂点バッファ
 	//ImagesGenerator m_TextureBuffer;	// テクスチャーバッファ

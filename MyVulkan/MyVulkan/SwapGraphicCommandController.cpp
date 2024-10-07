@@ -17,7 +17,7 @@ SwapGraphicCommandController::~SwapGraphicCommandController()
 {
 }
 
-void SwapGraphicCommandController::Initialize(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface)
+void SwapGraphicCommandController::Initialize(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface, RenderConfig* pRenderConfig)
 {
 	m_LogicalDevice = logicalDevice;
 	m_PhysicalDevice = physicalDevice;
@@ -39,7 +39,8 @@ void SwapGraphicCommandController::Initialize(vk::Device logicalDevice, vk::Phys
 	auto renderPass = m_RenderpassGenerator.GetRenderpass();
 
 	//パイプラインの作成
-	m_PipelineGenerator.Create(logicalDevice, extent, renderPass);
+	auto shaderStages = pRenderConfig->GetPipelineShader().GetShaderStages();
+	m_PipelineGenerator.Create(logicalDevice, renderPass, extent, shaderStages);
 	auto graphicsPipeline = m_PipelineGenerator.GetPipeline();
 
 	//フレームバッファの作成
@@ -54,7 +55,6 @@ void SwapGraphicCommandController::Initialize(vk::Device logicalDevice, vk::Phys
 	for (int i = 0; i < swapchainInfo.minImageCount; i++)
 	{
 		m_CommandGenerator.DrawFrame(commandBuffers[i], renderPass, framebuffers[i], { {0,0}, extent }, graphicsPipeline);
-
 	}
 	//WriteVulkanImage("../frame0.bmp", swapchainImage.GetImageData()[0], extent);
 	m_CommandGenerator.PresentFrame(swapchain);

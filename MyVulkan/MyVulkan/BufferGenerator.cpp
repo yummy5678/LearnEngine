@@ -59,10 +59,6 @@ void BufferGenerator::Destroy()
 
 vk::BufferCreateInfo BufferGenerator::CreateVertexBufferInfo(std::vector<Vertex> vertices)
 {
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
-
-
 	vk::BufferCreateInfo bufferCreateInfo;
 	bufferCreateInfo.pNext;
 	bufferCreateInfo.flags;
