@@ -37,7 +37,7 @@
 #include "RenderPassUtility.h"
 #include "GraphicsPipelineCreator.h"
 #include "FramebufferGenerator.h"
-#include "CommandUtility.h"
+#include "CommandGenerator.h"
 #include "WriteImage.cpp"
 #include "SwapGraphicCommandController.h"
 

@@ -4,7 +4,7 @@
 #include "RenderPassUtility.h"
 #include "GraphicsPipelineCreator.h"
 #include "FramebufferGenerator.h"
-#include "CommandUtility.h"
+#include "CommandGenerator.h"
 
 class SwapGraphicCommandController
 {

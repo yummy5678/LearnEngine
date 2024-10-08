@@ -22,25 +22,16 @@ void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::Buffer buffer, vk::De
 {
 	m_Allocator = allocator;
 
-	auto stagingBufferInfo =	CreateBufferInfo(dataSize, stagingUsage);
-	auto dataBufferInfo =		CreateBufferInfo(dataSize, m_DataUsage);
 
-	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
-	VmaAllocationCreateInfo stagingAllocateInfo;
-	stagingAllocateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;	// ホストからの書き込みを許可
-	stagingAllocateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;						// CPUからアクセス可能
+	auto dataBufferInfo = CreateBufferInfo(dataSize, m_DataUsage);
+
+
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
 	VmaAllocationCreateInfo dataAllocateInfo;
 	dataAllocateInfo.usage = VMA_MEMORY_USAGE_AUTO;	// 自動で最適なメモリを選択(通常はGPUローカルメモリ)
 
-	// ステージングバッファの作成
-	auto result = vmaCreateBuffer(allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_StagingBuffer, &m_StagingAllocation, nullptr);
-	// ステージングバッファとメモリの作成
-	if (result != VK_SUCCESS) 
-	{
-		throw std::runtime_error("ステージングバッファの作成に失敗しました!");
-	}
+
 
 	// GPU内で使う頂点バッファの作成
 	auto result = vmaCreateBuffer(allocator, &dataBufferInfo, &dataAllocateInfo, &m_DataBuffer, &m_DataAllocation, nullptr);
@@ -130,15 +121,13 @@ uint32_t VBufferBase::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevic
 
 void VBufferBase::MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize)
 {
-	if (!m_StagingAllocation) throw std::runtime_error("データを書き込もうとしましたが、ステージングバッファが作成されていません");
+	// 確保したバッファの領域のポインタを取得
+	void* mapData;
+	vmaMapMemory(allocator, m_DataAllocation, &mapData);
 
-	// 確保したステージングバッファの領域のポインタを取得
-	void* stagingData;
-	vmaMapMemory(allocator, m_StagingAllocation, &stagingData);
+	// 頂点データの情報を取得したバッファにコピー
+	memcpy(mapData, setData, dataSize);
 
-	// 頂点データの情報をステージングバッファにコピー
-	memcpy(stagingData, setData, dataSize);
-
-	// メモリをアクセス制限を解除
-	vmaUnmapMemory(allocator, m_StagingAllocation);
+	// メモリのアクセス制限を解除
+	vmaUnmapMemory(allocator, m_DataAllocation);
 }

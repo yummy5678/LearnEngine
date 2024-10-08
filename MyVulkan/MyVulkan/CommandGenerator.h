@@ -35,6 +35,9 @@ public:
 	// スワップチェーンに従って画像を表示
 	void PresentFrame(vk::SwapchainKHR swapchain);
 
+	void CopyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool,
+		VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize);
+
 
 private:
 	vk::Device						m_LogicalDevice;	
@@ -54,7 +57,7 @@ private:
 	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice);
 
 	//コマンドバッファの作成(コマンドプールの割り当て)
-	std::vector<vk::CommandBuffer> CreateCommandBuffers(vk::Device logicalDevice, uint32_t commandSize, vk::CommandPool commandPool);
+	std::vector<vk::CommandBuffer>	CreateCommandBuffers(vk::Device logicalDevice, uint32_t commandSize, vk::CommandPool commandPool);
 
 	vk::SubmitInfo					CreateSubmitInfo(std::vector<vk::CommandBuffer>& commandBuffers, std::vector<vk::Semaphore>& signalSemaphores, std::vector<vk::Semaphore>& waitSemaphores);
 	vk::SubmitInfo					CreateSubmitInfo(vk::CommandBuffer& commandBuffer);

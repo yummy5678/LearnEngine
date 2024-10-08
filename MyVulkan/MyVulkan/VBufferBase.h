@@ -6,9 +6,6 @@
 // 頂点バッファクラスなどに派生させて使う予定
 
 
-
-// 送信用バッファに設定する予定のフラグ
-constexpr vk::BufferUsageFlags stagingUsage = vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst;
 // GPU読み取り用のフラグ
 //constexpr vk::BufferUsageFlags localUsage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
@@ -35,9 +32,6 @@ protected:
 
 	VkBuffer        m_DataBuffer;
 	VmaAllocation	m_DataAllocation;
-
-	VkBuffer        m_StagingBuffer;
-	VmaAllocation	m_StagingAllocation;
 
 	void CreateBuffer(VmaAllocator allocator, vk::Buffer buffer, vk::DeviceSize dataSize);
 

@@ -6,7 +6,7 @@
 #include "VulkanExtensions.h"
 #include "QueueUtility.h"
 #include "SwapChainUtility.h"
-#include "CommandUtility.h"
+#include "CommandGenerator.h"
 
 
 class DeviceGenerator : CGeneratorBase

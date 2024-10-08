@@ -20,8 +20,8 @@ void VertexBuffer::Create(vk::Device logicalDevice,vk::PhysicalDevice physicalDe
 	vk::MemoryPropertyFlags memoryType = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
 
-	m_Buffer = logicalDevice.createBuffer(CreateBufferInfo(logicalDevice, sizeof(Vertex) * vertices.size()));
-	m_BufferMemory = logicalDevice.allocateMemory(AllocateBufferMemoryInfo(logicalDevice, physicalDevice, m_Buffer, memoryType));
+	m_DataBuffer = logicalDevice.createBuffer(CreateBufferInfo(logicalDevice, sizeof(Vertex) * vertices.size()));
+	m_DataBufferMemory = logicalDevice.allocateMemory(AllocateBufferMemoryInfo(logicalDevice, physicalDevice, m_Buffer, memoryType));
 
 
 }
