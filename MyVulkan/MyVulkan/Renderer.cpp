@@ -87,7 +87,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 		//m_SynchroGenerator.Create(logicalDevice);
 		////createSynchronisation();
 
-		m_GraphicController.Initialize(logicalDevice, physicalDevice, surface);
+		m_GraphicController.Initialize(logicalDevice, physicalDevice, surface, );
 
 
 		//allocateDynamicBufferTransferSpace();
@@ -115,7 +115,7 @@ void VulkanRenderer::setRenderConfig(RenderConfig config)
 	auto extent = config.GetExtent2D();
 	auto shader = config.GetPipelineShader().GetShaderStages();
 	//パイプラインの作成
-	m_PipelineGenerator.Create(m_LogicalDevice, m_Renderpass, extent, shader);
+	m_PipelineGenerator.SetData(m_LogicalDevice, m_Renderpass, extent, shader);
 	m_GraphicsPipeline = m_PipelineGenerator.GetPipeline();
 	
 

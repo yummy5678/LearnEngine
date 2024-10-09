@@ -3,6 +3,7 @@
 
 
 
+
 CommandGenerator::CommandGenerator():
     m_LogicalDevice(),
     m_PhysicalDevice(),
@@ -56,7 +57,7 @@ void CommandGenerator::Destroy()
     m_LogicalDevice.destroyCommandPool(m_CommandPool);
 }
 
-void CommandGenerator::RecordGraphicCommands(std::vector<vk::Framebuffer> framebuffers, vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline)
+void CommandGenerator::RecordGraphicCommands(std::vector<vk::Framebuffer> framebuffers, vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline, std::vector<VertexBuffer> vertexBuffers)
 {
     CheckCreated();
 
@@ -67,8 +68,8 @@ void CommandGenerator::RecordGraphicCommands(std::vector<vk::Framebuffer> frameb
     // レンダーパスを開始するための情報 (グラフィカルなアプリケーションの場合のみ必要)
     vk::RenderPassBeginInfo renderPassBeginInfo;
     renderPassBeginInfo.renderPass = renderPass;                             // 開始するレンダーパス
-    renderPassBeginInfo.renderArea.offset = vk::Offset2D{ 0, 0 };              // レンダーパスの開始位置 (ピクセル単位)
-    renderPassBeginInfo.renderArea.extent = extent;                          // レンダーパスを実行する領域のサイズ (offsetから始まる)
+    renderPassBeginInfo.renderArea.offset = vk::Offset2D{ 0, 0 };              // レンダーパスの描画エリアの始点 (ピクセル単位)
+    renderPassBeginInfo.renderArea.extent = extent;                          // レンダーパスの描画エリアの (offsetから始まる)
     std::array<vk::ClearValue, 1> clearValues = {
         vk::ClearValue{std::array<float, 4>{0.6f, 0.65f, 0.4f, 1.0f}}        // クリアする値のリスト
     };
@@ -92,6 +93,15 @@ void CommandGenerator::RecordGraphicCommands(std::vector<vk::Framebuffer> frameb
 
         // 使用するパイプラインをバインドする
         m_CommandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
+
+        // VertexBufferの配列からvk::Bufferの情報を抜き出す
+        std::vector<vk::Buffer> buffers(vertexBuffers.size());
+        for (int j = 0; j < vertexBuffers.size(); j++)
+        {
+            buffers[j] = vertexBuffers[j].GetBuffer();
+        }
+        // 頂点情報をコマンドに結び付ける
+        m_CommandBuffers[i].bindVertexBuffers(0, buffers, { 0 });
 
         // パイプラインを実行する
         m_CommandBuffers[i].draw(3, 1, 0, 0);

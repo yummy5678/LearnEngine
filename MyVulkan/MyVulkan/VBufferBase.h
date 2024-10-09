@@ -16,6 +16,7 @@ public:
 	~VBufferBase();
 
 	void SetData(void* pData,vk::DeviceSize dataSize);
+	vk::Buffer GetBuffer();
 	
 	void Cleanup();
 
@@ -26,24 +27,22 @@ protected:
 	VmaAllocator				m_Allocator;
 
 	// バッファのタイプ
-	vk::BufferUsageFlags	m_DataUsage;
+	vk::BufferUsageFlags	m_Usage;
 	// キュー間の読み取り設定
 	vk::SharingMode			m_SharingMode = vk::SharingMode::eExclusive;
 
-	VkBuffer        m_DataBuffer;
-	VmaAllocation	m_DataAllocation;
+	VkBuffer        m_Buffer;
+	VmaAllocation	m_Allocation;
 
-	void CreateBuffer(VmaAllocator allocator, vk::Buffer buffer, vk::DeviceSize dataSize);
+	void CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize);
 
 	// バッファの作成関数
 	VkBufferCreateInfo CreateBufferInfo(vk::DeviceSize dataSize, vk::BufferUsageFlags usage);
 
 	// メモリ割り当て関数
-	void		AllocateBufferMemory(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags propertyFlags);
 	uint32_t	FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags findType);
 
-	// データをステージングバッファにコピー
-	void MapData(VmaAllocator allocator, void* pData, vk::DeviceSize dataSize);
+
 
 };
 

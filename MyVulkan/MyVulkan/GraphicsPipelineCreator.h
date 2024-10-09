@@ -8,13 +8,15 @@
 #include "PipelineDescriptions.h"
 #include "Scene.h"
 
+#include "VertexBuffer.h"
+
 class PipelineGenerator : CGeneratorBase
 {
 public:
 	PipelineGenerator();
 	~PipelineGenerator();
 
-	void Create(
+	void SetData(
 		vk::Device logicalDevice, 
 		vk::RenderPass renderPass, 
 		vk::Extent2D extent, 

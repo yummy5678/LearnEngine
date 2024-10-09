@@ -11,7 +11,7 @@ public:
 	DescriptorHandler();
 	~DescriptorHandler();
 
-	void Create(vk::Device device, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags);
+	void SetData(vk::Device device, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags);
 	void CreateDescriptorPool(uint32_t descriptorCount);
 	vk::DescriptorSet CreateDescriptorSet(vk::Buffer buffer, vk::DeviceSize bufferSize);
 	vk::DescriptorSetLayout GetDescriptorSetLayout();

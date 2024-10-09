@@ -5,7 +5,7 @@
 #include "SemaphoreGenerator.h"
 #include "FenceGenerator.h"
 #include "SceneObject.h"
-
+#include "VertexBuffer.h"
 
 class CommandGenerator : public CGeneratorBase
 {
@@ -20,7 +20,7 @@ public:
 	void Destroy();
 
 	// コマンドの作成
-	void RecordGraphicCommands(std::vector<vk::Framebuffer> framebuffers, vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline);
+	void RecordGraphicCommands(std::vector<vk::Framebuffer> framebuffers, vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline, std::vector<VertexBuffer> vertexBuffers);
 	void RecordGraphicCommands(vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline);
 
 	// 作成されたコマンドプールの取得
@@ -35,8 +35,6 @@ public:
 	// スワップチェーンに従って画像を表示
 	void PresentFrame(vk::SwapchainKHR swapchain);
 
-	void CopyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool,
-		VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize);
 
 
 private:

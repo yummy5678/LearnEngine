@@ -1,5 +1,6 @@
 #pragma once
 #include "VBufferBase.h"
+#include "StagingBuffer.h"
 #include "MeshObject.h"
 
 
@@ -9,17 +10,17 @@ public:
 	VertexBuffer();
 	~VertexBuffer();
 
-	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, std::vector<Vertex> vertices);
+	void SetData(VmaAllocator allocator, std::vector<Vertex> vertices);
 
+	const vk::VertexInputBindingDescription GetBindingDescription();
 
-
-
+	const vk::PipelineVertexInputStateCreateInfo InputStateInfo();
 
 private:
+	VStagingBuffer m_Stage;
 
 
-
-
+	const std::array<vk::VertexInputAttributeDescription, 3> GetAttributeDescriptions();
 
 
 

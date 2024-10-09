@@ -1,4 +1,4 @@
-#include "VStagingBuffer.h"
+#include "StagingBuffer.h"
 
 VStagingBuffer::VStagingBuffer() :
 	VBufferBase(stagingUsage)
@@ -14,10 +14,15 @@ void VStagingBuffer::Initialize(VmaAllocator allocator, vk::DeviceSize dataSize)
 	m_Allocator = allocator;
 	m_LogicalDevice		= vk::Device(allocator->m_hDevice);
 	m_PhysicalDevice	= vk::PhysicalDevice(allocator->GetPhysicalDevice());
-	m_CommandPool		= CreateCommandPool(m_LogicalDevice, m_PhysicalDevice);
-	m_CommandBuffer		= CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
 
-	auto stagingBufferInfo = CreateBufferInfo(dataSize, m_DataUsage);
+	// Get indices of queue families from device
+	QueueFamilySelector queueFamily(m_PhysicalDevice);
+	m_CommandPool		= CreateCommandPool(m_LogicalDevice, queueFamily.GetTransferIndex());
+	m_CommandBuffer		= CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
+	// グラフィックスキューの取得
+	m_Queue = m_LogicalDevice.getQueue(queueFamily.GetTransferIndex(), 0);
+
+	auto stagingBufferInfo = CreateBufferInfo(dataSize, m_Usage);
 
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
@@ -27,14 +32,12 @@ void VStagingBuffer::Initialize(VmaAllocator allocator, vk::DeviceSize dataSize)
 
 
 	// ステージングバッファの作成
-	auto result = vmaCreateBuffer(allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_DataBuffer, &m_DataAllocation, nullptr);
+	auto result = vmaCreateBuffer(allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
 	// ステージングバッファとメモリの作成
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("ステージングバッファの作成に失敗しました!");
 	}
-
-
 
 }
 
@@ -46,19 +49,22 @@ void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::DeviceSize dat
 	MapData(m_Allocator, transfarData, dataSize);
 
 	// トランスファーバッファのデータを宛先のバッファにコピー
+	SetCopyCommand(m_CommandBuffer, m_Buffer, toBuffer, dataSize);	// 転送コマンドを作成
 
+	// コマンドバッファを実行
+	vk::SubmitInfo submitInfo;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &m_CommandBuffer;
 
-
+	m_Queue.submit(1, &submitInfo, nullptr);
+	m_Queue.waitIdle(); // 完了を待つ
 }
 
-vk::CommandPool VStagingBuffer::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
+vk::CommandPool VStagingBuffer::CreateCommandPool(vk::Device logicalDevice, uint32_t queueFamilyIndex)
 {
-	// Get indices of queue families from device
-	QueueFamilySelector queue(physicalDevice);
-
 	// コマンドプールの作成に必要な情報を設定する
 	vk::CommandPoolCreateInfo poolInfo;
-	poolInfo.queueFamilyIndex = queue.GetTransferIndex();
+	poolInfo.queueFamilyIndex = queueFamilyIndex;
 	poolInfo.flags = vk::CommandPoolCreateFlagBits::eTransient;	// コマンドバッファのリセットを許可する場合はフラグを追加する
 
 
@@ -77,8 +83,8 @@ vk::CommandBuffer VStagingBuffer::CreateCommandBuffer(vk::Device logicalDevice, 
 {
 	vk::CommandBufferAllocateInfo allocInfo;
 	allocInfo.commandPool = commandPool;
-	allocInfo.level = vk::CommandBufferLevel::ePrimary;  // プライマリコマンドバッファ
-	allocInfo.commandBufferCount = 1;  // 1つのコマンドバッファを割り当て
+	allocInfo.level = vk::CommandBufferLevel::ePrimary;	// プライマリコマンドバッファ
+	allocInfo.commandBufferCount = 1;					// 1つのコマンドバッファを割り当て
 
 	try
 	{
@@ -89,4 +95,36 @@ vk::CommandBuffer VStagingBuffer::CreateCommandBuffer(vk::Device logicalDevice, 
 		throw std::runtime_error("転送用コマンドバッファの作成に失敗しました！");
 	}
 	
+}
+
+void VStagingBuffer::SetCopyCommand(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
+{
+	// コマンドバッファの開始
+	vk::CommandBufferBeginInfo beginInfo;
+	beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+	commandBuffer.begin(beginInfo);
+
+	// コピーコマンドの作成
+	vk::BufferCopy copyRegion;
+	copyRegion.srcOffset = 0; // 送信元オフセット
+	copyRegion.dstOffset = 0; // 受信先オフセット
+	copyRegion.size = size;    // 転送サイズ
+	commandBuffer.copyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
+
+	// コマンドバッファの終了
+	commandBuffer.end();
+}
+
+void VStagingBuffer::MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize)
+{
+	// 確保したバッファの領域のポインタを取得
+	void* mapData;
+	vmaMapMemory(allocator, m_Allocation, &mapData);
+
+	// 頂点データの情報を取得したバッファにコピー
+	memcpy(mapData, setData, dataSize);
+
+	// メモリのアクセス制限を解除
+	vmaUnmapMemory(allocator, m_Allocation);
+
 }

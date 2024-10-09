@@ -10,7 +10,7 @@ PipelineGenerator::~PipelineGenerator()
 {
 }
 
-void PipelineGenerator::Create(
+void PipelineGenerator::SetData(
 	vk::Device logicalDevice,											// パイプラインを作成する論理デバイス
 	vk::RenderPass renderPass,											// レンダーパス
 	vk::Extent2D extent,												// 描画する画像サイズ兼範囲
@@ -75,7 +75,7 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 
 
 	m_PipelineInfo.setStages(shaderStageInfo);							// シェーダーステージ
-	m_PipelineInfo.setPVertexInputState(&vertexInputInfo);		// All the fixed function pipeline states
+	m_PipelineInfo.setPVertexInputState(&Input::vertexInputInfo);		// All the fixed function pipeline states
 	m_PipelineInfo.setPInputAssemblyState(&inputAssemblyInfo);
 	m_PipelineInfo.setPViewportState(&m_ViewportInfo);
 	m_PipelineInfo.setPDynamicState(nullptr);						//ダイナミックステートとは:パイプラインを作り直さなくても一部情報を変更できる機能

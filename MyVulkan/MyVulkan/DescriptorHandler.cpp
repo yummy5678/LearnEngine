@@ -18,7 +18,7 @@ DescriptorHandler::~DescriptorHandler()
 
 }
 
-void DescriptorHandler::Create(vk::Device device, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags)
+void DescriptorHandler::SetData(vk::Device device, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags)
 {
     m_Device = device;
     m_DescriptorType = descriptorType;

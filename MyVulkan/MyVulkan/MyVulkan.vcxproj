@@ -158,7 +158,7 @@
     <ClCompile Include="VBufferBase.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexDescription.cpp" />
-    <ClCompile Include="VStagingBuffer.cpp" />
+    <ClCompile Include="StagingBuffer.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
@@ -209,7 +209,7 @@
     <ClInclude Include="VBufferBase.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexDescription.h" />
-    <ClInclude Include="VStagingBuffer.h" />
+    <ClInclude Include="StagingBuffer.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="Renderer.h" />

@@ -3,7 +3,7 @@
 VBufferBase::VBufferBase(vk::BufferUsageFlags usage)
 {
 	//m_DataUsageはステージングバッファからデータを設定するつもりなので転送先フラグを追加
-	m_DataUsage = usage | vk::BufferUsageFlagBits::eTransferDst;  
+	m_Usage = usage | vk::BufferUsageFlagBits::eTransferDst;  
 }
 
 VBufferBase::~VBufferBase()
@@ -11,20 +11,29 @@ VBufferBase::~VBufferBase()
 	Cleanup();
 }
 
+void VBufferBase::SetData(void* pData, vk::DeviceSize dataSize)
+{
+
+
+}
+
+vk::Buffer VBufferBase::GetBuffer()
+{
+	return vk::Buffer(m_Buffer);
+}
+
 void VBufferBase::Cleanup()
 {
 	if (!m_Allocator) return;
-	vmaDestroyBuffer(m_Allocator, m_DataBuffer, m_DataAllocation);
-	vmaDestroyBuffer(m_Allocator, m_StagingBuffer, m_StagingAllocation);
+	vmaDestroyBuffer(m_Allocator, m_Buffer, m_Allocation);
+
 }
 
-void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::Buffer buffer, vk::DeviceSize dataSize)
+void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize)
 {
 	m_Allocator = allocator;
 
-
-	auto dataBufferInfo = CreateBufferInfo(dataSize, m_DataUsage);
-
+	auto dataBufferInfo = CreateBufferInfo(dataSize, m_Usage);
 
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
@@ -34,14 +43,12 @@ void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::Buffer buffer, vk::De
 
 
 	// GPU内で使う頂点バッファの作成
-	auto result = vmaCreateBuffer(allocator, &dataBufferInfo, &dataAllocateInfo, &m_DataBuffer, &m_DataAllocation, nullptr);
+	auto result = vmaCreateBuffer(allocator, &dataBufferInfo, &dataAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
 	// ステージングバッファとメモリの作成
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("ローカルバッファの作成に失敗しました!");
 	}
-
-
 
 }
 
@@ -119,15 +126,5 @@ uint32_t VBufferBase::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevic
 }
 
 
-void VBufferBase::MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize)
-{
-	// 確保したバッファの領域のポインタを取得
-	void* mapData;
-	vmaMapMemory(allocator, m_DataAllocation, &mapData);
 
-	// 頂点データの情報を取得したバッファにコピー
-	memcpy(mapData, setData, dataSize);
 
-	// メモリのアクセス制限を解除
-	vmaUnmapMemory(allocator, m_DataAllocation);
-}
