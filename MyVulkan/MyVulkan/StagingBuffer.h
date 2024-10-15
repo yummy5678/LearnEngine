@@ -13,7 +13,7 @@ public:
     ~VStagingBuffer();
 
     void Initialize(VmaAllocator allocator, vk::DeviceSize dataSize);
-    void TransferDataToBuffer(void* transfarData, vk::DeviceSize dataSize, vk::Buffer toBuffer);
+    void TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer);
 
 private:
     vk::Device          m_LogicalDevice;
@@ -22,6 +22,7 @@ private:
     vk::CommandBuffer   m_CommandBuffer;
     vk::CommandPool	    m_CommandPool;
 
+    uint32_t            m_BufferDataSize;
     vk::Queue           m_Queue;
 
     vk::CommandPool CreateCommandPool(vk::Device logicalDevice, uint32_t queueFamilyIndex);

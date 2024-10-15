@@ -22,8 +22,6 @@ public:
 
 protected:
 	// 結びつける先のデバイス
-	//vk::Device				m_LogicalDevice;
-	//vk::PhysicalDevice		m_PhysicalDevice;
 	VmaAllocator				m_Allocator;
 
 	// バッファのタイプ

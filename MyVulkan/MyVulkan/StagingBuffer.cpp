@@ -15,6 +15,8 @@ void VStagingBuffer::Initialize(VmaAllocator allocator, vk::DeviceSize dataSize)
 	m_LogicalDevice		= vk::Device(allocator->m_hDevice);
 	m_PhysicalDevice	= vk::PhysicalDevice(allocator->GetPhysicalDevice());
 
+	m_BufferDataSize = dataSize;
+
 	// Get indices of queue families from device
 	QueueFamilySelector queueFamily(m_PhysicalDevice);
 	m_CommandPool		= CreateCommandPool(m_LogicalDevice, queueFamily.GetTransferIndex());
@@ -41,15 +43,15 @@ void VStagingBuffer::Initialize(VmaAllocator allocator, vk::DeviceSize dataSize)
 
 }
 
-void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::DeviceSize dataSize, vk::Buffer toBuffer)
+void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer)
 {
 	if(!m_Allocator) throw std::runtime_error("先にステージングバッファのイニシャライズを行ってください!");
 
 	// データをステージングバッファにコピー
-	MapData(m_Allocator, transfarData, dataSize);
+	MapData(m_Allocator, transfarData, m_BufferDataSize);
 
 	// トランスファーバッファのデータを宛先のバッファにコピー
-	SetCopyCommand(m_CommandBuffer, m_Buffer, toBuffer, dataSize);	// 転送コマンドを作成
+	SetCopyCommand(m_CommandBuffer, m_Buffer, toBuffer, m_BufferDataSize);	// 転送コマンドを作成
 
 	// コマンドバッファを実行
 	vk::SubmitInfo submitInfo;

@@ -57,122 +57,6 @@ void CommandGenerator::Destroy()
     m_LogicalDevice.destroyCommandPool(m_CommandPool);
 }
 
-void CommandGenerator::RecordGraphicCommands(std::vector<vk::Framebuffer> framebuffers, vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline, std::vector<VertexBuffer> vertexBuffers)
-{
-    CheckCreated();
-
-    // 各コマンドバッファの開始方法に関する情報
-    vk::CommandBufferBeginInfo bufferBeginInfo;
-    bufferBeginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse; // バッファが再使用可能であることを示すフラグ
-
-    // レンダーパスを開始するための情報 (グラフィカルなアプリケーションの場合のみ必要)
-    vk::RenderPassBeginInfo renderPassBeginInfo;
-    renderPassBeginInfo.renderPass = renderPass;                             // 開始するレンダーパス
-    renderPassBeginInfo.renderArea.offset = vk::Offset2D{ 0, 0 };              // レンダーパスの描画エリアの始点 (ピクセル単位)
-    renderPassBeginInfo.renderArea.extent = extent;                          // レンダーパスの描画エリアの (offsetから始まる)
-    std::array<vk::ClearValue, 1> clearValues = {
-        vk::ClearValue{std::array<float, 4>{0.6f, 0.65f, 0.4f, 1.0f}}        // クリアする値のリスト
-    };
-    renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassBeginInfo.pClearValues = clearValues.data();                   // クリアする値のリスト
-
-
-    for (size_t i = 0; i < m_CommandBuffers.size(); i++)
-    {
-        renderPassBeginInfo.framebuffer = framebuffers[i];          // 使用するフレームバッファを設定する
-
-        // コマンドバッファの記録を開始する
-        vk::Result result = m_CommandBuffers[i].begin(&bufferBeginInfo);
-        if (result != vk::Result::eSuccess)
-        {
-            throw std::runtime_error("コマンドバッファの記録の開始に失敗しました！");
-        }
-
-        // レンダーパスを開始する
-        m_CommandBuffers[i].beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
-
-        // 使用するパイプラインをバインドする
-        m_CommandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
-
-        // VertexBufferの配列からvk::Bufferの情報を抜き出す
-        std::vector<vk::Buffer> buffers(vertexBuffers.size());
-        for (int j = 0; j < vertexBuffers.size(); j++)
-        {
-            buffers[j] = vertexBuffers[j].GetBuffer();
-        }
-        // 頂点情報をコマンドに結び付ける
-        m_CommandBuffers[i].bindVertexBuffers(0, buffers, { 0 });
-
-        // パイプラインを実行する
-        m_CommandBuffers[i].draw(3, 1, 0, 0);
-
-        // レンダーパスを終了する
-        m_CommandBuffers[i].endRenderPass();
-
-        // コマンドバッファの記録を終了する
-        //result = m_Buffers[i].end();
-        m_CommandBuffers[i].end();
-        if (result != vk::Result::eSuccess)
-        {
-            throw std::runtime_error("コマンドバッファの記録の終了に失敗しました！");
-        }
-    }
-}
-
-//void CommandGenerator::RecordGraphicCommands(vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline)
-//{
-//    CheckCreated();
-//
-//    // 各コマンドバッファの開始方法に関する情報
-//    vk::CommandBufferBeginInfo bufferBeginInfo;
-//    bufferBeginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse; // バッファが再使用可能であることを示すフラグ
-//
-//    // レンダーパスを開始するための情報 (グラフィカルなアプリケーションの場合のみ必要)
-//    vk::RenderPassBeginInfo renderPassBeginInfo;
-//    renderPassBeginInfo.renderPass = renderPass;                             // 開始するレンダーパス
-//    renderPassBeginInfo.renderArea.offset = vk::Offset2D{ 0, 0 };              // レンダーパスの開始位置 (ピクセル単位)
-//    renderPassBeginInfo.renderArea.extent = extent;                          // レンダーパスを実行する領域のサイズ (offsetから始まる)
-//    std::array<vk::ClearValue, 1> clearValues = {
-//        vk::ClearValue{std::array<float, 4>{0.6f, 0.65f, 0.4f, 1.0f}}        // クリアする値のリスト
-//    };
-//    renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-//    renderPassBeginInfo.pClearValues = clearValues.data();                   // クリアする値のリスト
-//
-//
-//
-//    //とりあえず空のコマンドを作成
-//    for (size_t i = 0; i < m_Buffers.size(); i++)
-//    {
-//        //renderPassBeginInfo.framebuffer = m_Framebuffers[i];          // 使用するフレームバッファを設定する
-//
-//        // コマンドバッファの記録を開始する
-//        vk::Result result = m_Buffers[i].begin(&bufferBeginInfo);
-//        if (result != vk::Result::eSuccess)
-//        {
-//            throw std::runtime_error("コマンドバッファの記録の開始に失敗しました！");
-//        }
-//
-//        // レンダーパスを開始する
-//        m_Buffers[i].beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
-//
-//        // 使用するパイプラインをバインドする
-//        m_Buffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
-//
-//        // パイプラインを実行する
-//        m_Buffers[i].draw(3, 1, 0, 0);
-//
-//        // レンダーパスを終了する
-//        m_Buffers[i].endRenderPass();
-//
-//        // コマンドバッファの記録を終了する
-//        //result = m_Buffers[i].end();
-//        m_Buffers[i].end();
-//        if (result != vk::Result::eSuccess)
-//        {
-//            throw std::runtime_error("コマンドバッファの記録の終了に失敗しました！");
-//        }
-//    }
-//}
 
 vk::CommandPool CommandGenerator::GetCammandPool()
 {
@@ -186,106 +70,98 @@ std::vector<vk::CommandBuffer> CommandGenerator::GetCommandBuffers()
     return m_CommandBuffers;
 }
 
-void CommandGenerator::DrawFrame(vk::CommandBuffer buffer, vk::RenderPass renderpass, vk::Framebuffer framebuffer, vk::Rect2D renderArea, vk::Pipeline graphicsPipeline, std::vector<SceneObject> drawMeshes)
+void CommandGenerator::DrawFrame(
+    vk::CommandBuffer buffer, 
+    vk::RenderPass renderpass, 
+    vk::Framebuffer framebuffer, 
+    vk::Rect2D renderArea, 
+    vk::Pipeline graphicsPipeline, 
+    vk::PipelineLayout pipelineLayout,
+    std::vector<SceneObject> drawMeshes)
 {
-    //指定したフレームバッファにレンダーパスとパイプラインを関連付けて
-    //書き込むコマンドの作成と送信を行う関数
-
-    //フレームの初期化する色
+    // フレームの初期化する色を設定します。
     std::array<vk::ClearValue, 3> clearValues = {};
-    clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-    clearValues[1].color = { 0.6f, 0.65f, 0.4f, 1.0f };
-    clearValues[2].depthStencil.depth = 1.0f;
+    clearValues[0].setColor({ 0.0f, 0.0f, 0.0f, 1.0f }); // 背景色
+    clearValues[1].setColor({ 0.6f, 0.65f, 0.4f, 1.0f }); // 追加の背景色
+    clearValues[2].setDepthStencil({ 1.0f }); // 深度バッファのクリア値
 
+    // コマンドバッファの開始情報を設定します。
     vk::CommandBufferBeginInfo cmdBeginInfo;
+    cmdBeginInfo.setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse); // バッファが再使用可能であることを示すフラグ
     if (buffer.begin(&cmdBeginInfo) != vk::Result::eSuccess)
     {
         throw std::runtime_error("コマンドバッファの開始に失敗しました！");
     }
 
-    vk::RenderPassBeginInfo renderpassBeginInfo;
-    renderpassBeginInfo.renderPass = renderpass;
-    renderpassBeginInfo.framebuffer = framebuffer;
-    renderpassBeginInfo.renderArea = renderArea;
-    renderpassBeginInfo.clearValueCount = clearValues.size();
-    renderpassBeginInfo.pClearValues = clearValues.data();
+    // レンダーパスの開始情報を設定します。
+    vk::RenderPassBeginInfo renderpassBeginInfo{};
+    renderpassBeginInfo
+        .setRenderPass(renderpass) // 使用するレンダーパス
+        .setFramebuffer(framebuffer) // 使用するフレームバッファ
+        .setRenderArea(renderArea) // 描画領域の設定
+        .setClearValueCount(static_cast<uint32_t>(clearValues.size())) // クリア値の数
+        .setPClearValues(clearValues.data()); // クリア値の配列
 
+    // レンダーパスを開始します。
     buffer.beginRenderPass(renderpassBeginInfo, vk::SubpassContents::eInline);
 
-    // 使用するパイプラインをバインドする
+    // 使用するパイプラインをバインドします。
     buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
 
-    {////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        for (size_t j = 0; j < drawMeshes.size(); j++)
+    // 描画するメッシュをループします。
+    for (auto& model : drawMeshes)
+    {
+
+        // プッシュ定数をシェーダーに渡します。
+        buffer.pushConstants(
+            pipelineLayout,
+            vk::ShaderStageFlagBits::eVertex, // プッシュ定数を更新するシェーダーステージ
+            0, // オフセット
+            sizeof(Transform), // プッシュするデータのサイズ
+            &model.GetTransform() // 実際のデータ
+        );
+
+        // 各メッシュをループします。
+        for (auto mesh : model.GetMesh().meshes)
         {
-            auto thisModel = drawMeshes[j];
-            auto thisMeshes = thisModel.GetMesh();
+            vk::Buffer vertexBuffers[] = { thisModel.GetMeshBuffer() }; // バインドするバッファ
+            vk::DeviceSize offsets[] = { 0 }; // バッファ内のオフセット
+            buffer.bindVertexBuffers(0, vertexBuffers, offsets); // 頂点バッファをバインド
 
-            vkCmdPushConstants(
-                buffer,
+            // メッシュインデックスバッファをバインドします。
+            buffer.bindIndexBuffer(thisMeshes.meshes[k].indices, 0, vk::IndexType::eUint32);
+
+            // ディスクリプタセットをバインドします。
+            std::array<vk::DescriptorSet, 2> descriptorSetGroup = {
+                descriptorSets[currentImage],
+                samplerDescriptorSets[thisModel.getMesh(k)->getTexId()]
+            };
+
+            buffer.bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics,
                 pipelineLayout,
-                VK_SHADER_STAGE_VERTEX_BIT,		// Stage to push constants to
-                0,								// Offset of push constants to update
-                sizeof(Transform),				// Size of data being pushed
-                &thisModel.GetTransform());			// Actual data being pushed (can be array)
+                0,
+                descriptorSetGroup,
+                nullptr
+            );
 
-            for (size_t k = 0; k < thisMeshes.meshes.size(); k++)
-            {
-
-                VkBuffer vertexBuffers[] = { thisModel.GetMeshBuffer()};					// Buffers to bind
-                VkDeviceSize offsets[] = { 0 };												// Offsets into buffers being bound
-                vkCmdBindVertexBuffers(commandBuffers[currentImage], 0, 1, vertexBuffers, offsets);	// Command to bind vertex buffer before drawing with them
-
-                // Bind mesh index buffer, with 0 offset and using the uint32 type
-                vkCmdBindIndexBuffer(commandBuffers[currentImage], thisModel.getMesh(k)->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-
-                // Dynamic Offset Amount
-                // uint32_t dynamicOffset = static_cast<uint32_t>(modelUniformAlignment) * j;
-
-                // "Push" constants to given shader stage directly (no buffer)
-
-
-                std::array<VkDescriptorSet, 2> descriptorSetGroup = { descriptorSets[currentImage],
-                    samplerDescriptorSets[thisModel.getMesh(k)->getTexId()] };
-
-                // Bind Descriptor Sets
-                vkCmdBindDescriptorSets(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
-
-                // Execute pipeline
-                vkCmdDrawIndexed(commandBuffers[currentImage], thisModel.getMesh(k)->getIndexCount(), 1, 0, 0, 0);
-            }
+            // パイプラインを実行します。
+            buffer.drawIndexed(thisMeshes.meshes[k].vertices.size(), 1, 0, 0, 0);
         }
 
-    }////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 終了待機
+        //graphicsQueue.waitIdle();
 
-    // ここでサブパス0番の処理
-    buffer.draw(3, 1, 0, 0);
-
-    buffer.endRenderPass();
-
-    buffer.end();
-
-    auto submit = CreateSubmitInfo(buffer);
-
-    // 使用するキュー（グラフィックキューやプレゼントキューなど）のインデックスを取得
-    auto queueFamily = QueueFamilySelector(m_PhysicalDevice);
-    auto graphicsQueue = m_LogicalDevice.getQueue(queueFamily.GetGraphicIndex(), 0);
-
-    graphicsQueue.submit(submit, nullptr);
-
-    // 終了待機
-    //graphicsQueue.waitIdle();
-
-    //vk::PresentInfoKHR presentInfo;
-    //presentInfo.pNext;
-    //presentInfo.waitSemaphoreCount;
-    //presentInfo.pWaitSemaphores = nullptr;
-    //presentInfo.swapchainCount;
-    //presentInfo.pSwapchains = nullptr;
-    //presentInfo.pImageIndices = &imageIndex;
-    //presentInfo.pResults;
-    //graphicsQueue.presentKHR(presentInfo);
+        //vk::PresentInfoKHR presentInfo;
+        //presentInfo.pNext;
+        //presentInfo.waitSemaphoreCount;
+        //presentInfo.pWaitSemaphores = nullptr;
+        //presentInfo.swapchainCount;
+        //presentInfo.pSwapchains = nullptr;
+        //presentInfo.pImageIndices = &imageIndex;
+        //presentInfo.pResults;
+        //graphicsQueue.presentKHR(presentInfo);
+    }
 }
 
 void CommandGenerator::PresentFrame(vk::SwapchainKHR swapchain)

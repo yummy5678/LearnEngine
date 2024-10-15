@@ -133,6 +133,7 @@
     <ClCompile Include="BufferGenerator.cpp" />
     <ClCompile Include="DescriptorHandler.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
+    <ClCompile Include="ImageBuffer.cpp" />
     <ClCompile Include="ImagesGenerator.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
     <ClCompile Include="CommandGenerator.cpp" />
@@ -159,6 +160,7 @@
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexDescription.cpp" />
     <ClCompile Include="StagingBuffer.cpp" />
+    <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
@@ -179,6 +181,7 @@
     <ClInclude Include="DescriptorHandler.h" />
     <ClInclude Include="FenceGenerator.h" />
     <ClInclude Include="glTFDefine.h" />
+    <ClInclude Include="ImageBuffer.h" />
     <ClInclude Include="ImagesGenerator.h" />
     <ClInclude Include="DeviceExtensionManager.h" />
     <ClInclude Include="CommandGenerator.h" />
@@ -210,6 +213,7 @@
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexDescription.h" />
     <ClInclude Include="StagingBuffer.h" />
+    <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="Renderer.h" />

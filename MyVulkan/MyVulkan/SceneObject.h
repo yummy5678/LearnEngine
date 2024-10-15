@@ -19,14 +19,15 @@ public:
 	glm::mat4	GetTransform();
 
 
-	vk::Buffer	GetMeshBuffer();
+	vk::Buffer	GetVertexBuffer();
 
 
 private:
 	MeshObject		m_Mesh;			// メッシュのポインタ(実態はメッシュマネージャーが管理)
-	Transform		m_Transform;		// トランスフォーム(オブジェクトの座標とかの情報)
+	Transform		m_Transform;	// トランスフォーム(オブジェクトの座標とかの情報)
 
 	BufferGenerator m_VertexBuffer;		// 頂点バッファ
+	
 	//ImagesGenerator m_TextureBuffer;	// テクスチャーバッファ
 };
 

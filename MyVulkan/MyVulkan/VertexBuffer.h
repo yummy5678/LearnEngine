@@ -4,26 +4,20 @@
 #include "MeshObject.h"
 
 
-class VertexBuffer : public VBufferBase
+class VVertexBuffer : public VBufferBase
 {
 public:
-	VertexBuffer();
-	~VertexBuffer();
+	VVertexBuffer();
+	~VVertexBuffer();
 
-	void SetData(VmaAllocator allocator, std::vector<Vertex> vertices);
+	void		SetData(VmaAllocator allocator, std::vector<Vertex>& vertices);
+	uint32_t	GetSize();
 
-	const vk::VertexInputBindingDescription GetBindingDescription();
-
-	const vk::PipelineVertexInputStateCreateInfo InputStateInfo();
 
 private:
 	VStagingBuffer m_Stage;
-
-
-	const std::array<vk::VertexInputAttributeDescription, 3> GetAttributeDescriptions();
-
-
-
+	uint32_t m_Size;	// ÉfÅ[É^ÇÃå¬êî
+	
 
 
 };

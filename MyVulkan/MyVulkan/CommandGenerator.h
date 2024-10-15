@@ -19,9 +19,6 @@ public:
 	// 破棄関数
 	void Destroy();
 
-	// コマンドの作成
-	void RecordGraphicCommands(std::vector<vk::Framebuffer> framebuffers, vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline, std::vector<VertexBuffer> vertexBuffers);
-	void RecordGraphicCommands(vk::RenderPass renderPass, vk::Extent2D extent, vk::Pipeline graphicsPipeline);
 
 	// 作成されたコマンドプールの取得
 	vk::CommandPool GetCammandPool();
@@ -30,7 +27,14 @@ public:
 	std::vector<vk::CommandBuffer> GetCommandBuffers();
 
 	// GPU内で画像を描画
-	void DrawFrame(vk::CommandBuffer buffer, vk::RenderPass renderpass, vk::Framebuffer framebuffer, vk::Rect2D renderArea, vk::Pipeline graphicsPipeline, std::vector<SceneObject> drawMeshes);
+	void DrawFrame(
+		vk::CommandBuffer			buffer,
+		vk::RenderPass				renderpass,
+		vk::Framebuffer				framebuffer,
+		vk::Rect2D					renderArea,
+		vk::Pipeline				graphicsPipeline,
+		vk::PipelineLayout			pipelineLayout,
+		std::vector<SceneObject>	drawMeshes);
 
 	// スワップチェーンに従って画像を表示
 	void PresentFrame(vk::SwapchainKHR swapchain);
@@ -80,3 +84,18 @@ private:
 // 
 // 
 //
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
