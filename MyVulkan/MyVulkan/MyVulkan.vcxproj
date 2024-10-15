@@ -143,10 +143,13 @@
     <ClCompile Include="GeneratorBase.cpp" />
     <ClCompile Include="GraphicsPipelineCreator.cpp" />
     <ClCompile Include="InstanceExtensionManager.cpp" />
+    <ClCompile Include="MaterialBuffer.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshBuffer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MeshModel.cpp" />
+    <ClCompile Include="MeshObjectBuffer.cpp" />
+    <ClCompile Include="Observer.cpp" />
     <ClCompile Include="PhysicalDeviceSelector.cpp" />
     <ClCompile Include="PipelineShaderCreator.cpp" />
     <ClCompile Include="RenderConfig.cpp" />
@@ -161,6 +164,7 @@
     <ClCompile Include="VertexDescription.cpp" />
     <ClCompile Include="StagingBuffer.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
+    <ClCompile Include="VMeshManager.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
@@ -192,11 +196,14 @@
     <ClInclude Include="GraphicsDefine.h" />
     <ClInclude Include="GraphicsPipelineCreator.h" />
     <ClInclude Include="InstanceExtensionManager.h" />
+    <ClInclude Include="MaterialBuffer.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshBuffer.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MeshModel.h" />
     <ClInclude Include="MeshObject.h" />
+    <ClInclude Include="MeshObjectBuffer.h" />
+    <ClInclude Include="Observer.h" />
     <ClInclude Include="PhysicalDeviceSelector.h" />
     <ClInclude Include="PipelineShaderCreator.h" />
     <ClInclude Include="PipelineDescriptions.h" />
@@ -214,6 +221,7 @@
     <ClInclude Include="VertexDescription.h" />
     <ClInclude Include="StagingBuffer.h" />
     <ClInclude Include="IndexBuffer.h" />
+    <ClInclude Include="VMeshManager.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="Renderer.h" />

@@ -39,7 +39,7 @@ int main()
 		//ここで毎フレーム更新を行う
 		glfwPollEvents();
 		scene.Update();
-
+		vulkanRenderer.updateModel();
 
 		vulkanRenderer.draw();
 	}

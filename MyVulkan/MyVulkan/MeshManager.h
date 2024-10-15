@@ -4,6 +4,9 @@
 #include <assimp/scene.h>       // Assimpのシーン構造体を使用
 #include <assimp/postprocess.h> // モデル処理のオプションを指定
 
+// STB
+#include "stb/stb_image.h"
+
 #include "Singleton.h"
 #include "MeshObject.h"
 
@@ -28,14 +31,14 @@ private:	// プライベート変数
 
 
 
-
-
-
 private:	// プライベート関数
 	// ノードを処理するプライベート関数
 	MeshObject	ProcessNode(aiNode* node, const aiScene* scene);
 	// メッシュを処理するプライベート関数
 	Mesh		ProcessMesh(aiMesh* mesh, const aiScene* scene);
 	Material	ProcessMaterial(aiMaterial* material);
+
+	// テクスチャの読み込み関数
+	Texture		LoadTextureFile(std::string fileName);
 };
 

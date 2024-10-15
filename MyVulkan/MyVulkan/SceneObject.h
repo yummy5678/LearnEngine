@@ -2,6 +2,7 @@
 #include "MeshObject.h"
 #include "BufferGenerator.h"
 #include "ImagesGenerator.h"
+#include "ImageBuffer.h"
 
 using Transform = glm::mat4;
 
@@ -26,8 +27,10 @@ private:
 	MeshObject		m_Mesh;			// メッシュのポインタ(実態はメッシュマネージャーが管理)
 	Transform		m_Transform;	// トランスフォーム(オブジェクトの座標とかの情報)
 
-	BufferGenerator m_VertexBuffer;		// 頂点バッファ
-	
-	//ImagesGenerator m_TextureBuffer;	// テクスチャーバッファ
+
+	VVertexBuffer	m_VertexBuffer;	// 頂点バッファ
+	VImageBuffer	m_Texture;		// テクスチャーバッファ
+
+
 };
 

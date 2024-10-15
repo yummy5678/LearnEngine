@@ -24,6 +24,7 @@ public:
 	void Render(RenderConfig &pipeline);
 	// void Render(RenderPipeline &pipeline, Camera camera);
 
+	std::vector<SceneObject> GetObject();
 
 
 private:

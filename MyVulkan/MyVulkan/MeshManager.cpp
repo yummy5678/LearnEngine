@@ -61,7 +61,7 @@ Mesh MeshManager::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
             mesh->mVertices[i].z
         };
 
-        // 法線ベクトルが存在する場合、取得して保存（存在しない場合もある）
+        // 法線ベクトルが存在する場合、取得して保存
         if (mesh->mNormals) {
             vertex.normal = {
                 mesh->mNormals[i].x,
@@ -125,12 +125,29 @@ Material MeshManager::ProcessMaterial(aiMaterial* material) {
 
     // マテリアルに関連するテクスチャパスを取得(テクスチャが存在する場合のみ)
     if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
-        aiString str;
-        material->GetTexture(aiTextureType_DIFFUSE, 0, &str);
-        resultMaterial.texturePath = str.C_Str(); // テクスチャのパスを保存
+        aiString textureName;
+        material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName);
+        resultMaterial.texture = LoadTextureFile(textureName.C_Str()); // テクスチャのパスを保存
     }
 
     return resultMaterial; // 処理したマテリアルを返す
+}
+
+Texture MeshManager::LoadTextureFile(std::string fileName)
+{
+    Texture result;
+    int width, height, channel;
+    result.data = (uint8_t)stbi_load(fileName.c_str(), &width, &height, &channel, STBI_rgb_alpha);
+    result.width = width;
+    result.height = height;
+    result.channel = channel;
+
+    if (!result.data)
+    {
+        throw std::runtime_error("画像ファイルの読み込みに失敗しました。: " + fileName);
+    }
+
+    return result;
 }
 
 

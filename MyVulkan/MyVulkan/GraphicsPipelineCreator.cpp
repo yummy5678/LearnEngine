@@ -135,7 +135,7 @@ inline vk::PipelineViewportStateCreateInfo PipelineGenerator::CreateViewportStat
 	scissor.setExtent(extent);								// 使用する領域のサイズ
 
 	// ビューポートとシザーの状態を設定するための構造体を作成
-	vk::PipelineViewportStateCreateInfo viewportStateCreateInfo = {};
+	vk::PipelineViewportStateCreateInfo viewportStateCreateInfo;
 	viewportStateCreateInfo.setViewportCount(1);		// ビューポートの数
 	viewportStateCreateInfo.setPViewports(&viewport);	// ビューポートのポインタ
 	viewportStateCreateInfo.setScissorCount(1);			// シザーの数

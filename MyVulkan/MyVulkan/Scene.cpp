@@ -1,13 +1,10 @@
 #include "Scene.h"
 
-
-
-
 void Scene::Initialize()
 {
 	MeshManager& meshManager = MeshManager::getInstance();
 	meshManager.Load("");
-	m_Object.mesh = meshManager.GetMesh("");
+	m_Object.SetPMesh(meshManager.GetMesh(""));
 }
 
 void Scene::Update()
@@ -21,7 +18,7 @@ void Scene::Update()
 
 	glm::mat4 testMat = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
 	testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	m_Object.transform = testMat;
+	m_Object.SetTransform(testMat);
 
 
 
@@ -29,6 +26,11 @@ void Scene::Update()
 
 void Scene::Render(RenderConfig& pipeline)
 {
-	pipeline.updateModel(m_Object.mesh, m_Object.transform);
+	// pipeline.updateModel(m_Object.mesh, m_Object.transform);
+}
+
+std::vector<SceneObject> Scene::GetObject()
+{
+	return { m_Object };
 }
 

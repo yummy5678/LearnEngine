@@ -20,6 +20,14 @@ struct Mesh
 	std::vector<uint32_t>	indices;	// 頂点のインデックスリスト(頂点の描画順序)
 };
 
+struct Texture
+{
+	uint8_t  data;		// RAM上の画像データのポインタ
+	uint32_t width;		// 画像の幅
+	uint32_t height;	// 画像の高さ
+	uint32_t channel;	// 1画素に含まれるチャンネル数
+};
+
 // マテリアル(色やテクスチャ)の情報を格納するための構造体
 struct Material
 {
@@ -27,7 +35,7 @@ struct Material
 	float metallic;				// 金属感
 	float roughness;			// 表面の粗さ
 
-	std::string texturePath;	// テクスチャ画像のファイルパス
+	Texture texture;			// テクスチャ画像のデータ
 };
 
 //struct Animation

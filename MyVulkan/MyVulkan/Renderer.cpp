@@ -121,6 +121,17 @@ void VulkanRenderer::setRenderConfig(RenderConfig config)
 
 }
 
+void VulkanRenderer::SetScene(Scene* pScene)
+{
+	m_pScene = pScene;
+}
+
+void VulkanRenderer::draw()
+{
+	m_GraphicController.DrawFrame();	// 画面の内容を描画
+	m_GraphicController.PresentFrame();	// 描画した画像をサーフェスに表示
+}
+
 
 //void draw{
 //		recordCommands(imageIndex);
@@ -150,7 +161,7 @@ void VulkanRenderer::createFramebuffers()
 			depthBufferImageView[i]
 		};
 
-		VkFramebufferCreateInfo framebufferCreateInfo = {};
+		VkFramebufferCreateInfo framebufferCreateInfo;
 		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferCreateInfo.renderPass = renderPass;										// Render Pass layout the Framebuffer will be used with
 		framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());

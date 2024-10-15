@@ -53,6 +53,10 @@ public:
 	int init(GameWindow renderWindow);
 	void setRenderConfig(RenderConfig renderConfig);
 
+	// MeshModel
+	void SetScene(Scene* pScene);
+	//void updateModel(int modelId, glm::mat4 newModel);
+
 	void draw();
 	void cleanup();
 
@@ -97,9 +101,7 @@ private:
 	void createLogicalDevice();
 
 
-	// MeshModel
-	int createMeshModel(std::string modelFile);
-	void updateModel(int modelId, glm::mat4 newModel);
+
 
 
 

@@ -1,5 +1,5 @@
 #include "SwapGraphicCommandController.h"
-#include "WriteImage.cpp"
+
 
 SwapGraphicCommandController::SwapGraphicCommandController(DeviceExtensionManager& deviceExtensionManager):
 	m_LogicalDevice(VK_NULL_HANDLE),
@@ -70,12 +70,16 @@ void SwapGraphicCommandController::Destroy()
 
 void SwapGraphicCommandController::DrawFrame()
 {
-
+	auto swapchainInfo = m_SwapchainGenerator.GetSwapchainInfo();
+	for (int i = 0; i < swapchainInfo.minImageCount; i++)
+	{
+		m_CommandGenerator.DrawFrame(commandBuffers[i], renderPass, framebuffers[i], { {0,0}, extent }, graphicsPipeline);
+	}
 }
 
 void SwapGraphicCommandController::PresentFrame()
 {
-
+	m_CommandGenerator.PresentFrame(swapchain);
 }
 
 

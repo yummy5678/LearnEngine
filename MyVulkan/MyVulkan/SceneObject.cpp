@@ -19,3 +19,8 @@ MeshObject SceneObject::GetMesh()
 {
 	return m_Mesh;
 }
+
+vk::Buffer SceneObject::GetVertexBuffer()
+{
+	return m_VertexBuffer;
+}
