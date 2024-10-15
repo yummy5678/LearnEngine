@@ -33,7 +33,7 @@ void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize)
 {
 	m_Allocator = allocator;
 
-	auto dataBufferInfo = CreateBufferInfo(dataSize, m_Usage);
+	auto dataBufferInfo = CreateBufferInfo(dataSize, m_Usage, m_SharingMode);
 
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
@@ -54,14 +54,14 @@ void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize)
 
 // 物理デバイス用のバッファの作成
 // dataSize : 確保するデータのサイズ
-VkBufferCreateInfo VBufferBase::CreateBufferInfo(vk::DeviceSize dataSize, vk::BufferUsageFlags usage)
+VkBufferCreateInfo VBufferBase::CreateBufferInfo(vk::DeviceSize dataSize, vk::BufferUsageFlags usage, vk::SharingMode mode)
 {
 	vk::BufferCreateInfo bufferCreateInfo;
 	bufferCreateInfo.pNext;
 	bufferCreateInfo.flags;
 	bufferCreateInfo.size					= dataSize;
 	bufferCreateInfo.usage					= usage;			// 頂点バッファとして使用
-	bufferCreateInfo.sharingMode			= m_SharingMode;	// バッファの使用を1つのキューに限定
+	bufferCreateInfo.sharingMode			= mode;	// バッファの使用を1つのキューに限定
 	bufferCreateInfo.queueFamilyIndexCount;
 	bufferCreateInfo.pQueueFamilyIndices;
 

@@ -1,26 +1,29 @@
-#include "StagingBuffer.h"
+#include "StagingImageBuffer.h"
 
-VStagingBuffer::VStagingBuffer() :
-	VBufferBase(stagingUsage)
+VStagingImageBuffer::VStagingImageBuffer() :
+	VBufferBase(stagingImageUsage)
 {
 }
 
-VStagingBuffer::~VStagingBuffer()
+VStagingImageBuffer::~VStagingImageBuffer()
 {
 }
 
-void VStagingBuffer::Initialize(VmaAllocator allocator, vk::DeviceSize dataSize)
+void VStagingImageBuffer::Initialize(VmaAllocator allocator, uint32_t imageWidth, uint32_t imageHeight, uint32_t imageChannel)
 {
 	m_Allocator = allocator;
-	m_LogicalDevice		= vk::Device(allocator->m_hDevice);
-	m_PhysicalDevice	= vk::PhysicalDevice(allocator->GetPhysicalDevice());
+	m_LogicalDevice = vk::Device(allocator->m_hDevice);
+	m_PhysicalDevice = vk::PhysicalDevice(allocator->GetPhysicalDevice());
+	m_ImageWidth = imageWidth;
+	m_ImageHeight = imageHeight;
+	m_ImageChannel = imageChannel;
 
-	m_BufferDataSize = dataSize;
+	uint32_t dataSize = imageWidth * imageHeight * imageChannel;
 
 	// Get indices of queue families from device
 	QueueFamilySelector queueFamily(m_PhysicalDevice);
-	m_CommandPool		= CreateCommandPool(m_LogicalDevice, queueFamily.GetTransferIndex());
-	m_CommandBuffer		= CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
+	m_CommandPool = CreateCommandPool(m_LogicalDevice, queueFamily.GetTransferIndex());
+	m_CommandBuffer = CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
 	// グラフィックスキューの取得
 	m_Queue = m_LogicalDevice.getQueue(queueFamily.GetTransferIndex(), 0);
 
@@ -43,15 +46,16 @@ void VStagingBuffer::Initialize(VmaAllocator allocator, vk::DeviceSize dataSize)
 
 }
 
-void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer)
+void VStagingImageBuffer::TransferDataToImageBuffer(void* transfarData, vk::Image toBuffer)
 {
-	if(!m_Allocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
+	if (!m_Allocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
 
 	// データをステージングバッファにコピー
-	MapData(m_Allocator, transfarData, m_BufferDataSize);
+	vk::DeviceSize dataSize = m_ImageWidth * m_ImageHeight * m_ImageChannel;
+	MapData(m_Allocator, transfarData, dataSize);
 
 	// トランスファーバッファのデータを宛先のバッファにコピー
-	SetCopyBufferCommand(m_CommandBuffer, m_Buffer, toBuffer, m_BufferDataSize);	// 転送コマンドを作成
+	SetCopyToImageCommand(m_CommandBuffer, m_Buffer, toBuffer, m_ImageWidth, m_ImageHeight);	// 転送コマンドを作成
 
 	// コマンドバッファを実行
 	vk::SubmitInfo submitInfo;
@@ -62,7 +66,7 @@ void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffe
 	m_Queue.waitIdle(); // 完了を待つ
 }
 
-vk::CommandPool VStagingBuffer::CreateCommandPool(vk::Device logicalDevice, uint32_t queueFamilyIndex)
+vk::CommandPool VStagingImageBuffer::CreateCommandPool(vk::Device logicalDevice, uint32_t queueFamilyIndex)
 {
 	// コマンドプールの作成に必要な情報を設定する
 	vk::CommandPoolCreateInfo poolInfo;
@@ -81,7 +85,7 @@ vk::CommandPool VStagingBuffer::CreateCommandPool(vk::Device logicalDevice, uint
 	}
 }
 
-vk::CommandBuffer VStagingBuffer::CreateCommandBuffer(vk::Device logicalDevice, vk::CommandPool commandPool)
+vk::CommandBuffer VStagingImageBuffer::CreateCommandBuffer(vk::Device logicalDevice, vk::CommandPool commandPool)
 {
 	vk::CommandBufferAllocateInfo allocInfo;
 	allocInfo.commandPool = commandPool;
@@ -96,28 +100,35 @@ vk::CommandBuffer VStagingBuffer::CreateCommandBuffer(vk::Device logicalDevice, 
 	{
 		throw std::runtime_error("転送用コマンドバッファの作成に失敗しました！");
 	}
-	
+
 }
 
-void VStagingBuffer::SetCopyBufferCommand(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
+void VStagingImageBuffer::SetCopyToImageCommand(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Image dstImage, uint32_t imageWidth, uint32_t imageHeight)
 {
 	// コマンドバッファの開始
 	vk::CommandBufferBeginInfo beginInfo;
 	beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 	commandBuffer.begin(beginInfo);
 
-	// コピーコマンドの作成
-	vk::BufferCopy copyRegion;
-	copyRegion.srcOffset = 0; // 送信元オフセット
-	copyRegion.dstOffset = 0; // 受信先オフセット
-	copyRegion.size = size;    // 転送サイズ
-	commandBuffer.copyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
+	vk::BufferImageCopy copyRegion;
+	copyRegion.bufferOffset = 0;
+	copyRegion.bufferRowLength = 0;			// "0"を指定しておくと自動的にExtentが指定される
+	copyRegion.bufferImageHeight = 0;		// "0"を指定しておくと自動的にExtentが指定される
+	copyRegion.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+	copyRegion.imageSubresource.mipLevel = 0;
+	copyRegion.imageSubresource.baseArrayLayer = 0;
+	copyRegion.imageSubresource.layerCount = 1;
+	copyRegion.imageOffset = vk::Offset3D{ 0, 0, 0 };
+	copyRegion.imageExtent = vk::Extent3D{ imageWidth, imageHeight, 1 };
+
+
+	commandBuffer.copyBufferToImage(srcBuffer, dstImage, vk::ImageLayout::eTransferDstOptimal, { copyRegion });
 
 	// コマンドバッファの終了
 	commandBuffer.end();
 }
 
-void VStagingBuffer::MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize)
+void VStagingImageBuffer::MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize)
 {
 	// 確保したバッファの領域のポインタを取得
 	void* mapData;

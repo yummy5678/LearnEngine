@@ -164,6 +164,7 @@
     <ClCompile Include="VertexDescription.cpp" />
     <ClCompile Include="StagingBuffer.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
+    <ClCompile Include="StagingImageBuffer.cpp" />
     <ClCompile Include="VMeshManager.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="VertexDescription.h" />
     <ClInclude Include="StagingBuffer.h" />
     <ClInclude Include="IndexBuffer.h" />
+    <ClInclude Include="StagingImageBuffer.h" />
     <ClInclude Include="VMeshManager.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />

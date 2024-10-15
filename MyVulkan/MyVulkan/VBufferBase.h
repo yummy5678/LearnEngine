@@ -35,7 +35,7 @@ protected:
 	void CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize);
 
 	// バッファの作成関数
-	VkBufferCreateInfo CreateBufferInfo(vk::DeviceSize dataSize, vk::BufferUsageFlags usage);
+	VkBufferCreateInfo CreateBufferInfo(vk::DeviceSize dataSize, vk::BufferUsageFlags usage, vk::SharingMode mode);
 
 	// メモリ割り当て関数
 	uint32_t	FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags findType);
