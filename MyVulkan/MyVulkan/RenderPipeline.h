@@ -37,7 +37,7 @@ private:
 
 
 	// デスクリプタ
-	DescriptorHandler m_Descriptor;
+	VDescriptorBase m_Descriptor;
 
 
 

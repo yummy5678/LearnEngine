@@ -1,9 +1,6 @@
 #include "CommandGenerator.h"
 
 
-
-
-
 CommandGenerator::CommandGenerator():
     m_LogicalDevice(),
     m_PhysicalDevice(),
@@ -71,24 +68,24 @@ std::vector<vk::CommandBuffer> CommandGenerator::GetCommandBuffers()
 }
 
 void CommandGenerator::DrawFrame(
-    vk::CommandBuffer buffer, 
-    vk::RenderPass renderpass, 
-    vk::Framebuffer framebuffer, 
-    vk::Rect2D renderArea, 
-    vk::Pipeline graphicsPipeline, 
-    vk::PipelineLayout pipelineLayout,
-    std::vector<SceneObject> drawMeshes)
+    vk::CommandBuffer           commandBuffer, 
+    vk::RenderPass              renderpass, 
+    vk::Framebuffer             framebuffer, 
+    vk::Rect2D                  renderArea, 
+    vk::Pipeline                graphicsPipeline, 
+    vk::PipelineLayout          pipelineLayout,
+    std::vector<SceneObject>    drawMeshes)
 {
     // フレームの初期化する色を設定します。
     std::array<vk::ClearValue, 3> clearValues = {};
-    clearValues[0].setColor({ 0.0f, 0.0f, 0.0f, 1.0f }); // 背景色
-    clearValues[1].setColor({ 0.6f, 0.65f, 0.4f, 1.0f }); // 追加の背景色
-    clearValues[2].setDepthStencil({ 1.0f }); // 深度バッファのクリア値
+    clearValues[0].setColor({ 0.0f, 0.0f, 0.0f, 1.0f });    // 背景色
+    clearValues[1].setColor({ 0.6f, 0.65f, 0.4f, 1.0f });   // 追加の背景色
+    clearValues[2].setDepthStencil({ 1.0f });               // 深度バッファのクリア値
 
     // コマンドバッファの開始情報を設定します。
     vk::CommandBufferBeginInfo cmdBeginInfo;
     cmdBeginInfo.setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse); // バッファが再使用可能であることを示すフラグ
-    if (buffer.begin(&cmdBeginInfo) != vk::Result::eSuccess)
+    if (commandBuffer.begin(&cmdBeginInfo) != vk::Result::eSuccess)
     {
         throw std::runtime_error("コマンドバッファの開始に失敗しました！");
     }
@@ -96,24 +93,23 @@ void CommandGenerator::DrawFrame(
     // レンダーパスの開始情報を設定します。
     vk::RenderPassBeginInfo renderpassBeginInfo{};
     renderpassBeginInfo
-        .setRenderPass(renderpass) // 使用するレンダーパス
-        .setFramebuffer(framebuffer) // 使用するフレームバッファ
-        .setRenderArea(renderArea) // 描画領域の設定
-        .setClearValueCount(static_cast<uint32_t>(clearValues.size())) // クリア値の数
-        .setPClearValues(clearValues.data()); // クリア値の配列
+        .setRenderPass(renderpass)              // 使用するレンダーパス
+        .setFramebuffer(framebuffer)            // 使用するフレームバッファ
+        .setRenderArea(renderArea)              // 描画領域の設定
+        .setClearValueCount(clearValues.size()) // クリア値の数
+        .setPClearValues(clearValues.data());   // クリア値の配列
 
     // レンダーパスを開始します。
-    buffer.beginRenderPass(renderpassBeginInfo, vk::SubpassContents::eInline);
+    commandBuffer.beginRenderPass(renderpassBeginInfo, vk::SubpassContents::eInline);
 
     // 使用するパイプラインをバインドします。
-    buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
 
     // 描画するメッシュをループします。
     for (auto& model : drawMeshes)
     {
-
         // プッシュ定数をシェーダーに渡します。
-        buffer.pushConstants(
+        commandBuffer.pushConstants(
             pipelineLayout,
             vk::ShaderStageFlagBits::eVertex, // プッシュ定数を更新するシェーダーステージ
             0, // オフセット
@@ -122,14 +118,14 @@ void CommandGenerator::DrawFrame(
         );
 
         // 各メッシュをループします。
-        for (auto mesh : model.GetMesh().meshes)
+        for (auto &mesh : model.GetMeshes())
         {
-            vk::Buffer vertexBuffers[] = { thisModel.GetMeshBuffer() }; // バインドするバッファ
+            // vk::Buffer vertexBuffers[] = { }; // バインドするバッファ
             vk::DeviceSize offsets[] = { 0 }; // バッファ内のオフセット
-            buffer.bindVertexBuffers(0, vertexBuffers, offsets); // 頂点バッファをバインド
+            commandBuffer.bindVertexBuffers(0, mesh.GetVertex().GetBuffer(), offsets); // 頂点バッファをバインド
 
             // メッシュインデックスバッファをバインドします。
-            buffer.bindIndexBuffer(thisMeshes.meshes[k].indices, 0, vk::IndexType::eUint32);
+            commandBuffer.bindIndexBuffer(mesh.GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
 
             // ディスクリプタセットをバインドします。
             std::array<vk::DescriptorSet, 2> descriptorSetGroup = {
@@ -137,7 +133,7 @@ void CommandGenerator::DrawFrame(
                 samplerDescriptorSets[thisModel.getMesh(k)->getTexId()]
             };
 
-            buffer.bindDescriptorSets(
+            commandBuffer.bindDescriptorSets(
                 vk::PipelineBindPoint::eGraphics,
                 pipelineLayout,
                 0,
@@ -146,7 +142,7 @@ void CommandGenerator::DrawFrame(
             );
 
             // パイプラインを実行します。
-            buffer.drawIndexed(thisMeshes.meshes[k].vertices.size(), 1, 0, 0, 0);
+            commandBuffer.drawIndexed(mesh.GetIndex().GetSize(), 1, 0, 0, 0);
         }
 
         // 終了待機

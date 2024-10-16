@@ -20,11 +20,10 @@ void VStagingImageBuffer::Initialize(VmaAllocator allocator, uint32_t imageWidth
 
 	uint32_t dataSize = imageWidth * imageHeight * imageChannel;
 
-	// Get indices of queue families from device
+	// 転送用キューの取得
 	QueueFamilySelector queueFamily(m_PhysicalDevice);
 	m_CommandPool = CreateCommandPool(m_LogicalDevice, queueFamily.GetTransferIndex());
 	m_CommandBuffer = CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
-	// グラフィックスキューの取得
 	m_Queue = m_LogicalDevice.getQueue(queueFamily.GetTransferIndex(), 0);
 
 	auto stagingBufferInfo = CreateBufferInfo(dataSize, m_Usage, m_SharingMode);
@@ -54,16 +53,16 @@ void VStagingImageBuffer::TransferDataToImageBuffer(void* transfarData, vk::Imag
 	vk::DeviceSize dataSize = m_ImageWidth * m_ImageHeight * m_ImageChannel;
 	MapData(m_Allocator, transfarData, dataSize);
 
-	// トランスファーバッファのデータを宛先のバッファにコピー
+	// 転送用バッファのデータを宛先のイメージバッファにコピー
 	SetCopyToImageCommand(m_CommandBuffer, m_Buffer, toBuffer, m_ImageWidth, m_ImageHeight);	// 転送コマンドを作成
 
 	// コマンドバッファを実行
 	vk::SubmitInfo submitInfo;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &m_CommandBuffer;
+	submitInfo.commandBufferCount = 1;				// 使うコマンドは1つだけで充分
+	submitInfo.pCommandBuffers = &m_CommandBuffer;	// 作成したコマンドバッファをセット
 
-	m_Queue.submit(1, &submitInfo, nullptr);
-	m_Queue.waitIdle(); // 完了を待つ
+	m_Queue.submit(1, &submitInfo, nullptr);		// コマンドをGPUのキューに送信
+	m_Queue.waitIdle();								// 送ったコマンドキューの完了を待つ
 }
 
 vk::CommandPool VStagingImageBuffer::CreateCommandPool(vk::Device logicalDevice, uint32_t queueFamilyIndex)
@@ -112,8 +111,8 @@ void VStagingImageBuffer::SetCopyToImageCommand(vk::CommandBuffer commandBuffer,
 
 	vk::BufferImageCopy copyRegion;
 	copyRegion.bufferOffset = 0;
-	copyRegion.bufferRowLength = 0;			// "0"を指定しておくと自動的にExtentが指定される
-	copyRegion.bufferImageHeight = 0;		// "0"を指定しておくと自動的にExtentが指定される
+	copyRegion.bufferRowLength = 0;			// "0"を指定しておくと自動的にExtentの値が入る
+	copyRegion.bufferImageHeight = 0;		// "0"を指定しておくと自動的にExtentの値が入る
 	copyRegion.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
 	copyRegion.imageSubresource.mipLevel = 0;
 	copyRegion.imageSubresource.baseArrayLayer = 0;

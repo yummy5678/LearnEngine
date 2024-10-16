@@ -5,11 +5,11 @@
 // シェーダーのプログラムがリソースを
 // 読めるようにするためのオブジェクト
 
-class DescriptorHandler
+class VDescriptorBase
 {
 public:
-	DescriptorHandler();
-	~DescriptorHandler();
+	VDescriptorBase();
+	~VDescriptorBase();
 
 	void SetData(vk::Device device, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags);
 	void CreateDescriptorPool(uint32_t descriptorCount);
@@ -19,7 +19,7 @@ public:
 
 
 
-private:
+protected:
 	vk::Device m_Device = nullptr;
 	vk::DescriptorType m_DescriptorType;
 	vk::ShaderStageFlags m_StageFlags;

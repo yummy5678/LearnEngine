@@ -38,7 +38,7 @@ private:
 	//PipelineShaderCreator			m_ShaderLoader;
 
 	// デスクリプタ
-	DescriptorHandler				m_TextureDescriptor;
+	VDescriptorBase				m_TextureDescriptor;
 
 
 	vk::GraphicsPipelineCreateInfo						m_PipelineInfo;

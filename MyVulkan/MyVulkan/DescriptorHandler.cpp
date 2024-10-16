@@ -1,10 +1,10 @@
 #include "DescriptorHandler.h"
 
-DescriptorHandler::DescriptorHandler()
+VDescriptorBase::VDescriptorBase()
 {
 }
 
-DescriptorHandler::~DescriptorHandler()
+VDescriptorBase::~VDescriptorBase()
 {
     if (m_DescriptorSetLayout) 
     {
@@ -18,7 +18,7 @@ DescriptorHandler::~DescriptorHandler()
 
 }
 
-void DescriptorHandler::SetData(vk::Device device, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags)
+void VDescriptorBase::SetData(vk::Device device, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags)
 {
     m_Device = device;
     m_DescriptorType = descriptorType;
@@ -28,7 +28,7 @@ void DescriptorHandler::SetData(vk::Device device, vk::DescriptorType descriptor
 
 }
 
-void DescriptorHandler::CreateDescriptorPool(uint32_t descriptorCount)
+void VDescriptorBase::CreateDescriptorPool(uint32_t descriptorCount)
 {
     vk::DescriptorPoolSize poolSize;
     poolSize.type = m_DescriptorType;
@@ -42,7 +42,7 @@ void DescriptorHandler::CreateDescriptorPool(uint32_t descriptorCount)
     m_DescriptorPool = m_Device.createDescriptorPool(poolInfo);
 }
 
-vk::DescriptorSet DescriptorHandler::CreateDescriptorSet(vk::Buffer buffer, vk::DeviceSize bufferSize)
+vk::DescriptorSet VDescriptorBase::CreateDescriptorSet(vk::Buffer buffer, vk::DeviceSize bufferSize)
 {
     vk::DescriptorSetAllocateInfo allocInfo;
     allocInfo.descriptorPool = m_DescriptorPool;
@@ -69,12 +69,12 @@ vk::DescriptorSet DescriptorHandler::CreateDescriptorSet(vk::Buffer buffer, vk::
     return descriptorSet;
 }
 
-vk::DescriptorSetLayout DescriptorHandler::GetDescriptorSetLayout()
+vk::DescriptorSetLayout VDescriptorBase::GetDescriptorSetLayout()
 {
     return m_DescriptorSetLayout;
 }
 
-void DescriptorHandler::CreateDescriptorSetLayout()
+void VDescriptorBase::CreateDescriptorSetLayout()
 {
     vk::DescriptorSetLayoutBinding layoutBinding;
     layoutBinding.binding = 0;

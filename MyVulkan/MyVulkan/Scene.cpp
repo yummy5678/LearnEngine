@@ -4,7 +4,7 @@ void Scene::Initialize()
 {
 	MeshManager& meshManager = MeshManager::getInstance();
 	meshManager.Load("");
-	m_Object.SetPMesh(meshManager.GetMesh(""));
+	m_Object.SetMesh(meshManager.GetMesh(""));
 }
 
 void Scene::Update()

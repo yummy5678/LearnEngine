@@ -15,7 +15,6 @@ public:
 
 
 private:
-	VStagingBuffer m_Stage;
 	uint32_t m_Size;	// ƒf[ƒ^‚ÌŒÂ”
 	
 

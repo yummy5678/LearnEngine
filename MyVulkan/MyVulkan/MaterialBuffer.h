@@ -11,7 +11,7 @@ public:
 
 	void SetMaterial(VmaAllocator allocator, Material material);
 
-
+	vk::Image GetTextureBuffer();
 
 private:
 	//glm::vec4 baseColor;	// ñ¢çÏê¨

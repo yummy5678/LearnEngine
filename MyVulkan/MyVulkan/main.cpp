@@ -12,9 +12,7 @@ GameWindow m_pWindow;
 VulkanRenderer vulkanRenderer;	//レンダラー
 
 int main()
-{
-
-	
+{	
 	RenderConfig renderConfig;	// 描画方法の形式を決めるオブジェクト
 	renderConfig.Initialize();
 

@@ -14,21 +14,18 @@ void VImageBuffer::Cleanup()
 	if(m_ImageAllocation) vmaDestroyImage(m_Allocator, m_Buffer, m_ImageAllocation);
 }
 
-void VImageBuffer::SetImage(VmaAllocator allocator, Texture& texture, vk::Format format)
+void VImageBuffer::SetImage(VmaAllocator allocator, Texture& texture)
 {
 	VStagingImageBuffer stagingBuffer;
 
-	vk::DeviceSize dataSize = texture.width * texture.height * texture.channel;
 	CreateBuffer(allocator, texture.width, texture.height);
 
-	stagingBuffer.Initialize(allocator, dataSize);
+	stagingBuffer.Initialize(allocator, texture.width, texture.height, texture.channel);
 	stagingBuffer.TransferDataToImageBuffer((void*)texture.data, m_Buffer);
-
-
 
 }
 
-vk::Image VImageBuffer::GetImage()
+vk::Image VImageBuffer::GetImageBuffer()
 {
 	return m_Buffer;
 }
@@ -36,18 +33,18 @@ vk::Image VImageBuffer::GetImage()
 VkImageCreateInfo VImageBuffer::CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode)
 {
 	vk::ImageCreateInfo imageCreateInfo;
-	imageCreateInfo.imageType = vk::ImageType::e2D;  // 2Dイメージ
-	imageCreateInfo.extent.width = imageWidth;  // イメージの幅
-	imageCreateInfo.extent.height = imageHeight;  // イメージの高さ
-	imageCreateInfo.extent.depth = 1;  // 2Dイメージなので深さは1
-	imageCreateInfo.mipLevels = 1;  // ミップマップのレベル
-	imageCreateInfo.arrayLayers = 1;  // レイヤー数
-	imageCreateInfo.format = format;  // イメージフォーマット（RGBA8）
-	imageCreateInfo.tiling = vk::ImageTiling::eOptimal;  // GPU最適なタイル形式
+	imageCreateInfo.imageType = vk::ImageType::e2D;			// 2Dイメージ
+	imageCreateInfo.extent.width = imageWidth;				// イメージの幅
+	imageCreateInfo.extent.height = imageHeight;			// イメージの高さ
+	imageCreateInfo.extent.depth = 1;						// 2Dイメージなので深さは1
+	imageCreateInfo.mipLevels = 1;							// ミップマップのレベル
+	imageCreateInfo.arrayLayers = 1;						// レイヤー数
+	imageCreateInfo.format = format;						// イメージフォーマット（RGBA8）
+	imageCreateInfo.tiling = vk::ImageTiling::eOptimal;		// GPU最適なタイル形式
 	imageCreateInfo.initialLayout = vk::ImageLayout::eUndefined;  // 初期レイアウト
-	imageCreateInfo.usage = usage;  // 転送先およびサンプリングに使用
+	imageCreateInfo.usage = usage;							// データの使用用途
 	imageCreateInfo.samples = vk::SampleCountFlagBits::e1;  // マルチサンプリングの数
-	imageCreateInfo.sharingMode = mode;  // 専有アクセス
+	imageCreateInfo.sharingMode = mode;						// キュー間でのデータ共用の有無
 
 	return imageCreateInfo;
 }

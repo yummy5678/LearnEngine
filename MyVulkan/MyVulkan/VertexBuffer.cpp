@@ -21,8 +21,9 @@ void VVertexBuffer::SetData(VmaAllocator allocator, std::vector<Vertex>& vertice
 	CreateBuffer(allocator, dataSize);
 
 	// ステージングバッファを踏んでデータを入れてもらう
-	m_Stage.Initialize(allocator, dataSize);					//一度ステージングバッファにデータを入れてから
-	m_Stage.TransferDataToBuffer(vertices.data(), m_Buffer);	//VertexBuffer(VRAMに作られたバッファ)にコピーする
+	VStagingBuffer StagingBuffer;
+	StagingBuffer.Initialize(allocator, dataSize);					//一度ステージングバッファにデータを入れてから
+	StagingBuffer.TransferDataToBuffer(vertices.data(), m_Buffer);	//VertexBuffer(VRAMに作られたバッファ)にコピーする
 
 }
 

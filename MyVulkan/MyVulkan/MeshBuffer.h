@@ -11,11 +11,12 @@ public:
 
 	void SetMesh(VmaAllocator allocator, Mesh mesh);
 
-
+	VVertexBuffer	GetVertex();
+	VIndexBuffer	GetIndex();
 
 private:
-	std::vector<VVertexBuffer>	m_Vertex;
-	std::vector<VIndexBuffer>	m_Index;
+	VVertexBuffer	m_Vertex;
+	VIndexBuffer	m_Index;
 
 	
 
