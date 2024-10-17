@@ -1,4 +1,5 @@
 #include "VertexBuffer.h"
+#include "PipelineDescriptions.h"
 
 
 VVertexBuffer::VVertexBuffer():
@@ -30,4 +31,9 @@ void VVertexBuffer::SetData(VmaAllocator allocator, std::vector<Vertex>& vertice
 uint32_t VVertexBuffer::GetSize()
 {
 	return m_Size;
+}
+
+vk::PipelineVertexInputStateCreateInfo VVertexBuffer::GetInputStateInfo()
+{
+	return vertexInputInfo;
 }

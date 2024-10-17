@@ -44,4 +44,3 @@ Transform SceneObject::GetTransform()
 {
 	return m_Transform;
 }
-

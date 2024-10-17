@@ -111,21 +111,17 @@ void CommandGenerator::DrawFrame(
         // プッシュ定数をシェーダーに渡します。
         commandBuffer.pushConstants(
             pipelineLayout,
-            vk::ShaderStageFlagBits::eVertex, // プッシュ定数を更新するシェーダーステージ
-            0, // オフセット
-            sizeof(Transform), // プッシュするデータのサイズ
-            &model.GetTransform() // 実際のデータ
+            vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
+            0,                                  // オフセット
+            sizeof(Transform),                  // プッシュするデータのサイズ
+            &model.GetTransform()               // 実際のデータ
         );
 
         // 各メッシュをループします。
         for (auto &mesh : model.GetMeshes())
         {
-            // vk::Buffer vertexBuffers[] = { }; // バインドするバッファ
-            vk::DeviceSize offsets[] = { 0 }; // バッファ内のオフセット
-            commandBuffer.bindVertexBuffers(0, mesh.GetVertex().GetBuffer(), offsets); // 頂点バッファをバインド
-
-            // メッシュインデックスバッファをバインドします。
-            commandBuffer.bindIndexBuffer(mesh.GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
+            // 頂点バッファをバインド
+            commandBuffer.bindVertexBuffers(0, mesh.GetVertex().GetBuffer(), { 0 });
 
             // ディスクリプタセットをバインドします。
             std::array<vk::DescriptorSet, 2> descriptorSetGroup = {
@@ -141,8 +137,9 @@ void CommandGenerator::DrawFrame(
                 nullptr
             );
 
-            // パイプラインを実行します。
-            commandBuffer.drawIndexed(mesh.GetIndex().GetSize(), 1, 0, 0, 0);
+            // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
+            commandBuffer.bindIndexBuffer(mesh.GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
+            commandBuffer.drawIndexed(mesh.GetIndex().GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
         }
 
         // 終了待機

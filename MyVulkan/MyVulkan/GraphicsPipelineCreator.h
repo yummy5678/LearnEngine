@@ -38,7 +38,7 @@ private:
 	//PipelineShaderCreator			m_ShaderLoader;
 
 	// デスクリプタ
-	VDescriptorBase				m_TextureDescriptor;
+	VDescriptor				m_TextureDescriptor;
 
 
 	vk::GraphicsPipelineCreateInfo						m_PipelineInfo;
@@ -63,14 +63,6 @@ private:
 	vk::PipelineColorBlendStateCreateInfo		CreateColorBlendingStateInfo();
 	vk::PipelineDepthStencilStateCreateInfo		CreateDepthStencilStateInfo(bool depth, bool stencil);
 	
-/*	std::vector<vk::PipelineShaderStageCreateInfo>		GetShaderStageInfo(vk::Device logicalDevice);
-	vk::PipelineVertexInputStateCreateInfo				GetVertexInputStateInfo();
-	vk::PipelineInputAssemblyStateCreateInfo			GetInputAssemblyStateInfo();
-	vk::PipelineRasterizationStateCreateInfo			GetRasterizationStateInfo();
-
-	vk::PipelineMultisampleStateCreateInfo				GetMultisampleStateInfo();
-	std::vector<vk::PipelineColorBlendAttachmentState>	GetColorBlendAttachmentState();
-	vk::PipelineColorBlendStateCreateInfo				GetColorBlendStateInfo(std::vector<vk::PipelineColorBlendAttachmentState>* colorBlendAttachment)*/;
 
 };
 

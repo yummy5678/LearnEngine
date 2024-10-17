@@ -21,13 +21,14 @@ public:
 
 
 
-
-
 private:
 	Transform				m_Transform;	// トランスフォーム(オブジェクトの座標とかの情報)
 
+
 	std::vector<VMaterial>	m_Material;		// テクスチャ等のバッファが入っている
 	std::vector<VMesh>		m_Mesh;			// 頂点情報等のバッファが入っている
+
+
 
 
 };

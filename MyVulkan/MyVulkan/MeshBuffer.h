@@ -16,12 +16,11 @@ public:
 
 private:
 	VVertexBuffer	m_Vertex;
-	VIndexBuffer	m_Index;
-
-	
+	VIndexBuffer	m_Index;	
 
 	void SetVertex(VmaAllocator allocator, std::vector<Vertex>  vertex);
 	void SetIndex(VmaAllocator allocator, std::vector<uint32_t> index);
+
 
 };
 
