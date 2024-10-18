@@ -18,16 +18,24 @@ void VImageBuffer::SetImage(VmaAllocator allocator, Texture& texture)
 {
 	VStagingImageBuffer stagingBuffer;
 
+	// イメージバッファをステージングバッファを通して作成
 	CreateBuffer(allocator, texture.width, texture.height);
-
 	stagingBuffer.Initialize(allocator, texture.width, texture.height, texture.channel);
 	stagingBuffer.TransferDataToImageBuffer((void*)texture.data, m_Buffer);
+
+	// イメージビューの作成
+	CreateImageView(allocator->m_hDevice, m_Buffer, m_Format, m_AspectFlag);
 
 }
 
 vk::Image VImageBuffer::GetImageBuffer()
 {
 	return m_Buffer;
+}
+
+vk::ImageView VImageBuffer::GetImageView()
+{
+	return m_ImageView;
 }
 
 VkImageCreateInfo VImageBuffer::CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode)
@@ -64,4 +72,31 @@ void VImageBuffer::CreateBuffer(VmaAllocator allocator, uint32_t imageWidth, uin
 	}
 
 	m_Buffer = vk::Image(image);  // VkImageをvk::Imageにキャスト
+}
+
+void VImageBuffer::CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk::Format format, vk::ImageAspectFlags aspectFlag)
+{
+	vk::ImageViewCreateInfo imageViewInfo;
+	imageViewInfo.image = imageBuffer;
+	imageViewInfo.viewType = vk::ImageViewType::e2D;
+	imageViewInfo.format = format;
+	imageViewInfo.components.r = vk::ComponentSwizzle::eIdentity;
+	imageViewInfo.components.g = vk::ComponentSwizzle::eIdentity;
+	imageViewInfo.components.b = vk::ComponentSwizzle::eIdentity;
+	imageViewInfo.components.a = vk::ComponentSwizzle::eIdentity;
+	imageViewInfo.subresourceRange.aspectMask = aspectFlag;
+	imageViewInfo.subresourceRange.baseMipLevel = 0;
+	imageViewInfo.subresourceRange.levelCount = 1;
+	imageViewInfo.subresourceRange.baseArrayLayer = 0;
+	imageViewInfo.subresourceRange.layerCount = 1;
+
+	try
+	{
+		m_ImageView = logicalDevice.createImageView(imageViewInfo);
+	}
+	catch (const std::exception&)
+	{
+		throw std::runtime_error("イメージビューの作成に失敗しました!");
+	}
+
 }

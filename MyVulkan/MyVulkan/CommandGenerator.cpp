@@ -125,8 +125,9 @@ void CommandGenerator::DrawFrame(
 
             // ディスクリプタセットをバインドします。
             std::array<vk::DescriptorSet, 2> descriptorSetGroup = {
-                descriptorSets[currentImage],
-                samplerDescriptorSets[thisModel.getMesh(k)->getTexId()]
+                //descriptorSets[currentImage], //たぶんカメラ情報が入ってる(uboViewProjection)
+                //samplerDescriptorSets[thisModel.getMesh(k)->getTexId()]
+                model.GetMaterials()[0].GetDescriptorSet()
             };
 
             commandBuffer.bindDescriptorSets(

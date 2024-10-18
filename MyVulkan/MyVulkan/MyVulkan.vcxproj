@@ -131,7 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BufferGenerator.cpp" />
-    <ClCompile Include="DescriptorHandler.cpp" />
+    <ClCompile Include="DescriptorBase.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
     <ClCompile Include="ImageBuffer.cpp" />
     <ClCompile Include="ImagesGenerator.cpp" />
@@ -166,6 +166,7 @@
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="StagingImageBuffer.cpp" />
     <ClCompile Include="VMeshManager.cpp" />
+    <ClCompile Include="VTextureDescriptor.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
@@ -183,7 +184,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferGenerator.h" />
-    <ClInclude Include="DescriptorHandler.h" />
+    <ClInclude Include="DescriptorBase.h" />
     <ClInclude Include="FenceGenerator.h" />
     <ClInclude Include="glTFDefine.h" />
     <ClInclude Include="ImageBuffer.h" />
@@ -224,6 +225,7 @@
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="StagingImageBuffer.h" />
     <ClInclude Include="VMeshManager.h" />
+    <ClInclude Include="VTextureDescriptor.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="Renderer.h" />
