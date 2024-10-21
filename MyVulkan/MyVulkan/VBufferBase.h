@@ -12,7 +12,7 @@
 class VBufferBase
 {
 public:
-	VBufferBase(vk::BufferUsageFlags usage);
+	VBufferBase(vk::BufferUsageFlags bufferusage, VmaAllocationCreateFlags memoryFlag);
 	~VBufferBase();
 
 	void SetData(void* pData,vk::DeviceSize dataSize);
@@ -24,10 +24,12 @@ protected:
 	// 結びつける先のデバイス
 	VmaAllocator				m_Allocator;
 
-	// バッファのタイプ
-	vk::BufferUsageFlags	m_Usage;
+	// バッファの使用用途
+	vk::BufferUsageFlags		m_BufferUsage;
 	// キュー間の読み取り設定
-	vk::SharingMode			m_SharingMode = vk::SharingMode::eExclusive;
+	vk::SharingMode				m_SharingMode = vk::SharingMode::eExclusive;
+
+	VmaAllocationCreateFlags	m_MemoryFlag;
 
 	VkBuffer        m_Buffer;
 	VmaAllocation	m_Allocation;

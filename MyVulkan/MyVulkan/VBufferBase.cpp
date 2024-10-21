@@ -1,9 +1,10 @@
 #include "VBufferBase.h"
 
-VBufferBase::VBufferBase(vk::BufferUsageFlags usage)
+VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage, VmaAllocationCreateFlags memoryFlag)
 {
-	//m_DataUsageはステージングバッファからデータを設定するつもりなので転送先フラグを追加
-	m_Usage = usage | vk::BufferUsageFlagBits::eTransferDst;  
+	// m_DataUsageはステージングバッファからデータを設定するつもりなので転送先フラグを追加
+	m_BufferUsage = bufferusage | vk::BufferUsageFlagBits::eTransferDst;
+	m_MemoryUsage = memoryFlag;
 }
 
 VBufferBase::~VBufferBase()
@@ -33,12 +34,12 @@ void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize)
 {
 	m_Allocator = allocator;
 
-	auto dataBufferInfo = CreateBufferInfo(dataSize, m_Usage, m_SharingMode);
+	auto dataBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
 
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
 	VmaAllocationCreateInfo dataAllocateInfo;
-	dataAllocateInfo.usage = VMA_MEMORY_USAGE_AUTO;	// 自動で最適なメモリを選択(通常はGPUローカルメモリ)
+	dataAllocateInfo.flags = m_MemoryFlag;	// 自動で最適なメモリを選択(通常はGPUローカルメモリ)
 
 
 
@@ -54,50 +55,20 @@ void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize)
 
 // 物理デバイス用のバッファの作成
 // dataSize : 確保するデータのサイズ
-VkBufferCreateInfo VBufferBase::CreateBufferInfo(vk::DeviceSize dataSize, vk::BufferUsageFlags usage, vk::SharingMode mode)
+VkBufferCreateInfo VBufferBase::CreateBufferInfo(vk::DeviceSize dataSize, vk::BufferUsageFlags bufferUsage, vk::SharingMode mode)
 {
 	vk::BufferCreateInfo bufferCreateInfo;
 	bufferCreateInfo.pNext;
 	bufferCreateInfo.flags;
 	bufferCreateInfo.size					= dataSize;
-	bufferCreateInfo.usage					= usage;			// 頂点バッファとして使用
-	bufferCreateInfo.sharingMode			= mode;	// バッファの使用を1つのキューに限定
+	bufferCreateInfo.usage					= bufferUsage;		
+	bufferCreateInfo.sharingMode			= mode;		// バッファの使用を1つのキューに限定
 	bufferCreateInfo.queueFamilyIndexCount;
 	bufferCreateInfo.pQueueFamilyIndices;
 
 	// 論理デバイスを通してバッファを作成
 	return bufferCreateInfo;
 }
-
-//void VBufferBase::AllocateBufferMemory(VmaAllocator allocator, vk::Buffer buffer, vk::MemoryPropertyFlags propertyFlags)
-//{
-//
-//
-//	// イメージのメモリ要件を取得
-//	vk::MemoryRequirements memoryRequirements = logicalDevice.getBufferMemoryRequirements(buffer);
-//
-//	// 探しているメモリプロパティのフラグ
-//	vk::MemoryPropertyFlags properties = propertyFlags;
-//
-//	// メモリの割り当て情報を設定
-//	//vk::MemoryAllocateInfo allocateInfo;
-//	//allocateInfo.pNext;
-//	//allocateInfo.allocationSize = memoryRequirements.size;  // 画像のメモリサイズ
-//	//allocateInfo.memoryTypeIndex = FindMemoryType(logicalDevice, physicalDevice, buffer, properties);   // メモリタイプ
-//
-//	VmaAllocationCreateInfo allocateInfo;
-//	allocateInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU; // CPUからGPUへの転送用
-//
-//
-//	auto result = vmaCreateBuffer(allocator, &bufferInfo, &allocateInfo, &m_TransfarBuffer, &vertexBufferAllocation, nullptr);
-//
-//	// バッファとメモリの割り当て
-//	if (result != VK_SUCCESS) {
-//		throw std::runtime_error("バッファの作成に失敗しました!");
-//	}
-//
-//	return allocateInfo;
-//}
 
 uint32_t VBufferBase::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags findType)
 {

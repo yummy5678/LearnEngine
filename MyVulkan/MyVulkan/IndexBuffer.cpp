@@ -1,7 +1,8 @@
 #include "IndexBuffer.h"
 
 VIndexBuffer::VIndexBuffer() :
-	VBufferBase(vk::BufferUsageFlagBits::eIndexBuffer)
+	VBufferBase(vk::BufferUsageFlagBits::eIndexBuffer,
+		VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE; // デバイスローカルメモリを優先)
 {
 }
 

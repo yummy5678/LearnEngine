@@ -165,6 +165,7 @@
     <ClCompile Include="StagingBuffer.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="StagingImageBuffer.cpp" />
+    <ClCompile Include="ViewProjectionBuffer.cpp" />
     <ClCompile Include="VMeshManager.cpp" />
     <ClCompile Include="VTextureDescriptor.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
@@ -224,6 +225,8 @@
     <ClInclude Include="StagingBuffer.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="StagingImageBuffer.h" />
+    <ClInclude Include="ViewProjection.h" />
+    <ClInclude Include="ViewProjectionBuffer.h" />
     <ClInclude Include="VMeshManager.h" />
     <ClInclude Include="VTextureDescriptor.h" />
     <ClInclude Include="VulkanLayerManager.h" />
