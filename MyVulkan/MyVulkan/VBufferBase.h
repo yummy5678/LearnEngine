@@ -12,7 +12,7 @@
 class VBufferBase
 {
 public:
-	VBufferBase(vk::BufferUsageFlags bufferusage, VmaAllocationCreateFlags memoryFlag);
+	VBufferBase(vk::BufferUsageFlags bufferusage, VmaMemoryUsage memoryUsage);
 	~VBufferBase();
 
 	void SetData(void* pData,vk::DeviceSize dataSize);
@@ -29,7 +29,7 @@ protected:
 	// キュー間の読み取り設定
 	vk::SharingMode				m_SharingMode = vk::SharingMode::eExclusive;
 
-	VmaAllocationCreateFlags	m_MemoryFlag;
+	VmaMemoryUsage				m_MemoryUsage;
 
 	VkBuffer        m_Buffer;
 	VmaAllocation	m_Allocation;
@@ -42,7 +42,8 @@ protected:
 	// メモリ割り当て関数
 	uint32_t	FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags findType);
 
-
+	// データをバッファに書き込む
+	void MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize);
 
 };
 

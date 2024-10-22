@@ -3,7 +3,8 @@
 
 
 VVertexBuffer::VVertexBuffer():
-	VBufferBase(vk::BufferUsageFlagBits::eVertexBuffer)
+	VBufferBase(vk::BufferUsageFlagBits::eVertexBuffer,	// 頂点バッファに使う
+		VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)			// デバイスローカル優先でメモリを確保
 {
 
 }

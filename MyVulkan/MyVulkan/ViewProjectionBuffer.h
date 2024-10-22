@@ -11,14 +11,9 @@ public:
 	~VViewProjectionBuffer();
 
 	void SetData(VmaAllocator allocator, ViewProjection& projection);
-	void Update(ViewProjection& projection);
+	void Update(VmaAllocator allocator, ViewProjection& projection);
 
 private:
-
-
-
-
-
 
 };
 

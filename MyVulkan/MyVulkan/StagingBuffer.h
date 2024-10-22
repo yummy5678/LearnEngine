@@ -30,8 +30,6 @@ private:
 
     void SetCopyBufferCommand(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);
 
-    // データをステージングバッファにコピー
-    void MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize);
 };
 
 // ステージングバッファとは

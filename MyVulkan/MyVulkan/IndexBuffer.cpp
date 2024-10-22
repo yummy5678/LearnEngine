@@ -2,8 +2,8 @@
 
 VIndexBuffer::VIndexBuffer() :
 	VBufferBase(vk::BufferUsageFlagBits::eIndexBuffer,
-		VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE; // デバイスローカルメモリを優先)
-{
+		VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE) // デバイスローカルメモリを優先
+{ 
 }
 
 VIndexBuffer::~VIndexBuffer()

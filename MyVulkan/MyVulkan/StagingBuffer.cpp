@@ -1,7 +1,8 @@
 #include "StagingBuffer.h"
 
 VStagingBuffer::VStagingBuffer() :
-	VBufferBase(stagingUsage)
+	VBufferBase(stagingUsage,
+		VMA_MEMORY_USAGE_AUTO_PREFER_HOST)
 {
 }
 
@@ -24,7 +25,7 @@ void VStagingBuffer::Initialize(VmaAllocator allocator, vk::DeviceSize dataSize)
 	// グラフィックスキューの取得
 	m_Queue = m_LogicalDevice.getQueue(queueFamily.GetTransferIndex(), 0);
 
-	auto stagingBufferInfo = CreateBufferInfo(dataSize, m_Usage, m_SharingMode);
+	auto stagingBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
 
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
@@ -117,16 +118,4 @@ void VStagingBuffer::SetCopyBufferCommand(vk::CommandBuffer commandBuffer, vk::B
 	commandBuffer.end();
 }
 
-void VStagingBuffer::MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize)
-{
-	// 確保したバッファの領域のポインタを取得
-	void* mapData;
-	vmaMapMemory(allocator, m_Allocation, &mapData);
 
-	// 頂点データの情報を取得したバッファにコピー
-	memcpy(mapData, setData, dataSize);
-
-	// メモリのアクセス制限を解除
-	vmaUnmapMemory(allocator, m_Allocation);
-
-}

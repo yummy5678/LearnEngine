@@ -1,10 +1,10 @@
 #include "VBufferBase.h"
 
-VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage, VmaAllocationCreateFlags memoryFlag)
+VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage, VmaMemoryUsage memoryUsage)
 {
 	// m_DataUsageはステージングバッファからデータを設定するつもりなので転送先フラグを追加
 	m_BufferUsage = bufferusage | vk::BufferUsageFlagBits::eTransferDst;
-	m_MemoryUsage = memoryFlag;
+	m_MemoryUsage = memoryUsage;
 }
 
 VBufferBase::~VBufferBase()
@@ -39,7 +39,7 @@ void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize)
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
 	VmaAllocationCreateInfo dataAllocateInfo;
-	dataAllocateInfo.flags = m_MemoryFlag;	// 自動で最適なメモリを選択(通常はGPUローカルメモリ)
+	dataAllocateInfo.usage = m_MemoryUsage;	// 自動で最適なメモリを選択(通常はGPUローカルメモリ)
 
 
 
@@ -94,6 +94,19 @@ uint32_t VBufferBase::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevic
 
 	// エラーメッセージ
 	throw std::runtime_error("適切なメモリタイプを見つけられませんでした!");
+}
+
+void VBufferBase::MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize)
+{
+	// 確保したバッファの領域のポインタを取得
+	void* mapData;
+	vmaMapMemory(allocator, m_Allocation, &mapData);
+
+	// 頂点データの情報を取得したバッファにコピー
+	memcpy(mapData, setData, dataSize);
+
+	// メモリのアクセス制限を解除
+	vmaUnmapMemory(allocator, m_Allocation);
 }
 
 
