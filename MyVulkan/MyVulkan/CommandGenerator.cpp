@@ -91,7 +91,7 @@ void CommandGenerator::DrawFrame(
     }
 
     // レンダーパスの開始情報を設定します。
-    vk::RenderPassBeginInfo renderpassBeginInfo{};
+    vk::RenderPassBeginInfo renderpassBeginInfo;
     renderpassBeginInfo
         .setRenderPass(renderpass)              // 使用するレンダーパス
         .setFramebuffer(framebuffer)            // 使用するフレームバッファ

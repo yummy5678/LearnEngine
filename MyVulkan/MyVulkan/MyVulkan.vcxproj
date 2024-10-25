@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BufferGenerator.cpp" />
+    <ClCompile Include="SceneCamera.cpp" />
     <ClCompile Include="DescriptorBase.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
     <ClCompile Include="ImageBuffer.cpp" />
@@ -185,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferGenerator.h" />
+    <ClInclude Include="SceneCamera.h" />
     <ClInclude Include="DescriptorBase.h" />
     <ClInclude Include="FenceGenerator.h" />
     <ClInclude Include="glTFDefine.h" />

@@ -95,7 +95,7 @@ namespace glTF_Data
         float strength;                 // テクスチャの強度
     };
 
-    struct Camera {
+    struct SceneCamera {
         std::string name;               // カメラの名前
         std::string type;               // カメラのタイプ(orthographicまたはperspective)
         OrthoGraphic orthographic;      // 平行投影に関する情報
