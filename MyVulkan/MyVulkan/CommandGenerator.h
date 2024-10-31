@@ -6,6 +6,8 @@
 #include "FenceGenerator.h"
 #include "SceneObject.h"
 #include "VertexBuffer.h"
+#include "SceneCamera.h"
+
 
 class CommandGenerator : public CGeneratorBase
 {
@@ -34,7 +36,8 @@ public:
 		vk::Rect2D					renderArea,
 		vk::Pipeline				graphicsPipeline,
 		vk::PipelineLayout			pipelineLayout,
-		std::vector<SceneObject>	drawMeshes);
+		std::vector<SceneObject>	drawMeshes,
+		SceneCamera                 sceneCamera);
 
 	// スワップチェーンに従って画像を表示
 	void PresentFrame(vk::SwapchainKHR swapchain);

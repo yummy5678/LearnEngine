@@ -1,6 +1,7 @@
 #include "CommandGenerator.h"
 
 
+
 CommandGenerator::CommandGenerator():
     m_LogicalDevice(),
     m_PhysicalDevice(),
@@ -74,7 +75,8 @@ void CommandGenerator::DrawFrame(
     vk::Rect2D                  renderArea, 
     vk::Pipeline                graphicsPipeline, 
     vk::PipelineLayout          pipelineLayout,
-    std::vector<SceneObject>    drawMeshes)
+    std::vector<SceneObject>    drawMeshes,
+    SceneCamera                 sceneCamera)
 {
     // フレームの初期化する色を設定します。
     std::array<vk::ClearValue, 3> clearValues = {};
@@ -124,9 +126,12 @@ void CommandGenerator::DrawFrame(
             commandBuffer.bindVertexBuffers(0, mesh.GetVertex().GetBuffer(), { 0 });
 
             // ディスクリプタセットをバインドします。
-            std::array<vk::DescriptorSet, 2> descriptorSetGroup = {
+            std::array<vk::DescriptorSet, 2> descriptorSetGroup = 
+            {
+
                 //descriptorSets[currentImage], //たぶんカメラ情報が入ってる(uboViewProjection)
                 //samplerDescriptorSets[thisModel.getMesh(k)->getTexId()]
+                sceneCamera.GetDescriptorSet(),
                 model.GetMaterials()[0].GetDescriptorSet()
             };
 

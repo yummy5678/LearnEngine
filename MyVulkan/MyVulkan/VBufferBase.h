@@ -16,7 +16,8 @@ public:
 	~VBufferBase();
 
 	void SetData(void* pData,vk::DeviceSize dataSize);
-	vk::Buffer GetBuffer();
+	vk::Buffer		GetBuffer();
+	vk::DeviceSize	GetDataSize();
 	
 	void Cleanup();
 
@@ -31,8 +32,10 @@ protected:
 
 	VmaMemoryUsage				m_MemoryUsage;
 
-	VkBuffer        m_Buffer;
-	VmaAllocation	m_Allocation;
+	VkBuffer					m_Buffer;
+	VmaAllocation				m_Allocation;
+
+	vk::DeviceSize				m_DataSize;
 
 	void CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize);
 

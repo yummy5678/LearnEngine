@@ -5,11 +5,11 @@
 class SceneCamera
 {
 public:
-	SceneCamera() = default;
+	SceneCamera();
 	~SceneCamera();
 
-	void UpdateVBuffer(VmaAllocator allocator, ViewProjection viewProjection);
 
+	void UpdateVBuffer(VmaAllocator allocator, ViewProjection viewProjection);
 	vk::DescriptorSet GetDescriptorSet();
 
 
@@ -17,9 +17,14 @@ public:
 private:
 	VViewProjectionBuffer	m_ProjectionBuffer;
 	vk::DescriptorSet		m_DescriptorSet;
+	vk::DescriptorPool		m_DescriptorPool;
+
+	// 単一のディスクリプタを作成
+	void CreateSingleDescriptorSet(vk::Device logicalDevice, vk::DescriptorPool descriptorPool);
+	void CreateSingleDescriptorPool(vk::DescriptorPool& setPool, vk::Device logicalDevice);
+	void UpdateDescriptorSet(vk::Device logicalDevice, vk::DescriptorSet descriptorSet, vk::Buffer buffer, vk::DeviceSize bufferSize);
 
 
-	void CreateDescriptorSet();
 
 };
 

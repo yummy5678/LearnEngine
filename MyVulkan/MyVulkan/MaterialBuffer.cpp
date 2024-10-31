@@ -23,7 +23,7 @@ vk::DescriptorSet VMaterial::GetDescriptorSet()
 {
 	auto imageView = m_Texture.GetImageView();
 
-	return m_SamplerDescriptor.CreateDescriptorSet(imageView, m_Sampler);
+	return m_SamplerDescriptor.CreateSingleDescriptorSet(imageView, m_Sampler);
 }
 
 void VMaterial::SetTexture(VmaAllocator allocator, Texture& texture)

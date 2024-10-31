@@ -9,7 +9,7 @@ VTextureDescriptor::~VTextureDescriptor()
 {
 }
 
-vk::DescriptorSet VTextureDescriptor::CreateDescriptorSet(vk::ImageView imageView, vk::Sampler sampler)
+vk::DescriptorSet VTextureDescriptor::CreateSingleDescriptorSet(vk::ImageView imageView, vk::Sampler sampler)
 {
     // ディスクリプタセットの割り当て
     vk::DescriptorSetAllocateInfo allocInfo{};
@@ -59,7 +59,7 @@ void VTextureDescriptor::CreateDescriptorSetLayout()
     m_DescriptorSetLayout = m_LogicalDevice.createDescriptorSetLayout(layoutInfo);
 }
 
-void VTextureDescriptor::CreateDescriptorPool()
+void VTextureDescriptor::CreateSingleDescriptorPool()
 {
     // ディスクリプタプールの作成
     vk::DescriptorPoolSize poolSize;

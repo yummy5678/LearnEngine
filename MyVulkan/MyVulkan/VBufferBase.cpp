@@ -23,6 +23,11 @@ vk::Buffer VBufferBase::GetBuffer()
 	return vk::Buffer(m_Buffer);
 }
 
+vk::DeviceSize VBufferBase::GetDataSize()
+{
+	return m_DataSize;
+}
+
 void VBufferBase::Cleanup()
 {
 	if (!m_Allocator) return;
@@ -33,6 +38,7 @@ void VBufferBase::Cleanup()
 void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize)
 {
 	m_Allocator = allocator;
+	m_DataSize = dataSize;
 
 	auto dataBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
 
@@ -40,7 +46,6 @@ void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize)
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
 	VmaAllocationCreateInfo dataAllocateInfo;
 	dataAllocateInfo.usage = m_MemoryUsage;	// 自動で最適なメモリを選択(通常はGPUローカルメモリ)
-
 
 
 	// GPU内で使う頂点バッファの作成
