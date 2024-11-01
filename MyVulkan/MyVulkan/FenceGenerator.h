@@ -10,7 +10,7 @@ public:
     FenceGenerator();
     ~FenceGenerator();
 
-    void LoadShader(vk::Device logicalDevice, uint32_t fenceCount);
+    void Create(vk::Device logicalDevice, uint32_t fenceCount);
     void Destroy();
 
     std::vector<vk::Fence> GetFence();

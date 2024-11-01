@@ -10,7 +10,7 @@ ViewportGenerator::~ViewportGenerator()
 {
 }
 
-void ViewportGenerator::LoadShader(vk::Extent2D extent)
+void ViewportGenerator::Create(vk::Extent2D extent)
 {
 	m_bCreated = true;
 	m_ViewportStateCreateInfo = CreateInfo(extent);

@@ -11,7 +11,7 @@ PipelineShaderCreator::~PipelineShaderCreator()
 	DestroyModule();
 }
 
-void PipelineShaderCreator::LoadShader(vk::Device logicalDevice, std::string vertexShaderPath, std::string flagmentShaderPath)
+void PipelineShaderCreator::Create(vk::Device logicalDevice, std::string vertexShaderPath, std::string flagmentShaderPath)
 {
 	// SPIR-V シェーダーコードの読込
 	auto vertexShaderCode = readFile("Shaders/vert.spv");

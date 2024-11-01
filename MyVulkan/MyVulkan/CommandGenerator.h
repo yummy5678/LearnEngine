@@ -9,14 +9,14 @@
 #include "SceneCamera.h"
 
 
-class CommandGenerator : public CGeneratorBase
+class SwapChainCommandGenerator : public CGeneratorBase
 {
 public:
-	CommandGenerator();
-	~CommandGenerator();
+	SwapChainCommandGenerator();
+	~SwapChainCommandGenerator();
 
 	// 作成関数
-	void LoadShader(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t commandSize);
+	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t commandSize);
 
 	// 破棄関数
 	void Destroy();
@@ -30,14 +30,14 @@ public:
 
 	// GPU内で画像を描画
 	void DrawFrame(
-		vk::CommandBuffer			buffer,
+		vk::CommandBuffer			commandBuffer,
 		vk::RenderPass				renderpass,
 		vk::Framebuffer				framebuffer,
-		vk::Rect2D					renderArea,
 		vk::Pipeline				graphicsPipeline,
 		vk::PipelineLayout			pipelineLayout,
 		std::vector<SceneObject>	drawMeshes,
-		SceneCamera                 sceneCamera);
+		SceneCamera                 sceneCamera,
+		vk::Rect2D					renderArea);
 
 	// スワップチェーンに従って画像を表示
 	void PresentFrame(vk::SwapchainKHR swapchain);

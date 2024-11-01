@@ -3,8 +3,10 @@
 #include <stb/stb_image.h>
 #include <glm/ext/matrix_transform.hpp>
 #include "SceneObject.h"
+#include "SceneCamera.h"
 #include "MeshManager.h"
 #include "RenderPipeline.h"
+
 
 
 // メッシュモデルやモデルの座標などを
@@ -21,15 +23,16 @@ public:
 
 	void Initialize();
 	void Update();
-	void Render(RenderConfig &pipeline);
 	// void Render(RenderPipeline &pipeline, Camera camera);
 
-	std::vector<SceneObject> GetObject();
+	std::vector<SceneObject>	GetObjects();
+	//std::vector<SceneCamera>	GetCameras();
+	SceneCamera					GetMainCamera();
 
 
 private:
-	SceneObject m_Object; //表示するモデルリスト(座標とか拡大率はまだ持ってない)
-	//std::vector<Texture>	m_Texture;
+	SceneObject m_Object;		//表示するモデルリスト
+	SceneCamera m_MainCamera;	// スワップチェインで高速に描画する用のカメラ設定
 
 	float angle = 0.0f;
 	float deltaTime = 0.0f;

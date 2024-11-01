@@ -5,6 +5,8 @@ void Scene::Initialize()
 	MeshManager& meshManager = MeshManager::getInstance();
 	meshManager.Load("");
 	m_Object.SetMesh(meshManager.GetMesh(""));
+	
+
 }
 
 void Scene::Update()
@@ -20,17 +22,17 @@ void Scene::Update()
 	testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	m_Object.SetTransform(testMat);
 
-
+	m_MainCamera.UpdateVBuffer();
 
 }
 
-void Scene::Render(RenderConfig& pipeline)
-{
-	// pipeline.updateModel(m_Object.mesh, m_Object.transform);
-}
-
-std::vector<SceneObject> Scene::GetObject()
+std::vector<SceneObject> Scene::GetObjects()
 {
 	return { m_Object };
+}
+
+SceneCamera Scene::GetMainCamera()
+{
+	return m_Camera;
 }
 

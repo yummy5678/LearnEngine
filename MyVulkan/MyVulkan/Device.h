@@ -15,7 +15,7 @@ public:
 	DeviceGenerator();
 	~DeviceGenerator();
 
-	void LoadShader(DeviceExtensionManager extensionManager,vk::Instance instance, vk::SurfaceKHR surface);
+	void Create(DeviceExtensionManager extensionManager,vk::Instance instance, vk::SurfaceKHR surface);
 	void Destroy();
 
 	vk::PhysicalDevice	GetPhysicalDevice();

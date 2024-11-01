@@ -9,7 +9,7 @@ public:
     SemaphoreGenerator();
     ~SemaphoreGenerator();
 
-    void LoadShader(vk::Device logicalDevice, uint32_t semaphoreCount);
+    void Create(vk::Device logicalDevice, uint32_t semaphoreCount);
     void Destroy();
 
     std::vector<vk::Semaphore> GetSignalSemaphores();

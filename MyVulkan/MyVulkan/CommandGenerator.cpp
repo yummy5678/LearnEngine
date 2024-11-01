@@ -2,7 +2,7 @@
 
 
 
-CommandGenerator::CommandGenerator():
+SwapChainCommandGenerator::SwapChainCommandGenerator():
     m_LogicalDevice(),
     m_PhysicalDevice(),
     m_CommandPool(),
@@ -11,12 +11,12 @@ CommandGenerator::CommandGenerator():
     m_ClassName = "CommandGenerator";
 }
 
-CommandGenerator::~CommandGenerator()
+SwapChainCommandGenerator::~SwapChainCommandGenerator()
 {
 
 }
 
-void CommandGenerator::LoadShader(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t commandSize)
+void SwapChainCommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t commandSize)
 {
     m_bCreated = true;
 
@@ -24,12 +24,12 @@ void CommandGenerator::LoadShader(vk::Device logicalDevice, vk::PhysicalDevice p
     m_PhysicalDevice = physicalDevice;
 
     // セマフォの作成
-    m_SemaphoreGenerator.LoadShader(logicalDevice, commandSize);
+    m_SemaphoreGenerator.Create(logicalDevice, commandSize);
     m_SignalSemaphores = m_SemaphoreGenerator.GetSignalSemaphores();
     m_WaitSemaphores = m_SemaphoreGenerator.GetWaitSemaphores();
 
     //フェンスの作成
-    m_FenceGenerator.LoadShader(logicalDevice, commandSize);
+    m_FenceGenerator.Create(logicalDevice, commandSize);
     m_Fences = m_FenceGenerator.GetFence();
 
     //コマンドプール(コマンドを置く領域)を作成
@@ -43,7 +43,7 @@ void CommandGenerator::LoadShader(vk::Device logicalDevice, vk::PhysicalDevice p
 
 }
 
-void CommandGenerator::Destroy()
+void SwapChainCommandGenerator::Destroy()
 {
     //コマンドプールの解放
     m_LogicalDevice.freeCommandBuffers(
@@ -56,27 +56,27 @@ void CommandGenerator::Destroy()
 }
 
 
-vk::CommandPool CommandGenerator::GetCammandPool()
+vk::CommandPool SwapChainCommandGenerator::GetCammandPool()
 {
     CheckCreated();
     return m_CommandPool;
 }
 
-std::vector<vk::CommandBuffer> CommandGenerator::GetCommandBuffers()
+std::vector<vk::CommandBuffer> SwapChainCommandGenerator::GetCommandBuffers()
 {
     CheckCreated();
     return m_CommandBuffers;
 }
 
-void CommandGenerator::DrawFrame(
-    vk::CommandBuffer           commandBuffer, 
-    vk::RenderPass              renderpass, 
-    vk::Framebuffer             framebuffer, 
-    vk::Rect2D                  renderArea, 
-    vk::Pipeline                graphicsPipeline, 
-    vk::PipelineLayout          pipelineLayout,
-    std::vector<SceneObject>    drawMeshes,
-    SceneCamera                 sceneCamera)
+void SwapChainCommandGenerator::DrawFrame(
+    vk::CommandBuffer			commandBuffer,
+    vk::RenderPass				renderpass,
+    vk::Framebuffer				framebuffer,
+    vk::Pipeline				graphicsPipeline,
+    vk::PipelineLayout			pipelineLayout,
+    std::vector<SceneObject>	drawMeshes,
+    SceneCamera                 sceneCamera,
+    vk::Rect2D					renderArea)
 {
     // フレームの初期化する色を設定します。
     std::array<vk::ClearValue, 3> clearValues = {};
@@ -163,7 +163,7 @@ void CommandGenerator::DrawFrame(
     }
 }
 
-void CommandGenerator::PresentFrame(vk::SwapchainKHR swapchain)
+void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain)
 {
     vk::PresentInfoKHR presentInfo;
 
@@ -188,7 +188,7 @@ void CommandGenerator::PresentFrame(vk::SwapchainKHR swapchain)
     // graphicsQueue.waitIdle();
 }
 
-vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
+vk::CommandPool SwapChainCommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
 { 
     // Get indices of queue families from device
     QueueFamilySelector queue(physicalDevice);
@@ -213,7 +213,7 @@ vk::CommandPool CommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk
     return pool;
 }
 
-std::vector<vk::CommandBuffer> CommandGenerator::CreateCommandBuffers(vk::Device logicalDevice, uint32_t commandSize, vk::CommandPool commandPool)
+std::vector<vk::CommandBuffer> SwapChainCommandGenerator::CreateCommandBuffers(vk::Device logicalDevice, uint32_t commandSize, vk::CommandPool commandPool)
 {
 
     // コマンドバッファをアロケート(割り当てる)ための情報を設定する
@@ -234,7 +234,7 @@ std::vector<vk::CommandBuffer> CommandGenerator::CreateCommandBuffers(vk::Device
     return commandBuffers;
 }
 
-vk::SubmitInfo CommandGenerator::CreateSubmitInfo(std::vector<vk::CommandBuffer>& commandBuffers, std::vector<vk::Semaphore>& signalSemaphores, std::vector<vk::Semaphore>& waitSemaphores)
+vk::SubmitInfo SwapChainCommandGenerator::CreateSubmitInfo(std::vector<vk::CommandBuffer>& commandBuffers, std::vector<vk::Semaphore>& signalSemaphores, std::vector<vk::Semaphore>& waitSemaphores)
 {
     vk::SubmitInfo submitInfo;
     //submitInfo.pNext;
@@ -250,7 +250,7 @@ vk::SubmitInfo CommandGenerator::CreateSubmitInfo(std::vector<vk::CommandBuffer>
     return submitInfo;
 }
 
-vk::SubmitInfo CommandGenerator::CreateSubmitInfo(vk::CommandBuffer& commandBuffer)
+vk::SubmitInfo SwapChainCommandGenerator::CreateSubmitInfo(vk::CommandBuffer& commandBuffer)
 {
     vk::SubmitInfo submitInfo;
     //submitInfo.pNext;
@@ -266,7 +266,7 @@ vk::SubmitInfo CommandGenerator::CreateSubmitInfo(vk::CommandBuffer& commandBuff
     return submitInfo;
 }
 
-uint32_t CommandGenerator::AcquireSwapchainNextImage(vk::SwapchainKHR swapchain)
+uint32_t SwapChainCommandGenerator::AcquireSwapchainNextImage(vk::SwapchainKHR swapchain)
 {
     // スワップチェーンから次に描画するイメージ（フレームバッファのようなもの）のインデックスを取得します。
     uint32_t imageIndex;

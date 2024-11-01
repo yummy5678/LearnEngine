@@ -11,7 +11,7 @@ FramebufferGenerator::~FramebufferGenerator()
 
 }
 
-void FramebufferGenerator::LoadShader(vk::Device logicalDevice, std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
+void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
 {
     m_bCreated = true;
 
@@ -29,7 +29,7 @@ void FramebufferGenerator::LoadShader(vk::Device logicalDevice, std::vector<vk::
     }
 }
 
-void FramebufferGenerator::LoadShader(vk::Device logicalDevice, std::vector<std::vector<vk::ImageView>> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
+void FramebufferGenerator::Create(vk::Device logicalDevice, std::vector<std::vector<vk::ImageView>> imageViews, vk::RenderPass renderPass, vk::Extent2D extent)
 {
     m_bCreated = true;
 

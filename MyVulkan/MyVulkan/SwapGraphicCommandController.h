@@ -14,7 +14,7 @@ public:
 
 	void Initialize(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface, RenderConfig* pRenderConfig);
 	void Destroy();
-	void DrawFrame();
+	void DrawFrame(Scene scene, vk::Rect2D renderArea);
 	void PresentFrame();
 
 
@@ -30,7 +30,7 @@ private:
 	RenderpassGenerator			m_RenderpassGenerator;
 	PipelineGenerator			m_PipelineGenerator;
 	FramebufferGenerator		m_FramebufferGenerator;
-	CommandGenerator			m_CommandGenerator;
+	SwapChainCommandGenerator			m_CommandGenerator;
 	//SynchronizationGenerator	m_SynchroGenerator;
 
 

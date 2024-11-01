@@ -57,7 +57,7 @@ public:
 	void SetScene(Scene* pScene);
 	//void updateModel(int modelId, glm::mat4 newModel);
 
-	void draw();
+	void Draw(Scene scene);
 	void cleanup();
 
 private:
@@ -79,7 +79,7 @@ private:
 	RenderpassGenerator				m_RenderpassGenerator;
 	PipelineGenerator				m_PipelineGenerator;
 	FramebufferGenerator			m_FramebufferGenerator;
-	CommandGenerator				m_CommandGenerator;
+	SwapChainCommandGenerator				m_CommandGenerator;
 	SwapGraphicCommandController	m_GraphicController;
 
 	vk::PhysicalDevice	m_PhysicalDevice;

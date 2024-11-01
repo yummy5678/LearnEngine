@@ -29,7 +29,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 	
 	try {
 		//インスタンスの作成
-		m_InstanceGenerator.LoadShader(m_InstanceExtension);
+		m_InstanceGenerator.Create(m_InstanceExtension);
 		auto instance = m_InstanceGenerator.GetInstanse();
 
 		createDebugCallback();
@@ -40,7 +40,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 
 
 		//物理・論理デバイスの作成
-		m_DeviceGenerator.LoadShader(m_DeviceExtension, instance, surface);
+		m_DeviceGenerator.Create(m_DeviceExtension, instance, surface);
 		//物理デバイスを取得
 		auto physicalDevice			= m_DeviceGenerator.GetPhysicalDevice();
 		auto surfaceCapabilities	= m_SurfaceGenerator.GetCapabilities(physicalDevice);
@@ -126,9 +126,9 @@ void VulkanRenderer::SetScene(Scene* pScene)
 	m_pScene = pScene;
 }
 
-void VulkanRenderer::draw()
+void VulkanRenderer::Draw(Scene scene)
 {
-	m_GraphicController.DrawFrame();	// 画面の内容を描画
+	m_GraphicController.DrawFrame(scene);	// 画面の内容を描画
 	m_GraphicController.PresentFrame();	// 描画した画像をサーフェスに表示
 }
 

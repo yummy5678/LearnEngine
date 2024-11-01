@@ -10,7 +10,7 @@ RenderpassGenerator::~RenderpassGenerator()
 
 }
 
-void RenderpassGenerator::LoadShader(vk::Device logicalDevice, vk::Format imageFomat)
+void RenderpassGenerator::Create(vk::Device logicalDevice, vk::Format imageFomat)
 {
     m_bCreated = true;
     m_LogicalDevice = logicalDevice;

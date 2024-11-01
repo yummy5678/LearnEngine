@@ -9,7 +9,7 @@ ImagesGenerator::~ImagesGenerator()
 {
 }
 
-void ImagesGenerator::LoadShader(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t imageCount, vk::Format fomat, vk::Extent2D extent, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags propertyFlags)
+void ImagesGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t imageCount, vk::Format fomat, vk::Extent2D extent, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags propertyFlags)
 {
     m_bCreated = true;
     m_LogicalDevice = logicalDevice;

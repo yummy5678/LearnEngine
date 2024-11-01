@@ -9,7 +9,7 @@ public:
 	RenderpassGenerator();
 	~RenderpassGenerator();
 
-	void LoadShader(vk::Device logicalDevice, vk::Format imageFomat);
+	void Create(vk::Device logicalDevice, vk::Format imageFomat);
 	void Destroy();
 
 	vk::RenderPass							GetRenderpass();

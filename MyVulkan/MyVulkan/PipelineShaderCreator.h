@@ -16,7 +16,7 @@ public:
 
 
 	// 作成関数(テッセーションシェーダーは未対応)
-	void LoadShader(vk::Device logicalDevice, std::string vertexShaderPath, std::string flagmentShaderPath);
+	void Create(vk::Device logicalDevice, std::string vertexShaderPath, std::string flagmentShaderPath);
 
 	
 	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();

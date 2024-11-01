@@ -10,8 +10,8 @@ public:
 	FramebufferGenerator();
 	~FramebufferGenerator();
 
-	void LoadShader(vk::Device logicalDevice, std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent);
-	void LoadShader(vk::Device logicalDevice, std::vector<std::vector<vk::ImageView>> imageViews, vk::RenderPass renderPass, vk::Extent2D extent);
+	void Create(vk::Device logicalDevice, std::vector<vk::ImageView> imageViews, vk::RenderPass renderPass, vk::Extent2D extent);
+	void Create(vk::Device logicalDevice, std::vector<std::vector<vk::ImageView>> imageViews, vk::RenderPass renderPass, vk::Extent2D extent);
 
 
 
