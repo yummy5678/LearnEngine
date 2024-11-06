@@ -1,16 +1,16 @@
 #include "GraphicsPipelineCreator.h"
 
 
-PipelineGenerator::PipelineGenerator()
+RenderingPipelineCreator::RenderingPipelineCreator()
 {
 	m_ClassName = "PipelineGenerator";
 }
 
-PipelineGenerator::~PipelineGenerator()
+RenderingPipelineCreator::~RenderingPipelineCreator()
 {
 }
 
-void PipelineGenerator::SetData(
+void RenderingPipelineCreator::Create(
 	vk::Device logicalDevice,											// パイプラインを作成する論理デバイス
 	vk::RenderPass renderPass,											// レンダーパス
 	vk::Extent2D extent,												// 描画する画像サイズ兼範囲
@@ -29,7 +29,7 @@ void PipelineGenerator::SetData(
 	m_Pipeline = CreateGraphicsPipeline(logicalDevice, renderPass, extent, shaderStageInfos);
 }
 
-void PipelineGenerator::Destroy(vk::Device logicalDevice)
+void RenderingPipelineCreator::Destroy(vk::Device logicalDevice)
 {
 	logicalDevice.destroyPipelineLayout(m_PipelineLayout);
 	logicalDevice.destroyPipeline(m_Pipeline);
@@ -39,20 +39,20 @@ void PipelineGenerator::Destroy(vk::Device logicalDevice)
 	//vkDestroyShaderModule(logicalDevice, vertexShaderModule, nullptr);
 }
 
-vk::Pipeline PipelineGenerator::GetPipeline()
+vk::Pipeline RenderingPipelineCreator::GetPipeline()
 {
 	CheckCreated();
 	return m_Pipeline;
 }
 
-vk::PipelineLayout PipelineGenerator::GetPipelineLayout()
+vk::PipelineLayout RenderingPipelineCreator::GetPipelineLayout()
 {
 	CheckCreated();
 	return m_PipelineLayout;
 }
 
 
-vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::RenderPass renderPass, vk::Extent2D extent, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfo)
+vk::Pipeline RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::RenderPass renderPass, vk::Extent2D extent, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfo)
 {
 	if(!m_PipelineLayout)	throw std::runtime_error("グラフィクスパイプラインの作成前にパイプラインレイアウトを作成してください!");
 	if(!renderPass)			throw std::runtime_error("グラフィクスパイプラインの作成時に無効なレンダーパスが設定されています!");
@@ -72,6 +72,11 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 	// -- DEPTH STENCIL TESTING --
 	m_DepthStencilInfo = CreateDepthStencilStateInfo(true, false);
 
+	// 4. Dynamic Rendering用のPipelineRenderingCreateInfoの設定
+	vk::PipelineRenderingCreateInfo pipelineRenderingInfo;
+	pipelineRenderingInfo.colorAttachmentCount = 1;
+	pipelineRenderingInfo.pColorAttachmentFormats = &colorFormat;  // カラーアタッチメントのフォーマット
+	pipelineRenderingInfo.depthAttachmentFormat = depthFormat;     // 深度アタッチメントのフォーマット
 
 
 	m_PipelineInfo.setStages(shaderStageInfo);							// シェーダーステージ
@@ -84,8 +89,7 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 	m_PipelineInfo.setPColorBlendState(&m_ColorBlendInfo);
 	m_PipelineInfo.setPDepthStencilState(&m_DepthStencilInfo);
 	m_PipelineInfo.layout = m_PipelineLayout;							// パイプラインと互換性があるレンダーパス
-	m_PipelineInfo.renderPass = renderPass;
-	m_PipelineInfo.subpass = 0;										// パイプラインで使用するレンダー パスのサブパス
+	m_PipelineInfo.pNext = &pipelineRenderingInfo;										// パイプラインで使用するレンダー パスのサブパス
 
 	// Pipeline Derivatives : Can create multiple pipelines that derive from one another for optimisation
 	m_PipelineInfo.basePipelineHandle = VK_NULL_HANDLE;	// 派生元の既存のパイプライン
@@ -106,7 +110,7 @@ vk::Pipeline PipelineGenerator::CreateGraphicsPipeline(vk::Device logicalDevice,
 
 
 
-vk::PipelineLayout PipelineGenerator::CreatePipelineLayout(vk::Device logicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
+vk::PipelineLayout RenderingPipelineCreator::CreatePipelineLayout(vk::Device logicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
 {
 	vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 	pipelineLayoutCreateInfo.setLayoutCount = descriptorSetLayouts.size();
@@ -118,33 +122,29 @@ vk::PipelineLayout PipelineGenerator::CreatePipelineLayout(vk::Device logicalDev
 	catch (const std::runtime_error& e) { throw std::runtime_error("パイプラインレイアウトの作成に失敗しました！"); }
 }
 
-inline vk::PipelineViewportStateCreateInfo PipelineGenerator::CreateViewportStateInfo(vk::Extent2D extent)
+inline vk::PipelineViewportStateCreateInfo RenderingPipelineCreator::CreateViewportStateInfo(vk::Extent2D viewSize ,vk::Rect2D* scissor)
 {
 	// ビューポートの情報を構築する
 	vk::Viewport viewport;
 	viewport.setX(0.0f);									// x座標の開始位置
 	viewport.setY(0.0f);									// y座標の開始位置
-	viewport.setWidth(static_cast<float>(extent.width));	// ビューポートの幅
-	viewport.setHeight(static_cast<float>(extent.height));	// ビューポートの高さ
+	viewport.setWidth(viewSize.width);						// ビューポートの幅
+	viewport.setHeight(viewSize.height);						// ビューポートの高さ
 	viewport.setMinDepth(0.0f);								// フレームバッファの最小深度
 	viewport.setMaxDepth(1.0f);								// フレームバッファの最大深度
 
-	// シザー(ビューポートの画面を切り抜く領域)の情報を構築する
-	vk::Rect2D scissor;
-	scissor.setOffset({ 0, 0 });							// 使用する領域のオフセット
-	scissor.setExtent(extent);								// 使用する領域のサイズ
 
 	// ビューポートとシザーの状態を設定するための構造体を作成
 	vk::PipelineViewportStateCreateInfo viewportStateCreateInfo;
 	viewportStateCreateInfo.setViewportCount(1);		// ビューポートの数
 	viewportStateCreateInfo.setPViewports(&viewport);	// ビューポートのポインタ
 	viewportStateCreateInfo.setScissorCount(1);			// シザーの数
-	viewportStateCreateInfo.setPScissors(&scissor);		// シザーのポインタ
+	viewportStateCreateInfo.setPScissors(scissor);		// シザーのポインタ
 
 	return viewportStateCreateInfo;
 }
 
-inline vk::PipelineRasterizationStateCreateInfo PipelineGenerator::CreateRasterizerStateInfo()
+inline vk::PipelineRasterizationStateCreateInfo RenderingPipelineCreator::CreateRasterizerStateInfo()
 {
 	// ラスタライゼーションステートの設定
 	vk::PipelineRasterizationStateCreateInfo rasterizationInfo = {};
@@ -161,7 +161,7 @@ inline vk::PipelineRasterizationStateCreateInfo PipelineGenerator::CreateRasteri
 	return rasterizationInfo;
 }
 
-inline vk::PipelineMultisampleStateCreateInfo PipelineGenerator::CreateMultisampleStateInfo(vk::SampleCountFlagBits sampleValue)
+inline vk::PipelineMultisampleStateCreateInfo RenderingPipelineCreator::CreateMultisampleStateInfo(vk::SampleCountFlagBits sampleValue)
 {
 	// マルチサンプリングの設定
 	vk::PipelineMultisampleStateCreateInfo multisamplingCreateInfo;
@@ -175,7 +175,7 @@ inline vk::PipelineMultisampleStateCreateInfo PipelineGenerator::CreateMultisamp
 	return multisamplingCreateInfo;
 }
 
-inline vk::PipelineColorBlendStateCreateInfo PipelineGenerator::CreateColorBlendingStateInfo()
+inline vk::PipelineColorBlendStateCreateInfo RenderingPipelineCreator::CreateColorBlendingStateInfo()
 {
 	// カラーブレンディングの設定
 
@@ -219,7 +219,7 @@ inline vk::PipelineColorBlendStateCreateInfo PipelineGenerator::CreateColorBlend
 
 }
 
-inline vk::PipelineDepthStencilStateCreateInfo PipelineGenerator::CreateDepthStencilStateInfo(bool depth, bool stencil)
+inline vk::PipelineDepthStencilStateCreateInfo RenderingPipelineCreator::CreateDepthStencilStateInfo(bool depth, bool stencil)
 {
 	// 深度およびステンシルステートの設定
 

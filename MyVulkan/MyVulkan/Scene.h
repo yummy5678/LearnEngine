@@ -32,7 +32,7 @@ public:
 
 private:
 	SceneObject m_Object;		//表示するモデルリスト
-	SceneCamera m_MainCamera;	// スワップチェインで高速に描画する用のカメラ設定
+	SceneCamera m_Camera;	// スワップチェインで高速に描画する用のカメラ設定
 
 	float angle = 0.0f;
 	float deltaTime = 0.0f;

@@ -8,34 +8,21 @@ DeviceExtensionManager::~DeviceExtensionManager()
 {
 }
 
-std::vector<const char*>* DeviceExtensionManager::GetExtensions(vk::PhysicalDevice physicalDevice)
+std::set<const char*> DeviceExtensionManager::GetExtensions(vk::PhysicalDevice physicalDevice)
 {
-	//リストを初期化
-	m_ExtensionList.clear();
-
-	//スワップチェーンが有効な場合、拡張機能を追加
-	if (m_bSwapchain = true) CreateSwapChainExtension();
-
-	if (CheckExtensionsSupport(m_ExtensionList, physicalDevice) == false)
-	{
-		//エラー
-		//リストの拡張機能の名前をサポートしていなかった
-		return nullptr;
-	}
-
 	//作成したリストを返す
-	return &m_ExtensionList;
+	return m_ExtensionList;
 }
 
 //スワップチェーンの拡張機能を有効化(フラグで管理している)
 void DeviceExtensionManager::UseSwapchain()
 {
-	m_bSwapchain = true;
+	m_ExtensionList.insert(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 }
 
-void DeviceExtensionManager::CreateSwapChainExtension()
+void DeviceExtensionManager::UseDynamicRendering()
 {
-	m_ExtensionList.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+	m_ExtensionList.insert(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
 }
 
 bool DeviceExtensionManager::CheckExtensionsSupport(std::vector<const char*> checkExtensionNames, vk::PhysicalDevice physicalDevice)

@@ -161,6 +161,7 @@
     <ClCompile Include="ModelTexture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="VBufferBase.cpp" />
+    <ClCompile Include="DynamicRendering.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexDescription.cpp" />
     <ClCompile Include="StagingBuffer.cpp" />
@@ -212,7 +213,7 @@
     <ClInclude Include="PhysicalDeviceSelector.h" />
     <ClInclude Include="PipelineShaderCreator.h" />
     <ClInclude Include="PipelineDescriptions.h" />
-    <ClInclude Include="RenderPipeline.h" />
+    <ClInclude Include="RenderConfig.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="SemaphoreGenerator.h" />
@@ -222,6 +223,7 @@
     <ClInclude Include="ModelTexture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VBufferBase.h" />
+    <ClInclude Include="DynamicRendering.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexDescription.h" />
     <ClInclude Include="StagingBuffer.h" />

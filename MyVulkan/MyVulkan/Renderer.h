@@ -77,7 +77,7 @@ private:
 	//ImagesGenerator				m_ImageGenerator;
 	SwapchainGenerator				m_SwapchainGenerator;
 	RenderpassGenerator				m_RenderpassGenerator;
-	PipelineGenerator				m_PipelineGenerator;
+	RenderingPipelineCreator				m_PipelineGenerator;
 	FramebufferGenerator			m_FramebufferGenerator;
 	SwapChainCommandGenerator				m_CommandGenerator;
 	SwapGraphicCommandController	m_GraphicController;

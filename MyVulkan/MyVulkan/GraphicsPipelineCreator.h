@@ -10,16 +10,16 @@
 
 #include "VertexBuffer.h"
 
-class PipelineGenerator : CGeneratorBase
+class RenderingPipelineCreator : CGeneratorBase
 {
 public:
-	PipelineGenerator();
-	~PipelineGenerator();
+	RenderingPipelineCreator();
+	~RenderingPipelineCreator();
 
-	void SetData(
-		vk::Device logicalDevice, 
-		vk::RenderPass renderPass, 
-		vk::Extent2D extent, 
+	void Create(
+		vk::Device logicalDevice,
+		vk::RenderPass renderPass,
+		vk::Rect2D		recta,
 		std::vector<vk::PipelineShaderStageCreateInfo>shaderStageInfos);
 	void Destroy(vk::Device logicalDevice);
 
@@ -34,8 +34,6 @@ private:
 	vk::Pipeline					m_Pipeline;
 
 	vk::PipelineLayout				m_PipelineLayout;
-
-	//PipelineShaderCreator			m_ShaderLoader;
 
 	// デスクリプタ
 	VDescriptorBase				m_TextureDescriptor;

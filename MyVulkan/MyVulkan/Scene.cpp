@@ -22,7 +22,7 @@ void Scene::Update()
 	testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	m_Object.SetTransform(testMat);
 
-	m_MainCamera.UpdateVBuffer();
+	m_Camera.UpdateVBuffer();
 
 }
 

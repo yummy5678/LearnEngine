@@ -40,7 +40,7 @@ void SwapGraphicCommandController::Initialize(vk::Device logicalDevice, vk::Phys
 
 	//パイプラインの作成
 	auto shaderStages = pRenderConfig->GetPipelineShader().GetShaderStages();
-	m_PipelineGenerator.SetData(logicalDevice, renderPass, extent, shaderStages);
+	m_PipelineGenerator.Create(logicalDevice, renderPass, extent, shaderStages);
 	auto graphicsPipeline = m_PipelineGenerator.GetPipeline();
 
 	//フレームバッファの作成

@@ -2,7 +2,6 @@
 #include "MeshObject.h"
 #include "PipelineShaderCreator.h"
 #include "GraphicsPipelineCreator.h"
-#include "DescriptorHandler.h"
 
 // シーンクラスからVulkanのグラフィックパイプラインへの
 // 描画モデルの情報の橋渡しを行うクラス
@@ -18,26 +17,27 @@ public:
 	~RenderConfig();
 
 	void Initialize();
-	void updateModel(MeshObject* mesh, glm::mat4 transform);
+
 	void Destroy();
 
-	vk::Extent2D			GetExtent2D();
-	PipelineShaderCreator	GetPipelineShader();
-
+	vk::Rect2D GetExtent2D();
+	vk::Pipeline GetPipeline();
+	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
+	Scene* GetPScene();
 
 
 private:
 	// 画面サイズ
-	vk::Extent2D			m_Extent;
+	vk::Offset2D			m_Offset;	//描画範囲の始点
+	vk::Extent2D			m_Extent;	//描画範囲の終点
+
+	RenderingPipelineCreator	m_GraphicsPipeline;
 
 	//パイプラインに渡すシェーダー情報の作成クラス
 	PipelineShaderCreator	m_Shader;	
 
 
-
-
-	// デスクリプタ
-	VDescriptorBase m_Descriptor;
+	Scene* m_pRenderScene;
 
 
 

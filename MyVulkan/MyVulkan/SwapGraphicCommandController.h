@@ -28,9 +28,9 @@ private:
 
 	SwapchainGenerator			m_SwapchainGenerator;
 	RenderpassGenerator			m_RenderpassGenerator;
-	PipelineGenerator			m_PipelineGenerator;
+	RenderingPipelineCreator			m_PipelineGenerator;
 	FramebufferGenerator		m_FramebufferGenerator;
-	SwapChainCommandGenerator			m_CommandGenerator;
+	SwapChainCommandGenerator	m_CommandGenerator;
 	//SynchronizationGenerator	m_SynchroGenerator;
 
 
