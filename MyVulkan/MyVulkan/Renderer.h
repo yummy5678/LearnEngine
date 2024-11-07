@@ -35,13 +35,13 @@
 #include "ImagesGenerator.h"
 #include "SwapChainUtility.h"
 #include "RenderPassUtility.h"
-#include "GraphicsPipelineCreator.h"
+//#include "GraphicsPipelineCreator.h"
 #include "FramebufferGenerator.h"
 #include "CommandGenerator.h"
 #include "WriteImage.cpp"
 #include "SwapGraphicCommandController.h"
 
-#include "RenderPipeline.h"
+//#include "RenderPipeline.h"
 
 
 class VulkanRenderer
@@ -77,10 +77,10 @@ private:
 	//ImagesGenerator				m_ImageGenerator;
 	SwapchainGenerator				m_SwapchainGenerator;
 	RenderpassGenerator				m_RenderpassGenerator;
-	RenderingPipelineCreator				m_PipelineGenerator;
+	RenderingPipelineCreator		m_PipelineGenerator;
 	FramebufferGenerator			m_FramebufferGenerator;
-	SwapChainCommandGenerator				m_CommandGenerator;
-	SwapGraphicCommandController	m_GraphicController;
+	SwapChainCommandGenerator		m_CommandGenerator;
+	SwapchainRenderer	m_GraphicController;
 
 	vk::PhysicalDevice	m_PhysicalDevice;
 	vk::Device			m_LogicalDevice;

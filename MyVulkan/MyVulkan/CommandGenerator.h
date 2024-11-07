@@ -29,15 +29,7 @@ public:
 	std::vector<vk::CommandBuffer> GetCommandBuffers();
 
 	// GPU内で画像を描画
-	void DrawFrame(
-		vk::CommandBuffer			commandBuffer,
-		vk::RenderPass				renderpass,
-		vk::Framebuffer				framebuffer,
-		vk::Pipeline				graphicsPipeline,
-		vk::PipelineLayout			pipelineLayout,
-		std::vector<SceneObject>	drawMeshes,
-		SceneCamera                 sceneCamera,
-		vk::Rect2D					renderArea);
+	void DrawFrame(vk::CommandBuffer commandBuffer, std::vector<RenderConfig>& configs, vk::ImageView colorImage, vk::ImageView depthImage);
 
 	// スワップチェーンに従って画像を表示
 	void PresentFrame(vk::SwapchainKHR swapchain);
@@ -68,6 +60,12 @@ private:
 	vk::SubmitInfo					CreateSubmitInfo(vk::CommandBuffer& commandBuffer);
 
 	uint32_t						AcquireSwapchainNextImage(vk::SwapchainKHR swapchain);
+
+	void RenderObjects(
+		vk::CommandBuffer			commandBuffer, 
+		vk::PipelineLayout			pipelineLayout,
+		std::vector<SceneObject>	drawMeshes,
+		SceneCamera                 sceneCamera);
 
 };
 

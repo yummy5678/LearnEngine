@@ -1,16 +1,15 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include "SwapChainUtility.h"
-#include "RenderPassUtility.h"
-#include "GraphicsPipelineCreator.h"
-#include "FramebufferGenerator.h"
+#include "RenderingPipelineCreator.h"
 #include "CommandGenerator.h"
+#include "RenderConfig.h"
 
-class SwapGraphicCommandController
+class SwapchainRenderer
 {
 public:
-	SwapGraphicCommandController(DeviceExtensionManager& deviceExtensionManager);
-	~SwapGraphicCommandController();
+	SwapchainRenderer(DeviceExtensionManager& deviceExtensionManager);
+	~SwapchainRenderer();
 
 	void Initialize(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface, RenderConfig* pRenderConfig);
 	void Destroy();
@@ -27,11 +26,8 @@ private:
 	RenderConfig*				m_pRenderConfig;
 
 	SwapchainGenerator			m_SwapchainGenerator;
-	RenderpassGenerator			m_RenderpassGenerator;
-	RenderingPipelineCreator			m_PipelineGenerator;
-	FramebufferGenerator		m_FramebufferGenerator;
+	RenderingPipelineCreator	m_PipelineGenerator;
 	SwapChainCommandGenerator	m_CommandGenerator;
-	//SynchronizationGenerator	m_SynchroGenerator;
 
 
 	int							m_CurrentFrame = 0;

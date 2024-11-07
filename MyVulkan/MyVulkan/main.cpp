@@ -7,6 +7,7 @@
 #include "GraphicsDefine.h"
 #include "GameWindow.h"
 #include "Renderer.h"		//Vulkanのレンダラー処理をまとめている
+#include "RenderConfig.h"
 
 GameWindow m_pWindow;
 VulkanRenderer vulkanRenderer;	//レンダラー
@@ -25,7 +26,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	Scene scene;
+	RenderScene scene;
 	scene.Initialize();
 
 	//int helicopter = vulkanRenderer.createMeshModel("Models/uh60.obj");

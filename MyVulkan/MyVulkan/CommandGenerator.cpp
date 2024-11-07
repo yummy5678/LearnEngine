@@ -1,4 +1,5 @@
 #include "CommandGenerator.h"
+#include "RenderConfig.h"
 
 
 
@@ -68,99 +69,67 @@ std::vector<vk::CommandBuffer> SwapChainCommandGenerator::GetCommandBuffers()
     return m_CommandBuffers;
 }
 
+// ダイナミックレンダリングに未対応
 void SwapChainCommandGenerator::DrawFrame(
-    vk::CommandBuffer			commandBuffer,
-    vk::RenderPass				renderpass,
-    vk::Framebuffer				framebuffer,
-    vk::Pipeline				graphicsPipeline,
-    vk::PipelineLayout			pipelineLayout,
-    std::vector<SceneObject>	drawMeshes,
-    SceneCamera                 sceneCamera,
-    vk::Rect2D					renderArea)
+    vk::CommandBuffer commandBuffer,
+    std::vector<RenderConfig>& configs, 
+    vk::ImageView colorImage, 
+    vk::ImageView depthImage)
 {
-    // フレームの初期化する色を設定します。
-    std::array<vk::ClearValue, 3> clearValues = {};
-    clearValues[0].setColor({ 0.0f, 0.0f, 0.0f, 1.0f });    // 背景色
-    clearValues[1].setColor({ 0.6f, 0.65f, 0.4f, 1.0f });   // 追加の背景色
-    clearValues[2].setDepthStencil({ 1.0f });               // 深度バッファのクリア値
 
-    // コマンドバッファの開始情報を設定します。
-    vk::CommandBufferBeginInfo cmdBeginInfo;
-    cmdBeginInfo.setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse); // バッファが再使用可能であることを示すフラグ
-    if (commandBuffer.begin(&cmdBeginInfo) != vk::Result::eSuccess)
+    // カラーバッファアタッチメント
+    vk::RenderingAttachmentInfo colorAttachment;
+    colorAttachment.imageView = colorImage;
+    colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+    colorAttachment.clearValue = vk::ClearValue(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+    
+    // Depthバッファアタッチメント（3Dオブジェクト用に使用）
+    vk::RenderingAttachmentInfo depthAttachment;
+    depthAttachment.imageView = depthImage;
+    depthAttachment.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
+    depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+    depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
+    depthAttachment.clearValue = vk::ClearValue(vk::ClearDepthStencilValue(1.0f, 0));
+
+
+    for (auto& config : configs)
     {
-        throw std::runtime_error("コマンドバッファの開始に失敗しました！");
+        // ダイナミックレンダリングの設定
+        vk::RenderingInfo renderingInfo;
+        renderingInfo.renderArea = config.GetRenderRect();
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = 1;
+        renderingInfo.pColorAttachments = &colorAttachment;
+        renderingInfo.pDepthAttachment = &depthAttachment;
+
+        // Dynamic Renderingを開始
+        commandBuffer.beginRendering(renderingInfo);
+
+        // 使用するパイプラインをバインドします。
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config.GetPipeline());
+
+        Scene* scene = config.GetPScene();
+        RenderObjects(commandBuffer, config.GetPipelineLayout(), scene->GetObjects(), scene->GetMainCamera());
+        
     }
 
-    // レンダーパスの開始情報を設定します。
-    vk::RenderPassBeginInfo renderpassBeginInfo;
-    renderpassBeginInfo
-        .setRenderPass(renderpass)              // 使用するレンダーパス
-        .setFramebuffer(framebuffer)            // 使用するフレームバッファ
-        .setRenderArea(renderArea)              // 描画領域の設定
-        .setClearValueCount(clearValues.size()) // クリア値の数
-        .setPClearValues(clearValues.data());   // クリア値の配列
+    commandBuffer.endRendering();
 
-    // レンダーパスを開始します。
-    commandBuffer.beginRenderPass(renderpassBeginInfo, vk::SubpassContents::eInline);
+    // 終了待機
+    //graphicsQueue.waitIdle();
 
-    // 使用するパイプラインをバインドします。
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
+    //vk::PresentInfoKHR presentInfo;
+    //presentInfo.pNext;
+    //presentInfo.waitSemaphoreCount;
+    //presentInfo.pWaitSemaphores = nullptr;
+    //presentInfo.swapchainCount;
+    //presentInfo.pSwapchains = nullptr;
+    //presentInfo.pImageIndices = &imageIndex;
+    //presentInfo.pResults;
+    //graphicsQueue.presentKHR(presentInfo);
 
-    // 描画するメッシュをループします。
-    for (auto& model : drawMeshes)
-    {
-        // プッシュ定数をシェーダーに渡します。
-        commandBuffer.pushConstants(
-            pipelineLayout,
-            vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
-            0,                                  // オフセット
-            sizeof(Transform),                  // プッシュするデータのサイズ
-            &model.GetTransform()               // 実際のデータ
-        );
-
-        // 各メッシュをループします。
-        for (auto &mesh : model.GetMeshes())
-        {
-            // 頂点バッファをバインド
-            commandBuffer.bindVertexBuffers(0, mesh.GetVertex().GetBuffer(), { 0 });
-
-            // ディスクリプタセットをバインドします。
-            std::array<vk::DescriptorSet, 2> descriptorSetGroup = 
-            {
-
-                //descriptorSets[currentImage], //たぶんカメラ情報が入ってる(uboViewProjection)
-                //samplerDescriptorSets[thisModel.getMesh(k)->getTexId()]
-                sceneCamera.GetDescriptorSet(),
-                model.GetMaterials()[0].GetDescriptorSet()
-            };
-
-            commandBuffer.bindDescriptorSets(
-                vk::PipelineBindPoint::eGraphics,
-                pipelineLayout,
-                0,
-                descriptorSetGroup,
-                nullptr
-            );
-
-            // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
-            commandBuffer.bindIndexBuffer(mesh.GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
-            commandBuffer.drawIndexed(mesh.GetIndex().GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
-        }
-
-        // 終了待機
-        //graphicsQueue.waitIdle();
-
-        //vk::PresentInfoKHR presentInfo;
-        //presentInfo.pNext;
-        //presentInfo.waitSemaphoreCount;
-        //presentInfo.pWaitSemaphores = nullptr;
-        //presentInfo.swapchainCount;
-        //presentInfo.pSwapchains = nullptr;
-        //presentInfo.pImageIndices = &imageIndex;
-        //presentInfo.pResults;
-        //graphicsQueue.presentKHR(presentInfo);
-    }
 }
 
 void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain)
@@ -285,6 +254,50 @@ uint32_t SwapChainCommandGenerator::AcquireSwapchainNextImage(vk::SwapchainKHR s
     }
 
     return imageIndex;
+}
+
+void SwapChainCommandGenerator::RenderObjects(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout, std::vector<SceneObject> drawMeshes, SceneCamera sceneCamera)
+{
+    // 描画するメッシュをループします。
+    for (auto& model : drawMeshes)
+    {
+        // プッシュ定数をシェーダーに渡します。
+        commandBuffer.pushConstants(
+            pipelineLayout,
+            vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
+            0,                                  // オフセット
+            sizeof(Transform),                  // プッシュするデータのサイズ
+            &model.GetTransform()               // 実際のデータ
+        );
+
+        // 各メッシュをループします。
+        for (auto& mesh : model.GetMeshes())
+        {
+            // 頂点バッファをバインド
+            commandBuffer.bindVertexBuffers(0, mesh.GetVertex().GetBuffer(), { 0 });
+
+            // ディスクリプタセットをバインドします。
+            std::array<vk::DescriptorSet, 2> descriptorSetGroup =
+            {
+
+                //descriptorSets[currentImage], //たぶんカメラ情報が入ってる(uboViewProjection)
+                //samplerDescriptorSets[thisModel.getMesh(k)->getTexId()]
+                sceneCamera.GetDescriptorSet(),
+                model.GetMaterials()[0].GetDescriptorSet()
+            };
+
+            commandBuffer.bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics,
+                pipelineLayout,
+                0,
+                descriptorSetGroup,
+                nullptr
+            );
+
+            // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
+            commandBuffer.bindIndexBuffer(mesh.GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
+            commandBuffer.drawIndexed(mesh.GetIndex().GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
+        }
 }
 
 

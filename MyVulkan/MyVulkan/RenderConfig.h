@@ -1,7 +1,7 @@
 #pragma once
 #include "MeshObject.h"
 #include "PipelineShaderCreator.h"
-#include "GraphicsPipelineCreator.h"
+#include "RenderingPipelineCreator.h"
 
 // シーンクラスからVulkanのグラフィックパイプラインへの
 // 描画モデルの情報の橋渡しを行うクラス
@@ -16,12 +16,14 @@ public:
 	RenderConfig();
 	~RenderConfig();
 
-	void Initialize();
+	void Initialize(vk::Device logicalDevice, vk::Extent2D extent);
 
 	void Destroy();
 
-	vk::Rect2D GetExtent2D();
-	vk::Pipeline GetPipeline();
+	vk::Rect2D			GetSissorRect();
+	vk::Rect2D			GetRenderRect();
+	vk::Pipeline		GetPipeline();
+	vk::PipelineLayout	GetPipelineLayout();
 	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
 	Scene* GetPScene();
 
@@ -30,6 +32,8 @@ private:
 	// 画面サイズ
 	vk::Offset2D			m_Offset;	//描画範囲の始点
 	vk::Extent2D			m_Extent;	//描画範囲の終点
+
+	vk::Rect2D				m_RenderArea;	// フレーム内の描画位置の矩形
 
 	RenderingPipelineCreator	m_GraphicsPipeline;
 

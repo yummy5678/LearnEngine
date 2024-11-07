@@ -13,14 +13,29 @@ RenderConfig::~RenderConfig()
 {
 }
 
-void RenderConfig::Initialize()
+void RenderConfig::Initialize(vk::Device logicalDevice, vk::Extent2D extent)
 {
-	m_GraphicsPipeline.Create();
+	m_GraphicsPipeline.Create(logicalDevice, extent, );
 }
 
-vk::Rect2D RenderConfig::GetExtent2D()
+vk::Rect2D RenderConfig::GetSissorRect()
 {
 	return vk::Rect2D(m_Offset, m_Extent);
+}
+
+vk::Rect2D RenderConfig::GetRenderRect()
+{
+	return m_RenderArea;
+}
+
+vk::Pipeline RenderConfig::GetPipeline()
+{
+	return m_GraphicsPipeline.GetPipeline();
+}
+
+vk::PipelineLayout RenderConfig::GetPipelineLayout()
+{
+	return m_GraphicsPipeline.GetPipelineLayout();
 }
 
 std::vector<vk::PipelineShaderStageCreateInfo> RenderConfig::GetShaderStages()
