@@ -68,10 +68,11 @@ std::vector<vk::CommandBuffer> SwapChainCommandGenerator::GetCommandBuffers()
     return m_CommandBuffers;
 }
 
+// ダイナミックレンダリングに未対応
 void SwapChainCommandGenerator::DrawFrame(
     vk::CommandBuffer			commandBuffer,
-    vk::RenderPass				renderpass,
-    vk::Framebuffer				framebuffer,
+    //vk::RenderPass				renderpass,
+    //vk::Framebuffer				framebuffer,
     vk::Pipeline				graphicsPipeline,
     vk::PipelineLayout			pipelineLayout,
     std::vector<SceneObject>	drawMeshes,
@@ -95,8 +96,8 @@ void SwapChainCommandGenerator::DrawFrame(
     // レンダーパスの開始情報を設定します。
     vk::RenderPassBeginInfo renderpassBeginInfo;
     renderpassBeginInfo
-        .setRenderPass(renderpass)              // 使用するレンダーパス
-        .setFramebuffer(framebuffer)            // 使用するフレームバッファ
+        //.setRenderPass(renderpass)              // 使用するレンダーパス
+        //.setFramebuffer(framebuffer)            // 使用するフレームバッファ
         .setRenderArea(renderArea)              // 描画領域の設定
         .setClearValueCount(clearValues.size()) // クリア値の数
         .setPClearValues(clearValues.data());   // クリア値の配列

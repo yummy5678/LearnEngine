@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include "MeshObject.h"
+#include "Mesh.h"
 
 //・・・・・・・・・・・・・・・・・・・・・・・・
 // パイプラインに渡す情報の定義

@@ -112,7 +112,7 @@ int VulkanRenderer::init(GameWindow renderWindow)
 
 void VulkanRenderer::setRenderConfig(RenderConfig config)
 {
-	auto extent = config.GetExtent2D();
+	auto extent = config.GetSissorRect();
 	auto shader = config.GetPipelineShader().GetShaderStages();
 	//パイプラインの作成
 	m_PipelineGenerator.Create(m_LogicalDevice, m_Renderpass, extent, shader);
