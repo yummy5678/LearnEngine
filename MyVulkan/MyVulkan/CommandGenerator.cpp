@@ -71,10 +71,21 @@ std::vector<vk::CommandBuffer> SwapChainCommandGenerator::GetCommandBuffers()
 
 // ダイナミックレンダリングに未対応
 void SwapChainCommandGenerator::DrawFrame(
+<<<<<<< HEAD
     vk::CommandBuffer commandBuffer,
     std::vector<RenderConfig>& configs, 
     vk::ImageView colorImage, 
     vk::ImageView depthImage)
+=======
+    vk::CommandBuffer			commandBuffer,
+    //vk::RenderPass				renderpass,
+    //vk::Framebuffer				framebuffer,
+    vk::Pipeline				graphicsPipeline,
+    vk::PipelineLayout			pipelineLayout,
+    std::vector<SceneObject>	drawMeshes,
+    SceneCamera                 sceneCamera,
+    vk::Rect2D					renderArea)
+>>>>>>> 011c80f570db61d0cf1756b66acf04ca41bd1a4d
 {
 
     // カラーバッファアタッチメント
@@ -115,7 +126,18 @@ void SwapChainCommandGenerator::DrawFrame(
         
     }
 
+<<<<<<< HEAD
     commandBuffer.endRendering();
+=======
+    // レンダーパスの開始情報を設定します。
+    vk::RenderPassBeginInfo renderpassBeginInfo;
+    renderpassBeginInfo
+        //.setRenderPass(renderpass)              // 使用するレンダーパス
+        //.setFramebuffer(framebuffer)            // 使用するフレームバッファ
+        .setRenderArea(renderArea)              // 描画領域の設定
+        .setClearValueCount(clearValues.size()) // クリア値の数
+        .setPClearValues(clearValues.data());   // クリア値の配列
+>>>>>>> 011c80f570db61d0cf1756b66acf04ca41bd1a4d
 
     // 終了待機
     //graphicsQueue.waitIdle();

@@ -20,10 +20,16 @@ public:
 
 	void Destroy();
 
+<<<<<<< HEAD
 	vk::Rect2D			GetSissorRect();
 	vk::Rect2D			GetRenderRect();
 	vk::Pipeline		GetPipeline();
 	vk::PipelineLayout	GetPipelineLayout();
+=======
+	vk::Rect2D GetSissorRect();
+	vk::Rect2D GetRenderRect();
+	vk::Pipeline GetPipeline();
+>>>>>>> 011c80f570db61d0cf1756b66acf04ca41bd1a4d
 	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
 	Scene* GetPScene();
 
