@@ -20,7 +20,7 @@ std::vector<VMesh> VMeshObject::GetMeshes()
 	return m_Mesh;
 }
 
-std::vector<VImageBuffer> VMeshObject::GetTexture()
+std::vector<VTextureBuffer> VMeshObject::GetTexture()
 {
 	return m_Texture;
 }

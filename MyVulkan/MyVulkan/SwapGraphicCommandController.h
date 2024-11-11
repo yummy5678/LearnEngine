@@ -13,7 +13,7 @@ public:
 
 	void Initialize(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface, RenderConfig* pRenderConfig);
 	void Destroy();
-	void DrawFrame(Scene scene, vk::Rect2D renderArea);
+	void DrawFrame(std::vector<RenderConfig>& configs);
 	void PresentFrame();
 
 
@@ -27,7 +27,7 @@ private:
 
 	SwapchainGenerator			m_SwapchainGenerator;
 	RenderingPipelineCreator	m_PipelineGenerator;
-	SwapChainCommandGenerator	m_CommandGenerator;
+	
 
 
 	int							m_CurrentFrame = 0;

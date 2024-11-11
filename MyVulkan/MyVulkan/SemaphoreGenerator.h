@@ -3,7 +3,7 @@
 #include "GeneratorBase.h"
 
 class SemaphoreGenerator :
-    public CGeneratorBase
+    public GeneratorBase
 {
 public:
     SemaphoreGenerator();

@@ -18,7 +18,7 @@ private:
 	//glm::vec4 baseColor;	// ñ¢çÏê¨
 	//float metallic;
 	//float roughness;
-	VImageBuffer	m_Texture;
+	VTextureBuffer	m_Texture;
 
 	vk::Sampler			m_Sampler;
 	VTextureDescriptor	m_SamplerDescriptor;

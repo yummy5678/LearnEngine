@@ -26,18 +26,18 @@ void SwapChainCommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDev
 
     // セマフォの作成
     m_SemaphoreGenerator.Create(logicalDevice, commandSize);
-    m_SignalSemaphores = m_SemaphoreGenerator.GetSignalSemaphores();
-    m_WaitSemaphores = m_SemaphoreGenerator.GetWaitSemaphores();
+    m_SignalSemaphores  = m_SemaphoreGenerator.GetSignalSemaphores();
+    m_WaitSemaphores    = m_SemaphoreGenerator.GetWaitSemaphores();
 
     //フェンスの作成
     m_FenceGenerator.Create(logicalDevice, commandSize);
-    m_Fences = m_FenceGenerator.GetFence();
+    m_Fences            = m_FenceGenerator.GetFence();
 
     //コマンドプール(コマンドを置く領域)を作成
-    m_CommandPool = CreateCommandPool(logicalDevice, physicalDevice);
+    m_CommandPool       = CreateCommandPool(logicalDevice, physicalDevice);
 
     //コマンドプールにコマンドバッファを割り当て
-    m_CommandBuffers = CreateCommandBuffers(logicalDevice, commandSize, m_CommandPool);
+    m_CommandBuffers    = CreateCommandBuffers(logicalDevice, commandSize, m_CommandPool);
 
 
 
@@ -69,28 +69,24 @@ std::vector<vk::CommandBuffer> SwapChainCommandGenerator::GetCommandBuffers()
     return m_CommandBuffers;
 }
 
-// ダイナミックレンダリングに未対応
+void SwapChainCommandGenerator::UpdateRendering(vk::SwapchainKHR swapchain, uint32_t commandIndex, std::vector<RenderConfig>& configs, vk::ImageView colorImage, vk::ImageView depthImage)
+{
+    DrawFrame(commandIndex, configs, colorImage, depthImage);
+    PresentFrame(swapchain, commandIndex);
+
+    //後でここにセマフォとフェンスの設定も追加したい
+}
+
 void SwapChainCommandGenerator::DrawFrame(
-<<<<<<< HEAD
-    vk::CommandBuffer commandBuffer,
-    std::vector<RenderConfig>& configs, 
-    vk::ImageView colorImage, 
-    vk::ImageView depthImage)
-=======
-    vk::CommandBuffer			commandBuffer,
-    //vk::RenderPass				renderpass,
-    //vk::Framebuffer				framebuffer,
-    vk::Pipeline				graphicsPipeline,
-    vk::PipelineLayout			pipelineLayout,
-    std::vector<SceneObject>	drawMeshes,
-    SceneCamera                 sceneCamera,
-    vk::Rect2D					renderArea)
->>>>>>> 011c80f570db61d0cf1756b66acf04ca41bd1a4d
+    uint32_t                    commandIndex,
+    std::vector<RenderConfig>&  configs, 
+    vk::ImageView               colorImageView, 
+    vk::ImageView               depthImageView)
 {
 
     // カラーバッファアタッチメント
     vk::RenderingAttachmentInfo colorAttachment;
-    colorAttachment.imageView = colorImage;
+    colorAttachment.imageView = colorImageView;
     colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
@@ -98,13 +94,13 @@ void SwapChainCommandGenerator::DrawFrame(
     
     // Depthバッファアタッチメント（3Dオブジェクト用に使用）
     vk::RenderingAttachmentInfo depthAttachment;
-    depthAttachment.imageView = depthImage;
+    depthAttachment.imageView = depthImageView;
     depthAttachment.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
     depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
     depthAttachment.clearValue = vk::ClearValue(vk::ClearDepthStencilValue(1.0f, 0));
 
-
+    auto commandBuffer = m_CommandBuffers[commandIndex];
     for (auto& config : configs)
     {
         // ダイナミックレンダリングの設定
@@ -126,46 +122,16 @@ void SwapChainCommandGenerator::DrawFrame(
         
     }
 
-<<<<<<< HEAD
     commandBuffer.endRendering();
-=======
-    // レンダーパスの開始情報を設定します。
-    vk::RenderPassBeginInfo renderpassBeginInfo;
-    renderpassBeginInfo
-        //.setRenderPass(renderpass)              // 使用するレンダーパス
-        //.setFramebuffer(framebuffer)            // 使用するフレームバッファ
-        .setRenderArea(renderArea)              // 描画領域の設定
-        .setClearValueCount(clearValues.size()) // クリア値の数
-        .setPClearValues(clearValues.data());   // クリア値の配列
->>>>>>> 011c80f570db61d0cf1756b66acf04ca41bd1a4d
-
-    // 終了待機
-    //graphicsQueue.waitIdle();
-
-    //vk::PresentInfoKHR presentInfo;
-    //presentInfo.pNext;
-    //presentInfo.waitSemaphoreCount;
-    //presentInfo.pWaitSemaphores = nullptr;
-    //presentInfo.swapchainCount;
-    //presentInfo.pSwapchains = nullptr;
-    //presentInfo.pImageIndices = &imageIndex;
-    //presentInfo.pResults;
-    //graphicsQueue.presentKHR(presentInfo);
-
 }
 
-void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain)
+void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain, uint32_t commandIndex)
 {
     vk::PresentInfoKHR presentInfo;
 
-    auto index = AcquireSwapchainNextImage(swapchain);
-
-    auto presentSwapchains = { swapchain };
-    auto imgIndices = { index };
-
-    presentInfo.swapchainCount = presentSwapchains.size();
-    presentInfo.pSwapchains = presentSwapchains.begin();
-    presentInfo.pImageIndices = imgIndices.begin();
+    presentInfo.swapchainCount =    1;
+    presentInfo.pSwapchains =       &swapchain;
+    presentInfo.pImageIndices =     &commandIndex;
 
     // 使用するキュー(グラフィックキューやプレゼントキューなど)のインデックスを取得
     auto queueFamily = QueueFamilySelector(m_PhysicalDevice);
@@ -175,8 +141,6 @@ void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain)
     {
         throw std::runtime_error("スワップチェーンの画像の表示に失敗しました！");
     }
-
-    // graphicsQueue.waitIdle();
 }
 
 vk::CommandPool SwapChainCommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
@@ -299,7 +263,7 @@ void SwapChainCommandGenerator::RenderObjects(vk::CommandBuffer commandBuffer, v
             commandBuffer.bindVertexBuffers(0, mesh.GetVertex().GetBuffer(), { 0 });
 
             // ディスクリプタセットをバインドします。
-            std::array<vk::DescriptorSet, 2> descriptorSetGroup =
+            std::vector<vk::DescriptorSet> descriptorSetGroup =
             {
 
                 //descriptorSets[currentImage], //たぶんカメラ情報が入ってる(uboViewProjection)

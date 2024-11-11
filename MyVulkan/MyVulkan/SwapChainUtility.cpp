@@ -1,6 +1,7 @@
 #include "SwapChainUtility.h"
 
 
+
 SwapchainGenerator::SwapchainGenerator(DeviceExtensionManager& deviceExtensionManager)
 {
     m_ClassName = "SwapchainGenerator";
@@ -22,7 +23,10 @@ void SwapchainGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice phy
 
     m_Swapchain = logicalDevice.createSwapchainKHR(m_SwapchainInfo);
 
-    m_Images.CreateForSwapchain(logicalDevice, physicalDevice, m_Swapchain, m_SwapchainInfo);
+    m_Images.CreateColor(logicalDevice, physicalDevice, m_Swapchain, m_SwapchainInfo);
+
+    //コマンドバッファの作成
+    m_CommandGenerator.Create(logicalDevice, physicalDevice, m_SwapchainInfo.minImageCount);
 }
 
 void SwapchainGenerator::Destroy(vk::Device logicalDevice)
@@ -47,10 +51,23 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::GetSwapchainInfo()
     return m_SwapchainInfo;
 }
 
-ImagesGenerator SwapchainGenerator::GetImages()
+SwapChainImage SwapchainGenerator::GetImages()
 {
     CheckCreated();
     return m_Images;
+}
+
+void SwapchainGenerator::DrawFrame(std::vector<RenderConfig>& configs)
+{
+    m_CommandGenerator.DrawFrame(
+        0,
+        configs,
+        m_Images.GetColorImageViews()[0],
+        m_Images.GetColorImageViews()[0]);
+}
+
+void SwapchainGenerator::PresentFrame()
+{
 }
 
 /// <summary>

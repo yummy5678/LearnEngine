@@ -4,10 +4,11 @@
 #include "QueueUtility.h"
 #include "GraphicsDefine.h"
 #include "DeviceExtensionManager.h"
-#include "ImagesGenerator.h"
+#include "SwapchainImage.h"
+#include "RenderConfig.h"
+#include "CommandGenerator.h"
 
-
-class SwapchainGenerator : public CGeneratorBase
+class SwapchainGenerator : public GeneratorBase
 {
 public:
 	SwapchainGenerator(DeviceExtensionManager& deviceExtensionManager);
@@ -18,23 +19,22 @@ public:
 
 	vk::SwapchainKHR			GetSwapchain();
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
-	ImagesGenerator				GetImages();
+	SwapChainImage				GetImages();
+
+	void						DrawFrame(std::vector<RenderConfig>& configs);
+	void						PresentFrame();
 
 private:
 	vk::Device m_LogicalDevice;
 	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
 	vk::SwapchainKHR					m_Swapchain;
 
-	ImagesGenerator						m_Images;
+	SwapChainImage						m_Images;
+
+	SwapChainCommandGenerator			m_CommandGenerator;
 
 	// スワップチェーンの作成関数
 	vk::SwapchainCreateInfoKHR CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
-
-	//void CreateSwapChainImages(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
-
-	//vk::ImageView CreateImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags);
-	// サーフェスの機能を取得
-	//vk::SurfaceCapabilitiesKHR GetSurfaceCapabilities(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 
 	// スワップチェーンのフォーマットを選択する関数
 	vk::SurfaceFormatKHR SelectSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);

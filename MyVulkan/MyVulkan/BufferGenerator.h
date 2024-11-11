@@ -5,7 +5,7 @@
 #include "ModelLoder.h"
 
 class BufferGenerator :
-    public CGeneratorBase
+    public GeneratorBase
 {
 public:
     BufferGenerator();

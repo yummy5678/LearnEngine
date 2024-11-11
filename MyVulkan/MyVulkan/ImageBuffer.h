@@ -5,11 +5,11 @@
 #include "StagingImageBuffer.h"
 
 // RAMに置かれている画像データをVRAMに移行するクラス
-class VImageBuffer
+class VTextureBuffer
 {
 public:
-	VImageBuffer();
-	~VImageBuffer();
+	VTextureBuffer();
+	~VTextureBuffer();
 	void Cleanup();
 
 	void SetImage(VmaAllocator allocator, Texture& texture);

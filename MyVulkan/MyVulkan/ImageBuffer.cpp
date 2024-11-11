@@ -1,20 +1,20 @@
 #include "ImageBuffer.h"
 
 
-VImageBuffer::VImageBuffer()
+VTextureBuffer::VTextureBuffer()
 {
 }
 
-VImageBuffer::~VImageBuffer()
+VTextureBuffer::~VTextureBuffer()
 {
 }
 
-void VImageBuffer::Cleanup()
+void VTextureBuffer::Cleanup()
 {
 	if(m_ImageAllocation) vmaDestroyImage(m_Allocator, m_Buffer, m_ImageAllocation);
 }
 
-void VImageBuffer::SetImage(VmaAllocator allocator, Texture& texture)
+void VTextureBuffer::SetImage(VmaAllocator allocator, Texture& texture)
 {
 	VStagingImageBuffer stagingBuffer;
 
@@ -28,17 +28,17 @@ void VImageBuffer::SetImage(VmaAllocator allocator, Texture& texture)
 
 }
 
-vk::Image VImageBuffer::GetImageBuffer()
+vk::Image VTextureBuffer::GetImageBuffer()
 {
 	return m_Buffer;
 }
 
-vk::ImageView VImageBuffer::GetImageView()
+vk::ImageView VTextureBuffer::GetImageView()
 {
 	return m_ImageView;
 }
 
-VkImageCreateInfo VImageBuffer::CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode)
+VkImageCreateInfo VTextureBuffer::CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode)
 {
 	vk::ImageCreateInfo imageCreateInfo;
 	imageCreateInfo.imageType = vk::ImageType::e2D;			// 2Dイメージ
@@ -57,7 +57,7 @@ VkImageCreateInfo VImageBuffer::CreateImageInfo(uint32_t imageWidth, uint32_t im
 	return imageCreateInfo;
 }
 
-void VImageBuffer::CreateBuffer(VmaAllocator allocator, uint32_t imageWidth, uint32_t imageHeight)
+void VTextureBuffer::CreateBuffer(VmaAllocator allocator, uint32_t imageWidth, uint32_t imageHeight)
 {
 	auto imageInfo = CreateImageInfo(imageWidth, imageHeight, m_Format, m_Usage, m_SharingMode);
 
@@ -74,7 +74,7 @@ void VImageBuffer::CreateBuffer(VmaAllocator allocator, uint32_t imageWidth, uin
 	m_Buffer = vk::Image(image);  // VkImageをvk::Imageにキャスト
 }
 
-void VImageBuffer::CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk::Format format, vk::ImageAspectFlags aspectFlag)
+void VTextureBuffer::CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk::Format format, vk::ImageAspectFlags aspectFlag)
 {
 	vk::ImageViewCreateInfo imageViewInfo;
 	imageViewInfo.image = imageBuffer;

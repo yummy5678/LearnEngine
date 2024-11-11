@@ -28,8 +28,7 @@ void SwapchainRenderer::Initialize(vk::Device logicalDevice, vk::PhysicalDevice 
 	auto swapchainImage = m_SwapchainGenerator.GetImages();
 
 
-	//コマンドバッファの作成
-	m_CommandGenerator.Create(logicalDevice, physicalDevice, swapchainImage.GetSize());
+
 
 
 	// グラフィクスパイプラインの作成
@@ -59,17 +58,6 @@ void SwapchainRenderer::Destroy()
 {
 }
 
-void SwapchainRenderer::DrawFrame(Scene scene, vk::Rect2D renderArea)
-{
-
-	m_CommandGenerator.DrawFrame(
-		m_CommandGenerator.GetCommandBuffers()[m_CurrentFrame], 
-		m_PipelineGenerator.GetPipeline(),
-		m_PipelineGenerator.GetPipelineLayout(),
-		scene.GetObjects(),
-		scene.GetMainCamera(),
-		m_pRenderConfig->GetRenderRect());
-}
 
 void SwapchainRenderer::PresentFrame()
 {

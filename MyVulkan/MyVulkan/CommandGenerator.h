@@ -9,7 +9,7 @@
 #include "SceneCamera.h"
 
 
-class SwapChainCommandGenerator : public CGeneratorBase
+class SwapChainCommandGenerator : public GeneratorBase
 {
 public:
 	SwapChainCommandGenerator();
@@ -28,11 +28,8 @@ public:
 	// 作成されたコマンドバッファ配列の取得
 	std::vector<vk::CommandBuffer> GetCommandBuffers();
 
-	// GPU内で画像を描画
-	void DrawFrame(vk::CommandBuffer commandBuffer, std::vector<RenderConfig>& configs, vk::ImageView colorImage, vk::ImageView depthImage);
+	void UpdateRendering(vk::SwapchainKHR swapchain, uint32_t commandIndex, std::vector<RenderConfig>& configs, vk::ImageView colorImage, vk::ImageView depthImage);
 
-	// スワップチェーンに従って画像を表示
-	void PresentFrame(vk::SwapchainKHR swapchain);
 
 
 
@@ -50,6 +47,12 @@ private:
 	SemaphoreGenerator				m_SemaphoreGenerator;
 	FenceGenerator					m_FenceGenerator;
 
+	// GPU内で画像を描画
+	void DrawFrame(uint32_t commandIndex, std::vector<RenderConfig>& configs, vk::ImageView colorImage, vk::ImageView depthImage);
+
+	// スワップチェーンに従って画像を表示
+	void PresentFrame(vk::SwapchainKHR swapchain, uint32_t commandIndex);
+
 	//コマンドプールの作成
 	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice);
 
@@ -61,11 +64,12 @@ private:
 
 	uint32_t						AcquireSwapchainNextImage(vk::SwapchainKHR swapchain);
 
+	// メッシュオブジェクトから情報を仕分けて描画コマンドを発行するまでの流れを纏めたもの
 	void RenderObjects(
-		vk::CommandBuffer			commandBuffer, 
-		vk::PipelineLayout			pipelineLayout,
-		std::vector<SceneObject>	drawMeshes,
-		SceneCamera                 sceneCamera);
+		vk::CommandBuffer commandBuffer, 
+		vk::PipelineLayout pipelineLayout, 
+		std::vector<SceneObject> drawMeshes, 
+		SceneCamera sceneCamera);
 
 };
 

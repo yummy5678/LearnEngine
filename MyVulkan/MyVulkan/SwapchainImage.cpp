@@ -1,184 +1,114 @@
-#include "ImagesGenerator.h"
+#include "SwapchainImage.h"
 
-ImagesGenerator::ImagesGenerator()
-{
-	m_ClassName = "ImagesGenerator";
-}
-
-ImagesGenerator::~ImagesGenerator()
+SwapChainImage::SwapChainImage()
 {
 }
 
-void ImagesGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t imageCount, vk::Format fomat, vk::Extent2D extent, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags propertyFlags)
+SwapChainImage::~SwapChainImage()
 {
-    m_bCreated = true;
+}
+
+void SwapChainImage::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo)
+{
+    CreateColor(logicalDevice, swapchain, m_SwapchainInfo);
+    CreateDepth(logicalDevice, physicalDevice, m_SwapchainInfo);
+}
+
+void SwapChainImage::CreateColor(vk::Device logicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo)
+{
     m_LogicalDevice = logicalDevice;
-
-    m_Fomat = fomat;
-
-    m_Images.resize(imageCount);
-    m_ImageMemory.resize(imageCount);
-    m_ImageViews.resize(imageCount);
-
-    std::vector<vk::ImageViewCreateInfo> viewInfo;
-    viewInfo.resize(imageCount);
-
-
-    m_ImageInfo = CreateImageInfo(extent, m_Fomat, usage);
-    for (uint32_t i = 0; i < imageCount; i++)
-    {
-        //画像を作成
-        m_Images[i] = m_LogicalDevice.createImage(m_ImageInfo);
-
-        //画像のメモリを確保
-        auto allocInfo = AllocateImageMemory(logicalDevice, physicalDevice, m_Images[i], propertyFlags);
-        m_ImageMemory[i] = m_LogicalDevice.allocateMemory(allocInfo);
-        m_LogicalDevice.bindImageMemory(m_Images[i], m_ImageMemory[i], 0);  // バインド
-
-        //画像を扱う際の情報を設定
-        auto viewInfo = CreateImageViewInfo(m_Images[i], m_Fomat, vk::ImageAspectFlagBits::eColor);
-        m_ImageViews[i] = m_LogicalDevice.createImageView(viewInfo);
-    }
-}
-
-
-void ImagesGenerator::CreateForSwapchain(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice,vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo)
-{
-    m_bCreated = true;
-    m_LogicalDevice = logicalDevice;
-
     m_Size                      = m_SwapchainInfo.minImageCount;
-    m_Fomat                     = m_SwapchainInfo.imageFormat;
     vk::Extent2D imageExtent    = m_SwapchainInfo.imageExtent;
 
     // 注:スワップチェインの画像はgetSwapchainImagesKHRから
     // 取得したものを使用しなければならない。
-    m_Images = logicalDevice.getSwapchainImagesKHR(swapchain);
+    m_ColorImages = logicalDevice.getSwapchainImagesKHR(swapchain);
 
     //m_ImageMemory.resize(m_Size);
-    m_ImageViews.resize(m_Size);
+    m_ColorImageViews.resize(m_Size);
 
     std::vector<vk::ImageViewCreateInfo> viewInfo;
     viewInfo.resize(m_Size);
 
-
-    m_ImageInfo = CreateImageInfo(imageExtent, m_Fomat, vk::ImageUsageFlagBits::eColorAttachment);
+    vk::Format fomat = m_SwapchainInfo.imageFormat;
     for (uint32_t i = 0; i < m_Size; i++)
     {
         //画像を扱う際の情報を設定
-        auto viewInfo = CreateImageViewInfo(m_Images[i], m_Fomat, vk::ImageAspectFlagBits::eColor);
-        m_ImageViews[i] = m_LogicalDevice.createImageView(viewInfo);
+        auto viewInfo = CreateImageViewInfo(m_ColorImages[i], fomat, vk::ImageAspectFlagBits::eColor);
+        m_ColorImageViews[i] = m_LogicalDevice.createImageView(viewInfo);
     }
 }
 
-void ImagesGenerator::CreateDepthImage(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, uint32_t imageCount, vk::Format fomat, vk::Extent2D extent, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags propertyFlags)
+void SwapChainImage::CreateDepth(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainCreateInfoKHR m_SwapchainInfo)
 {
-    m_bCreated = true;
     m_LogicalDevice = logicalDevice;
+    m_Size = m_SwapchainInfo.minImageCount;
 
-    m_Fomat = fomat;
+    m_DepthImages.resize(m_Size);
+    m_DepthImageMemory.resize(m_Size);
+    m_DepthImageViews.resize(m_Size);
 
-    m_Images.resize(imageCount);
-    m_ImageMemory.resize(imageCount);
-    m_ImageViews.resize(imageCount);
 
     std::vector<vk::ImageViewCreateInfo> viewInfo;
-    viewInfo.resize(imageCount);
+    viewInfo.resize(m_Size);
 
-
-    m_ImageInfo = CreateImageInfo(extent, m_Fomat, usage);
-    for (uint32_t i = 0; i < imageCount; i++)
+    
+    vk::Extent2D imageExtent = m_SwapchainInfo.imageExtent;
+    vk::Format fomat = m_SwapchainInfo.imageFormat;
+    auto imageInfo = CreateImageInfo(imageExtent, fomat, vk::ImageUsageFlagBits::eDepthStencilAttachment);
+    for (uint32_t i = 0; i < m_Size; i++)
     {
         //画像を作成
-        m_Images[i] = m_LogicalDevice.createImage(m_ImageInfo);
+        m_DepthImages[i] = m_LogicalDevice.createImage(imageInfo);
 
         //画像のメモリを確保
-        auto allocInfo = AllocateImageMemory(logicalDevice, physicalDevice, m_Images[i], propertyFlags);
-        m_ImageMemory[i] = m_LogicalDevice.allocateMemory(allocInfo);
-        m_LogicalDevice.bindImageMemory(m_Images[i], m_ImageMemory[i], 0);  // バインド
+        auto allocInfo = AllocateImageMemory(logicalDevice, physicalDevice, m_DepthImages[i], vk::MemoryPropertyFlagBits::eDeviceLocal);
+        m_DepthImageMemory[i] = m_LogicalDevice.allocateMemory(allocInfo);
+        m_LogicalDevice.bindImageMemory(m_DepthImages[i], m_DepthImageMemory[i], 0);  // バインド
 
         //画像を扱う際の情報を設定
-        auto viewInfo = CreateImageViewInfo(m_Images[i], m_Fomat, vk::ImageAspectFlagBits::eDepth);
-        m_ImageViews[i] = m_LogicalDevice.createImageView(viewInfo);
+        auto viewInfo = CreateImageViewInfo(m_DepthImages[i], fomat, vk::ImageAspectFlagBits::eDepth);
+        m_DepthImageViews[i] = m_LogicalDevice.createImageView(viewInfo);
     }
 }
 
-void ImagesGenerator::Destroy()
+void SwapChainImage::Destroy()
 {
-	//中身が作成されていないなら解放処理も行わない
-	if (m_bCreated == false) return;
-	m_bCreated = false;
-
 	// イメージビューの解放
-	for (auto& imageView : m_ImageViews)
+	for (auto& imageView : m_ColorImageViews)
 	{
         m_LogicalDevice.destroyImageView(imageView);
 	}
 
     // イメージの解放
-    for (auto& image : m_Images)
+    for (auto& image : m_ColorImages)
     {
         m_LogicalDevice.destroyImage(image);
     }
 
     // メモリーの解放
-    for (auto& memory : m_ImageMemory)
+    for (auto& memory : m_ColorImageMemory)
     {
         m_LogicalDevice.freeMemory(memory);
     }
 }
 
-std::vector<vk::Image> ImagesGenerator::GetImages()
+std::vector<vk::Image> SwapChainImage::GetColorImages()
 {
-	CheckCreated();
-	return m_Images;
+	return m_ColorImages;
 }
 
-std::vector<vk::ImageView> ImagesGenerator::GetImageViews()
+std::vector<vk::ImageView> SwapChainImage::GetColorImageViews()
 {
-    CheckCreated();
-    return m_ImageViews;
+    return m_ColorImageViews;
 }
 
-
-// 画像データをCPU側から読み取れるデータに展開する
-std::vector<void*> ImagesGenerator::GetImageData()
-{
-    // 作成中
-    // メモリからデータを読み込めないとエラー
-
-    std::vector<void*> imageData;
-    imageData.resize(m_ImageMemory.size());
-
-    for (int i = 0;i < m_ImageMemory.size();i++)
-    {
-        vk::MemoryRequirements imgMemReq = m_LogicalDevice.getImageMemoryRequirements(m_Images[i]);
-        imageData[i] = m_LogicalDevice.mapMemory(m_ImageMemory[i], 0, imgMemReq.size);
-    }
-
-
-    return imageData;
-}
-
-vk::ImageCreateInfo ImagesGenerator::GetImageInfo()
-{
-    CheckCreated();
-    return m_ImageInfo;
-}
-
-vk::Format ImagesGenerator::GetFomat()
-{
-    CheckCreated();
-    return m_Fomat;
-}
-
-uint32_t ImagesGenerator::GetSize()
+uint32_t SwapChainImage::GetSize()
 {
     return m_Size;
 }
 
-
-vk::ImageCreateInfo ImagesGenerator::CreateImageInfo(vk::Extent2D extent, vk::Format fomat,vk::ImageUsageFlags usage)
+vk::ImageCreateInfo SwapChainImage::CreateImageInfo(vk::Extent2D extent, vk::Format fomat,vk::ImageUsageFlags usage)
 {
     vk::ImageCreateInfo imageCreateInfo;
     imageCreateInfo.pNext;
@@ -199,7 +129,7 @@ vk::ImageCreateInfo ImagesGenerator::CreateImageInfo(vk::Extent2D extent, vk::Fo
     return imageCreateInfo;
 }
 
-vk::ImageViewCreateInfo ImagesGenerator::CreateImageViewInfo(vk::Image image, vk::Format fomat, vk::ImageAspectFlags aspectFlag)
+vk::ImageViewCreateInfo SwapChainImage::CreateImageViewInfo(vk::Image image, vk::Format fomat, vk::ImageAspectFlags aspectFlag)
 {
     // 画像ビュー作成情報の初期化
     vk::ImageViewCreateInfo imageViewCreateInfo;
@@ -224,7 +154,7 @@ vk::ImageViewCreateInfo ImagesGenerator::CreateImageViewInfo(vk::Image image, vk
     return imageViewCreateInfo;
 }
 
-vk::MemoryAllocateInfo ImagesGenerator::AllocateImageMemory(vk::Device device, vk::PhysicalDevice physicalDevice, vk::Image image, vk::MemoryPropertyFlags propertyFlags)
+vk::MemoryAllocateInfo SwapChainImage::AllocateImageMemory(vk::Device device, vk::PhysicalDevice physicalDevice, vk::Image image, vk::MemoryPropertyFlags propertyFlags)
 {
     // イメージのメモリ要件を取得
     vk::MemoryRequirements memoryRequirements = device.getImageMemoryRequirements(image);
@@ -242,7 +172,7 @@ vk::MemoryAllocateInfo ImagesGenerator::AllocateImageMemory(vk::Device device, v
     return allocateInfo;
 }
 
-uint32_t ImagesGenerator::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Image image, vk::MemoryPropertyFlags findType)
+uint32_t SwapChainImage::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Image image, vk::MemoryPropertyFlags findType)
 {
     // イメージのメモリ要件を取得
     vk::MemoryRequirements memoryRequirements = logicalDevice.getImageMemoryRequirements(image);

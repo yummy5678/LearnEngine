@@ -3,7 +3,7 @@
 #include "GeneratorBase.h"
 #include "SwapChainUtility.h"
 
-class RenderpassGenerator : public CGeneratorBase
+class RenderpassGenerator : public GeneratorBase
 {
 public:
 	RenderpassGenerator();

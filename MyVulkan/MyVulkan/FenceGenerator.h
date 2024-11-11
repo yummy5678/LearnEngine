@@ -4,7 +4,7 @@
 
 
 class FenceGenerator :
-    public CGeneratorBase
+    public GeneratorBase
 {
 public:
     FenceGenerator();

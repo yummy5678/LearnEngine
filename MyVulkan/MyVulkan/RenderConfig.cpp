@@ -33,14 +33,11 @@ vk::Pipeline RenderConfig::GetPipeline()
 	return m_GraphicsPipeline.GetPipeline();
 }
 
-<<<<<<< HEAD
 vk::PipelineLayout RenderConfig::GetPipelineLayout()
 {
 	return m_GraphicsPipeline.GetPipelineLayout();
 }
 
-=======
->>>>>>> 011c80f570db61d0cf1756b66acf04ca41bd1a4d
 std::vector<vk::PipelineShaderStageCreateInfo> RenderConfig::GetShaderStages()
 {
 	return m_Shader.GetShaderStages();

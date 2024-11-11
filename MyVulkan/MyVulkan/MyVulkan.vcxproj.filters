@@ -63,7 +63,7 @@
     <ClCompile Include="PhysicalDeviceSelector.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="ImagesGenerator.cpp">
+    <ClCompile Include="SwapchainImage.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="WriteImage.cpp">
@@ -224,7 +224,7 @@
     <ClInclude Include="PhysicalDeviceSelector.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="ImagesGenerator.h">
+    <ClInclude Include="SwapchainImage.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="SwapGraphicCommandController.h">

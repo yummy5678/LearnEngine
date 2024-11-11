@@ -9,7 +9,7 @@
 #include "CommandGenerator.h"
 
 
-class DeviceGenerator : CGeneratorBase
+class DeviceGenerator : GeneratorBase
 {
 public:
 	DeviceGenerator();

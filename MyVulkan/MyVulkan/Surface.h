@@ -7,7 +7,7 @@
 #include "InstanceExtensionManager.h"
 
 
-class SurfaceGenerator : public CGeneratorBase
+class SurfaceGenerator : public GeneratorBase
 {
 public:
 	SurfaceGenerator(InstanceExtensionManager& instanceExtension);

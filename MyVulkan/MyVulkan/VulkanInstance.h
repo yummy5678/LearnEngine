@@ -10,7 +10,7 @@
 
 
 // インスタンス拡張機能のリストを作成する
-class InstanceGenerator : public CGeneratorBase
+class InstanceGenerator : public GeneratorBase
 {
 public:
 	InstanceGenerator();

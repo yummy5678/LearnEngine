@@ -3,11 +3,11 @@
 #include <stdexcept>
 #include <iostream>
 
-class CGeneratorBase
+class GeneratorBase
 {
 public:
-	CGeneratorBase();
-	~CGeneratorBase();
+	GeneratorBase();
+	~GeneratorBase();
 
 
 protected:

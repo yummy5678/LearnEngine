@@ -10,7 +10,7 @@
 #include "VertexBuffer.h"
 #include "DeviceExtensionManager.h"
 
-class RenderingPipelineCreator : CGeneratorBase
+class RenderingPipelineCreator : GeneratorBase
 {
 public:
 	RenderingPipelineCreator(DeviceExtensionManager& deviceExtensionManager);
