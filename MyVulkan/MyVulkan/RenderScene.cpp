@@ -1,15 +1,19 @@
-#include "Scene.h"
+#include "RenderScene.h"
 
-void Scene::Initialize()
+void RenderScene::Initialize(VmaAllocator allocator, RenderConfig* config)
 {
+	m_Allocator = allocator;
+	m_pConfig = config;
+
+
 	MeshManager& meshManager = MeshManager::getInstance();
 	meshManager.Load("");
-	m_Object.SetMesh(meshManager.GetMesh(""));
+	m_Object.SetMesh(allocator, meshManager.GetMesh(""));
 	
 
 }
 
-void Scene::Update()
+void RenderScene::Update()
 {
 	float now = glfwGetTime();
 	deltaTime = now - lastTime;
@@ -22,17 +26,22 @@ void Scene::Update()
 	testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	m_Object.SetTransform(testMat);
 
-	m_Camera.UpdateVBuffer();
+	m_Camera.UpdateBuffer(m_Allocator);
 
 }
 
-std::vector<SceneObject> Scene::GetObjects()
+std::vector<SceneObject> RenderScene::GetObjects()
 {
 	return { m_Object };
 }
 
-SceneCamera Scene::GetMainCamera()
+SceneCamera RenderScene::GetMainCamera()
 {
 	return m_Camera;
+}
+
+RenderConfig* RenderScene::GetRenderConfig()
+{
+	return m_pConfig;
 }
 

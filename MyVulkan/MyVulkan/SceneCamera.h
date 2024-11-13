@@ -9,7 +9,7 @@ public:
 	~SceneCamera();
 
 
-	void UpdateVBuffer(VmaAllocator allocator, ViewProjection viewProjection);
+	void UpdateBuffer(VmaAllocator allocator, ViewProjection viewProjection);
 	vk::DescriptorSet GetDescriptorSet();
 
 

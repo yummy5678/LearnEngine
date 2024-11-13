@@ -32,62 +32,45 @@
 #include "VulkanInstance.h"
 #include "Surface.h"
 #include "Device.h"
-#include "ImagesGenerator.h"
-#include "SwapChainUtility.h"
-#include "RenderPassUtility.h"
-//#include "GraphicsPipelineCreator.h"
-#include "FramebufferGenerator.h"
-#include "CommandGenerator.h"
 #include "WriteImage.cpp"
-#include "SwapGraphicCommandController.h"
 
 //#include "RenderPipeline.h"
 
 
-class VulkanRenderer
+class VulkanInitializer
 {
 public:
-	VulkanRenderer();
-	~VulkanRenderer();
+	VulkanInitializer();
+	~VulkanInitializer();
 
-	int init(GameWindow renderWindow);
-	void setRenderConfig(RenderConfig renderConfig);
+	int init(GameWindow renderWindow, DeviceExtensionCollector extension);
 
-	// MeshModel
-	void SetScene(Scene* pScene);
-	//void updateModel(int modelId, glm::mat4 newModel);
+	vk::Instance		GetInstance();
+	vk::Device			GetLogicalDevice();
+	vk::PhysicalDevice	GetPhygicalDevice();
+	VmaAllocator		GetVmaAllocator();
 
-	void Draw(Scene scene);
+
 	void cleanup();
 
 private:
 	GLFWwindow* m_pWindow;	
-	Scene*		m_pScene;	// 描画したいオブジェクトの情報が入ったクラス
+	//RenderScene*		m_pScene;	// 描画したいオブジェクトの情報が入ったクラス
 
-	int currentFrame = 0;
+	//int currentFrame = 0;
 
 	// 拡張機能
 	InstanceExtensionManager	m_InstanceExtension;
-	DeviceExtensionManager		m_DeviceExtension;
+	//DeviceExtensionCollector		m_DeviceExtension;
 
 	// オブジェクト
 	InstanceGenerator				m_InstanceGenerator;
 	SurfaceGenerator				m_SurfaceGenerator;
 	DeviceGenerator					m_DeviceGenerator;
-	//ImagesGenerator				m_ImageGenerator;
-	SwapchainGenerator				m_SwapchainGenerator;
-	RenderpassGenerator				m_RenderpassGenerator;
-	RenderingPipelineCreator		m_PipelineGenerator;
-	FramebufferGenerator			m_FramebufferGenerator;
-	SwapChainCommandGenerator		m_CommandGenerator;
-	SwapchainRenderer	m_GraphicController;
 
 	vk::PhysicalDevice	m_PhysicalDevice;
 	vk::Device			m_LogicalDevice;
 	VmaAllocator		m_VmaAllocator;			//アロケーター：物理デバイスのメモリ確保を補助してくれるオブジェクト
-	vk::RenderPass		m_Renderpass;
-	vk::Pipeline		m_GraphicsPipeline;
-
 
 	//コールバック
 	VkDebugReportCallbackEXT callback;
@@ -134,8 +117,8 @@ private:
 
 
 
-	VkPipeline secondPipeline;
-	VkPipelineLayout secondPipelineLayout;
+	//VkPipeline secondPipeline;
+	//VkPipelineLayout secondPipelineLayout;
 
 	
 	void createPushConstantRange();

@@ -2,19 +2,19 @@
 
 
 
-SwapchainGenerator::SwapchainGenerator(DeviceExtensionManager& deviceExtensionManager)
+SwapchainRenderer::SwapchainRenderer(DeviceExtensionCollector& deviceExtensionManager)
 {
     m_ClassName = "SwapchainGenerator";
 
     deviceExtensionManager.UseSwapchain();
 }
 
-SwapchainGenerator::~SwapchainGenerator()
+SwapchainRenderer::~SwapchainRenderer()
 {
 
 }
 
-void SwapchainGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+void SwapchainRenderer::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     std::cout  << m_ClassName << "を作成" << std::endl;
     m_bCreated = true;
@@ -23,13 +23,13 @@ void SwapchainGenerator::Create(vk::Device logicalDevice, vk::PhysicalDevice phy
 
     m_Swapchain = logicalDevice.createSwapchainKHR(m_SwapchainInfo);
 
-    m_Images.CreateColor(logicalDevice, physicalDevice, m_Swapchain, m_SwapchainInfo);
+    m_SwapChainImages.Create(logicalDevice, physicalDevice, m_Swapchain, m_SwapchainInfo);
 
     //コマンドバッファの作成
     m_CommandGenerator.Create(logicalDevice, physicalDevice, m_SwapchainInfo.minImageCount);
 }
 
-void SwapchainGenerator::Destroy(vk::Device logicalDevice)
+void SwapchainRenderer::Destroy(vk::Device logicalDevice)
 {
     //中身が作成されていないなら解放処理も行わない
     if (m_bCreated == false) return;
@@ -39,41 +39,44 @@ void SwapchainGenerator::Destroy(vk::Device logicalDevice)
     m_LogicalDevice.destroySwapchainKHR(m_Swapchain);
 }
 
-vk::SwapchainKHR SwapchainGenerator::GetSwapchain()
+vk::SwapchainKHR SwapchainRenderer::GetSwapchain()
 {
     CheckCreated();
     return m_Swapchain;
 }
 
-vk::SwapchainCreateInfoKHR SwapchainGenerator::GetSwapchainInfo()
+vk::SwapchainCreateInfoKHR SwapchainRenderer::GetSwapchainInfo()
 {
     CheckCreated();
     return m_SwapchainInfo;
 }
 
-SwapChainImage SwapchainGenerator::GetImages()
+SwapChainImage SwapchainRenderer::GetImages()
 {
     CheckCreated();
-    return m_Images;
+    return m_SwapChainImages;
 }
 
-void SwapchainGenerator::DrawFrame(std::vector<RenderConfig>& configs)
+vk::Extent2D SwapchainRenderer::GetFrameExtent()
+{
+    return m_SwapchainInfo.imageExtent;
+}
+
+void SwapchainRenderer::UpdateFrame(std::vector<RenderConfig*> configs)
 {
     m_CommandGenerator.DrawFrame(
         0,
         configs,
-        m_Images.GetColorImageViews()[0],
-        m_Images.GetColorImageViews()[0]);
-}
+        m_SwapChainImages.GetColorImageViews()[0],
+        m_SwapChainImages.GetColorImageViews()[0]);
 
-void SwapchainGenerator::PresentFrame()
-{
+    m_CommandGenerator.PresentFrame(m_Swapchain, 0);
 }
 
 /// <summary>
 /// スワップチェーンインフォの作成
 /// </summary>
-vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+vk::SwapchainCreateInfoKHR SwapchainRenderer::CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     // スワップチェーンの設定を行う
     // サーフェスの機能を取得
@@ -160,7 +163,7 @@ vk::SwapchainCreateInfoKHR SwapchainGenerator::CreateSwapchainInfo(vk::PhysicalD
 //
 //}
 
-vk::SurfaceFormatKHR SwapchainGenerator::SelectSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
+vk::SurfaceFormatKHR SwapchainRenderer::SelectSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
 {
     for (const auto& availableFormat : availableFormats)
     {
@@ -174,7 +177,7 @@ vk::SurfaceFormatKHR SwapchainGenerator::SelectSurfaceFormat(const std::vector<v
     return availableFormats[0];
 }
 
-vk::PresentModeKHR SwapchainGenerator::SelectPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
+vk::PresentModeKHR SwapchainRenderer::SelectPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
 {
     for (const auto& availablePresentMode : availablePresentModes)
     {

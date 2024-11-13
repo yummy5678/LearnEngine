@@ -9,44 +9,50 @@
 #include "Renderer.h"		//Vulkanのレンダラー処理をまとめている
 #include "RenderConfig.h"
 
-GameWindow m_pWindow;
-VulkanRenderer vulkanRenderer;	//レンダラー
+
 
 int main()
 {	
-	RenderConfig renderConfig;	// 描画方法の形式を決めるオブジェクト
-	renderConfig.Initialize();
+	GameWindow m_Window;	
+	DeviceExtensionCollector	deviceExtension;
+	VulkanInitializer			vulkanInitializer;	//レンダラー
+	SwapchainRenderer			m_GraphicController(deviceExtension);
+
 
 	// ウィンドウを作成
-	m_pWindow.init("Vulkan Window", windowWidth, windowHeight);
+	m_Window.init("Vulkan Window", windowWidth, windowHeight);
 
 	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
-	if (vulkanRenderer.init(m_pWindow) == EXIT_FAILURE)
+	if (vulkanInitializer.init(m_Window, deviceExtension) == EXIT_FAILURE)
 	{
 		return EXIT_FAILURE;
 	}
+
+	RenderConfig renderConfig;	// 描画方法の形式を決めるオブジェクト
+	renderConfig.Initialize(vulkanInitializer.GetLogicalDevice(), m_GraphicController.GetFrameExtent());
+
+
 
 	RenderScene scene;
 	scene.Initialize();
 
 	//int helicopter = vulkanRenderer.createMeshModel("Models/uh60.obj");
-	vulkanRenderer.setRenderConfig(renderConfig);
+	//vulkanRenderer.setRenderConfig(renderConfig);
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
-	while (!m_pWindow.checkCloseWindow())
+	while (!m_Window.checkCloseWindow())
 	{
 		//ここで毎フレーム更新を行う
 		glfwPollEvents();
 		scene.Update();
-		vulkanRenderer;
 
-		vulkanRenderer.Draw();
+		m_GraphicController.UpdateFrame({ &renderConfig });
 	}
 
-	vulkanRenderer.cleanup();
+	vulkanInitializer.cleanup();
 
 	// 作成したウィンドウを片づける
-	m_pWindow.kill();
+	m_Window.kill();
 
 	return EXIT_SUCCESS;
 }

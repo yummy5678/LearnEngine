@@ -25,7 +25,6 @@ public:
 	vk::Pipeline		GetPipeline();
 	vk::PipelineLayout	GetPipelineLayout();
 	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
-	Scene* GetPScene();
 
 
 private:
@@ -38,11 +37,7 @@ private:
 	RenderingPipelineCreator	m_GraphicsPipeline;
 
 	//パイプラインに渡すシェーダー情報の作成クラス
-	PipelineShaderCreator	m_Shader;	
-
-
-	Scene* m_pRenderScene;
-
+	PipelineShaderCreator	m_Shader;
 
 
 

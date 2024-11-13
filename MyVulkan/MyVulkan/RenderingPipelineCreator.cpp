@@ -1,7 +1,7 @@
 #include "RenderingPipelineCreator.h"
 
 
-RenderingPipelineCreator::RenderingPipelineCreator(DeviceExtensionManager& deviceExtensionManager)
+RenderingPipelineCreator::RenderingPipelineCreator(DeviceExtensionCollector& deviceExtensionManager)
 {
 	m_ClassName = "PipelineGenerator";
 	deviceExtensionManager.UseDynamicRendering();

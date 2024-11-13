@@ -8,11 +8,11 @@
 #include "RenderConfig.h"
 #include "CommandGenerator.h"
 
-class SwapchainGenerator : public GeneratorBase
+class SwapchainRenderer : public GeneratorBase
 {
 public:
-	SwapchainGenerator(DeviceExtensionManager& deviceExtensionManager);
-	~SwapchainGenerator();
+	SwapchainRenderer(DeviceExtensionCollector& deviceExtensionManager);
+	~SwapchainRenderer();
 
 	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 	void Destroy(vk::Device logicalDevice);
@@ -20,16 +20,15 @@ public:
 	vk::SwapchainKHR			GetSwapchain();
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
 	SwapChainImage				GetImages();
-
-	void						DrawFrame(std::vector<RenderConfig>& configs);
-	void						PresentFrame();
+	vk::Extent2D				GetFrameExtent();
+	void						UpdateFrame(std::vector<RenderConfig*> configs);
 
 private:
 	vk::Device m_LogicalDevice;
 	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
 	vk::SwapchainKHR					m_Swapchain;
 
-	SwapChainImage						m_Images;
+	SwapChainImage						m_SwapChainImages;
 
 	SwapChainCommandGenerator			m_CommandGenerator;
 

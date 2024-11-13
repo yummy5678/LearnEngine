@@ -1,6 +1,6 @@
 #include "DynamicRendering.h"
 
-VDynamicRenderingCommand::VDynamicRenderingCommand(DeviceExtensionManager& deviceExtensionManager)
+VDynamicRenderingCommand::VDynamicRenderingCommand(DeviceExtensionCollector& deviceExtensionManager)
 {
 	deviceExtensionManager.UseDynamicRendering();
 }

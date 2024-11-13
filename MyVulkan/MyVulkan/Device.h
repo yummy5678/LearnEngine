@@ -15,7 +15,7 @@ public:
 	DeviceGenerator();
 	~DeviceGenerator();
 
-	void Create(DeviceExtensionManager extensionManager,vk::Instance instance, vk::SurfaceKHR surface);
+	void Create(DeviceExtensionCollector extensionManager,vk::Instance instance, vk::SurfaceKHR surface);
 	void Destroy();
 
 	vk::PhysicalDevice	GetPhysicalDevice();
@@ -31,7 +31,7 @@ private:
 
 
 	//論理デバイスの作成情報を作成
-	vk::DeviceCreateInfo CreateDeviceInfo(DeviceExtensionManager& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos);
+	vk::DeviceCreateInfo CreateDeviceInfo(DeviceExtensionCollector& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos);
 };
 
 

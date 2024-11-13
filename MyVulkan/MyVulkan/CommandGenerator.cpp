@@ -69,7 +69,7 @@ std::vector<vk::CommandBuffer> SwapChainCommandGenerator::GetCommandBuffers()
     return m_CommandBuffers;
 }
 
-void SwapChainCommandGenerator::UpdateRendering(vk::SwapchainKHR swapchain, uint32_t commandIndex, std::vector<RenderConfig>& configs, vk::ImageView colorImage, vk::ImageView depthImage)
+void SwapChainCommandGenerator::UpdateRendering(vk::SwapchainKHR swapchain, uint32_t commandIndex, std::vector<RenderConfig*> configs, vk::ImageView colorImage, vk::ImageView depthImage)
 {
     DrawFrame(commandIndex, configs, colorImage, depthImage);
     PresentFrame(swapchain, commandIndex);
@@ -79,7 +79,7 @@ void SwapChainCommandGenerator::UpdateRendering(vk::SwapchainKHR swapchain, uint
 
 void SwapChainCommandGenerator::DrawFrame(
     uint32_t                    commandIndex,
-    std::vector<RenderConfig>&  configs, 
+    std::vector<RenderConfig*>  configs, 
     vk::ImageView               colorImageView, 
     vk::ImageView               depthImageView)
 {
@@ -105,7 +105,7 @@ void SwapChainCommandGenerator::DrawFrame(
     {
         // ダイナミックレンダリングの設定
         vk::RenderingInfo renderingInfo;
-        renderingInfo.renderArea = config.GetRenderRect();
+        renderingInfo.renderArea = config->GetRenderRect();
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
@@ -115,10 +115,10 @@ void SwapChainCommandGenerator::DrawFrame(
         commandBuffer.beginRendering(renderingInfo);
 
         // 使用するパイプラインをバインドします。
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config.GetPipeline());
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config->GetPipeline());
 
-        Scene* scene = config.GetPScene();
-        RenderObjects(commandBuffer, config.GetPipelineLayout(), scene->GetObjects(), scene->GetMainCamera());
+        RenderScene* scene = config->GetPScene();
+        RenderObjects(commandBuffer, config->GetPipelineLayout(), scene->GetObjects(), scene->GetMainCamera());
         
     }
 

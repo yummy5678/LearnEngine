@@ -153,10 +153,9 @@
     <ClCompile Include="PhysicalDeviceSelector.cpp" />
     <ClCompile Include="PipelineShaderCreator.cpp" />
     <ClCompile Include="RenderConfig.cpp" />
-    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="RenderScene.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="SemaphoreGenerator.cpp" />
-    <ClCompile Include="SwapGraphicCommandController.cpp" />
     <ClCompile Include="ModelTexture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="VBufferBase.cpp" />
@@ -210,12 +209,11 @@
     <ClInclude Include="PipelineShaderCreator.h" />
     <ClInclude Include="PipelineDescriptions.h" />
     <ClInclude Include="RenderConfig.h" />
-    <ClInclude Include="Scene.h" />
+    <ClInclude Include="RenderScene.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="SemaphoreGenerator.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="stb_image.h" />
-    <ClInclude Include="SwapGraphicCommandController.h" />
     <ClInclude Include="ModelTexture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VBufferBase.h" />

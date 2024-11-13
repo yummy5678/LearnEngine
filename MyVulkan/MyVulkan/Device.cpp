@@ -8,7 +8,7 @@ DeviceGenerator::~DeviceGenerator()
 {
 }
 
-void DeviceGenerator::Create(DeviceExtensionManager extensionManager, vk::Instance instance, vk::SurfaceKHR surface)
+void DeviceGenerator::Create(DeviceExtensionCollector extensionManager, vk::Instance instance, vk::SurfaceKHR surface)
 {
 	m_bCreated = true;
 
@@ -43,7 +43,7 @@ vk::Device DeviceGenerator::GetLogicalDevice()
 	return m_LogicalDevice;
 }
 
-vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(DeviceExtensionManager& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
+vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(DeviceExtensionCollector& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
 {
 	auto extension = extensionManager.GetExtensions(physicalDevice);
 

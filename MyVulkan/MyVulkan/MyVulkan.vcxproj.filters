@@ -69,9 +69,6 @@
     <ClCompile Include="WriteImage.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="SwapGraphicCommandController.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="SemaphoreGenerator.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -93,7 +90,7 @@
     <ClCompile Include="DescriptorBase.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
+    <ClCompile Include="RenderScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="ModelTexture.cpp">
@@ -227,9 +224,6 @@
     <ClInclude Include="SwapchainImage.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="SwapGraphicCommandController.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="SemaphoreGenerator.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -260,7 +254,7 @@
     <ClInclude Include="DescriptorBase.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
+    <ClInclude Include="RenderScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="ModelTexture.h">

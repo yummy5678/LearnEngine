@@ -7,7 +7,7 @@
 class VDynamicRenderingCommand
 {
 public:
-	VDynamicRenderingCommand(DeviceExtensionManager& deviceExtensionManager);
+	VDynamicRenderingCommand(DeviceExtensionCollector& deviceExtensionManager);
 	~VDynamicRenderingCommand();
 
 	void RenderWithDynamicRendering(

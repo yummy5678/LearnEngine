@@ -8,7 +8,7 @@ SceneCamera::~SceneCamera()
 {
 }
 
-void SceneCamera::UpdateVBuffer(VmaAllocator allocator, ViewProjection viewProjection)
+void SceneCamera::UpdateBuffer(VmaAllocator allocator, ViewProjection viewProjection)
 {
 	m_ProjectionBuffer.Update(allocator, viewProjection);
 

@@ -43,7 +43,7 @@ std::vector<vk::PipelineShaderStageCreateInfo> RenderConfig::GetShaderStages()
 	return m_Shader.GetShaderStages();
 }
 
-Scene* RenderConfig::GetPScene()
+RenderScene* RenderConfig::GetPScene()
 {
 	return m_pRenderScene;
 }
