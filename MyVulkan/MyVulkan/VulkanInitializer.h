@@ -11,9 +11,6 @@
 
 // STB
 #include "stb/stb_image.h"
-// Mesh
-#include "Mesh.h"
-#include "MeshModel.h"
 
 
 #include <vulkan/vulkan.hpp>

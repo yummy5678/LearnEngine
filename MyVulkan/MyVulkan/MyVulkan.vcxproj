@@ -130,7 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BufferGenerator.cpp" />
+    <ClCompile Include="RenderingUnit.cpp" />
     <ClCompile Include="SceneCamera.cpp" />
     <ClCompile Include="DescriptorBase.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
@@ -147,7 +147,6 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshBuffer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
-    <ClCompile Include="MeshModel.cpp" />
     <ClCompile Include="MeshObjectBuffer.cpp" />
     <ClCompile Include="Observer.cpp" />
     <ClCompile Include="PhysicalDeviceSelector.cpp" />
@@ -159,7 +158,6 @@
     <ClCompile Include="ModelTexture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="VBufferBase.cpp" />
-    <ClCompile Include="DynamicRendering.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexDescription.cpp" />
     <ClCompile Include="StagingBuffer.cpp" />
@@ -171,7 +169,7 @@
     <ClCompile Include="VulkanLayerManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
-    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="VulkanInitializer.cpp" />
     <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SwapChainUtility.cpp" />
@@ -182,7 +180,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BufferGenerator.h" />
+    <ClInclude Include="RenderingUnit.h" />
     <ClInclude Include="SceneCamera.h" />
     <ClInclude Include="DescriptorBase.h" />
     <ClInclude Include="FenceGenerator.h" />
@@ -198,10 +196,8 @@
     <ClInclude Include="RenderingPipelineCreator.h" />
     <ClInclude Include="InstanceExtensionManager.h" />
     <ClInclude Include="MaterialBuffer.h" />
-    <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshBuffer.h" />
     <ClInclude Include="MeshManager.h" />
-    <ClInclude Include="MeshModel.h" />
     <ClInclude Include="MeshObject.h" />
     <ClInclude Include="MeshObjectBuffer.h" />
     <ClInclude Include="Observer.h" />
@@ -217,7 +213,6 @@
     <ClInclude Include="ModelTexture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VBufferBase.h" />
-    <ClInclude Include="DynamicRendering.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexDescription.h" />
     <ClInclude Include="StagingBuffer.h" />
@@ -229,7 +224,7 @@
     <ClInclude Include="VTextureDescriptor.h" />
     <ClInclude Include="VulkanLayerManager.h" />
     <ClInclude Include="QueueUtility.h" />
-    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="VulkanInitializer.h" />
     <ClInclude Include="ShaderUtility.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="SwapChainUtility.h" />

@@ -13,7 +13,7 @@
 class RenderConfig
 {
 public:
-	RenderConfig();
+	RenderConfig() = default;
 	~RenderConfig();
 
 	void Initialize(vk::Device logicalDevice, vk::Extent2D extent);

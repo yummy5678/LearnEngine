@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include "MeshObject.h"
-#include "Mesh.h"
+
 
 //・・・・・・・・・・・・・・・・・・・・・・・・
 // パイプラインに渡す情報の定義
@@ -76,7 +76,7 @@ constexpr std::vector<vk::PushConstantRange> pushConstantModelRange = [] {
     vk::PushConstantRange	pushConstantRange;
     pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;	// 渡したいシェーダーステージ
     pushConstantRange.offset = 0;								        // 渡したデータからどの位置のデータを見るか
-    pushConstantRange.size = sizeof(Model);						        // 渡したいデータのサイズ
+    pushConstantRange.size = sizeof(Transform);						        // 渡したいデータのサイズ
 
     return std::vector<vk::PushConstantRange> { pushConstantRange };
 }();

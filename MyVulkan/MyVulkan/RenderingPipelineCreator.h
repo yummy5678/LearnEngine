@@ -5,8 +5,6 @@
 #include "ShaderUtility.h"
 #include "PipelineShaderCreator.h"
 #include "PipelineDescriptions.h"
-#include "Scene.h"
-
 #include "VertexBuffer.h"
 #include "DeviceExtensionManager.h"
 

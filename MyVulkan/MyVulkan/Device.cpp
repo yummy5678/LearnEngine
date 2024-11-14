@@ -55,8 +55,8 @@ vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(DeviceExtensionCollector&
 	deviceInfo.pQueueCreateInfos = queueCreateInfos.data();					// デバイスが必要とするキューを作成するためのキュー作成情報のリスト
 	deviceInfo.enabledLayerCount = 0;
 	deviceInfo.ppEnabledLayerNames = nullptr;
-	deviceInfo.enabledExtensionCount = (uint32_t)extension->size();			// 有効なロジカルデバイス拡張機能の数
-	deviceInfo.ppEnabledExtensionNames = extension->data();					// 有効なロジカルデバイス拡張機能のリスト
+	deviceInfo.enabledExtensionCount = (uint32_t)extension.size();			// 有効なロジカルデバイス拡張機能の数
+	deviceInfo.ppEnabledExtensionNames = &extension.emplace();					// 有効なロジカルデバイス拡張機能のリスト
 	deviceInfo.pEnabledFeatures = nullptr;
 
 	return deviceInfo;

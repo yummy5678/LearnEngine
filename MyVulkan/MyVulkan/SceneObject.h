@@ -3,7 +3,7 @@
 #include "MaterialBuffer.h"
 #include "MeshBuffer.h"
 
-using Transform = glm::mat4;
+
 
 
 class SceneObject

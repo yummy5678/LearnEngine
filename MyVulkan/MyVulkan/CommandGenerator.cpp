@@ -1,5 +1,5 @@
 #include "CommandGenerator.h"
-#include "RenderConfig.h"
+
 
 
 
@@ -69,17 +69,9 @@ std::vector<vk::CommandBuffer> SwapChainCommandGenerator::GetCommandBuffers()
     return m_CommandBuffers;
 }
 
-void SwapChainCommandGenerator::UpdateRendering(vk::SwapchainKHR swapchain, uint32_t commandIndex, std::vector<RenderConfig*> configs, vk::ImageView colorImage, vk::ImageView depthImage)
-{
-    DrawFrame(commandIndex, configs, colorImage, depthImage);
-    PresentFrame(swapchain, commandIndex);
-
-    //後でここにセマフォとフェンスの設定も追加したい
-}
-
 void SwapChainCommandGenerator::DrawFrame(
     uint32_t                    commandIndex,
-    std::vector<RenderConfig*>  configs, 
+    std::vector<RenderingUnit>  renderingUnit,
     vk::ImageView               colorImageView, 
     vk::ImageView               depthImageView)
 {
@@ -101,8 +93,15 @@ void SwapChainCommandGenerator::DrawFrame(
     depthAttachment.clearValue = vk::ClearValue(vk::ClearDepthStencilValue(1.0f, 0));
 
     auto commandBuffer = m_CommandBuffers[commandIndex];
-    for (auto& config : configs)
+
+
+    for (int i = 0; i < renderingUnit.size(); i++)
     {
+        auto config = renderingUnit[i].config;
+        auto scene = renderingUnit[i].scene;
+
+        if (config == nullptr || scene == nullptr) continue; //nullptrが入っている描画情報は無視する
+
         // ダイナミックレンダリングの設定
         vk::RenderingInfo renderingInfo;
         renderingInfo.renderArea = config->GetRenderRect();
@@ -117,9 +116,7 @@ void SwapChainCommandGenerator::DrawFrame(
         // 使用するパイプラインをバインドします。
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config->GetPipeline());
 
-        RenderScene* scene = config->GetPScene();
         RenderObjects(commandBuffer, config->GetPipelineLayout(), scene->GetObjects(), scene->GetMainCamera());
-        
     }
 
     commandBuffer.endRendering();
@@ -284,6 +281,7 @@ void SwapChainCommandGenerator::RenderObjects(vk::CommandBuffer commandBuffer, v
             commandBuffer.bindIndexBuffer(mesh.GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
             commandBuffer.drawIndexed(mesh.GetIndex().GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
         }
+    }
 }
 
 

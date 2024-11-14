@@ -21,7 +21,7 @@ public:
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
 	SwapChainImage				GetImages();
 	vk::Extent2D				GetFrameExtent();
-	void						UpdateFrame(std::vector<RenderConfig*> configs);
+	void						UpdateFrame(std::vector<RenderingUnit> renderingUnits);
 
 private:
 	vk::Device m_LogicalDevice;

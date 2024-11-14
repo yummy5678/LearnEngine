@@ -7,6 +7,7 @@
 #include "GraphicsDefine.h"
 #include "GameWindow.h"
 #include "Renderer.h"		//Vulkan‚ÌƒŒƒ“ƒ_ƒ‰[ˆ—‚ğ‚Ü‚Æ‚ß‚Ä‚¢‚é
+#include "RenderScene.h"
 #include "RenderConfig.h"
 
 
@@ -34,7 +35,7 @@ int main()
 
 
 	RenderScene scene;
-	scene.Initialize();
+	scene.Initialize(vulkanInitializer.GetVmaAllocator());
 
 	//int helicopter = vulkanRenderer.createMeshModel("Models/uh60.obj");
 	//vulkanRenderer.setRenderConfig(renderConfig);
@@ -46,7 +47,7 @@ int main()
 		glfwPollEvents();
 		scene.Update();
 
-		m_GraphicController.UpdateFrame({ &renderConfig });
+		m_GraphicController.UpdateFrame({ { &renderConfig, &scene } });
 	}
 
 	vulkanInitializer.cleanup();

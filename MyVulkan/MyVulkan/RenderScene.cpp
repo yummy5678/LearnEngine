@@ -1,14 +1,20 @@
 #include "RenderScene.h"
 
-void RenderScene::Initialize(VmaAllocator allocator, RenderConfig* config)
+RenderScene::RenderScene()
+{
+}
+
+RenderScene::~RenderScene()
+{
+}
+
+void RenderScene::Initialize(VmaAllocator allocator)
 {
 	m_Allocator = allocator;
-	m_pConfig = config;
-
 
 	MeshManager& meshManager = MeshManager::getInstance();
 	meshManager.Load("");
-	m_Object.SetMesh(allocator, meshManager.GetMesh(""));
+	m_Object.SetMesh(allocator, *meshManager.GetMesh(""));
 	
 
 }
@@ -26,7 +32,7 @@ void RenderScene::Update()
 	testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	m_Object.SetTransform(testMat);
 
-	m_Camera.UpdateBuffer(m_Allocator);
+	//m_Camera.UpdateBuffer(m_Allocator);
 
 }
 
@@ -40,8 +46,4 @@ SceneCamera RenderScene::GetMainCamera()
 	return m_Camera;
 }
 
-RenderConfig* RenderScene::GetRenderConfig()
-{
-	return m_pConfig;
-}
 

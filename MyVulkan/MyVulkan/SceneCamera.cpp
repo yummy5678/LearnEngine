@@ -13,7 +13,7 @@ void SceneCamera::UpdateBuffer(VmaAllocator allocator, ViewProjection viewProjec
 	m_ProjectionBuffer.Update(allocator, viewProjection);
 
 	// ディスクリプタの作成と更新
-	auto logicalDevice = allocator->m_hDevice;
+	vk::Device logicalDevice(allocator->m_hDevice);
 	if (!m_DescriptorPool) CreateSingleDescriptorPool(m_DescriptorPool, logicalDevice);
 	if (!m_DescriptorSet) CreateSingleDescriptorSet(logicalDevice, m_DescriptorPool);
 	UpdateDescriptorSet(logicalDevice, m_DescriptorSet, m_ProjectionBuffer.GetBuffer(), m_ProjectionBuffer.GetDataSize());

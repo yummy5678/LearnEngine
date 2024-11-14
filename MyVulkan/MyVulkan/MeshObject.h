@@ -53,6 +53,6 @@ struct MeshObject
 	//Animation animation;	// オブジェクトのアニメーション情報
 };
 
-
+using Transform = glm::mat4;
 
 //頂点バッファとインデックスバッファについて

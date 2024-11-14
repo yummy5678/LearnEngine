@@ -1,8 +1,10 @@
 #include "StagingImageBuffer.h"
 
 VStagingImageBuffer::VStagingImageBuffer() :
-	VBufferBase(stagingImageUsage)
+	VBufferBase(stagingImageUsage, VMA_MEMORY_USAGE_AUTO_PREFER_HOST)
 {
+	//m_BufferUsage = stagingImageUsage;
+	//m_MemoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
 }
 
 VStagingImageBuffer::~VStagingImageBuffer()
@@ -26,7 +28,7 @@ void VStagingImageBuffer::Initialize(VmaAllocator allocator, uint32_t imageWidth
 	m_CommandBuffer = CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
 	m_Queue = m_LogicalDevice.getQueue(queueFamily.GetTransferIndex(), 0);
 
-	auto stagingBufferInfo = CreateBufferInfo(dataSize, m_Usage, m_SharingMode);
+	auto stagingBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
 
 
 	// CPU‚©‚çGPU‚Öî•ñ‚ğ‘—‚é‚Ì‚É“K‚µ‚½ƒƒ‚ƒŠ—Ìˆæ‚ğì¬‚µ‚½‚¢

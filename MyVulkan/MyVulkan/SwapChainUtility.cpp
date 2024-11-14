@@ -62,15 +62,18 @@ vk::Extent2D SwapchainRenderer::GetFrameExtent()
     return m_SwapchainInfo.imageExtent;
 }
 
-void SwapchainRenderer::UpdateFrame(std::vector<RenderConfig*> configs)
+void SwapchainRenderer::UpdateFrame(std::vector<RenderingUnit> renderingUnits)
 {
-    m_CommandGenerator.DrawFrame(
-        0,
-        configs,
-        m_SwapChainImages.GetColorImageViews()[0],
-        m_SwapChainImages.GetColorImageViews()[0]);
+    vk::ResultValue acquire = m_LogicalDevice.acquireNextImageKHR(m_Swapchain, std::numeric_limits<uint64_t>::max(), {}, nullptr);
+    if (acquire.result != vk::Result::eSuccess) std::cerr << "次フレームの取得に失敗しました。" << std::endl;
 
-    m_CommandGenerator.PresentFrame(m_Swapchain, 0);
+    m_CommandGenerator.DrawFrame(
+        acquire.value,
+        renderingUnits,
+        m_SwapChainImages.GetColorImageViews()[acquire.value],
+        m_SwapChainImages.GetColorImageViews()[acquire.value]);
+
+    m_CommandGenerator.PresentFrame(m_Swapchain, acquire.value);
 }
 
 /// <summary>
@@ -130,38 +133,6 @@ vk::SwapchainCreateInfoKHR SwapchainRenderer::CreateSwapchainInfo(vk::PhysicalDe
 
     return swapchainInfo;
 }
-
-//vk::ImageView SwapchainGenerator::CreateImageView(vk::Device logicalDevice, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags)
-//{
-//    // 画像ビュー作成情報の初期化
-//    vk::ImageViewCreateInfo imageViewCreateInfo;
-//    imageViewCreateInfo.image = image;                                  // View を作成するための Image
-//    imageViewCreateInfo.viewType = vk::ImageViewType::e2D;              // Image の種類(1D, 2D, 3D, Cube など)
-//    imageViewCreateInfo.format = format;                                // Image データのフォーマット
-//    imageViewCreateInfo.components.r = vk::ComponentSwizzle::eIdentity; // RGBA コンポーネントを他の RGBA 値にリマップすることができます
-//    imageViewCreateInfo.components.g = vk::ComponentSwizzle::eIdentity;
-//    imageViewCreateInfo.components.b = vk::ComponentSwizzle::eIdentity;
-//    imageViewCreateInfo.components.a = vk::ComponentSwizzle::eIdentity;
-//
-//    // Subresource は Image の一部だけを表示するための設定です
-//    imageViewCreateInfo.subresourceRange.aspectMask = aspectFlags;      // Image のどの面を表示するか(例: COLOR_BIT は色を表示するため)
-//    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;              // 表示を開始する Mipmap レベル
-//    imageViewCreateInfo.subresourceRange.levelCount = 1;                // 表示する Mipmap レベルの数
-//    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;            // 表示を開始する配列レベル
-//    imageViewCreateInfo.subresourceRange.layerCount = 1;                // 表示する配列レベルの数
-//
-//    //イメージビューを作成
-//    vk::ImageView imageView = logicalDevice.createImageView(imageViewCreateInfo);
-//    // vkCreateImageView の結果が成功ではない場合、エラーをスローします
-//    if (!imageView)
-//    {
-//        throw std::runtime_error("イメージビューの作成に失敗しました!");
-//    }
-//
-//    // 作成した Image View のハンドルを返します
-//    return imageView;
-//
-//}
 
 vk::SurfaceFormatKHR SwapchainRenderer::SelectSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
 {

@@ -2,7 +2,7 @@
 
 SemaphoreGenerator::SemaphoreGenerator():
 	m_LogicalDevice(VK_NULL_HANDLE),
-	m_Signals(),
+	m_Semaphores(),
 	m_RenderWaits()
 {
 	m_ClassName = "SemaphoreGenerator";
@@ -19,7 +19,7 @@ void SemaphoreGenerator::Create(vk::Device logicalDevice, uint32_t semaphoreCoun
 	m_LogicalDevice = logicalDevice;
 
 	// セマフォの作成
-	m_Signals		= CreateSemaphore(logicalDevice, semaphoreCount);
+	m_Semaphores		= CreateSemaphore(logicalDevice, semaphoreCount);
 	m_RenderWaits	= CreateSemaphore(logicalDevice, semaphoreCount);
 
 }
@@ -40,7 +40,7 @@ void SemaphoreGenerator::Destroy()
 std::vector<vk::Semaphore> SemaphoreGenerator::GetSignalSemaphores()
 {
 	CheckCreated();
-	return m_Signals;
+	return m_Semaphores;
 }
 
 std::vector<vk::Semaphore> SemaphoreGenerator::GetWaitSemaphores()
