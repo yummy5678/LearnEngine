@@ -13,10 +13,14 @@
 class RenderConfig
 {
 public:
-	RenderConfig() = default;
+	RenderConfig();
 	~RenderConfig();
 
-	void Initialize(vk::Device logicalDevice, vk::Extent2D extent);
+	void Initialize(
+		vk::Device logicalDevice, 
+		vk::Extent2D extent, 
+		vk::Format colorFomat, 
+		vk::Format depthFomat);
 
 	void Destroy();
 

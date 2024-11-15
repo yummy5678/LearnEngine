@@ -1,12 +1,10 @@
-#include "Renderer.h"
+#include "VulkanInitializer.h"
 
 
 VulkanInitializer::VulkanInitializer() :
-	m_pWindow(nullptr),
 	m_InstanceExtension(),
 	//m_DeviceExtension(),
 	m_InstanceGenerator(),
-	m_SurfaceGenerator(m_InstanceExtension),
 	m_DeviceGenerator()
 
 {
@@ -17,38 +15,29 @@ VulkanInitializer::~VulkanInitializer()
 }
 
 
-int VulkanInitializer::init(GameWindow renderWindow, DeviceExtensionCollector extension)
-{
-	m_pWindow = renderWindow.GetPointer(); //ウィンドウのポインタのセット
-	
+int VulkanInitializer::init()
+{	
 	try {
 		//インスタンスの作成
 		m_InstanceGenerator.Create(m_InstanceExtension);
-		auto instance = m_InstanceGenerator.GetInstanse();
+		m_Instance = m_InstanceGenerator.GetInstanse();
 
 		createDebugCallback();
 
-		//サーフェスの作成
-		m_SurfaceGenerator.CreateWindowSurface(instance,m_pWindow);
-		auto surface = m_SurfaceGenerator.GetSurface();
-
-
 		//物理・論理デバイスの作成
-		m_DeviceGenerator.Create(extension, instance, surface);
+		m_DeviceGenerator.Create(m_DeviceExtension, m_Instance);
+
 		//物理デバイスを取得
-		auto physicalDevice			= m_DeviceGenerator.GetPhysicalDevice();
-		auto surfaceCapabilities	= m_SurfaceGenerator.GetCapabilities(physicalDevice);
-		auto windowExtent			= surfaceCapabilities.currentExtent;
-		auto surfaceFomat			= m_SurfaceGenerator.GetFomats(physicalDevice)[0];
+		m_PhysicalDevice = m_DeviceGenerator.GetPhysicalDevice();
 
 		//論理デバイスを取得
-		auto logicalDevice	= m_DeviceGenerator.GetLogicalDevice();
+		m_LogicalDevice	= m_DeviceGenerator.GetLogicalDevice();
 
 		// アロケーターの作成
-		CreateAllocator(instance, logicalDevice, physicalDevice);
+		CreateAllocator(m_Instance, m_LogicalDevice, m_PhysicalDevice);
 
 		// Create our default "no texture" texture
-		createTexture("plain.png");
+		//createTexture("plain.png");
 	}
 	catch (const std::runtime_error& e) {
 		//エラーメッセージ受け取り
@@ -69,7 +58,7 @@ vk::Device VulkanInitializer::GetLogicalDevice()
 	return m_LogicalDevice;
 }
 
-vk::PhysicalDevice VulkanInitializer::GetPhygicalDevice()
+vk::PhysicalDevice VulkanInitializer::GetPhysicalDevice()
 {
 	return m_DeviceGenerator.GetPhysicalDevice();
 }
@@ -77,6 +66,23 @@ vk::PhysicalDevice VulkanInitializer::GetPhygicalDevice()
 VmaAllocator VulkanInitializer::GetVmaAllocator()
 {
 	return m_VmaAllocator;
+}
+
+InstanceExtension* VulkanInitializer::GetPInstanceExtension()
+{
+	return &m_InstanceExtension;
+}
+
+DeviceExtension* VulkanInitializer::GetPDeviceExtension()
+{
+	return &m_DeviceExtension;
+}
+
+bool VulkanInitializer::CheckSupportSurface(VkSurfaceKHR surface)
+{
+	//使用可能な物理デバイスを探してくる
+	PhysicalDeviceSelector selector(m_InstanceGenerator.GetInstanse());
+	return selector.CheckSupportSurface(m_PhysicalDevice, surface);
 }
 
 

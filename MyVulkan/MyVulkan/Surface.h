@@ -10,7 +10,8 @@
 class SurfaceGenerator : public GeneratorBase
 {
 public:
-	SurfaceGenerator(InstanceExtensionManager& instanceExtension);
+	SurfaceGenerator(InstanceExtension& instanceExtension);
+	SurfaceGenerator();
 	~SurfaceGenerator();
 
 	void CreateWindowSurface(vk::Instance instance, GLFWwindow* m_pWindow);

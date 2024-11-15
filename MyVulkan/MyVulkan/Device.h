@@ -5,7 +5,6 @@
 #include "PhysicalDeviceSelector.h"
 #include "VulkanExtensions.h"
 #include "QueueUtility.h"
-#include "SwapChainUtility.h"
 #include "CommandGenerator.h"
 
 
@@ -15,7 +14,7 @@ public:
 	DeviceGenerator();
 	~DeviceGenerator();
 
-	void Create(DeviceExtensionCollector extensionManager,vk::Instance instance, vk::SurfaceKHR surface);
+	void Create(DeviceExtension extensionManager,vk::Instance instance);
 	void Destroy();
 
 	vk::PhysicalDevice	GetPhysicalDevice();
@@ -31,7 +30,7 @@ private:
 
 
 	//論理デバイスの作成情報を作成
-	vk::DeviceCreateInfo CreateDeviceInfo(DeviceExtensionCollector& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos);
+	vk::DeviceCreateInfo CreateDeviceInfo(DeviceExtension& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos);
 };
 
 

@@ -3,7 +3,7 @@
 #include "GeneratorBase.h"
 #include "QueueUtility.h"
 #include "GraphicsDefine.h"
-#include "DeviceExtensionManager.h"
+#include "VulkanInitializer.h"
 #include "SwapchainImage.h"
 #include "RenderConfig.h"
 #include "CommandGenerator.h"
@@ -11,7 +11,7 @@
 class SwapchainRenderer : public GeneratorBase
 {
 public:
-	SwapchainRenderer(DeviceExtensionCollector& deviceExtensionManager);
+	SwapchainRenderer(VulkanInitializer* initializer);
 	~SwapchainRenderer();
 
 	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);

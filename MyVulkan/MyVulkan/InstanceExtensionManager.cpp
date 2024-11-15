@@ -3,15 +3,15 @@
 
 
 
-InstanceExtensionManager::InstanceExtensionManager()
+InstanceExtension::InstanceExtension()
 {
 }
 
-InstanceExtensionManager::~InstanceExtensionManager()
+InstanceExtension::~InstanceExtension()
 {
 }
 
-std::vector<const char*>* InstanceExtensionManager::GetExtensions()
+std::vector<const char*>* InstanceExtension::GetExtensions()
 {
 	m_ExtensionList.clear();
 	
@@ -34,12 +34,12 @@ std::vector<const char*>* InstanceExtensionManager::GetExtensions()
 	return &m_ExtensionList;
 }
 
-void InstanceExtensionManager::UseGLFW()
+void InstanceExtension::UseGLFW()
 {
 	m_bGLFW = true;
 }
 
-void InstanceExtensionManager::CreateGLFWExtension()
+void InstanceExtension::CreateGLFWExtension()
 {
 	std::cout << "GLFW拡張機能のリストの受け取り" << std::endl;
 
@@ -61,7 +61,7 @@ void InstanceExtensionManager::CreateGLFWExtension()
 	}
 }
 
-void InstanceExtensionManager::CreateValidationExtension()
+void InstanceExtension::CreateValidationExtension()
 {
 	// バリデーションが有効な場合、検証用のデバッグ情報拡張機能を追加する
 	m_ExtensionList.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
@@ -90,7 +90,7 @@ void InstanceExtensionManager::CreateValidationExtension()
 //    return false;
 //}
 
-bool InstanceExtensionManager::CheckExtensionsSupport(std::vector<const char*> checkExtensionNames)
+bool InstanceExtension::CheckExtensionsSupport(std::vector<const char*> checkExtensionNames)
 {
 	std::cout << "インスタンスの指定された拡張機能が利用出来るか確認" << std::endl;
 

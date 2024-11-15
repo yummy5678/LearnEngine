@@ -1,6 +1,10 @@
 #include "RenderConfig.h"
 
 
+RenderConfig::RenderConfig()
+{
+}
+
 RenderConfig::~RenderConfig()
 {
 }

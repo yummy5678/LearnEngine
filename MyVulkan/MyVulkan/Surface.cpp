@@ -1,12 +1,17 @@
 #include "Surface.h"
 
 
-SurfaceGenerator::SurfaceGenerator(InstanceExtensionManager& instanceExtension)
+SurfaceGenerator::SurfaceGenerator(InstanceExtension& instanceExtension)
 {
 	m_ClassName = "SurfaceGenerator";
 	
 	// 拡張機能マネージャーにサーフェスの使用する拡張機能を追加
 	instanceExtension.UseGLFW();
+}
+
+SurfaceGenerator::SurfaceGenerator()
+{
+	m_ClassName = "SurfaceGenerator";
 }
 
 SurfaceGenerator::~SurfaceGenerator()

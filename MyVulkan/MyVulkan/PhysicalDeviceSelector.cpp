@@ -66,21 +66,22 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectTransferDevice()
     throw std::runtime_error("データ転送用に使用できるGPUが見つかりません！");
 }
 
-PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice(vk::SurfaceKHR surface)
+PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice()
 {
     // 適切なデバイスが見つかるまでループする
     for (auto& device : m_PhysicalDevices)
     {
-        //描画用キューと表示用キューが存在し、
-        //スワップチェーン拡張機能にも対応している
+        // 描画用キューと表示用キューが存在し、
+        // 拡張機能にも対応している
         QueueFamilySelector queueFamily(device);
         if (queueFamily.GetGraphicIndex()               != NoneQueueNumber &&
-            queueFamily.GetPresentationIndex(surface)   != NoneQueueNumber &&
-            CheckSupportSurface(device,surface) == true                     &&
+            //queueFamily.GetPresentationIndex(surface)   != NoneQueueNumber &&
+            //CheckSupportSurface(device,surface) == true                     &&
             CheckExtensionNames(device, { VK_KHR_SWAPCHAIN_EXTENSION_NAME }) == true)
         {
             // 適切なデバイスが見つかった
-            return { device, CreateQueueInfos({queueFamily.GetGraphicIndex(),queueFamily.GetPresentationIndex(surface)}) };
+            //return { device, CreateQueueInfos({queueFamily.GetGraphicIndex(), queueFamily.GetPresentationIndex(surface)}) };
+            return { device, CreateQueueInfos({queueFamily.GetGraphicIndex()}) };
         }
     }
 

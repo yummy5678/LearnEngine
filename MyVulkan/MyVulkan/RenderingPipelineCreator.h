@@ -11,7 +11,7 @@
 class RenderingPipelineCreator : GeneratorBase
 {
 public:
-	RenderingPipelineCreator(DeviceExtensionCollector& deviceExtensionManager);
+	RenderingPipelineCreator(DeviceExtension& deviceExtensionManager);
 	~RenderingPipelineCreator();
 
 	void Create(

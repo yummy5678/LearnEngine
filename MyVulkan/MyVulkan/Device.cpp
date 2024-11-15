@@ -8,13 +8,16 @@ DeviceGenerator::~DeviceGenerator()
 {
 }
 
-void DeviceGenerator::Create(DeviceExtensionCollector extensionManager, vk::Instance instance, vk::SurfaceKHR surface)
+void DeviceGenerator::Create(DeviceExtension extensionManager, vk::Instance instance)
 {
 	m_bCreated = true;
 
 	//使用可能な物理デバイスを探してくる
 	PhysicalDeviceSelector physicalSelector(instance);
-	auto selectorResult = physicalSelector.SelectSwapchainDevice(surface);
+
+	// スワップチェインに対応した物理デバイスを探す
+	// ここではサーフェスとの相性については見ない
+	auto selectorResult = physicalSelector.SelectGraphicsDevice();
 	m_PhysicalDevice = selectorResult.Handle;
 
 	//論理デバイスの作成
@@ -43,7 +46,7 @@ vk::Device DeviceGenerator::GetLogicalDevice()
 	return m_LogicalDevice;
 }
 
-vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(DeviceExtensionCollector& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
+vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(DeviceExtension& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
 {
 	auto extension = extensionManager.GetExtensions(physicalDevice);
 
@@ -56,7 +59,7 @@ vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(DeviceExtensionCollector&
 	deviceInfo.enabledLayerCount = 0;
 	deviceInfo.ppEnabledLayerNames = nullptr;
 	deviceInfo.enabledExtensionCount = (uint32_t)extension.size();			// 有効なロジカルデバイス拡張機能の数
-	deviceInfo.ppEnabledExtensionNames = &extension.emplace();					// 有効なロジカルデバイス拡張機能のリスト
+	deviceInfo.ppEnabledExtensionNames = extension.begin();					// 有効なロジカルデバイス拡張機能のリスト
 	deviceInfo.pEnabledFeatures = nullptr;
 
 	return deviceInfo;

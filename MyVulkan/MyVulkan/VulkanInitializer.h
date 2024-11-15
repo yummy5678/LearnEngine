@@ -40,31 +40,36 @@ public:
 	VulkanInitializer();
 	~VulkanInitializer();
 
-	int init(GameWindow renderWindow, DeviceExtensionCollector extension);
+	int init();
 
 	vk::Instance		GetInstance();
 	vk::Device			GetLogicalDevice();
-	vk::PhysicalDevice	GetPhygicalDevice();
+	vk::PhysicalDevice	GetPhysicalDevice();
 	VmaAllocator		GetVmaAllocator();
+
+	InstanceExtension*	GetPInstanceExtension();
+	DeviceExtension*	GetPDeviceExtension();
 
 
 	void cleanup();
 
+	// サーフェスが表示に対応しているか確認
+	bool CheckSupportSurface(VkSurfaceKHR surface);
+
 private:
-	GLFWwindow* m_pWindow;	
 	//RenderScene*		m_pScene;	// 描画したいオブジェクトの情報が入ったクラス
 
 	//int currentFrame = 0;
 
 	// 拡張機能
-	InstanceExtensionManager	m_InstanceExtension;
-	//DeviceExtensionCollector		m_DeviceExtension;
+	InstanceExtension	m_InstanceExtension;
+	DeviceExtension		m_DeviceExtension;
 
 	// オブジェクト
-	InstanceGenerator				m_InstanceGenerator;
-	SurfaceGenerator				m_SurfaceGenerator;
-	DeviceGenerator					m_DeviceGenerator;
+	InstanceGenerator	m_InstanceGenerator;
+	DeviceGenerator		m_DeviceGenerator;
 
+	vk::Instance		m_Instance;
 	vk::PhysicalDevice	m_PhysicalDevice;
 	vk::Device			m_LogicalDevice;
 	VmaAllocator		m_VmaAllocator;			//アロケーター：物理デバイスのメモリ確保を補助してくれるオブジェクト

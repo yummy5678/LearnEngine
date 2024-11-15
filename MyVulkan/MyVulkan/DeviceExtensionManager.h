@@ -5,11 +5,11 @@
 #include <set>
 
 
-class DeviceExtensionCollector
+class DeviceExtension
 {
 public:
-	DeviceExtensionCollector();	//コンストラクタ
-	~DeviceExtensionCollector();	//デストラクタ
+	DeviceExtension();	//コンストラクタ
+	~DeviceExtension();	//デストラクタ
 
 	//拡張機能のリストを受け取る
 	std::set<const char*> GetExtensions(vk::PhysicalDevice physicalDevice);

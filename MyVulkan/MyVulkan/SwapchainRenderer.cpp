@@ -1,12 +1,14 @@
-#include "SwapChainUtility.h"
+#include "SwapChainRenderer.h"
 
 
 
-SwapchainRenderer::SwapchainRenderer(DeviceExtensionCollector& deviceExtensionManager)
+
+SwapchainRenderer::SwapchainRenderer(VulkanInitializer* initializer)
 {
     m_ClassName = "SwapchainGenerator";
 
-    deviceExtensionManager.UseSwapchain();
+
+    initializer->GetPDeviceExtension()->UseSwapchain();
 }
 
 SwapchainRenderer::~SwapchainRenderer()

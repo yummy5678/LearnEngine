@@ -3,28 +3,43 @@
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>	//ウィンドウの作成にGLFWライブラリを使う
 #include <string>
+#include "Surface.h"
+#include "VulkanInitializer.h"
+#include "SwapchainRenderer.h"
+#include "RenderingUnit.h"
 
 //ウィンドウ作成用のクラス
-class GameWindow
+class GraphicWindow
 {
 public:
 	//コンストラクタとデストラクタ
-	GameWindow();
-	~GameWindow();
+	GraphicWindow(VulkanInitializer* initializer);
+	~GraphicWindow();
 
 	//ウィンドウの初期化と作成
-	void init(std::string wName = "Standard Window", const int width = 800, const int height = 600);
+	void init(const std::string wName, const int width, const int height);
 	//ウィンドウの終了処理
 	void kill();
 
+	void UpdateRenderer(std::vector<RenderingUnit> renderingUnits);
+
+
 	//ウィンドウのポインターを渡す
 	GLFWwindow* GetPointer();
+	vk::Extent2D GetWindowSize();
+	vk::Format GetColorFormat();
+
 
 	//ウィンドウの終了フラグが立っているか確認
 	int checkCloseWindow();
 
 private:
 	//GLFWウィンドウのポインター
-	GLFWwindow* m_pWindow = nullptr;
+	GLFWwindow*			m_pWindow;
+
+	VulkanInitializer*	m_pInitializer;
+
+	SurfaceGenerator	m_Surface;
+	SwapchainRenderer	m_GraphicController;
 };
 

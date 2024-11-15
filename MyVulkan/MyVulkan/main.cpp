@@ -6,31 +6,32 @@
 #include <iostream>
 #include "GraphicsDefine.h"
 #include "GameWindow.h"
-#include "Renderer.h"		//Vulkanのレンダラー処理をまとめている
+#include "VulkanInitializer.h"	//Vulkanのレンダラー処理をまとめている
 #include "RenderScene.h"
 #include "RenderConfig.h"
-
+#include "SwapchainRenderer.h"
 
 
 int main()
-{	
-	GameWindow m_Window;	
-	DeviceExtensionCollector	deviceExtension;
-	VulkanInitializer			vulkanInitializer;	//レンダラー
-	SwapchainRenderer			m_GraphicController(deviceExtension);
-
-
-	// ウィンドウを作成
-	m_Window.init("Vulkan Window", windowWidth, windowHeight);
+{		
+	VulkanInitializer	vulkanInitializer;	//レンダラー
+	GraphicWindow		mainWindow(&vulkanInitializer);
 
 	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
-	if (vulkanInitializer.init(m_Window, deviceExtension) == EXIT_FAILURE)
+	if (vulkanInitializer.init() == EXIT_FAILURE)
 	{
 		return EXIT_FAILURE;
 	}
 
+	// ウィンドウを作成
+	mainWindow.init("Vulkan Window", windowWidth, windowHeight);
+
 	RenderConfig renderConfig;	// 描画方法の形式を決めるオブジェクト
-	renderConfig.Initialize(vulkanInitializer.GetLogicalDevice(), m_GraphicController.GetFrameExtent());
+	renderConfig.Initialize(
+		vulkanInitializer.GetLogicalDevice(), 
+		mainWindow.GetWindowSize(),
+		mainWindow.GetColorFormat(),
+		mainWindow.GetColorFormat());
 
 
 
@@ -41,19 +42,19 @@ int main()
 	//vulkanRenderer.setRenderConfig(renderConfig);
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
-	while (!m_Window.checkCloseWindow())
+	while (!mainWindow.checkCloseWindow())
 	{
 		//ここで毎フレーム更新を行う
 		glfwPollEvents();
 		scene.Update();
 
-		m_GraphicController.UpdateFrame({ { &renderConfig, &scene } });
+		mainWindow.UpdateRenderer({ { &renderConfig, &scene } });
 	}
 
 	vulkanInitializer.cleanup();
 
 	// 作成したウィンドウを片づける
-	m_Window.kill();
+	mainWindow.kill();
 
 	return EXIT_SUCCESS;
 }

@@ -4,11 +4,11 @@
 #include <iostream>
 #include "GraphicsDefine.h"
 
-class InstanceExtensionManager
+class InstanceExtension
 {
 public:
-	InstanceExtensionManager();
-	~InstanceExtensionManager();
+	InstanceExtension();
+	~InstanceExtension();
 
 	std::vector<const char*>* GetExtensions();
 

@@ -13,7 +13,7 @@ InstanceGenerator::~InstanceGenerator()
 
 }
 
-void InstanceGenerator::Create(InstanceExtensionManager extensionManager)
+void InstanceGenerator::Create(InstanceExtension extensionManager)
 {
 	std::cout << m_ClassName << "作成関数が呼ばれました" << std::endl;
 	m_bCreated = true;	//作成フラグをオンにする(デバッグ用)
@@ -90,7 +90,7 @@ vk::ApplicationInfo InstanceGenerator::GetApplicationInfo()
 const vk::InstanceCreateInfo InstanceGenerator::GetInstanceInfo(
 	const vk::ApplicationInfo* appInfo,
 	InstanceLayerManager& layerManager,
-	InstanceExtensionManager& extensionManager)
+	InstanceExtension& extensionManager)
 {
 	std::cout << "インスタンス作成情報の作成" << std::endl;
 	auto layers = layerManager.GetList();

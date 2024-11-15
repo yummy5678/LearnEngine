@@ -172,7 +172,7 @@
     <ClCompile Include="VulkanInitializer.cpp" />
     <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="Surface.cpp" />
-    <ClCompile Include="SwapChainUtility.cpp" />
+    <ClCompile Include="SwapchainRenderer.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
     <ClCompile Include="WriteImage.cpp" />
   </ItemGroup>
@@ -227,7 +227,7 @@
     <ClInclude Include="VulkanInitializer.h" />
     <ClInclude Include="ShaderUtility.h" />
     <ClInclude Include="Surface.h" />
-    <ClInclude Include="SwapChainUtility.h" />
+    <ClInclude Include="SwapchainRenderer.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="VulkanExtensions.h" />
     <ClInclude Include="VulkanInstance.h" />

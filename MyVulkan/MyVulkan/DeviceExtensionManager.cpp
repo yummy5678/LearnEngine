@@ -1,31 +1,31 @@
 #include "DeviceExtensionManager.h"
 
-DeviceExtensionCollector::DeviceExtensionCollector()
+DeviceExtension::DeviceExtension()
 {
 }
 
-DeviceExtensionCollector::~DeviceExtensionCollector()
+DeviceExtension::~DeviceExtension()
 {
 }
 
-std::set<const char*> DeviceExtensionCollector::GetExtensions(vk::PhysicalDevice physicalDevice)
+std::set<const char*> DeviceExtension::GetExtensions(vk::PhysicalDevice physicalDevice)
 {
 	//作成したリストを返す
 	return m_ExtensionList;
 }
 
 //スワップチェーンの拡張機能を有効化(フラグで管理している)
-void DeviceExtensionCollector::UseSwapchain()
+void DeviceExtension::UseSwapchain()
 {
 	m_ExtensionList.insert(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 }
 
-void DeviceExtensionCollector::UseDynamicRendering()
+void DeviceExtension::UseDynamicRendering()
 {
 	m_ExtensionList.insert(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
 }
 
-bool DeviceExtensionCollector::CheckExtensionsSupport(std::vector<const char*> checkExtensionNames, vk::PhysicalDevice physicalDevice)
+bool DeviceExtension::CheckExtensionsSupport(std::vector<const char*> checkExtensionNames, vk::PhysicalDevice physicalDevice)
 {
 	// デバイスがサポートする拡張機能の数を取得する
 	uint32_t extensionCount = 0;

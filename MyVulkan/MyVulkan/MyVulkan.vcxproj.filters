@@ -33,7 +33,7 @@
     <ClCompile Include="QueueUtility.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="SwapChainUtility.cpp">
+    <ClCompile Include="SwapchainRenderer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="RenderingPipelineCreator.cpp">
@@ -176,7 +176,7 @@
     <ClInclude Include="QueueUtility.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="SwapChainUtility.h">
+    <ClInclude Include="SwapchainRenderer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsDefine.h">
