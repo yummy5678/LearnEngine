@@ -62,7 +62,12 @@ vk::Extent2D GraphicWindow::GetWindowSize()
 
 vk::Format GraphicWindow::GetColorFormat()
 {
-	return m_GraphicController.GetSwapchainInfo().imageFormat;
+	return m_GraphicController.GetImages().GetColorFormat();
+}
+
+vk::Format GraphicWindow::GetDepthFormat()
+{
+	return m_GraphicController.GetImages().GetDepthFormat();
 }
 
 int GraphicWindow::checkCloseWindow()

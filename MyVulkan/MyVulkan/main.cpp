@@ -31,15 +31,10 @@ int main()
 		vulkanInitializer.GetLogicalDevice(), 
 		mainWindow.GetWindowSize(),
 		mainWindow.GetColorFormat(),
-		mainWindow.GetColorFormat());
-
-
+		mainWindow.GetDepthFormat());
 
 	RenderScene scene;
 	scene.Initialize(vulkanInitializer.GetVmaAllocator());
-
-	//int helicopter = vulkanRenderer.createMeshModel("Models/uh60.obj");
-	//vulkanRenderer.setRenderConfig(renderConfig);
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!mainWindow.checkCloseWindow())

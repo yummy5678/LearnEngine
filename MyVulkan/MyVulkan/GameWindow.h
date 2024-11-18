@@ -28,6 +28,7 @@ public:
 	GLFWwindow* GetPointer();
 	vk::Extent2D GetWindowSize();
 	vk::Format GetColorFormat();
+	vk::Format GetDepthFormat();
 
 
 	//ウィンドウの終了フラグが立っているか確認

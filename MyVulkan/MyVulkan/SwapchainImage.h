@@ -13,17 +13,23 @@ public:
 	void Destroy();
 
 	std::vector<vk::Image>		GetColorImages();
+	vk::Format					GetColorFormat();
 	std::vector<vk::ImageView>	GetColorImageViews();
-	uint32_t					GetSize();
+
+	std::vector<vk::Image>		GetDepthImages();
+	vk::Format					GetDepthFormat();
+	std::vector<vk::ImageView>	GetDepthImageViews();
 
 private:
 	vk::Device m_LogicalDevice;
 	uint32_t m_Size;
 	std::vector<vk::Image>			m_ColorImages;
+	vk::Format						m_ColorFormat;
 	std::vector<vk::ImageView>		m_ColorImageViews;
 	std::vector<vk::DeviceMemory>	m_ColorImageMemory;
 
 	std::vector<vk::Image>			m_DepthImages;
+	vk::Format						m_DepthFormat;
 	std::vector<vk::ImageView>		m_DepthImageViews;
 	std::vector<vk::DeviceMemory>	m_DepthImageMemory;
 

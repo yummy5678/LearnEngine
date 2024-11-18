@@ -7,6 +7,7 @@
 #include "PipelineDescriptions.h"
 #include "VertexBuffer.h"
 #include "DeviceExtensionManager.h"
+#include "VTextureDescriptor.h"
 
 class RenderingPipelineCreator : GeneratorBase
 {
@@ -40,10 +41,10 @@ private:
 	VTextureDescriptor				m_TextureDescriptor;
 
 
-	vk::GraphicsPipelineCreateInfo						m_PipelineInfo;
-	vk::PipelineLayoutCreateInfo						m_PipelineLayoutInfo;
+	vk::GraphicsPipelineCreateInfo	m_PipelineInfo;
+	vk::PipelineLayoutCreateInfo	m_PipelineLayoutInfo;
 
-	void	CreatePipelineLayout(vk::Device logicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts);
+	void	CreatePipelineLayout(vk::Device logicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges);
 	void	CreateGraphicsPipeline(
 		vk::Device		logicalDevice,
 		vk::Extent2D	extent,
@@ -52,14 +53,15 @@ private:
 		vk::Format		depthFormat,
 		std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos);
 
-
-
-
 	vk::PipelineDepthStencilStateCreateInfo		CreateDepthStencilStateInfo(bool depth, bool stencil);
 
 	// 内容は後で検証する
 	// 深度アタッチメントのフォーマットの選択関数
 	vk::Format FindSupportedDepthFormat(vk::PhysicalDevice physicalDevice);
+
+	vk::PipelineInputAssemblyStateCreateInfo GetInputAssemblyInfo();
+
+	vk::PushConstantRange GetPushConstantModelRange();
 	
 };
 

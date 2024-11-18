@@ -26,7 +26,7 @@ void RenderingPipelineCreator::Create(
 
 	//パイプラインレイアウトの作成
 	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptor.GetDescriptorSetLayout() };
-	CreatePipelineLayout(logicalDevice, { descriptorSetLayouts });
+	CreatePipelineLayout(logicalDevice, { descriptorSetLayouts }, { GetPushConstantModelRange()});
 
 	//パイプラインの作成
 	CreateGraphicsPipeline(logicalDevice, extent, scissor, colorFormat, depthFormat, shaderStageInfos);
@@ -54,13 +54,11 @@ vk::PipelineLayout RenderingPipelineCreator::GetPipelineLayout()
 	return m_PipelineLayout;
 }
 
-void RenderingPipelineCreator::CreatePipelineLayout(vk::Device logicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
+void RenderingPipelineCreator::CreatePipelineLayout(vk::Device logicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges)
 {
 	vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
-	pipelineLayoutCreateInfo.setLayoutCount = descriptorSetLayouts.size();
-	pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
-	pipelineLayoutCreateInfo.pushConstantRangeCount = pushConstantModelRange.size();
-	pipelineLayoutCreateInfo.pPushConstantRanges = pushConstantModelRange.data();
+	pipelineLayoutCreateInfo.setSetLayouts(descriptorSetLayouts);
+	pipelineLayoutCreateInfo.setPushConstantRanges(pushConstantRanges);
 
 	try { m_PipelineLayout = logicalDevice.createPipelineLayout(pipelineLayoutCreateInfo); }
 	catch (const std::runtime_error& e) { throw std::runtime_error("パイプラインレイアウトの作成に失敗しました！"); }
@@ -167,8 +165,8 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device logicalDevice, 
 #pragma endregion pipelineRenderingInfo
 
 	m_PipelineInfo.setStages(shaderStageInfos);						// シェーダーステージ
-	m_PipelineInfo.setPVertexInputState(&vertexInputInfo);	// All the fixed function pipeline states
-	m_PipelineInfo.setPInputAssemblyState(&inputAssemblyInfo);
+	m_PipelineInfo.setPVertexInputState(&VertexInputBinding::GetVertexInputInfo());	// All the fixed function pipeline states
+	m_PipelineInfo.setPInputAssemblyState(&GetInputAssemblyInfo());
 	m_PipelineInfo.setPViewportState(&viewportStateInfo);
 	m_PipelineInfo.setPDynamicState(nullptr);						//ダイナミックステートとは:パイプラインを作り直さなくても一部情報を変更できる機能
 	m_PipelineInfo.setPRasterizationState(&rasterizationInfo);
@@ -235,6 +233,23 @@ vk::Format RenderingPipelineCreator::FindSupportedDepthFormat(vk::PhysicalDevice
 		}
 	}
 	throw std::runtime_error("Failed to find a supported depth format!");
+}
+
+vk::PipelineInputAssemblyStateCreateInfo RenderingPipelineCreator::GetInputAssemblyInfo()
+{
+	vk::PipelineInputAssemblyStateCreateInfo assemblyStateInfo;
+	assemblyStateInfo.topology = vk::PrimitiveTopology::eTriangleList;   // トポロジー(三角形リスト)
+	assemblyStateInfo.primitiveRestartEnable = VK_FALSE;                 // プリミティブ再開を無効にする
+	return assemblyStateInfo;
+}
+
+vk::PushConstantRange RenderingPipelineCreator::GetPushConstantModelRange()
+{
+	return vk::PushConstantRange{
+	vk::ShaderStageFlagBits::eVertex,	// 渡したいシェーダーステージ
+	0,								    // 渡したデータからどの位置のデータを見るか
+	sizeof(Transform)					// 渡したいデータのサイズ
+	};
 }
 
 

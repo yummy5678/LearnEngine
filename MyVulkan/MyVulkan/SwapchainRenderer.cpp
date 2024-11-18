@@ -1,8 +1,6 @@
 #include "SwapChainRenderer.h"
 
 
-
-
 SwapchainRenderer::SwapchainRenderer(VulkanInitializer* initializer)
 {
     m_ClassName = "SwapchainGenerator";
