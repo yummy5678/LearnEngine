@@ -63,9 +63,9 @@ vk::PhysicalDevice VulkanInitializer::GetPhysicalDevice()
 	return m_DeviceGenerator.GetPhysicalDevice();
 }
 
-VmaAllocator VulkanInitializer::GetVmaAllocator()
+VmaAllocator* VulkanInitializer::GetPVmaAllocator()
 {
-	return m_VmaAllocator;
+	return &m_VmaAllocator;
 }
 
 InstanceExtension* VulkanInitializer::GetPInstanceExtension()
@@ -103,11 +103,10 @@ void VulkanInitializer::CreateAllocator(vk::Instance instance, vk::Device logica
 {
 	// アロケータ作成情報
 	VmaAllocatorCreateInfo allocatorInfo;
-	allocatorInfo.vulkanApiVersion = VK_API_VERSION_1_0;
+	allocatorInfo.vulkanApiVersion = VulkanDefine.ApiVersion;
 	allocatorInfo.instance			= instance;
 	allocatorInfo.device			= logicalDevice;
 	allocatorInfo.physicalDevice	= physicalDevice;
-
 
 	// アロケータの作成
 	auto result = vmaCreateAllocator(&allocatorInfo, &m_VmaAllocator);

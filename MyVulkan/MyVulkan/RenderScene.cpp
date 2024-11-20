@@ -8,7 +8,7 @@ RenderScene::~RenderScene()
 {
 }
 
-void RenderScene::Initialize(VmaAllocator allocator)
+void RenderScene::Initialize(VmaAllocator* allocator)
 {
 	m_Allocator = allocator;
 

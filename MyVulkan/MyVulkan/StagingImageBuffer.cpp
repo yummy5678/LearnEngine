@@ -11,11 +11,15 @@ VStagingImageBuffer::~VStagingImageBuffer()
 {
 }
 
-void VStagingImageBuffer::Initialize(VmaAllocator allocator, uint32_t imageWidth, uint32_t imageHeight, uint32_t imageChannel)
+void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight, uint32_t imageChannel)
 {
 	m_Allocator = allocator;
-	m_LogicalDevice = vk::Device(allocator->m_hDevice);
-	m_PhysicalDevice = vk::PhysicalDevice(allocator->GetPhysicalDevice());
+
+	VmaAllocatorInfo allocatorInfo;
+	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
+
+	m_LogicalDevice = vk::Device(allocatorInfo.device);
+	m_PhysicalDevice = vk::PhysicalDevice(allocatorInfo.physicalDevice);
 	m_ImageWidth = imageWidth;
 	m_ImageHeight = imageHeight;
 	m_ImageChannel = imageChannel;
@@ -38,7 +42,7 @@ void VStagingImageBuffer::Initialize(VmaAllocator allocator, uint32_t imageWidth
 
 
 	// ステージングバッファの作成
-	auto result = vmaCreateBuffer(allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
+	auto result = vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
 	// ステージングバッファとメモリの作成
 	if (result != VK_SUCCESS)
 	{
@@ -129,16 +133,16 @@ void VStagingImageBuffer::SetCopyToImageCommand(vk::CommandBuffer commandBuffer,
 	commandBuffer.end();
 }
 
-void VStagingImageBuffer::MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize)
+void VStagingImageBuffer::MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize)
 {
 	// 確保したバッファの領域のポインタを取得
 	void* mapData;
-	vmaMapMemory(allocator, m_Allocation, &mapData);
+	vmaMapMemory(*allocator, m_Allocation, &mapData);
 
 	// 頂点データの情報を取得したバッファにコピー
 	memcpy(mapData, setData, dataSize);
 
 	// メモリのアクセス制限を解除
-	vmaUnmapMemory(allocator, m_Allocation);
+	vmaUnmapMemory(*allocator, m_Allocation);
 
 }

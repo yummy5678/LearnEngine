@@ -12,12 +12,12 @@ public:
 	SceneObject() = default;
 	~SceneObject();
 
-	void					SetMesh(VmaAllocator allocator, MeshObject& mesh);
+	void					SetMesh(VmaAllocator* allocator, MeshObject& mesh);
 	std::vector<VMesh>		GetMeshes();
 	std::vector<VMaterial>	GetMaterials();
 
 	void		SetTransform(glm::mat4 transform);
-	Transform	GetTransform();
+	Transform*	GetPTransform();
 
 
 

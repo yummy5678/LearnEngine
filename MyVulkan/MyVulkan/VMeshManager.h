@@ -12,7 +12,7 @@ private:
 
 
 public:
-	bool Load(VmaAllocator allocator, MeshObject* pMeshObject);
+	bool Load(VmaAllocator* allocator, MeshObject* pMeshObject);
 	VMeshObject* GetObject(MeshObject* pMeshObject);
 
 private:	// プライベート変数

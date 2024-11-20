@@ -1,10 +1,9 @@
 #pragma once
-//#define GLFW_INCLUDE_VULKAN
 #include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>	//ウィンドウの作成にGLFWライブラリを使う
+#include <GLFW/glfw3.h> //ウィンドウの作成にGLFWライブラリを使う
 #include <string>
 #include "Surface.h"
-#include "VulkanInitializer.h"
+#include "VulkanInitializer.h" 
 #include "SwapchainRenderer.h"
 #include "RenderingUnit.h"
 
@@ -12,35 +11,32 @@
 class GraphicWindow
 {
 public:
-	//コンストラクタとデストラクタ
-	GraphicWindow(VulkanInitializer* initializer);
-	~GraphicWindow();
+    //コンストラクタとデストラクタ
+    GraphicWindow(VulkanInitializer* initializer);
+    ~GraphicWindow();
 
-	//ウィンドウの初期化と作成
-	void init(const std::string wName, const int width, const int height);
-	//ウィンドウの終了処理
-	void kill();
+    //ウィンドウの初期化と作成
+    void init(const std::string wName, const int width, const int height);
+    //ウィンドウの終了処理
+    void kill();
 
-	void UpdateRenderer(std::vector<RenderingUnit> renderingUnits);
+    void UpdateRenderer(std::vector<RenderingUnit> renderingUnits);
 
+    //ウィンドウのポインターを渡す
+    GLFWwindow* GetPointer();
+    vk::Extent2D GetWindowSize();
+    vk::Format GetColorFormat();
+    vk::Format GetDepthFormat();
 
-	//ウィンドウのポインターを渡す
-	GLFWwindow* GetPointer();
-	vk::Extent2D GetWindowSize();
-	vk::Format GetColorFormat();
-	vk::Format GetDepthFormat();
-
-
-	//ウィンドウの終了フラグが立っているか確認
-	int checkCloseWindow();
+    //ウィンドウの終了フラグが立っているか確認
+    int checkCloseWindow();
 
 private:
-	//GLFWウィンドウのポインター
-	GLFWwindow*			m_pWindow;
+    //GLFWウィンドウのポインター
+    GLFWwindow* m_pWindow;
 
-	VulkanInitializer*	m_pInitializer;
+    VulkanInitializer* m_pInitializer;
 
-	SurfaceGenerator	m_Surface;
-	SwapchainRenderer	m_GraphicController;
+    SurfaceGenerator m_Surface;
+    SwapchainRenderer m_GraphicController;
 };
-

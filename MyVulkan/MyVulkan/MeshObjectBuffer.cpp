@@ -8,7 +8,7 @@ VMeshObject::~VMeshObject()
 {
 }
 
-void VMeshObject::SetMeshObject(VmaAllocator allocator, MeshObject &meshObject)
+void VMeshObject::SetMeshObject(VmaAllocator* allocator, MeshObject &meshObject)
 {
 	SetMesh(allocator, meshObject);
 	SetMaterial(allocator, meshObject);
@@ -25,7 +25,7 @@ std::vector<VTextureBuffer> VMeshObject::GetTexture()
 	return m_Texture;
 }
 
-void VMeshObject::SetMesh(VmaAllocator allocator, MeshObject& meshObject)
+void VMeshObject::SetMesh(VmaAllocator* allocator, MeshObject& meshObject)
 {
 	m_Mesh.resize(meshObject.meshes.size());
 	for (int i = 0; i < m_Mesh.size(); i++)
@@ -34,7 +34,7 @@ void VMeshObject::SetMesh(VmaAllocator allocator, MeshObject& meshObject)
 	}
 }
 
-void VMeshObject::SetMaterial(VmaAllocator allocator, MeshObject& meshObject)
+void VMeshObject::SetMaterial(VmaAllocator* allocator, MeshObject& meshObject)
 {
 	m_Texture.resize(meshObject.materials.size());
 	for (int i = 0; i < m_Texture.size(); i++)

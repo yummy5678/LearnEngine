@@ -235,7 +235,7 @@ vk::Format RenderingPipelineCreator::FindSupportedDepthFormat(vk::PhysicalDevice
 	throw std::runtime_error("Failed to find a supported depth format!");
 }
 
-vk::PipelineInputAssemblyStateCreateInfo RenderingPipelineCreator::GetInputAssemblyInfo()
+vk::PipelineInputAssemblyStateCreateInfo& RenderingPipelineCreator::GetInputAssemblyInfo()
 {
 	vk::PipelineInputAssemblyStateCreateInfo assemblyStateInfo;
 	assemblyStateInfo.topology = vk::PrimitiveTopology::eTriangleList;   // トポロジー(三角形リスト)

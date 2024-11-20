@@ -15,13 +15,14 @@
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
+#include <VMA/vk_mem_alloc.h>
 #include <stdexcept>
 #include <vector>
 #include <set>
 #include <algorithm>
 #include <array>
 
-#include <VMA/vk_mem_alloc.h>
+
 
 #include "GameWindow.h"
 #include "Utilities.h"
@@ -30,9 +31,6 @@
 #include "Surface.h"
 #include "Device.h"
 #include "WriteImage.cpp"
-
-//#include "RenderPipeline.h"
-
 
 class VulkanInitializer
 {
@@ -45,7 +43,7 @@ public:
 	vk::Instance		GetInstance();
 	vk::Device			GetLogicalDevice();
 	vk::PhysicalDevice	GetPhysicalDevice();
-	VmaAllocator		GetVmaAllocator();
+	VmaAllocator*		GetPVmaAllocator();
 
 	InstanceExtension*	GetPInstanceExtension();
 	DeviceExtension*	GetPDeviceExtension();

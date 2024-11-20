@@ -10,11 +10,14 @@ VStagingBuffer::~VStagingBuffer()
 {
 }
 
-void VStagingBuffer::Initialize(VmaAllocator allocator, vk::DeviceSize dataSize)
+void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize)
 {
 	m_Allocator = allocator;
-	m_LogicalDevice		= vk::Device(allocator->m_hDevice);
-	m_PhysicalDevice	= vk::PhysicalDevice(allocator->GetPhysicalDevice());
+
+	VmaAllocatorInfo allocatorInfo;
+	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
+	m_LogicalDevice		= vk::Device(allocatorInfo.device);
+	m_PhysicalDevice	= vk::PhysicalDevice(allocatorInfo.physicalDevice);
 
 	m_BufferDataSize = dataSize;
 
@@ -35,7 +38,7 @@ void VStagingBuffer::Initialize(VmaAllocator allocator, vk::DeviceSize dataSize)
 
 
 	// ステージングバッファの作成
-	auto result = vmaCreateBuffer(allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
+	auto result = vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
 	// ステージングバッファとメモリの作成
 	if (result != VK_SUCCESS)
 	{

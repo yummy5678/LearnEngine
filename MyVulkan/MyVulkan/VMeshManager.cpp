@@ -1,6 +1,6 @@
 #include "VMeshManager.h"
 
-bool VMeshManager::Load(VmaAllocator allocator, MeshObject* pMeshObject)
+bool VMeshManager::Load(VmaAllocator* allocator, MeshObject* pMeshObject)
 {
     VMeshObject object;
     object.SetMeshObject(allocator, *pMeshObject);

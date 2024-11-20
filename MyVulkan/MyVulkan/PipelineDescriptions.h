@@ -40,11 +40,12 @@ namespace VertexInputBinding
     };
 
     // パイプライン頂点入力状態の作成
-    constexpr vk::PipelineVertexInputStateCreateInfo GetVertexInputInfo()
+    static vk::PipelineVertexInputStateCreateInfo& GetVertexInputInfo()
     {
-       return vk::PipelineVertexInputStateCreateInfo()
-            .setVertexBindingDescriptions(bindingDescriptions)
-            .setVertexAttributeDescriptions(attributeDescriptions);
+        vk::PipelineVertexInputStateCreateInfo resultInfo;
+        resultInfo.setVertexBindingDescriptions(bindingDescriptions);
+        resultInfo.setVertexAttributeDescriptions(attributeDescriptions);
+        return resultInfo;          
     };
 };
 
