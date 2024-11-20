@@ -1,9 +1,9 @@
 #include "RenderConfig.h"
 
 
-RenderConfig::RenderConfig()
-{
-}
+//RenderConfig::RenderConfig()
+//{
+//}
 
 RenderConfig::~RenderConfig()
 {
@@ -11,7 +11,13 @@ RenderConfig::~RenderConfig()
 
 void RenderConfig::Initialize(vk::Device logicalDevice, vk::Extent2D extent, vk::Format colorFomat, vk::Format depthFomat)
 {
-	m_GraphicsPipeline.Create(logicalDevice, extent, m_RenderArea, colorFomat, depthFomat);
+	m_GraphicsPipeline.Create(
+		logicalDevice, 
+		extent, 
+		m_RenderArea, 
+		colorFomat, 
+		depthFomat,
+		m_Shader.GetShaderStages());
 }
 
 vk::Rect2D RenderConfig::GetSissorRect()

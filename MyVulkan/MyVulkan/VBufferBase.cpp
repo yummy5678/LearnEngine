@@ -31,11 +31,11 @@ vk::DeviceSize VBufferBase::GetDataSize()
 void VBufferBase::Cleanup()
 {
 	if (!m_Allocator) return;
-	vmaDestroyBuffer(m_Allocator, m_Buffer, m_Allocation);
+	vmaDestroyBuffer(*m_Allocator, m_Buffer, m_Allocation);
 
 }
 
-void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize)
+void VBufferBase::CreateBuffer(VmaAllocator* allocator, vk::DeviceSize dataSize)
 {
 	m_Allocator = allocator;
 	m_DataSize = dataSize;
@@ -49,7 +49,7 @@ void VBufferBase::CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize)
 
 
 	// GPU内で使う頂点バッファの作成
-	auto result = vmaCreateBuffer(allocator, &dataBufferInfo, &dataAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
+	auto result = vmaCreateBuffer(*allocator, &dataBufferInfo, &dataAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
 	// ステージングバッファとメモリの作成
 	if (result != VK_SUCCESS)
 	{
@@ -101,17 +101,17 @@ uint32_t VBufferBase::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevic
 	throw std::runtime_error("適切なメモリタイプを見つけられませんでした!");
 }
 
-void VBufferBase::MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize)
+void VBufferBase::MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize)
 {
 	// 確保したバッファの領域のポインタを取得
 	void* mapData;
-	vmaMapMemory(allocator, m_Allocation, &mapData);
+	vmaMapMemory(*allocator, m_Allocation, &mapData);
 
 	// 頂点データの情報を取得したバッファにコピー
 	memcpy(mapData, setData, dataSize);
 
 	// メモリのアクセス制限を解除
-	vmaUnmapMemory(allocator, m_Allocation);
+	vmaUnmapMemory(*allocator, m_Allocation);
 }
 
 

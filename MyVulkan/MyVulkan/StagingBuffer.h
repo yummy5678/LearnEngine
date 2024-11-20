@@ -12,7 +12,7 @@ public:
     VStagingBuffer();
     ~VStagingBuffer();
 
-    void Initialize(VmaAllocator allocator, vk::DeviceSize dataSize);
+    void Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize);
     void TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer);
 
 private:

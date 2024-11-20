@@ -144,7 +144,6 @@
     <ClCompile Include="RenderingPipelineCreator.cpp" />
     <ClCompile Include="InstanceExtensionManager.cpp" />
     <ClCompile Include="MaterialBuffer.cpp" />
-    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshBuffer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MeshObjectBuffer.cpp" />
@@ -184,7 +183,6 @@
     <ClInclude Include="SceneCamera.h" />
     <ClInclude Include="DescriptorBase.h" />
     <ClInclude Include="FenceGenerator.h" />
-    <ClInclude Include="glTFDefine.h" />
     <ClInclude Include="ImageBuffer.h" />
     <ClInclude Include="SwapchainImage.h" />
     <ClInclude Include="DeviceExtensionManager.h" />

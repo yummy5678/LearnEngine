@@ -250,7 +250,7 @@ void SwapChainCommandGenerator::RenderObjects(vk::CommandBuffer commandBuffer, v
             vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
             0,                                  // オフセット
             sizeof(Transform),                  // プッシュするデータのサイズ
-            &model.GetTransform()               // 実際のデータ
+            model.GetPTransform()               // 実際のデータ
         );
 
         // 各メッシュをループします。

@@ -59,7 +59,7 @@ private:
 	// 深度アタッチメントのフォーマットの選択関数
 	vk::Format FindSupportedDepthFormat(vk::PhysicalDevice physicalDevice);
 
-	vk::PipelineInputAssemblyStateCreateInfo GetInputAssemblyInfo();
+	vk::PipelineInputAssemblyStateCreateInfo& GetInputAssemblyInfo();
 
 	vk::PushConstantRange GetPushConstantModelRange();
 	

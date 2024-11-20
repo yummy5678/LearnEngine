@@ -13,7 +13,7 @@ VVertexBuffer::~VVertexBuffer()
 {
 }
 
-void VVertexBuffer::SetData(VmaAllocator allocator, std::vector<Vertex>& vertices)
+void VVertexBuffer::SetData(VmaAllocator* allocator, std::vector<Vertex>& vertices)
 {
 	m_Size = vertices.size();
 	vk::DeviceSize dataSize = sizeof(Vertex) * m_Size;
@@ -40,9 +40,9 @@ vk::PipelineVertexInputStateCreateInfo VVertexBuffer::GetInputStateInfo()
 	{
 		vk::VertexInputBindingDescription
 		{
-		   0,                              // binding  
-		   sizeof(Vertex),                 // stride   
-		   vk::VertexInputRate::eVertex    // inputRate
+     0,                              // binding  
+     sizeof(Vertex),                 // stride   
+     vk::VertexInputRate::eVertex    // inputRate
 		}
 	};
 
@@ -52,9 +52,15 @@ vk::PipelineVertexInputStateCreateInfo VVertexBuffer::GetInputStateInfo()
 		vk::VertexInputAttributeDescription{ 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position) },
 		// 法線
 		vk::VertexInputAttributeDescription{ 0, 1, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal) },
-	   // テクスチャ座標
+    // テクスチャ座標
 		vk::VertexInputAttributeDescription{ 0, 2, vk::Format::eR32G32Sfloat, offsetof(Vertex, textureCoord) }
 	};
+
+	vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
+	vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(BindingDescriptions.size());
+	vertexInputInfo.pVertexBindingDescriptions = BindingDescriptions.data();
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 	return vertexInputInfo;
 }

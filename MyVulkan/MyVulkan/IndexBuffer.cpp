@@ -10,7 +10,7 @@ VIndexBuffer::~VIndexBuffer()
 {
 }
 
-void VIndexBuffer::SetData(VmaAllocator allocator, std::vector<uint32_t>& indices)
+void VIndexBuffer::SetData(VmaAllocator* allocator, std::vector<uint32_t>& indices)
 {
 
 	m_Size = indices.size();

@@ -11,10 +11,10 @@ VTextureBuffer::~VTextureBuffer()
 
 void VTextureBuffer::Cleanup()
 {
-	if(m_ImageAllocation) vmaDestroyImage(m_Allocator, m_Buffer, m_ImageAllocation);
+	if(m_ImageAllocation) vmaDestroyImage(*m_Allocator, m_Buffer, m_ImageAllocation);
 }
 
-void VTextureBuffer::SetImage(VmaAllocator allocator, Texture& texture)
+void VTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
 {
 	VStagingImageBuffer stagingBuffer;
 
@@ -23,8 +23,13 @@ void VTextureBuffer::SetImage(VmaAllocator allocator, Texture& texture)
 	stagingBuffer.Initialize(allocator, texture.width, texture.height, texture.channel);
 	stagingBuffer.TransferDataToImageBuffer((void*)texture.data, m_Buffer);
 
+
+	VmaAllocatorInfo allocatorInfo;
+	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
+
+
 	// イメージビューの作成
-	CreateImageView(allocator->m_hDevice, m_Buffer, m_Format, m_AspectFlag);
+	CreateImageView(allocatorInfo.device, m_Buffer, m_Format, m_AspectFlag);
 
 }
 
@@ -57,7 +62,7 @@ VkImageCreateInfo VTextureBuffer::CreateImageInfo(uint32_t imageWidth, uint32_t 
 	return imageCreateInfo;
 }
 
-void VTextureBuffer::CreateBuffer(VmaAllocator allocator, uint32_t imageWidth, uint32_t imageHeight)
+void VTextureBuffer::CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight)
 {
 	auto imageInfo = CreateImageInfo(imageWidth, imageHeight, m_Format, m_Usage, m_SharingMode);
 
@@ -65,7 +70,7 @@ void VTextureBuffer::CreateBuffer(VmaAllocator allocator, uint32_t imageWidth, u
 	VmaAllocationCreateInfo allocInfo;
 	allocInfo.usage = VMA_MEMORY_USAGE_AUTO;  // 自動で最適なメモリを選択
 	VkImage image;
-	VkResult result = vmaCreateImage(allocator, &imageInfo, &allocInfo, &image, &m_ImageAllocation, nullptr);
+	VkResult result = vmaCreateImage(*allocator, &imageInfo, &allocInfo, &image, &m_ImageAllocation, nullptr);
 
 	if (result != VK_SUCCESS) {
 		throw std::runtime_error("VMAによるイメージの作成に失敗しました!");

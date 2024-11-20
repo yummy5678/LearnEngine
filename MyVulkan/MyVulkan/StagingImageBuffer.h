@@ -12,7 +12,7 @@ public:
     VStagingImageBuffer();
     ~VStagingImageBuffer();
 
-    void Initialize(VmaAllocator allocator, uint32_t imageWidth, uint32_t imageHeight, uint32_t imageChannel);
+    void Initialize(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight, uint32_t imageChannel);
     void TransferDataToImageBuffer(void* transfarData, vk::Image toBuffer);
 
 private:
@@ -33,7 +33,7 @@ private:
     void SetCopyToImageCommand(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Image dstImage, uint32_t imageWidth, uint32_t imageHeight);
 
     // データをステージングバッファにコピー
-    void MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize);
+    void MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize);
 
 };
 

@@ -8,6 +8,8 @@
 #include "RenderConfig.h"
 #include "CommandGenerator.h"
 
+
+
 class SwapchainRenderer : public GeneratorBase
 {
 public:

@@ -34,7 +34,7 @@ int main()
 		mainWindow.GetDepthFormat());
 
 	RenderScene scene;
-	scene.Initialize(vulkanInitializer.GetVmaAllocator());
+	scene.Initialize(vulkanInitializer.GetPVmaAllocator());
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!mainWindow.checkCloseWindow())

@@ -5,7 +5,7 @@ SceneObject::~SceneObject()
 {
 }
 
-void SceneObject::SetMesh(VmaAllocator allocator, MeshObject& mesh)
+void SceneObject::SetMesh(VmaAllocator* allocator, MeshObject& mesh)
 {
 	// メッシュ情報からバッファを作成
 	m_Mesh.resize(mesh.meshes.size());
@@ -37,7 +37,7 @@ void SceneObject::SetTransform(glm::mat4 transform)
 	m_Transform = transform;
 }
 
-Transform SceneObject::GetTransform()
+Transform* SceneObject::GetPTransform()
 {
-	return m_Transform;
+	return &m_Transform;
 }

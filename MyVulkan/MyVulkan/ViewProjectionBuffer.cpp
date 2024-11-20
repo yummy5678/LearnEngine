@@ -10,7 +10,7 @@ VViewProjectionBuffer::~VViewProjectionBuffer()
 {
 }
 
-void VViewProjectionBuffer::SetData(VmaAllocator allocator, ViewProjection& projection)
+void VViewProjectionBuffer::SetData(VmaAllocator* allocator, ViewProjection& projection)
 {
 	vk::DeviceSize dataSize = sizeof(ViewProjection);
 
@@ -29,7 +29,7 @@ void VViewProjectionBuffer::SetData(VmaAllocator allocator, ViewProjection& proj
 
 }
 
-void VViewProjectionBuffer::Update(VmaAllocator allocator, ViewProjection& projection)
+void VViewProjectionBuffer::Update(VmaAllocator* allocator, ViewProjection& projection)
 {
 	MapData(allocator, &projection, sizeof(ViewProjection));
 }

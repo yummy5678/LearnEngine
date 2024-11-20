@@ -10,7 +10,7 @@ public:
 	VVertexBuffer();
 	~VVertexBuffer();
 
-	void		SetData(VmaAllocator allocator, std::vector<Vertex>& vertices);
+	void		SetData(VmaAllocator* allocator, std::vector<Vertex>& vertices);
 	uint32_t	GetSize();
 
 	// 頂点入力デスクリプションを返す

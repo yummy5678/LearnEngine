@@ -23,7 +23,7 @@ public:
 
 protected:
 	// 結びつける先のデバイス
-	VmaAllocator				m_Allocator;
+	VmaAllocator*				m_Allocator;
 
 	// バッファの使用用途
 	vk::BufferUsageFlags		m_BufferUsage;
@@ -37,7 +37,7 @@ protected:
 
 	vk::DeviceSize				m_DataSize;
 
-	void CreateBuffer(VmaAllocator allocator, vk::DeviceSize dataSize);
+	void CreateBuffer(VmaAllocator* allocator, vk::DeviceSize dataSize);
 
 	// バッファの作成関数
 	VkBufferCreateInfo CreateBufferInfo(vk::DeviceSize dataSize, vk::BufferUsageFlags usage, vk::SharingMode mode);
@@ -46,7 +46,7 @@ protected:
 	uint32_t	FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags findType);
 
 	// データをバッファに書き込む
-	void MapData(VmaAllocator allocator, void* setData, vk::DeviceSize dataSize);
+	void MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize);
 
 };
 
