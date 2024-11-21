@@ -1,12 +1,12 @@
 #pragma once
-
+#define STB_IMAGE_STATIC
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stdexcept>
 #include <vector>
 #include <iostream>
 #include "GraphicsDefine.h"
-#include "GameWindow.h"
-#include "VulkanInitializer.h"	//Vulkan‚ÌƒŒƒ“ƒ_ƒ‰[ˆ—‚ğ‚Ü‚Æ‚ß‚Ä‚¢‚é
+#include "VulkanInitializer.h"
+#include "GraphicWindow.h"
 #include "RenderScene.h"
 #include "RenderConfig.h"
 #include "SwapchainRenderer.h"

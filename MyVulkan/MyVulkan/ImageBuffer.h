@@ -37,8 +37,8 @@ protected:
 	VkImageCreateInfo CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode);
 	void CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight);
 	void CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk::Format format, vk::ImageAspectFlags aspectFlag);
-	void CreateSampler();
-	void CreateDescripterSets(vk::ImageLayout imageLayout, vk::Sampler sampler);
+	void CreateSampler() {};
+	void CreateDescripterSets(vk::ImageLayout imageLayout, vk::Sampler sampler) {};
 
 };
 

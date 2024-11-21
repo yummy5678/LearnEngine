@@ -1,20 +1,20 @@
 #pragma once
 
 // GLM
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
 
 // Assimp
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+//#include <assimp/Importer.hpp>
+//#include <assimp/scene.h>
+//#include <assimp/postprocess.h>
 
 // STB
-#include "stb/stb_image.h"
+//#include "stb/stb_image.h"
 
 
 #include <vulkan/vulkan.hpp>
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 #include <VMA/vk_mem_alloc.h>
 #include <stdexcept>
 #include <vector>
@@ -23,14 +23,14 @@
 #include <array>
 
 
-
-#include "GameWindow.h"
+#include "DeviceExtensionManager.h"
+//#include "GameWindow.h"		///ここが原因！	InstanceExtensionが必要？
 #include "Utilities.h"
 #include "VulkanValidation.h"
 #include "VulkanInstance.h"
-#include "Surface.h"
+//#include "Surface.h"
 #include "Device.h"
-#include "WriteImage.cpp"
+//#include "WriteImage.cpp"
 
 class VulkanInitializer
 {
@@ -63,9 +63,7 @@ private:
 	InstanceExtension	m_InstanceExtension;
 	DeviceExtension		m_DeviceExtension;
 
-	// オブジェクト
-	InstanceGenerator	m_InstanceGenerator;
-	DeviceGenerator		m_DeviceGenerator;
+
 
 	vk::Instance		m_Instance;
 	vk::PhysicalDevice	m_PhysicalDevice;

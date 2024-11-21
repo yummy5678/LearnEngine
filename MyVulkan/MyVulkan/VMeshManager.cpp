@@ -1,5 +1,9 @@
 #include "VMeshManager.h"
 
+VMeshManager::~VMeshManager()
+{
+}
+
 bool VMeshManager::Load(VmaAllocator* allocator, MeshObject* pMeshObject)
 {
     VMeshObject object;

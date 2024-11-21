@@ -139,7 +139,7 @@
     <ClCompile Include="DeviceExtensionManager.cpp" />
     <ClCompile Include="CommandGenerator.cpp" />
     <ClCompile Include="Device.cpp" />
-    <ClCompile Include="GameWindow.cpp" />
+    <ClCompile Include="GraphicWindow.cpp" />
     <ClCompile Include="GeneratorBase.cpp" />
     <ClCompile Include="RenderingPipelineCreator.cpp" />
     <ClCompile Include="InstanceExtensionManager.cpp" />
@@ -147,7 +147,6 @@
     <ClCompile Include="MeshBuffer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MeshObjectBuffer.cpp" />
-    <ClCompile Include="Observer.cpp" />
     <ClCompile Include="PhysicalDeviceSelector.cpp" />
     <ClCompile Include="PipelineShaderCreator.cpp" />
     <ClCompile Include="RenderConfig.cpp" />
@@ -155,10 +154,8 @@
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="SemaphoreGenerator.cpp" />
     <ClCompile Include="ModelTexture.cpp" />
-    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="VBufferBase.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
-    <ClCompile Include="VertexDescription.cpp" />
     <ClCompile Include="StagingBuffer.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="StagingImageBuffer.cpp" />
@@ -188,7 +185,7 @@
     <ClInclude Include="DeviceExtensionManager.h" />
     <ClInclude Include="CommandGenerator.h" />
     <ClInclude Include="Device.h" />
-    <ClInclude Include="GameWindow.h" />
+    <ClInclude Include="GraphicWindow.h" />
     <ClInclude Include="GeneratorBase.h" />
     <ClInclude Include="GraphicsDefine.h" />
     <ClInclude Include="RenderingPipelineCreator.h" />
@@ -198,7 +195,6 @@
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="MeshObject.h" />
     <ClInclude Include="MeshObjectBuffer.h" />
-    <ClInclude Include="Observer.h" />
     <ClInclude Include="PhysicalDeviceSelector.h" />
     <ClInclude Include="PipelineShaderCreator.h" />
     <ClInclude Include="PipelineDescriptions.h" />
@@ -206,13 +202,9 @@
     <ClInclude Include="RenderScene.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="SemaphoreGenerator.h" />
-    <ClInclude Include="Singleton.h" />
-    <ClInclude Include="stb_image.h" />
     <ClInclude Include="ModelTexture.h" />
-    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VBufferBase.h" />
     <ClInclude Include="VertexBuffer.h" />
-    <ClInclude Include="VertexDescription.h" />
     <ClInclude Include="StagingBuffer.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="StagingImageBuffer.h" />

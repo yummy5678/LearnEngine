@@ -7,19 +7,18 @@
 // STB
 #include "stb/stb_image.h"
 
-#include "Singleton.h"
 #include "MeshObject.h"
 
 
 
-class MeshManager 
-	final : public Singleton<MeshManager>	//シングルトンパターンにする
+class MeshLoder 
 {
-private:
-	friend class Singleton<MeshManager>;
-	MeshManager();	// コンストラクタ
+
 
 public:
+	MeshLoder();	// コンストラクタ
+	~MeshLoder();	
+
 	bool Load(std::string filePath);
 	MeshObject* GetMesh(std::string filePath);
 

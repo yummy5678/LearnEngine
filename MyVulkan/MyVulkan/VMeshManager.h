@@ -1,14 +1,11 @@
 #pragma once
-#include "Singleton.h"
 #include "MeshObjectBuffer.h"
 
 
 class VMeshManager
-	final : public Singleton<VMeshManager>	//シングルトンパターンにする
 {
-private:
-	friend class Singleton<VMeshManager>;
 	VMeshManager();	// コンストラクタ
+	~VMeshManager();	// コンストラクタ
 
 
 public:

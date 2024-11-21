@@ -1,7 +1,15 @@
 #include "MeshManager.h"
 
 
-bool MeshManager::Load(std::string filePath)
+MeshLoder::MeshLoder()
+{
+}
+
+MeshLoder::~MeshLoder()
+{
+}
+
+bool MeshLoder::Load(std::string filePath)
 {
     // Assimpのインポーターを作成
     Assimp::Importer importer;  
@@ -22,13 +30,13 @@ bool MeshManager::Load(std::string filePath)
     return true; 
 }
 
-MeshObject* MeshManager::GetMesh(std::string filePath)
+MeshObject* MeshLoder::GetMesh(std::string filePath)
 {
     return &m_MeshList[filePath];
 }
 
 // シーンのノードを再帰的に処理するメソッド
-MeshObject MeshManager::ProcessNode(aiNode* node, const aiScene* scene)
+MeshObject MeshLoder::ProcessNode(aiNode* node, const aiScene* scene)
 {
     MeshObject object;
     // ノードが持つメッシュをすべて処理
@@ -46,7 +54,7 @@ MeshObject MeshManager::ProcessNode(aiNode* node, const aiScene* scene)
 }
 
 // メッシュを処理し、頂点やインデックスデータを抽出するメソッド
-Mesh MeshManager::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
+Mesh MeshLoder::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     Mesh resultMesh; // メッシュを格納するための変数
     std::vector<Material> resultMaterials;
 
@@ -104,7 +112,7 @@ Mesh MeshManager::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
 }
 
 // マテリアルを処理し、色やテクスチャの情報を抽出するメソッド
-Material MeshManager::ProcessMaterial(aiMaterial* material) {
+Material MeshLoder::ProcessMaterial(aiMaterial* material) {
     Material resultMaterial; // マテリアル情報を格納するための変数
 
     // マテリアルの色を取得（存在しない場合、デフォルト値を使用）
@@ -133,7 +141,7 @@ Material MeshManager::ProcessMaterial(aiMaterial* material) {
     return resultMaterial; // 処理したマテリアルを返す
 }
 
-Texture MeshManager::LoadTextureFile(std::string fileName)
+Texture MeshLoder::LoadTextureFile(std::string fileName)
 {
     Texture result;
     int width, height, channel;

@@ -2,11 +2,10 @@
 
 
 VulkanInitializer::VulkanInitializer() :
+	callback(),
 	m_InstanceExtension(),
-	//m_DeviceExtension(),
-	m_InstanceGenerator(),
-	m_DeviceGenerator()
-
+	m_DeviceExtension(),
+	m_VmaAllocator()
 {
 }
 
@@ -17,21 +16,26 @@ VulkanInitializer::~VulkanInitializer()
 
 int VulkanInitializer::init()
 {	
+	// オブジェクト
+	InstanceGenerator	instanceCreator;
+	DeviceGenerator		deviceCreator;
+
+
 	try {
 		//インスタンスの作成
-		m_InstanceGenerator.Create(m_InstanceExtension);
-		m_Instance = m_InstanceGenerator.GetInstanse();
+		instanceCreator.Create(m_InstanceExtension);
+		m_Instance = instanceCreator.GetInstanse();
 
 		createDebugCallback();
 
 		//物理・論理デバイスの作成
-		m_DeviceGenerator.Create(m_DeviceExtension, m_Instance);
+		deviceCreator.Create(m_DeviceExtension, m_Instance);
 
 		//物理デバイスを取得
-		m_PhysicalDevice = m_DeviceGenerator.GetPhysicalDevice();
+		m_PhysicalDevice = deviceCreator.GetPhysicalDevice();
 
 		//論理デバイスを取得
-		m_LogicalDevice	= m_DeviceGenerator.GetLogicalDevice();
+		m_LogicalDevice	= deviceCreator.GetLogicalDevice();
 
 		// アロケーターの作成
 		CreateAllocator(m_Instance, m_LogicalDevice, m_PhysicalDevice);
@@ -50,7 +54,7 @@ int VulkanInitializer::init()
 
 vk::Instance VulkanInitializer::GetInstance()
 {
-	return m_InstanceGenerator.GetInstanse();
+	return m_Instance;
 }
 
 vk::Device VulkanInitializer::GetLogicalDevice()
@@ -60,7 +64,7 @@ vk::Device VulkanInitializer::GetLogicalDevice()
 
 vk::PhysicalDevice VulkanInitializer::GetPhysicalDevice()
 {
-	return m_DeviceGenerator.GetPhysicalDevice();
+	return m_PhysicalDevice;
 }
 
 VmaAllocator* VulkanInitializer::GetPVmaAllocator()
@@ -78,10 +82,26 @@ DeviceExtension* VulkanInitializer::GetPDeviceExtension()
 	return &m_DeviceExtension;
 }
 
+void VulkanInitializer::cleanup()
+{
+	// デバイスの破棄
+	vkDestroyDevice(m_LogicalDevice, nullptr);
+	// デバッグコールバックの破棄
+	auto func = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(m_Instance, "vkDestroyDebugReportCallbackEXT");
+	if (func != nullptr) {
+		func(m_Instance, callback, nullptr);
+	}
+	// インスタンスの破棄
+	vkDestroyInstance(m_Instance, nullptr);
+	// アロケーターの破棄
+	vmaDestroyAllocator(m_VmaAllocator);
+			
+}
+
 bool VulkanInitializer::CheckSupportSurface(VkSurfaceKHR surface)
 {
 	//使用可能な物理デバイスを探してくる
-	PhysicalDeviceSelector selector(m_InstanceGenerator.GetInstanse());
+	PhysicalDeviceSelector selector(m_Instance);
 	return selector.CheckSupportSurface(m_PhysicalDevice, surface);
 }
 
