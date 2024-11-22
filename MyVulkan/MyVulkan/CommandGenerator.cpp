@@ -4,9 +4,9 @@
 
 
 SwapChainCommandGenerator::SwapChainCommandGenerator():
-    m_LogicalDevice(),
-    m_PhysicalDevice(),
-    m_CommandPool(),
+    m_LogicalDevice(nullptr),
+    m_PhysicalDevice(nullptr),
+    m_CommandPool(nullptr),
     m_CommandBuffers()
 {
     m_ClassName = "CommandGenerator";
@@ -49,7 +49,7 @@ void SwapChainCommandGenerator::Destroy()
     //コマンドプールの解放
     m_LogicalDevice.freeCommandBuffers(
         m_CommandPool,
-        m_CommandBuffers.size(),
+        (uint32_t)m_CommandBuffers.size(),
         m_CommandBuffers.data());
 
     //コマンドプールの破棄
@@ -71,7 +71,7 @@ std::vector<vk::CommandBuffer> SwapChainCommandGenerator::GetCommandBuffers()
 
 void SwapChainCommandGenerator::DrawFrame(
     uint32_t                    commandIndex,
-    std::vector<RenderingUnit>  renderingUnit,
+    std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnit,
     vk::ImageView               colorImageView, 
     vk::ImageView               depthImageView)
 {
@@ -97,14 +97,14 @@ void SwapChainCommandGenerator::DrawFrame(
 
     for (int i = 0; i < renderingUnit.size(); i++)
     {
-        auto config = renderingUnit[i].config;
-        auto scene = renderingUnit[i].scene;
+        auto config = renderingUnit[i].first;
+        auto scene = renderingUnit[i].second;
 
-        if (config == nullptr || scene == nullptr) continue; //nullptrが入っている描画情報は無視する
+        //if (config == nullptr || scene == nullptr) continue; //nullptrが入っている描画情報は無視する
 
         // ダイナミックレンダリングの設定
         vk::RenderingInfo renderingInfo;
-        renderingInfo.renderArea = config->GetRenderRect();
+        renderingInfo.renderArea = config.GetRenderRect();
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
@@ -114,9 +114,9 @@ void SwapChainCommandGenerator::DrawFrame(
         commandBuffer.beginRendering(renderingInfo);
 
         // 使用するパイプラインをバインドします。
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config->GetPipeline());
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config.GetPipeline());
 
-        RenderObjects(commandBuffer, config->GetPipelineLayout(), scene->GetObjects(), scene->GetMainCamera());
+        RenderObjects(commandBuffer, config.GetPipelineLayout(), scene.GetObjects(), scene.GetMainCamera());
     }
 
     commandBuffer.endRendering();
@@ -190,13 +190,13 @@ vk::SubmitInfo SwapChainCommandGenerator::CreateSubmitInfo(std::vector<vk::Comma
 {
     vk::SubmitInfo submitInfo;
     //submitInfo.pNext;
-    submitInfo.signalSemaphoreCount = m_SignalSemaphores.size();
+    submitInfo.signalSemaphoreCount = (uint32_t)m_SignalSemaphores.size();
     submitInfo.pSignalSemaphores = m_SignalSemaphores.data();
     submitInfo.allowDuplicate;
     submitInfo.pWaitDstStageMask;
-    submitInfo.waitSemaphoreCount = m_WaitSemaphores.size();
+    submitInfo.waitSemaphoreCount = (uint32_t)m_WaitSemaphores.size();
     submitInfo.pWaitSemaphores = m_WaitSemaphores.data();
-    submitInfo.commandBufferCount = commandBuffers.size();
+    submitInfo.commandBufferCount = (uint32_t)commandBuffers.size();
     submitInfo.pCommandBuffers = commandBuffers.data();
 
     return submitInfo;

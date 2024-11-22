@@ -1,7 +1,9 @@
 #pragma once
 #include "MeshObject.h"
+#include "SceneObject.h"
 #include "PipelineShaderCreator.h"
 #include "RenderingPipelineCreator.h"
+#include "VulkanInitializer.h"
 
 // シーンクラスからVulkanのグラフィックパイプラインへの
 // 描画モデルの情報の橋渡しを行うクラス
@@ -13,13 +15,13 @@
 class RenderConfig
 {
 public:
-	RenderConfig();
+	RenderConfig(VulkanInitializer& initializer);
 	~RenderConfig();
 
 	void Initialize(
-		vk::Device logicalDevice, 
-		vk::Extent2D extent, 
-		vk::Format colorFomat, 
+		vk::Device logicalDevice,
+		vk::Extent2D extent,
+		vk::Format colorFomat,
 		vk::Format depthFomat);
 
 	void Destroy();
@@ -38,12 +40,8 @@ private:
 
 	vk::Rect2D				m_RenderArea;	// フレーム内の描画位置の矩形
 
-	RenderingPipelineCreator	m_GraphicsPipeline;
+	RenderingPipelineCreator m_GraphicsPipeline;
 
 	//パイプラインに渡すシェーダー情報の作成クラス
 	PipelineShaderCreator	m_Shader;
-
-
-
 };
-

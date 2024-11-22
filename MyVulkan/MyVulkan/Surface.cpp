@@ -1,12 +1,12 @@
 #include "Surface.h"
 
 
-SurfaceGenerator::SurfaceGenerator(InstanceExtension& instanceExtension)
+SurfaceGenerator::SurfaceGenerator(VulkanInitializer& initializer)
 {
 	m_ClassName = "SurfaceGenerator";
 	
 	// 拡張機能マネージャーにサーフェスの使用する拡張機能を追加
-	instanceExtension.UseGLFW();
+	initializer.GetPInstanceExtension()->UseGLFW();
 }
 
 SurfaceGenerator::SurfaceGenerator()

@@ -1,5 +1,6 @@
 #include "Device.h"
 
+
 DeviceGenerator::DeviceGenerator()
 {
 }

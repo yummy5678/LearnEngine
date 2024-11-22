@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.hpp>
 #include <VMA/vk_mem_alloc.h>
 
+
 // バッファ作成用の基底クラス
 // 頂点バッファクラスなどに派生させて使う予定
 
@@ -46,7 +47,7 @@ protected:
 	uint32_t	FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags findType);
 
 	// データをバッファに書き込む
-	void MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize);
+	void MapData(void* setData, vk::DeviceSize dataSize);
 
 };
 

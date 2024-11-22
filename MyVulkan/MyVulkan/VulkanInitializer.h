@@ -1,36 +1,18 @@
 #pragma once
 
-// GLM
-//#include <glm/glm.hpp>
-//#include <glm/gtc/matrix_transform.hpp>
-
-// Assimp
-//#include <assimp/Importer.hpp>
-//#include <assimp/scene.h>
-//#include <assimp/postprocess.h>
-
-// STB
-//#include "stb/stb_image.h"
-
-
 #include <vulkan/vulkan.hpp>
-//#include <GLFW/glfw3.h>
-#include <VMA/vk_mem_alloc.h>
 #include <stdexcept>
 #include <vector>
 #include <set>
 #include <algorithm>
 #include <array>
-
-
+#include <VMA/vk_mem_alloc.h>
 #include "DeviceExtensionManager.h"
-//#include "GameWindow.h"		///ここが原因！	InstanceExtensionが必要？
+#include "InstanceExtensionManager.h"
 #include "Utilities.h"
 #include "VulkanValidation.h"
 #include "VulkanInstance.h"
-//#include "Surface.h"
 #include "Device.h"
-//#include "WriteImage.cpp"
 
 class VulkanInitializer
 {
@@ -55,10 +37,6 @@ public:
 	bool CheckSupportSurface(VkSurfaceKHR surface);
 
 private:
-	//RenderScene*		m_pScene;	// 描画したいオブジェクトの情報が入ったクラス
-
-	//int currentFrame = 0;
-
 	// 拡張機能
 	InstanceExtension	m_InstanceExtension;
 	DeviceExtension		m_DeviceExtension;
@@ -74,74 +52,35 @@ private:
 	VkDebugReportCallbackEXT callback;
 
 
-
-
-
 	//デバイスの作成
 	void createDebugCallback();
-	void createLogicalDevice();
+	//void createLogicalDevice();
 
 
-
-
-
-
-
-	//std::vector<VkImage> colourBufferImage;
-	//std::vector<VkDeviceMemory> colourBufferImageMemory;
-	//std::vector<VkImageView> colourBufferImageView;
-
-	//std::vector<VkImage> depthBufferImage;
-	//std::vector<VkDeviceMemory> depthBufferImageMemory;
-	//std::vector<VkImageView> depthBufferImageView;
-
-	
-
-
-
-
-	
-	
-
-
-
-
-	//std::vector<VkBuffer> modelDUniformBuffer;
-	//std::vector<VkDeviceMemory> modelDUniformBufferMemory;
-
-	//VkDeviceSize minUniformBufferOffset;
-	//size_t modelUniformAlignment;
-	//UboModel * modelTransferSpace;
-
-
-
-	//VkPipeline secondPipeline;
-	//VkPipelineLayout secondPipelineLayout;
-
-	
-	void createPushConstantRange();
+	//
+	//void createPushConstantRange();
 
 
 
 	
 
-	void recordCommands(uint32_t currentImage);
+	//void recordCommands(uint32_t currentImage);
 
-	// - Allocate Functions
-	void allocateDynamicBufferTransferSpace();
+	//// - Allocate Functions
+	//void allocateDynamicBufferTransferSpace();
 
-	VkFormat chooseSupportedFormat(const std::vector<VkFormat>& formats, VkImageTiling tiling, VkFormatFeatureFlags featureFlags);
+	//VkFormat chooseSupportedFormat(const std::vector<VkFormat>& formats, VkImageTiling tiling, VkFormatFeatureFlags featureFlags);
 
-	VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags,
-		VkMemoryPropertyFlags propFlags, VkDeviceMemory* imageMemory);
+	//VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags,
+	//	VkMemoryPropertyFlags propFlags, VkDeviceMemory* imageMemory);
 
-	int createTextureImage(std::string fileName);
-	int createTexture(std::string fileName);
-	int createTextureDescriptor(VkImageView textureImage);
+	//int createTextureImage(std::string fileName);
+	//int createTexture(std::string fileName);
+	//int createTextureDescriptor(VkImageView textureImage);
 
 
 	// -- Loader Functions
-	stbi_uc* loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize);
+	//stbi_uc* loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize);
 
 	// アロケーターの作成
 	void CreateAllocator(vk::Instance instance, vk::Device logicalDevice, vk::PhysicalDevice physicalDevice);

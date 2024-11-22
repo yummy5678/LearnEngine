@@ -31,6 +31,6 @@ void VViewProjectionBuffer::SetData(VmaAllocator* allocator, ViewProjection& pro
 
 void VViewProjectionBuffer::Update(VmaAllocator* allocator, ViewProjection& projection)
 {
-	MapData(allocator, &projection, sizeof(ViewProjection));
+	MapData(&projection, sizeof(ViewProjection));
 }
 

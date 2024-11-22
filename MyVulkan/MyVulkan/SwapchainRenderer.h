@@ -10,10 +10,12 @@
 
 
 
+
+
 class SwapchainRenderer : public GeneratorBase
 {
 public:
-	SwapchainRenderer(VulkanInitializer* initializer);
+	SwapchainRenderer(VulkanInitializer& initializer);
 	~SwapchainRenderer();
 
 	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
@@ -23,7 +25,7 @@ public:
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
 	SwapChainImage				GetImages();
 	vk::Extent2D				GetFrameExtent();
-	void						UpdateFrame(std::vector<RenderingUnit> renderingUnits);
+	void						UpdateFrame(std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnits);
 
 private:
 	vk::Device m_LogicalDevice;

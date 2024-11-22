@@ -101,17 +101,17 @@ uint32_t VBufferBase::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevic
 	throw std::runtime_error("適切なメモリタイプを見つけられませんでした!");
 }
 
-void VBufferBase::MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize)
+void VBufferBase::MapData(void* setData, vk::DeviceSize dataSize)
 {
 	// 確保したバッファの領域のポインタを取得
 	void* mapData;
-	vmaMapMemory(*allocator, m_Allocation, &mapData);
+	vmaMapMemory(*m_Allocator, m_Allocation, &mapData); // 修正: *allocator に変更
 
 	// 頂点データの情報を取得したバッファにコピー
 	memcpy(mapData, setData, dataSize);
 
 	// メモリのアクセス制限を解除
-	vmaUnmapMemory(*allocator, m_Allocation);
+	vmaUnmapMemory(*m_Allocator, m_Allocation);
 }
 
 

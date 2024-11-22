@@ -106,15 +106,15 @@ bool VulkanInitializer::CheckSupportSurface(VkSurfaceKHR surface)
 }
 
 
-void VulkanInitializer::allocateDynamicBufferTransferSpace()
-{
-	// Calculate alignment of model data
-	/*modelUniformAlignment = (sizeof(UboModel) + minUniformBufferOffset - 1)
-							& ~(minUniformBufferOffset - 1);
-
-	// Create space in memory to hold dynamic buffer that is aligned to our required alignment and holds MAX_OBJECTS
-	modelTransferSpace = (UboModel *)_aligned_malloc(modelUniformAlignment * MAX_OBJECTS, modelUniformAlignment);*/
-}
+//void VulkanInitializer::allocateDynamicBufferTransferSpace()
+//{
+//	// Calculate alignment of model data
+//	/*modelUniformAlignment = (sizeof(UboModel) + minUniformBufferOffset - 1)
+//							& ~(minUniformBufferOffset - 1);
+//
+//	// Create space in memory to hold dynamic buffer that is aligned to our required alignment and holds MAX_OBJECTS
+//	modelTransferSpace = (UboModel *)_aligned_malloc(modelUniformAlignment * MAX_OBJECTS, modelUniformAlignment);*/
+//}
 
 
 

@@ -5,7 +5,10 @@
 #include "SemaphoreGenerator.h"
 #include "FenceGenerator.h"
 #include "VertexBuffer.h"
-#include "RenderingUnit.h"
+#include "RenderConfig.h"
+#include "RenderScene.h"
+
+
 
 class SwapChainCommandGenerator : public GeneratorBase
 {
@@ -27,7 +30,7 @@ public:
 	std::vector<vk::CommandBuffer> GetCommandBuffers();
 
 	// GPU内で画像を描画
-	void DrawFrame(uint32_t commandIndex, std::vector<RenderingUnit> renderingUnit, vk::ImageView colorImage, vk::ImageView depthImage);
+	void DrawFrame(uint32_t commandIndex, std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnit, vk::ImageView colorImage, vk::ImageView depthImage);
 
 	// スワップチェーンに従って画像を表示
 	void PresentFrame(vk::SwapchainKHR swapchain, uint32_t commandIndex);

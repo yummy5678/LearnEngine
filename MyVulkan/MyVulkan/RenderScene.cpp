@@ -21,7 +21,7 @@ void RenderScene::Initialize(VmaAllocator* allocator)
 
 void RenderScene::Update()
 {
-	float now = glfwGetTime();
+	float now = (float)glfwGetTime();
 	deltaTime = now - lastTime;
 	lastTime = now;
 

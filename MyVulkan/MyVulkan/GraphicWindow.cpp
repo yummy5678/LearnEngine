@@ -2,10 +2,10 @@
 
 
 
-GraphicWindow::GraphicWindow(VulkanInitializer* initializer) :
+GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_pWindow(nullptr),
-	m_pInitializer(initializer),
-	m_Surface(),
+	m_pInitializer(&initializer),
+	m_Surface(initializer),
 	m_GraphicController(initializer)
 {
 }
@@ -45,7 +45,7 @@ void GraphicWindow::kill()
 	glfwTerminate();
 }
 
-void GraphicWindow::UpdateRenderer(std::vector<RenderingUnit> renderingUnits)
+void GraphicWindow::UpdateRenderer(std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnits)
 {
 	m_GraphicController.UpdateFrame(renderingUnits);
 }

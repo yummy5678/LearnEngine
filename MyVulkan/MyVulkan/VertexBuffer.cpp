@@ -15,7 +15,7 @@ VVertexBuffer::~VVertexBuffer()
 
 void VVertexBuffer::SetData(VmaAllocator* allocator, std::vector<Vertex>& vertices)
 {
-	m_Size = vertices.size();
+	m_Size = (uint32_t)vertices.size();
 	vk::DeviceSize dataSize = sizeof(Vertex) * m_Size;
 
 

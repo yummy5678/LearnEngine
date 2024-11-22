@@ -4,13 +4,13 @@
 #include "GeneratorBase.h"
 #include "GraphicsDefine.h"
 #include "Utilities.h"
-#include "InstanceExtensionManager.h"
+#include "VulkanInitializer.h"
 
 
 class SurfaceGenerator : public GeneratorBase
 {
 public:
-	SurfaceGenerator(InstanceExtension& instanceExtension);
+	SurfaceGenerator(VulkanInitializer& initializer);
 	SurfaceGenerator();
 	~SurfaceGenerator();
 

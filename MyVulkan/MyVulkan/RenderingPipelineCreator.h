@@ -6,13 +6,13 @@
 #include "PipelineShaderCreator.h"
 #include "PipelineDescriptions.h"
 #include "VertexBuffer.h"
-#include "DeviceExtensionManager.h"
+#include "VulkanInitializer.h"
 #include "VTextureDescriptor.h"
 
-class RenderingPipelineCreator : GeneratorBase
+class RenderingPipelineCreator : public GeneratorBase
 {
 public:
-	RenderingPipelineCreator(DeviceExtension& deviceExtensionManager);
+	RenderingPipelineCreator(VulkanInitializer& initializer);
 	~RenderingPipelineCreator();
 
 	void Create(

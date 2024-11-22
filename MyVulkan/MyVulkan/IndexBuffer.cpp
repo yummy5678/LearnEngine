@@ -13,8 +13,8 @@ VIndexBuffer::~VIndexBuffer()
 void VIndexBuffer::SetData(VmaAllocator* allocator, std::vector<uint32_t>& indices)
 {
 
-	m_Size = indices.size();
-	vk::DeviceSize dataSize = sizeof(uint32_t) * indices.size();
+	m_Size = (uint32_t)indices.size();
+	vk::DeviceSize dataSize = sizeof(uint32_t) * m_Size;
 
 	// 頂点用のバッファ及びメモリの作成
 	CreateBuffer(allocator, dataSize);

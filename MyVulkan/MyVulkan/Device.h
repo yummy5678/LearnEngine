@@ -3,9 +3,8 @@
 #include <set>
 #include "GeneratorBase.h"
 #include "PhysicalDeviceSelector.h"
-#include "VulkanExtensions.h"
+#include "DeviceExtensionManager.h"
 #include "QueueUtility.h"
-#include "CommandGenerator.h"
 
 
 class DeviceGenerator : GeneratorBase

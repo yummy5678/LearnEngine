@@ -1,12 +1,11 @@
 #include "SwapChainRenderer.h"
 
 
-SwapchainRenderer::SwapchainRenderer(VulkanInitializer* initializer)
+SwapchainRenderer::SwapchainRenderer(VulkanInitializer& initializer)
 {
     m_ClassName = "SwapchainGenerator";
-
-
-    initializer->GetPDeviceExtension()->UseSwapchain();
+      
+    initializer.GetPDeviceExtension()->UseSwapchain();
 }
 
 SwapchainRenderer::~SwapchainRenderer()
@@ -62,7 +61,7 @@ vk::Extent2D SwapchainRenderer::GetFrameExtent()
     return m_SwapchainInfo.imageExtent;
 }
 
-void SwapchainRenderer::UpdateFrame(std::vector<RenderingUnit> renderingUnits)
+void SwapchainRenderer::UpdateFrame(std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnits)
 {
     vk::ResultValue acquire = m_LogicalDevice.acquireNextImageKHR(m_Swapchain, std::numeric_limits<uint64_t>::max(), {}, nullptr);
     if (acquire.result != vk::Result::eSuccess) std::cerr << "次フレームの取得に失敗しました。" << std::endl;
@@ -127,7 +126,7 @@ vk::SwapchainCreateInfoKHR SwapchainRenderer::CreateSwapchainInfo(vk::PhysicalDe
     {
         std::vector<uint32_t> queueFamilyIndices = { queueFamilySelector.GetGraphicIndex(), queueFamilySelector.GetPresentationIndex(surface) };
         swapchainInfo.imageSharingMode = vk::SharingMode::eConcurrent;      // 並行モードに設定
-        swapchainInfo.queueFamilyIndexCount = queueFamilyIndices.size();    // キューファミリーインデックスの数を設定
+        swapchainInfo.queueFamilyIndexCount = (uint32_t)queueFamilyIndices.size();    // キューファミリーインデックスの数を設定
         swapchainInfo.pQueueFamilyIndices = queueFamilyIndices.data();      // キューファミリーインデックスの配列を設定
     }
 

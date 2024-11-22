@@ -1,10 +1,10 @@
 #include "RenderingPipelineCreator.h"
 
 
-RenderingPipelineCreator::RenderingPipelineCreator(DeviceExtension& deviceExtensionManager)
+RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initializer)
 {
 	m_ClassName = "PipelineGenerator";
-	deviceExtensionManager.UseDynamicRendering();
+	initializer.GetPDeviceExtension()->UseDynamicRendering();
 }
 
 RenderingPipelineCreator::~RenderingPipelineCreator()
@@ -73,8 +73,8 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device logicalDevice, 
 	vk::Viewport viewport;
 	viewport.setX(0.0f);									// x座標の開始位置
 	viewport.setY(0.0f);									// y座標の開始位置
-	viewport.setWidth(extent.width);						// ビューポートの幅
-	viewport.setHeight(extent.height);					// ビューポートの高さ
+	viewport.setWidth((float)extent.width);						// ビューポートの幅
+	viewport.setHeight((float)extent.height);					// ビューポートの高さ
 	viewport.setMinDepth(0.0f);								// フレームバッファの最小深度
 	viewport.setMaxDepth(1.0f);								// フレームバッファの最大深度
 

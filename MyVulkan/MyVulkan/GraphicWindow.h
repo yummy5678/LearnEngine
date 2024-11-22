@@ -5,7 +5,6 @@
 #include "Surface.h"
 #include "VulkanInitializer.h" 
 #include "SwapchainRenderer.h"
-#include "RenderingUnit.h"
 
 
 //ウィンドウ作成用のクラス
@@ -13,7 +12,7 @@ class GraphicWindow
 {
 public:
     //コンストラクタとデストラクタ
-    GraphicWindow(VulkanInitializer* initializer);
+    GraphicWindow(VulkanInitializer& initializer);
     ~GraphicWindow();
 
     //ウィンドウの初期化と作成
@@ -21,7 +20,7 @@ public:
     //ウィンドウの終了処理
     void kill();
 
-    void UpdateRenderer(std::vector<RenderingUnit> renderingUnits);
+    void UpdateRenderer(std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnits);
 
     //ウィンドウのポインターを渡す
     GLFWwindow* GetPointer();

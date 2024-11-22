@@ -1,9 +1,14 @@
 #include "RenderConfig.h"
 
 
-//RenderConfig::RenderConfig()
-//{
-//}
+RenderConfig::RenderConfig(VulkanInitializer& initializer):
+    m_GraphicsPipeline(initializer),
+    m_Shader(), 
+    m_RenderArea(), 
+    m_Offset(), 
+    m_Extent()
+{
+}
 
 RenderConfig::~RenderConfig()
 {
@@ -11,40 +16,36 @@ RenderConfig::~RenderConfig()
 
 void RenderConfig::Initialize(vk::Device logicalDevice, vk::Extent2D extent, vk::Format colorFomat, vk::Format depthFomat)
 {
-	m_GraphicsPipeline.Create(
-		logicalDevice, 
-		extent, 
-		m_RenderArea, 
-		colorFomat, 
-		depthFomat,
-		m_Shader.GetShaderStages());
+    m_GraphicsPipeline.Create(
+        logicalDevice, 
+        extent, 
+        m_RenderArea, 
+        colorFomat, 
+        depthFomat,
+        m_Shader.GetShaderStages());
 }
 
 vk::Rect2D RenderConfig::GetSissorRect()
 {
-	return vk::Rect2D(m_Offset, m_Extent);
+    return vk::Rect2D(m_Offset, m_Extent);
 }
 
 vk::Rect2D RenderConfig::GetRenderRect()
 {
-	return m_RenderArea;
+    return m_RenderArea;
 }
 
 vk::Pipeline RenderConfig::GetPipeline()
 {
-	return m_GraphicsPipeline.GetPipeline();
+    return m_GraphicsPipeline.GetPipeline();
 }
 
 vk::PipelineLayout RenderConfig::GetPipelineLayout()
 {
-	return m_GraphicsPipeline.GetPipelineLayout();
+    return m_GraphicsPipeline.GetPipelineLayout();
 }
 
 std::vector<vk::PipelineShaderStageCreateInfo> RenderConfig::GetShaderStages()
 {
-	return m_Shader.GetShaderStages();
+    return m_Shader.GetShaderStages();
 }
-
-
-
-
