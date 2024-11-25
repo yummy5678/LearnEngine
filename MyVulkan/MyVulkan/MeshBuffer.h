@@ -14,6 +14,8 @@ public:
 	VVertexBuffer	GetVertex();
 	VIndexBuffer	GetIndex();
 
+	void Cleanup();
+
 private:
 	VVertexBuffer	m_Vertex;
 	VIndexBuffer	m_Index;	

@@ -9,7 +9,7 @@ MeshLoder::~MeshLoder()
 {
 }
 
-bool MeshLoder::Load(std::string filePath)
+bool MeshLoder::Load(VmaAllocator* pAllocator, std::string filePath)
 {
     // Assimpのインポーターを作成
     Assimp::Importer importer;  
@@ -23,16 +23,25 @@ bool MeshLoder::Load(std::string filePath)
         return false; // モデルの読み込みに失敗したらfalseを返す
     }
 
+    MeshObject mesh = ProcessNode(scene->mRootNode, scene);
+
+    VMeshObject object;
+	object.SetMeshObject(pAllocator, mesh);
+
     // シーンのルートノードから再帰的にノードを処理していく
-    m_MeshList[filePath] = ProcessNode(scene->mRootNode, scene);
+    m_MeshList[filePath] = object;
 
     // 読み込みに成功
     return true; 
 }
 
-MeshObject* MeshLoder::GetMesh(std::string filePath)
+VMeshObject* MeshLoder::GetVMesh(std::string filePath)
 {
-    return &m_MeshList[filePath];
+    auto it = m_MeshList.find(filePath);
+    if (it != m_MeshList.end()) {
+        return &it->second;
+    }
+    return nullptr;
 }
 
 // シーンのノードを再帰的に処理するメソッド

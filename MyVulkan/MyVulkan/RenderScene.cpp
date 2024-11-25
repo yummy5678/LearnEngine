@@ -13,7 +13,7 @@ void RenderScene::Initialize(VmaAllocator* allocator)
 	m_Allocator = allocator;
 
 	MeshLoder meshManager;
-	meshManager.Load("");
+	meshManager.Load(allocator,"");
 	m_Object.SetMesh(allocator, *meshManager.GetMesh(""));
 	
 

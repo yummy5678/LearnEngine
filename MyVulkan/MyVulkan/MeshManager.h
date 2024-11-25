@@ -8,25 +8,23 @@
 #include "stb/stb_image.h"
 
 #include "MeshObject.h"
-
+#include "MeshObjectBuffer.h"
 
 
 class MeshLoder 
 {
-
-
 public:
 	MeshLoder();	// コンストラクタ
 	~MeshLoder();	
 
-	bool Load(std::string filePath);
-	MeshObject* GetMesh(std::string filePath);
+	bool Load(VmaAllocator* pAllocator, std::string filePath);
+	VMeshObject* GetVMesh(std::string filePath);
 
 
 
 
 private:	// プライベート変数
-	std::unordered_map<std::string, MeshObject> m_MeshList;
+	std::unordered_map<std::string, VMeshObject> m_MeshList;
 
 
 

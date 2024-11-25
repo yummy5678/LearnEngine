@@ -6,6 +6,7 @@ VMesh::VMesh()
 
 VMesh::~VMesh()
 {
+	Cleanup();
 }
 
 void VMesh::SetMesh(VmaAllocator* allocator, Mesh mesh)
@@ -22,6 +23,12 @@ VVertexBuffer VMesh::GetVertex()
 VIndexBuffer VMesh::GetIndex()
 {
 	return m_Index;
+}
+
+void VMesh::Cleanup()
+{
+	m_Vertex.Cleanup();
+	m_Index.Cleanup();
 }
 
 void VMesh::SetVertex(VmaAllocator *allocator, std::vector<Vertex> vertex)

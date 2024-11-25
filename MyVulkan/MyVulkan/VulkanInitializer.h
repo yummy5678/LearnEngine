@@ -1,12 +1,8 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
-#include <stdexcept>
-#include <vector>
-#include <set>
-#include <algorithm>
-#include <array>
 #include <VMA/vk_mem_alloc.h>
+#include <vector>
 #include "DeviceExtensionManager.h"
 #include "InstanceExtensionManager.h"
 #include "Utilities.h"

@@ -1,6 +1,8 @@
 #include "VBufferBase.h"
 
-VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage, VmaMemoryUsage memoryUsage)
+VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage, VmaMemoryUsage memoryUsage) : 
+	m_Buffer(nullptr),
+	m_Allocation(nullptr)
 {
 	// m_DataUsageはステージングバッファからデータを設定するつもりなので転送先フラグを追加
 	m_BufferUsage = bufferusage | vk::BufferUsageFlagBits::eTransferDst;
@@ -30,9 +32,10 @@ vk::DeviceSize VBufferBase::GetDataSize()
 
 void VBufferBase::Cleanup()
 {
-	if (!m_Allocator) return;
-	vmaDestroyBuffer(*m_Allocator, m_Buffer, m_Allocation);
+	if (!m_Allocator || !m_Buffer) return;
 
+	vmaDestroyBuffer(*m_Allocator, m_Buffer, m_Allocation);
+	m_Allocator = nullptr;
 }
 
 void VBufferBase::CreateBuffer(VmaAllocator* allocator, vk::DeviceSize dataSize)

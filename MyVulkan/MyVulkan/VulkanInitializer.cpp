@@ -105,6 +105,21 @@ bool VulkanInitializer::CheckSupportSurface(VkSurfaceKHR surface)
 	return selector.CheckSupportSurface(m_PhysicalDevice, surface);
 }
 
+void VulkanInitializer::createDebugCallback()
+{
+	// デバッグコールバックの作成情報
+	VkDebugReportCallbackCreateInfoEXT createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+	createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+    //createInfo.pfnCallback = VulkanValidation::debugCallback;
+
+	// デバッグコールバックの作成
+	auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_Instance, "vkCreateDebugReportCallbackEXT");
+	if (func != nullptr) {
+		func(m_Instance, &createInfo, nullptr, &callback);
+	}
+}
+
 
 //void VulkanInitializer::allocateDynamicBufferTransferSpace()
 //{

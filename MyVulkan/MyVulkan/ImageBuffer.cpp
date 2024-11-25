@@ -7,11 +7,13 @@ VTextureBuffer::VTextureBuffer()
 
 VTextureBuffer::~VTextureBuffer()
 {
+	Cleanup();
 }
 
 void VTextureBuffer::Cleanup()
 {
 	if(m_ImageAllocation) vmaDestroyImage(*m_Allocator, m_Buffer, m_ImageAllocation);
+	m_Allocator = nullptr;
 }
 
 void VTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
