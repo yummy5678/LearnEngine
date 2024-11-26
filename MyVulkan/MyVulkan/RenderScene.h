@@ -1,5 +1,6 @@
 #pragma once
-#include <GLFW/glfw3.h>
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>///////////////////
 #include <stb/stb_image.h>
 #include <glm/ext/matrix_transform.hpp>
 #include "SceneObject.h"
