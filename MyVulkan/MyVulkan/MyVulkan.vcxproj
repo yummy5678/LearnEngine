@@ -150,7 +150,7 @@
     <ClCompile Include="PipelineShaderCreator.cpp" />
     <ClCompile Include="RenderConfig.cpp" />
     <ClCompile Include="RenderScene.cpp" />
-    <ClCompile Include="SceneObject.cpp" />
+    <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="SemaphoreGenerator.cpp" />
     <ClCompile Include="ModelTexture.cpp" />
     <ClCompile Include="VBufferBase.cpp" />
@@ -175,6 +175,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RenderTask.h" />
     <ClInclude Include="SceneCamera.h" />
     <ClInclude Include="DescriptorBase.h" />
     <ClInclude Include="FenceGenerator.h" />
@@ -198,7 +199,7 @@
     <ClInclude Include="PipelineDescriptions.h" />
     <ClInclude Include="RenderConfig.h" />
     <ClInclude Include="RenderScene.h" />
-    <ClInclude Include="SceneObject.h" />
+    <ClInclude Include="RenderObject.h" />
     <ClInclude Include="SemaphoreGenerator.h" />
     <ClInclude Include="ModelTexture.h" />
     <ClInclude Include="VBufferBase.h" />

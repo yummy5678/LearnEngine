@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>          // 頂点やマテリアル用のベクトルや行列のライブラリ
+#include <glm/fwd.hpp>
 
 
 // ※パイプラインにこれらの情報を渡すための定義は"PipelineInputUtility"に記載

@@ -67,7 +67,7 @@ private:
 	void RenderObjects(
 		vk::CommandBuffer commandBuffer, 
 		vk::PipelineLayout pipelineLayout, 
-		std::vector<SceneObject> drawMeshes, 
+		std::vector<RenderObject> drawMeshes, 
 		SceneCamera sceneCamera);
 
 };

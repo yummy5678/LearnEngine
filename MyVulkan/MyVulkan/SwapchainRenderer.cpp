@@ -61,14 +61,14 @@ vk::Extent2D SwapchainRenderer::GetFrameExtent()
     return m_SwapchainInfo.imageExtent;
 }
 
-void SwapchainRenderer::UpdateFrame(std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnits)
+void SwapchainRenderer::UpdateFrame(std::vector<RenderTask> renderingTasks)
 {
     vk::ResultValue acquire = m_LogicalDevice.acquireNextImageKHR(m_Swapchain, std::numeric_limits<uint64_t>::max(), {}, nullptr);
     if (acquire.result != vk::Result::eSuccess) std::cerr << "ŽŸƒtƒŒ[ƒ€‚ÌŽæ“¾‚ÉŽ¸”s‚µ‚Ü‚µ‚½B" << std::endl;
 
     m_CommandGenerator.DrawFrame(
         acquire.value,
-        renderingUnits,
+        renderingTasks,
         m_SwapChainImages.GetColorImageViews()[acquire.value],
         m_SwapChainImages.GetColorImageViews()[acquire.value]);
 

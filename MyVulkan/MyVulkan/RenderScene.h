@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>///////////////////
 #include <stb/stb_image.h>
 #include <glm/ext/matrix_transform.hpp>
-#include "SceneObject.h"
+#include "RenderObject.h"
 #include "SceneCamera.h"
 #include "MeshManager.h"
 
@@ -22,14 +22,14 @@ public:
 	void Update();
 	// void Render(RenderPipeline &pipeline, Camera camera);
 
-	std::vector<SceneObject>	GetObjects();
+	std::vector<RenderObject>	GetObjects();
 	//std::vector<SceneCamera>	GetCameras();
 	SceneCamera					GetMainCamera();
 
 
 private:
 	VmaAllocator*	m_Allocator;
-	SceneObject		m_Object;		//表示するモデルリスト
+	RenderObject		m_Object;		//表示するモデルリスト
 	SceneCamera		m_Camera;		// スワップチェインで高速に描画する用のカメラ設定
 
 

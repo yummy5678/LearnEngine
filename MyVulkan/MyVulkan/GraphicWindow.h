@@ -6,7 +6,7 @@
 #include "Surface.h"
 #include "VulkanInitializer.h" 
 #include "SwapchainRenderer.h"
-
+#include "RenderTask.h"
 
 //ウィンドウ作成用のクラス
 class GraphicWindow
@@ -21,7 +21,9 @@ public:
     //ウィンドウの終了処理
     void kill();
 
-    void UpdateRenderer(std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnits);
+
+    void AddRenderQueue(RenderTask renderTask);
+	void ExecuteRenderQueue();
 
     //ウィンドウのポインターを渡す
     GLFWwindow* GetPointer();
@@ -40,4 +42,5 @@ private:
 
     SurfaceGenerator m_Surface;
     SwapchainRenderer m_GraphicController;
+	std::vector<RenderTask> m_RenderTasks;
 };

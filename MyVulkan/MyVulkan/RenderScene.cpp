@@ -14,7 +14,7 @@ void RenderScene::Initialize(VmaAllocator* allocator)
 
 	MeshLoder meshManager;
 	meshManager.Load(allocator,"");
-	m_Object.SetMesh(allocator, *meshManager.GetMesh(""));
+	m_Object.SetMesh(allocator, meshManager.GetVMesh(""));
 	
 
 }
@@ -36,7 +36,7 @@ void RenderScene::Update()
 
 }
 
-std::vector<SceneObject> RenderScene::GetObjects()
+std::vector<RenderObject> RenderScene::GetObjects()
 {
 	return { m_Object };
 }

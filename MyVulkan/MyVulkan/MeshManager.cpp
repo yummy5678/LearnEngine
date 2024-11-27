@@ -29,17 +29,17 @@ bool MeshLoder::Load(VmaAllocator* pAllocator, std::string filePath)
 	object.SetMeshObject(pAllocator, mesh);
 
     // シーンのルートノードから再帰的にノードを処理していく
-    m_MeshList[filePath] = object;
+    m_MeshList[filePath] = std::make_shared<VMeshObject>(object);
 
     // 読み込みに成功
     return true; 
 }
 
-VMeshObject* MeshLoder::GetVMesh(std::string filePath)
+std::shared_ptr<VMeshObject> MeshLoder::GetVMesh(std::string filePath)
 {
     auto it = m_MeshList.find(filePath);
     if (it != m_MeshList.end()) {
-        return &it->second;
+        return std::make_shared<VMeshObject>(it->second);
     }
     return nullptr;
 }

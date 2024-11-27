@@ -1,6 +1,6 @@
 #pragma once
 #include "MeshObject.h"
-#include "SceneObject.h"
+#include "RenderObject.h"
 #include "PipelineShaderCreator.h"
 #include "RenderingPipelineCreator.h"
 #include "VulkanInitializer.h"

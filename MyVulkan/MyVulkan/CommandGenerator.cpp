@@ -239,7 +239,7 @@ uint32_t SwapChainCommandGenerator::AcquireSwapchainNextImage(vk::SwapchainKHR s
     return imageIndex;
 }
 
-void SwapChainCommandGenerator::RenderObjects(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout, std::vector<SceneObject> drawMeshes, SceneCamera sceneCamera)
+void SwapChainCommandGenerator::RenderObjects(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout, std::vector<RenderObject> drawMeshes, SceneCamera sceneCamera)
 {
     // 描画するメッシュをループします。
     for (auto& model : drawMeshes)
@@ -266,7 +266,7 @@ void SwapChainCommandGenerator::RenderObjects(vk::CommandBuffer commandBuffer, v
                 //descriptorSets[currentImage], //たぶんカメラ情報が入ってる(uboViewProjection)
                 //samplerDescriptorSets[thisModel.getMesh(k)->getTexId()]
                 sceneCamera.GetDescriptorSet(),
-                model.GetMaterials()[0].GetDescriptorSet()
+                model.GetMaterials()[0].GetDescriptorSets()
             };
 
             commandBuffer.bindDescriptorSets(

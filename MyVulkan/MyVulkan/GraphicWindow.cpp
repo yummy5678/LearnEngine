@@ -45,9 +45,14 @@ void GraphicWindow::kill()
 	glfwTerminate();
 }
 
-void GraphicWindow::UpdateRenderer(std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnits)
+void GraphicWindow::AddRenderQueue(RenderTask renderTask)
 {
-	m_GraphicController.UpdateFrame(renderingUnits);
+	m_RenderTasks.push_back(renderTask);
+}
+
+void GraphicWindow::ExecuteRenderQueue()
+{
+	m_GraphicController.UpdateFrame(m_RenderTasks);
 }
 
 GLFWwindow* GraphicWindow::GetPointer()

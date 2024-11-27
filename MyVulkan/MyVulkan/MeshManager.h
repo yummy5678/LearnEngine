@@ -18,13 +18,13 @@ public:
 	~MeshLoder();	
 
 	bool Load(VmaAllocator* pAllocator, std::string filePath);
-	VMeshObject* GetVMesh(std::string filePath);
+	std::shared_ptr<VMeshObject> GetVMesh(std::string filePath);
 
 
 
 
 private:	// プライベート変数
-	std::unordered_map<std::string, VMeshObject> m_MeshList;
+	std::unordered_map<std::string, std::shared_ptr<VMeshObject>> m_MeshList;
 
 
 

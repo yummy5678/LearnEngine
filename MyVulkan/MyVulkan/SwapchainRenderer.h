@@ -7,7 +7,7 @@
 #include "SwapchainImage.h"
 #include "RenderConfig.h"
 #include "CommandGenerator.h"
-
+#include "RenderTask.h"
 
 
 
@@ -25,7 +25,7 @@ public:
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
 	SwapChainImage				GetImages();
 	vk::Extent2D				GetFrameExtent();
-	void						UpdateFrame(std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnits);
+	void						UpdateFrame(std::vector<RenderTask> renderingTasks);
 
 private:
 	vk::Device m_LogicalDevice;

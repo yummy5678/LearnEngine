@@ -20,42 +20,42 @@
 
 int main()
 {		
-	//VulkanInitializer	vulkanInitializer;	//レンダラー
-	//GraphicWindow		mainWindow(&vulkanInitializer);
+	VulkanInitializer	vulkanInitializer;	//レンダラー
+	GraphicWindow		mainWindow(vulkanInitializer);
 
-	//// もしレンダラーの初期化が上手くいかなかったらアプリを終了
-	//if (vulkanInitializer.init() == EXIT_FAILURE)
-	//{
-	//	return EXIT_FAILURE;
-	//}
+	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
+	if (vulkanInitializer.init() == EXIT_FAILURE)
+	{
+		return EXIT_FAILURE;
+	}
 
-	//// ウィンドウを作成
-	//mainWindow.init("Vulkan Window", windowWidth, windowHeight);
+	// ウィンドウを作成
+	mainWindow.init("Vulkan Window", windowWidth, windowHeight);
 
-	//RenderConfig renderConfig(&vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
-	//renderConfig.Initialize(
-	//	vulkanInitializer.GetLogicalDevice(), 
-	//	mainWindow.GetWindowSize(),
-	//	mainWindow.GetColorFormat(),
-	//	mainWindow.GetDepthFormat());
+	RenderConfig renderConfig(vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
+	renderConfig.Initialize(
+		vulkanInitializer.GetLogicalDevice(), 
+		mainWindow.GetWindowSize(),
+		mainWindow.GetColorFormat(),
+		mainWindow.GetDepthFormat());
 
-	//RenderScene scene;
-	//scene.Initialize(vulkanInitializer.GetPVmaAllocator());
+	RenderScene scene;
+	scene.Initialize(vulkanInitializer.GetPVmaAllocator());
 
-	////無限ループ(ウィンドウの終了フラグが立つまで)
-	//while (!mainWindow.checkCloseWindow())
-	//{
-	//	//ここで毎フレーム更新を行う
-	//	glfwPollEvents();
-	//	scene.Update();
+	//無限ループ(ウィンドウの終了フラグが立つまで)
+	while (!mainWindow.checkCloseWindow())
+	{
+		//ここで毎フレーム更新を行う
+		glfwPollEvents();
+		scene.Update();
 
- //       mainWindow.UpdateRenderer({ std::make_pair(std::ref(renderConfig), std::ref(scene)) });
-	//}
+        mainWindow.AddRenderQueue({ std::make_pair(std::ref(renderConfig), std::ref(scene)) });
+	}
 
-	//vulkanInitializer.cleanup();
+	vulkanInitializer.cleanup();
 
-	//// 作成したウィンドウを片づける
-	//mainWindow.kill();
+	// 作成したウィンドウを片づける
+	mainWindow.kill();
 
 	return EXIT_SUCCESS;
 }
