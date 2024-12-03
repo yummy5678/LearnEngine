@@ -7,6 +7,6 @@
 struct RenderTask
 {
 	RenderConfig config;
-	SceneCamera camera;
 	RenderScene scene;
+	SceneCamera camera;
 };

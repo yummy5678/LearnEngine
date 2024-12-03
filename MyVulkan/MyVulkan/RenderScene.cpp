@@ -12,9 +12,9 @@ void RenderScene::Initialize(VmaAllocator* allocator)
 {
 	m_Allocator = allocator;
 
-	MeshLoder meshManager;
-	meshManager.Load(allocator,"");
-	m_Object.SetMesh(allocator, meshManager.GetVMesh(""));
+	MeshLoder meshLoader;	
+	std::shared_ptr<VMeshObject> meshResult = meshLoader.Load(allocator, "");
+	m_Object.SetMesh(allocator, meshResult);
 	
 
 }

@@ -62,7 +62,7 @@ std::vector<vk::Semaphore> SemaphoreGenerator::CreateSemaphore(vk::Device logica
 
 	try 
 	{
-		for (int i = 0; i < semaphoreCount; i++)
+		for (uint32_t i = 0; i < semaphoreCount; i++)
 		{
 			// セマフォを作成する
 			semaphores[i] = logicalDevice.createSemaphore(semaphoreCreateInfo);

@@ -45,6 +45,11 @@ vk::ImageView VTextureBuffer::GetImageView()
 	return m_ImageView;
 }
 
+VkDescriptorSet VTextureBuffer::GetDescriptorSet()
+{
+	return VkDescriptorSet();
+}
+
 VkImageCreateInfo VTextureBuffer::CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode)
 {
 	vk::ImageCreateInfo imageCreateInfo;

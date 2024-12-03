@@ -71,7 +71,7 @@ std::vector<vk::CommandBuffer> SwapChainCommandGenerator::GetCommandBuffers()
 
 void SwapChainCommandGenerator::DrawFrame(
     uint32_t                    commandIndex,
-    std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnit,
+    std::vector<RenderTask>     renderTasks,
     vk::ImageView               colorImageView, 
     vk::ImageView               depthImageView)
 {
@@ -95,10 +95,11 @@ void SwapChainCommandGenerator::DrawFrame(
     auto commandBuffer = m_CommandBuffers[commandIndex];
 
 
-    for (int i = 0; i < renderingUnit.size(); i++)
+    for (int i = 0; i < renderTasks.size(); i++)
     {
-        auto config = renderingUnit[i].first;
-        auto scene = renderingUnit[i].second;
+        auto config = renderTasks[i].config;
+        auto scene = renderTasks[i].scene;
+		auto camera = renderTasks[i].camera;
 
         //if (config == nullptr || scene == nullptr) continue; //nullptrが入っている描画情報は無視する
 
@@ -116,7 +117,7 @@ void SwapChainCommandGenerator::DrawFrame(
         // 使用するパイプラインをバインドします。
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config.GetPipeline());
 
-        RenderObjects(commandBuffer, config.GetPipelineLayout(), scene.GetObjects(), scene.GetMainCamera());
+        RenderObjects(commandBuffer, config.GetPipelineLayout(), scene.GetObjects(), camera);
     }
 
     commandBuffer.endRendering();
@@ -266,7 +267,7 @@ void SwapChainCommandGenerator::RenderObjects(vk::CommandBuffer commandBuffer, v
                 //descriptorSets[currentImage], //たぶんカメラ情報が入ってる(uboViewProjection)
                 //samplerDescriptorSets[thisModel.getMesh(k)->getTexId()]
                 sceneCamera.GetDescriptorSet(),
-                model.GetMaterials()[0].GetDescriptorSets()
+                model.GetMaterials()[0].GetDescriptorSet()
             };
 
             commandBuffer.bindDescriptorSets(

@@ -102,10 +102,10 @@ const vk::InstanceCreateInfo InstanceGenerator::GetInstanceInfo(
 	vk::InstanceCreateInfo	instanceInfo;
 	instanceInfo.pNext;												
 	instanceInfo.flags;												
-	instanceInfo.pApplicationInfo = appInfo;						// アプリケーション情報へのポインタ
-	instanceInfo.enabledLayerCount = layers->size();					// 有効にするレイヤーの数 
-	instanceInfo.ppEnabledLayerNames = &(*layers->begin());			// 有効にするレイヤーの名前の配列 
-	instanceInfo.enabledExtensionCount = extensions->size();		// 有効にする拡張機能の数 
+	instanceInfo.pApplicationInfo = appInfo;					// アプリケーション情報へのポインタ
+	instanceInfo.enabledLayerCount = layers->size();			// 有効にするレイヤーの数 
+	instanceInfo.ppEnabledLayerNames = &(*layers->begin());		// 有効にするレイヤーの名前の配列 
+	instanceInfo.enabledExtensionCount = extensions->size();	// 有効にする拡張機能の数 
 	instanceInfo.ppEnabledExtensionNames = extensions->data();	// 有効にする拡張機能の名前の配列 	
 
 	return instanceInfo;

@@ -7,6 +7,7 @@
 #include "VertexBuffer.h"
 #include "RenderConfig.h"
 #include "RenderScene.h"
+#include "RenderTask.h"
 
 
 
@@ -30,7 +31,7 @@ public:
 	std::vector<vk::CommandBuffer> GetCommandBuffers();
 
 	// GPU内で画像を描画
-	void DrawFrame(uint32_t commandIndex, std::vector<std::pair<RenderConfig&, RenderScene&>> renderingUnit, vk::ImageView colorImage, vk::ImageView depthImage);
+	void DrawFrame(uint32_t commandIndex, std::vector<RenderTask> renderTasks, vk::ImageView colorImage, vk::ImageView depthImage);
 
 	// スワップチェーンに従って画像を表示
 	void PresentFrame(vk::SwapchainKHR swapchain, uint32_t commandIndex);

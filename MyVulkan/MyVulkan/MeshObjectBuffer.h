@@ -3,7 +3,6 @@
 #include "ImageBuffer.h"
 #include "MeshObject.h" 
 
-
 class VMeshObject
 {
 public:

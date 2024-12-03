@@ -41,8 +41,5 @@ private:
     vk::Instance m_instance;
 
     std::vector<vk::DeviceQueueCreateInfo> CreateQueueInfos(std::set<uint32_t> queues);
-
-
-
 };
 

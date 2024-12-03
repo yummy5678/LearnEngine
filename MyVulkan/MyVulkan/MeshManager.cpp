@@ -9,7 +9,7 @@ MeshLoder::~MeshLoder()
 {
 }
 
-bool MeshLoder::Load(VmaAllocator* pAllocator, std::string filePath)
+std::shared_ptr<VMeshObject> MeshLoder::Load(VmaAllocator* pAllocator, std::string filePath)
 {
     // Assimpのインポーターを作成
     Assimp::Importer importer;  
@@ -20,7 +20,7 @@ bool MeshLoder::Load(VmaAllocator* pAllocator, std::string filePath)
     // 読み込みが失敗した場合や、シーンが不完全な場合にエラーチェック
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cerr << "Error: " << importer.GetErrorString() << std::endl;
-        return false; // モデルの読み込みに失敗したらfalseを返す
+        return nullptr; // モデルの読み込みに失敗した
     }
 
     MeshObject mesh = ProcessNode(scene->mRootNode, scene);
@@ -29,19 +29,8 @@ bool MeshLoder::Load(VmaAllocator* pAllocator, std::string filePath)
 	object.SetMeshObject(pAllocator, mesh);
 
     // シーンのルートノードから再帰的にノードを処理していく
-    m_MeshList[filePath] = std::make_shared<VMeshObject>(object);
+    return std::make_shared<VMeshObject>(object);
 
-    // 読み込みに成功
-    return true; 
-}
-
-std::shared_ptr<VMeshObject> MeshLoder::GetVMesh(std::string filePath)
-{
-    auto it = m_MeshList.find(filePath);
-    if (it != m_MeshList.end()) {
-        return std::make_shared<VMeshObject>(it->second);
-    }
-    return nullptr;
 }
 
 // シーンのノードを再帰的に処理するメソッド

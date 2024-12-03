@@ -66,9 +66,6 @@
     <ClCompile Include="SwapchainImage.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="WriteImage.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="SemaphoreGenerator.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -138,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VulkanInitializer.h">

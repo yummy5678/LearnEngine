@@ -49,7 +49,7 @@ int main()
 		glfwPollEvents();
 		scene.Update();
 
-        mainWindow.AddRenderQueue({ std::make_pair(std::ref(renderConfig), std::ref(scene)) });
+        mainWindow.AddRenderQueue({renderConfig, scene, SceneCamera()});
 	}
 
 	vulkanInitializer.cleanup();

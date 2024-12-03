@@ -5,6 +5,8 @@
 #include <assimp/postprocess.h> // モデル処理のオプションを指定
 
 // STB
+#define STB_IMAGE_STATIC
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image.h"
 
 #include "MeshObject.h"
@@ -17,15 +19,7 @@ public:
 	MeshLoder();	// コンストラクタ
 	~MeshLoder();	
 
-	bool Load(VmaAllocator* pAllocator, std::string filePath);
-	std::shared_ptr<VMeshObject> GetVMesh(std::string filePath);
-
-
-
-
-private:	// プライベート変数
-	std::unordered_map<std::string, std::shared_ptr<VMeshObject>> m_MeshList;
-
+	std::shared_ptr<VMeshObject> Load(VmaAllocator* pAllocator, std::string filePath);
 
 
 private:	// プライベート関数

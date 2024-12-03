@@ -52,7 +52,7 @@ std::vector<vk::Fence> FenceGenerator::CreateFences(vk::Device logicalDevice, ui
 
 	try
 	{
-		for (int i = 0; i < fenceCount; i++)
+		for (uint32_t i = 0; i < fenceCount; i++)
 		{
 			// ƒtƒFƒ“ƒX‚ðì¬‚·‚é
 			fenes[i] = logicalDevice.createFence(fenceCreateInfo);

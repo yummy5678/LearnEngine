@@ -17,7 +17,7 @@ public:
 	vk::Image GetImageBuffer();
 
 	vk::ImageView GetImageView();
-	std::vector<VkDescriptorSet> GetDescripterSets();
+	VkDescriptorSet GetDescriptorSet();
 protected:
 	VmaAllocator*			m_Allocator;
 
