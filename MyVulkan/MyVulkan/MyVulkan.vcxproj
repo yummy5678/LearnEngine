@@ -149,7 +149,6 @@
     <ClCompile Include="PhysicalDeviceSelector.cpp" />
     <ClCompile Include="PipelineShaderCreator.cpp" />
     <ClCompile Include="RenderConfig.cpp" />
-    <ClCompile Include="RenderScene.cpp" />
     <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="SemaphoreGenerator.cpp" />
     <ClCompile Include="ModelTexture.cpp" />
@@ -198,7 +197,6 @@
     <ClInclude Include="PipelineShaderCreator.h" />
     <ClInclude Include="PipelineDescriptions.h" />
     <ClInclude Include="RenderConfig.h" />
-    <ClInclude Include="RenderScene.h" />
     <ClInclude Include="RenderObject.h" />
     <ClInclude Include="SemaphoreGenerator.h" />
     <ClInclude Include="ModelTexture.h" />

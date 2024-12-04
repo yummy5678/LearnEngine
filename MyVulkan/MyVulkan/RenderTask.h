@@ -1,5 +1,4 @@
 #pragma once
-#include "RenderScene.h"
 #include "RenderConfig.h"
 #include "SceneCamera.h"
 
@@ -7,6 +6,6 @@
 struct RenderTask
 {
 	RenderConfig config;
-	RenderScene scene;
+	std::vector<RenderObject> objects;
 	SceneCamera camera;
 };

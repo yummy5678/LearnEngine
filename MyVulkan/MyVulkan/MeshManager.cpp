@@ -142,8 +142,8 @@ Material MeshLoder::ProcessMaterial(aiMaterial* material) {
 Texture MeshLoder::LoadTextureFile(std::string fileName)
 {
     Texture result;
-    int width, height, channel;
-    result.data = (uint8_t)stbi_load(fileName.c_str(), &width, &height, &channel, STBI_rgb_alpha);
+    int width = 0, height = 0, channel = 0;
+    result.data = stbi_load(fileName.c_str(), &width, &height, &channel, STBI_rgb_alpha);
     result.width = width;
     result.height = height;
     result.channel = channel;

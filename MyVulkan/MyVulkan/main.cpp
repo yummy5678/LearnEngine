@@ -1,21 +1,17 @@
 #pragma once
-
-#define STB_IMAGE_STATIC
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
 #define GLFW_INCLUDE_VULKAN
-
 
 #include <stdexcept>
 #include <vector>
 #include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
 #include "GraphicsDefine.h"
 #include "VulkanInitializer.h"
 #include "GraphicWindow.h"
-#include "RenderScene.h"
 #include "RenderConfig.h"
 #include "SwapchainRenderer.h"
+#include "MeshManager.h"
 
 
 int main()
@@ -39,17 +35,35 @@ int main()
 		mainWindow.GetColorFormat(),
 		mainWindow.GetDepthFormat());
 
-	RenderScene scene;
-	scene.Initialize(vulkanInitializer.GetPVmaAllocator());
+
+	auto allocator = vulkanInitializer.GetPVmaAllocator();
+
+	float angle = 0.0f;
+	float deltaTime = 0.0f;
+	float lastTime = 0.0f;
+	RenderObject	m_Object;		//表示するモデルリスト
+	MeshLoder meshLoader;
+	std::shared_ptr<VMeshObject> meshResult = meshLoader.Load(allocator, "");
+	m_Object.SetMesh(allocator, meshResult);
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!mainWindow.checkCloseWindow())
 	{
 		//ここで毎フレーム更新を行う
 		glfwPollEvents();
-		scene.Update();
 
-        mainWindow.AddRenderQueue({renderConfig, scene, SceneCamera()});
+		float now = (float)glfwGetTime();
+		deltaTime = now - lastTime;
+		lastTime = now;
+
+		angle += 10.0f * deltaTime;
+		if (angle > 360.0f) { angle -= 360.0f; }
+
+		glm::mat4 testMat = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+		testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		m_Object.SetTransform(testMat);
+
+		mainWindow.AddRenderQueue({ renderConfig, {m_Object}, SceneCamera() });
 	}
 
 	vulkanInitializer.cleanup();

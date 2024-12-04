@@ -1,13 +1,16 @@
 #pragma once
 #include <iostream>
-#include <assimp/Importer.hpp>  // Assimpのインポーターを使用
-#include <assimp/scene.h>       // Assimpのシーン構造体を使用
-#include <assimp/postprocess.h> // モデル処理のオプションを指定
 
 // STB
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image.h"
+
+
+#include <assimp/Importer.hpp>  // Assimpのインポーターを使用
+#include <assimp/scene.h>       // Assimpのシーン構造体を使用
+#include <assimp/postprocess.h> // モデル処理のオプションを指定
+
 
 #include "MeshObject.h"
 #include "MeshObjectBuffer.h"

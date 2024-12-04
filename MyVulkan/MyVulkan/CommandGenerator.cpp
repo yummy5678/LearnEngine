@@ -98,7 +98,7 @@ void SwapChainCommandGenerator::DrawFrame(
     for (int i = 0; i < renderTasks.size(); i++)
     {
         auto config = renderTasks[i].config;
-        auto scene = renderTasks[i].scene;
+        auto objects = renderTasks[i].objects;
 		auto camera = renderTasks[i].camera;
 
         //if (config == nullptr || scene == nullptr) continue; //nullptrが入っている描画情報は無視する
@@ -117,7 +117,7 @@ void SwapChainCommandGenerator::DrawFrame(
         // 使用するパイプラインをバインドします。
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config.GetPipeline());
 
-        RenderObjects(commandBuffer, config.GetPipelineLayout(), scene.GetObjects(), camera);
+        RenderObjects(commandBuffer, config.GetPipelineLayout(), objects, camera);
     }
 
     commandBuffer.endRendering();

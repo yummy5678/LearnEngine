@@ -6,7 +6,6 @@
 #include "FenceGenerator.h"
 #include "VertexBuffer.h"
 #include "RenderConfig.h"
-#include "RenderScene.h"
 #include "RenderTask.h"
 
 

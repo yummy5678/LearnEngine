@@ -23,10 +23,10 @@ struct Mesh
 
 struct Texture
 {
-	uint8_t  data;		// RAM上の画像データのポインタ
-	uint32_t width;		// 画像の幅
-	uint32_t height;	// 画像の高さ
-	uint32_t channel;	// 1画素に含まれるチャンネル数
+	uint8_t* data = 0;			// RAM上の画像データのポインタ
+	uint32_t width = 0;			// 画像の幅
+	uint32_t height = 0;		// 画像の高さ
+	uint32_t channel = 0;		// 1画素に含まれるチャンネル数
 };
 
 // マテリアル(色やテクスチャ)の情報を格納するための構造体
