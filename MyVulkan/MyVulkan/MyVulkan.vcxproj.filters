@@ -87,9 +87,6 @@
     <ClCompile Include="RenderConfig.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="MeshManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="MeshBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -127,6 +124,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="VmaUsage.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="GltfLoader.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -225,9 +225,6 @@
     <ClInclude Include="RenderConfig.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="MeshManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="MeshBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -271,6 +268,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="RenderTask.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="GltfLoader.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

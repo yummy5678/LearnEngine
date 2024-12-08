@@ -11,7 +11,7 @@
 #include "GraphicWindow.h"
 #include "RenderConfig.h"
 #include "SwapchainRenderer.h"
-#include "MeshManager.h"
+#include "GltfLoader.h"
 
 
 int main()
@@ -42,9 +42,9 @@ int main()
 	float deltaTime = 0.0f;
 	float lastTime = 0.0f;
 	RenderObject	m_Object;		//表示するモデルリスト
-	MeshLoder meshLoader;
-	std::shared_ptr<VMeshObject> meshResult = meshLoader.Load(allocator, "");
-	m_Object.SetMesh(allocator, meshResult);
+
+	//std::shared_ptr<VMeshObject> meshResult = meshLoader.Load(allocator, "");
+	//m_Object.SetMesh(allocator, meshResult);
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!mainWindow.checkCloseWindow())
