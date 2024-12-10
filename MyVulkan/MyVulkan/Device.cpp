@@ -13,19 +13,32 @@ void DeviceGenerator::Create(DeviceExtension extensionManager, vk::Instance inst
 {
 	m_bCreated = true;
 
-	//使用可能な物理デバイスを探してくる
+	// 使用可能な物理デバイス(GPU)を探してくる
 	PhysicalDeviceSelector physicalSelector(instance);
 
 	// スワップチェインに対応した物理デバイスを探す
-	// ここではサーフェスとの相性については見ない
-	auto selectorResult = physicalSelector.SelectGraphicsDevice();
-	m_PhysicalDevice = selectorResult.Handle;
+	//※ ここではサーフェスとの相性については見ない
+	PhysicalDeviceContainer selectDevice = physicalSelector.SelectGraphicsDevice();
+	m_PhysicalDevice = selectDevice.Handle;
+	std::vector<vk::DeviceQueueCreateInfo> queueInfos = selectDevice.QueueInfo;
+
+
+	auto extension = extensionManager.GetExtensions(m_PhysicalDevice);
+
+	// 論理デバイスに設定する情報を作成
+	vk::DeviceCreateInfo deviceInfo;
+	deviceInfo.pNext;
+	deviceInfo.flags;
+	deviceInfo.queueCreateInfoCount = (uint32_t)queueInfos.size();	// キュー作成情報の数
+	deviceInfo.pQueueCreateInfos = queueInfos.data();					// デバイスが必要とするキューを作成するためのキュー作成情報のリスト
+	deviceInfo.enabledLayerCount = 0;
+	deviceInfo.ppEnabledLayerNames = nullptr;
+	deviceInfo.enabledExtensionCount = (uint32_t)extension.size();			// 有効なロジカルデバイス拡張機能の数
+	deviceInfo.ppEnabledExtensionNames = &*extension.begin();					// 有効なロジカルデバイス拡張機能のリスト
+	deviceInfo.pEnabledFeatures = nullptr;
 
 	//論理デバイスの作成
-	//デバイスの作成時にどんなキューを使用するか決める
-	auto queueInfo = selectorResult.QueueInfo;
-	auto logicalDeviceInfo = CreateDeviceInfo(extensionManager, m_PhysicalDevice, queueInfo);
-	m_LogicalDevice = m_PhysicalDevice.createDevice(logicalDeviceInfo);
+	m_LogicalDevice = m_PhysicalDevice.createDevice(deviceInfo);
 
 
 }
@@ -45,24 +58,5 @@ vk::Device DeviceGenerator::GetLogicalDevice()
 {
 	CheckCreated();
 	return m_LogicalDevice;
-}
-
-vk::DeviceCreateInfo DeviceGenerator::CreateDeviceInfo(DeviceExtension& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos)
-{
-	auto extension = extensionManager.GetExtensions(physicalDevice);
-
-	// 論理デバイスを作成するための情報を設定する
-	vk::DeviceCreateInfo deviceInfo;
-	deviceInfo.pNext;
-	deviceInfo.flags;
-	deviceInfo.queueCreateInfoCount = (uint32_t)queueCreateInfos.size();	// キュー作成情報の数
-	deviceInfo.pQueueCreateInfos = queueCreateInfos.data();					// デバイスが必要とするキューを作成するためのキュー作成情報のリスト
-	deviceInfo.enabledLayerCount = 0;
-	deviceInfo.ppEnabledLayerNames = nullptr;
-	deviceInfo.enabledExtensionCount = (uint32_t)extension.size();			// 有効なロジカルデバイス拡張機能の数
-	deviceInfo.ppEnabledExtensionNames = &*extension.begin();					// 有効なロジカルデバイス拡張機能のリスト
-	deviceInfo.pEnabledFeatures = nullptr;
-
-	return deviceInfo;
 }
 

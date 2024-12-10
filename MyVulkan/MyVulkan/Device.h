@@ -27,9 +27,6 @@ private:
 	//キュー
 	std::vector<vk::DeviceQueueCreateInfo> m_Queue;
 
-
-	//論理デバイスの作成情報を作成
-	vk::DeviceCreateInfo CreateDeviceInfo(DeviceExtension& extensionManager, vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos);
 };
 
 

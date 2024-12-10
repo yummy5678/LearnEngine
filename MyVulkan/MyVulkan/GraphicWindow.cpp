@@ -8,6 +8,7 @@ GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_Surface(initializer),
 	m_GraphicController(initializer)
 {
+	glfwInit();
 }
 
 GraphicWindow::~GraphicWindow()
@@ -17,7 +18,7 @@ GraphicWindow::~GraphicWindow()
 void GraphicWindow::init(const std::string wName, const int width, const int height)
 {
 	// Initialise GLFW
-	glfwInit();
+	// glfwInit();
 
 	// Set GLFW to NOT work with OpenGL
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);

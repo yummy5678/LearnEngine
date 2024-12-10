@@ -111,7 +111,7 @@ void VulkanInitializer::createDebugCallback()
 	VkDebugReportCallbackCreateInfoEXT createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
 	createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-    //createInfo.pfnCallback = VulkanValidation::debugCallback;
+    createInfo.pfnCallback = debugCallback;
 
 	// デバッグコールバックの作成
 	auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_Instance, "vkCreateDebugReportCallbackEXT");
@@ -139,12 +139,13 @@ void VulkanInitializer::CreateAllocator(vk::Instance instance, vk::Device logica
 	// アロケータ作成情報
 	VmaAllocatorCreateInfo allocatorInfo;
 	allocatorInfo.vulkanApiVersion = VulkanDefine.ApiVersion;
+	allocatorInfo.vulkanApiVersion = 0;
 	allocatorInfo.instance			= instance;
 	allocatorInfo.device			= logicalDevice;
 	allocatorInfo.physicalDevice	= physicalDevice;
 
 	// アロケータの作成
-	auto result = vmaCreateAllocator(&allocatorInfo, &m_VmaAllocator);
+	VkResult result = vmaCreateAllocator(&allocatorInfo, &m_VmaAllocator);
 
 	// 失敗時
 	if (result != VK_SUCCESS)
