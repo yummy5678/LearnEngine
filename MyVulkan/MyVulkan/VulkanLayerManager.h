@@ -1,12 +1,9 @@
 #pragma once
 #include <iostream>
 #include <vector>
-#include <unordered_map>
-#include <unordered_set>
 #include <string>
 #include <stdexcept>
 #include <vulkan/vulkan.hpp>
-
 
 enum InstanceLayerList
 {
@@ -30,16 +27,16 @@ public:
 	InstanceLayerManager();
 	~InstanceLayerManager();
 
-	void Add(const char*);
-	bool hasLayer(const char*);
+	void Add(const char* layerName);
+	bool hasLayer(const char* layerName);
 	bool DeleteLayer(const char*);
 
-	std::unordered_set<const char*>* GetList();
+	std::vector<const char*>* GetList();
 
 
 private:
 	
-	std::unordered_set<const char*> m_ExtensinList;	//内容の重複を避けたいためsetを使う
+	std::vector<const char*> m_ExtensinList;	//内容の重複を避けたいためsetを使う
 
 	//レイヤー名が使用できるか確認
 	bool CheckLayerSupport(const char* validationLayers);

@@ -1,7 +1,5 @@
 #pragma once
-
 #include <vulkan/vulkan.hpp>
-#include <VMA/vk_mem_alloc.h>
 #include <vector>
 #include "DeviceExtensionManager.h"
 #include "InstanceExtensionManager.h"
@@ -9,6 +7,7 @@
 #include "VulkanValidation.h"
 #include "VulkanInstance.h"
 #include "Device.h"
+#include "VmaCreator.h"
 
 class VulkanInitializer
 {
@@ -47,7 +46,7 @@ private:
 	//コールバック
 	VkDebugReportCallbackEXT callback;
 
-
+	VkAllocationCallbacks m_Callbacks;
 	//デバイスの作成
 	void createDebugCallback();
 	//void createLogicalDevice();

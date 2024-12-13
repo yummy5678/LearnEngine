@@ -13,7 +13,7 @@ constexpr struct _VulkanDefine
 {
 	// デバッグ用フラグ
 	bool LogMessageEnabled = true;	//Vulkanのオブジェクト作成時にログを出すか
-	bool ValidationEnabled = true;	//検証レイヤーを使用するか
+	bool ValidationEnabled = false;	//検証レイヤーを使用するか
 
 	// インスタンス作成用フラグ
 	const char* ApplicationName = "Vulkan App";					// アプリケーションの名前

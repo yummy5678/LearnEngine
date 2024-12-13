@@ -19,7 +19,7 @@ int VulkanInitializer::init()
 	// オブジェクト
 	InstanceGenerator	instanceCreator;
 	DeviceGenerator		deviceCreator;
-
+	VmaCreator			vmaCreator;
 
 	try {
 		//インスタンスの作成
@@ -38,6 +38,8 @@ int VulkanInitializer::init()
 		m_LogicalDevice	= deviceCreator.GetLogicalDevice();
 
 		// アロケーターの作成
+		//vmaCreator.CreateAllocator(m_Instance, m_LogicalDevice, m_PhysicalDevice);
+		//m_VmaAllocator = vmaCreator.GetAllocator();
 		CreateAllocator(m_Instance, m_LogicalDevice, m_PhysicalDevice);
 
 		// Create our default "no texture" texture
@@ -137,13 +139,17 @@ void VulkanInitializer::createDebugCallback()
 void VulkanInitializer::CreateAllocator(vk::Instance instance, vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
 {
 	// アロケータ作成情報
-	VmaAllocatorCreateInfo allocatorInfo;
-	allocatorInfo.vulkanApiVersion = VulkanDefine.ApiVersion;
-	allocatorInfo.vulkanApiVersion = 0;
-	allocatorInfo.instance			= instance;
-	allocatorInfo.device			= logicalDevice;
-	allocatorInfo.physicalDevice	= physicalDevice;
-
+	VmaAllocatorCreateInfo allocatorInfo = {};
+	allocatorInfo.physicalDevice = physicalDevice;
+	allocatorInfo.device = logicalDevice;
+	allocatorInfo.instance = instance;
+	allocatorInfo.flags = 0;
+	allocatorInfo.preferredLargeHeapBlockSize = 0;
+	allocatorInfo.pAllocationCallbacks = &m_Callbacks;
+	allocatorInfo.pDeviceMemoryCallbacks = nullptr;
+	allocatorInfo.pHeapSizeLimit = nullptr;
+	allocatorInfo.pVulkanFunctions = nullptr;
+	
 	// アロケータの作成
 	VkResult result = vmaCreateAllocator(&allocatorInfo, &m_VmaAllocator);
 

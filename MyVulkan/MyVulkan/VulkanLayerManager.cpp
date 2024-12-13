@@ -1,5 +1,6 @@
 #include "VulkanLayerManager.h"
 
+
 InstanceLayerManager::InstanceLayerManager()
 {
 }
@@ -10,10 +11,10 @@ InstanceLayerManager::~InstanceLayerManager()
 
 void InstanceLayerManager::Add(const char* layerName)
 {
-	if (CheckLayerSupport(layerName))
+	if (hasLayer(layerName) == false && CheckLayerSupport(layerName) == true)
 	{
 		std::cout << "レイヤー:" << layerName << "が追加されました" << std::endl;
-		m_ExtensinList.insert(layerName);
+		m_ExtensinList.push_back(layerName);
 		return;
 	}
 	else
@@ -23,7 +24,13 @@ void InstanceLayerManager::Add(const char* layerName)
 
 }
 
-std::unordered_set<const char*>* InstanceLayerManager::GetList()
+bool InstanceLayerManager::hasLayer(const char* layerName)
+{
+	// m_ExtensinListにlayerNameが存在するか確認
+	return std::find(m_ExtensinList.begin(), m_ExtensinList.end(), layerName) != m_ExtensinList.end();
+}
+
+std::vector<const char*>* InstanceLayerManager::GetList()
 {
 	return &m_ExtensinList;
 }

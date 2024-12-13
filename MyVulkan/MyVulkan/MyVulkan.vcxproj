@@ -158,6 +158,7 @@
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="StagingImageBuffer.cpp" />
     <ClCompile Include="ViewProjectionBuffer.cpp" />
+    <ClCompile Include="VmaCreator.cpp" />
     <ClCompile Include="VmaUsage.cpp" />
     <ClCompile Include="VTextureDescriptor.cpp" />
     <ClCompile Include="VulkanLayerManager.cpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="StagingImageBuffer.h" />
     <ClInclude Include="ViewProjection.h" />
     <ClInclude Include="ViewProjectionBuffer.h" />
+    <ClInclude Include="VmaCreator.h" />
     <ClInclude Include="VmaUsage.h" />
     <ClInclude Include="VTextureDescriptor.h" />
     <ClInclude Include="VulkanLayerManager.h" />
