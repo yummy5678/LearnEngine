@@ -18,8 +18,8 @@ public:
 	SwapchainRenderer(VulkanInitializer& initializer);
 	~SwapchainRenderer();
 
-	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
-	void Destroy(vk::Device logicalDevice);
+	void Create(VmaAllocator* allocator, vk::SurfaceKHR surface);
+	void Destroy();
 
 	vk::SwapchainKHR			GetSwapchain();
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
@@ -28,7 +28,9 @@ public:
 	void						UpdateFrame(std::vector<RenderTask> renderingTasks);
 
 private:
+	VmaAllocator* m_pAllocator;
 	vk::Device m_LogicalDevice;
+
 	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
 	vk::SwapchainKHR					m_Swapchain;
 

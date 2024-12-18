@@ -1,5 +1,6 @@
 #include "VmaCreator.h"
 
+
 VmaCreator::VmaCreator()
 {
 }
@@ -39,18 +40,43 @@ VmaAllocator VmaCreator::GetAllocator()
 
 void VmaCreator::CreateCallBacks()
 {
-
 	m_Callbacks.pUserData = nullptr;
 	m_Callbacks.pfnAllocation = nullptr;
 	m_Callbacks.pfnReallocation = nullptr;
 	m_Callbacks.pfnFree = nullptr;
 	m_Callbacks.pfnInternalAllocation = nullptr;
 	m_Callbacks.pfnInternalFree = nullptr;
-	m_Callbacks.pfnAllocation = nullptr;
-	m_Callbacks.pfnReallocation = nullptr;
-	m_Callbacks.pfnFree = nullptr;
-	m_Callbacks.pfnInternalAllocation = nullptr;
-	m_Callbacks.pfnInternalFree = nullptr;
-
 
 }
+
+
+
+void VmaCreator::CreateVulkanFunctions()
+{
+	VmaVulkanFunctions vulkanFunctions = {};
+	vulkanFunctions.vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties;
+	vulkanFunctions.vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties;
+	vulkanFunctions.vkAllocateMemory = vkAllocateMemory;
+	vulkanFunctions.vkFreeMemory = vkFreeMemory;
+	vulkanFunctions.vkMapMemory = vkMapMemory;
+	vulkanFunctions.vkUnmapMemory = vkUnmapMemory;
+	vulkanFunctions.vkFlushMappedMemoryRanges = vkFlushMappedMemoryRanges;
+	vulkanFunctions.vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges;
+	vulkanFunctions.vkBindBufferMemory = vkBindBufferMemory;
+	vulkanFunctions.vkBindImageMemory = vkBindImageMemory;
+	vulkanFunctions.vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements;
+	vulkanFunctions.vkGetImageMemoryRequirements = vkGetImageMemoryRequirements;
+	vulkanFunctions.vkCreateBuffer = vkCreateBuffer;
+	vulkanFunctions.vkDestroyBuffer = vkDestroyBuffer;
+	vulkanFunctions.vkCreateImage = vkCreateImage;
+	vulkanFunctions.vkDestroyImage = vkDestroyImage;
+	vulkanFunctions.vkCmdCopyBuffer = vkCmdCopyBuffer;
+	vulkanFunctions.vkGetBufferMemoryRequirements2KHR = nullptr;
+	vulkanFunctions.vkGetImageMemoryRequirements2KHR = nullptr;
+	vulkanFunctions.vkBindBufferMemory2KHR = nullptr;
+	vulkanFunctions.vkBindImageMemory2KHR = nullptr;
+	vulkanFunctions.vkGetPhysicalDeviceMemoryProperties2KHR = nullptr;
+
+}
+
+

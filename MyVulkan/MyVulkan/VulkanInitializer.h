@@ -7,7 +7,7 @@
 #include "VulkanValidation.h"
 #include "VulkanInstance.h"
 #include "Device.h"
-#include "VmaCreator.h"
+#include "VmaCallbackFunction.h"
 
 class VulkanInitializer
 {

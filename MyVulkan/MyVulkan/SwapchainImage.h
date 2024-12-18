@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
-
+#include <VMA/vk_mem_alloc.h>
+#include "VImage.h"
 
 constexpr vk::Format DefaultImageFormat = vk::Format::eR8G8B8A8Unorm;
 
@@ -9,7 +10,7 @@ class SwapChainImage
 public:
 	SwapChainImage();
 	~SwapChainImage();
-	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
+	void Create(VmaAllocator* allocator, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
 	void Destroy();
 
 	std::vector<vk::Image>		GetColorImages();
@@ -21,21 +22,22 @@ public:
 	std::vector<vk::ImageView>	GetDepthImageViews();
 
 private:
-	vk::Device m_LogicalDevice;
+	VmaAllocator* m_pAllocator;
 	uint32_t m_Size;
 	std::vector<vk::Image>			m_ColorImages;
 	vk::Format						m_ColorFormat;
 	std::vector<vk::ImageView>		m_ColorImageViews;
-	std::vector<vk::DeviceMemory>	m_ColorImageMemory;
+	// std::vector<vk::DeviceMemory>	m_ColorImageMemory;
 
-	std::vector<vk::Image>			m_DepthImages;
+	//std::vector<vk::Image>			m_DepthImages;
+	std::vector<VImage>				m_DepthImages;
 	vk::Format						m_DepthFormat;
-	std::vector<vk::ImageView>		m_DepthImageViews;
-	std::vector<vk::DeviceMemory>	m_DepthImageMemory;
+	//std::vector<vk::ImageView>		m_DepthImageViews;
+	//std::vector<vk::DeviceMemory>	m_DepthImageMemory;
 
 
 	void CreateColor(vk::Device logicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
-	void CreateDepth(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
+	void CreateDepth(VmaAllocator* allocator, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
 
 
 	vk::ImageCreateInfo CreateImageInfo(vk::Extent2D extent, vk::Format fomat, vk::ImageUsageFlags usage);

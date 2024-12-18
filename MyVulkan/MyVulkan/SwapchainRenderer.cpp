@@ -13,27 +13,36 @@ SwapchainRenderer::~SwapchainRenderer()
 
 }
 
-void SwapchainRenderer::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
 {
     std::cout  << m_ClassName << "を作成" << std::endl;
     m_bCreated = true;
-    m_LogicalDevice = logicalDevice;
+    m_pAllocator = allocator;
+
+    // VMAに紐づけられているオブジェクトの情報を取得
+    VmaAllocatorInfo allocatorInfo;
+    vmaGetAllocatorInfo(*allocator, &allocatorInfo);
+    m_LogicalDevice = allocatorInfo.device;
+	vk::PhysicalDevice physicalDevice = allocatorInfo.physicalDevice;
+
+
     m_SwapchainInfo = CreateSwapchainInfo(physicalDevice, surface);
 
-    m_Swapchain = logicalDevice.createSwapchainKHR(m_SwapchainInfo);
+    m_Swapchain = m_LogicalDevice.createSwapchainKHR(m_SwapchainInfo);
 
-    m_SwapChainImages.Create(logicalDevice, physicalDevice, m_Swapchain, m_SwapchainInfo);
+    m_SwapChainImages.Create(allocator, m_Swapchain, m_SwapchainInfo);
 
     //コマンドバッファの作成
-    m_CommandGenerator.Create(logicalDevice, physicalDevice, m_SwapchainInfo.minImageCount);
+    m_CommandGenerator.Create(m_LogicalDevice, physicalDevice, m_SwapchainInfo.minImageCount);
 }
 
-void SwapchainRenderer::Destroy(vk::Device logicalDevice)
+void SwapchainRenderer::Destroy()
 {
     //中身が作成されていないなら解放処理も行わない
     if (m_bCreated == false) return;
     m_bCreated = false;
     
+
     //スワップチェーンの解放
     m_LogicalDevice.destroySwapchainKHR(m_Swapchain);
 }

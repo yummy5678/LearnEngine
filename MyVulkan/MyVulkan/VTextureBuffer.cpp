@@ -1,4 +1,4 @@
-#include "ImageBuffer.h"
+#include "VTextureBuffer.h"
 
 
 VTextureBuffer::VTextureBuffer()
@@ -79,9 +79,10 @@ void VTextureBuffer::CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth, 
 	VkImage image;
 	VkResult result = vmaCreateImage(*allocator, &imageInfo, &allocInfo, &image, &m_ImageAllocation, nullptr);
 
-	if (result != VK_SUCCESS) {
+	if (result != VK_SUCCESS) 
+	{
 		throw std::runtime_error("VMAによるイメージの作成に失敗しました!");
-	}
+	}           
 
 	m_Buffer = vk::Image(image);  // VkImageをvk::Imageにキャスト
 }

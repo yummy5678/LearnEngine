@@ -1,6 +1,6 @@
 #pragma once
 #include "MeshObject.h"
-#include "ImageBuffer.h"
+#include "VTextureBuffer.h"
 #include "VTextureDescriptor.h"
 
 

@@ -1,6 +1,7 @@
 #include "VulkanInitializer.h"
 
 
+
 VulkanInitializer::VulkanInitializer() :
 	callback(),
 	m_InstanceExtension(),
@@ -19,7 +20,6 @@ int VulkanInitializer::init()
 	// オブジェクト
 	InstanceGenerator	instanceCreator;
 	DeviceGenerator		deviceCreator;
-	VmaCreator			vmaCreator;
 
 	try {
 		//インスタンスの作成
@@ -139,14 +139,16 @@ void VulkanInitializer::createDebugCallback()
 void VulkanInitializer::CreateAllocator(vk::Instance instance, vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
 {
 	// アロケータ作成情報
-	VmaAllocatorCreateInfo allocatorInfo = {};
+	VmaAllocatorCreateInfo allocatorInfo;
+	//allocatorInfo.flags = 0;
+	allocatorInfo.vulkanApiVersion = VulkanDefine.ApiVersion;
+	allocatorInfo.instance = instance;
 	allocatorInfo.physicalDevice = physicalDevice;
 	allocatorInfo.device = logicalDevice;
-	allocatorInfo.instance = instance;
-	allocatorInfo.flags = 0;
-	allocatorInfo.preferredLargeHeapBlockSize = 0;
-	allocatorInfo.pAllocationCallbacks = &m_Callbacks;
-	allocatorInfo.pDeviceMemoryCallbacks = nullptr;
+	// allocatorInfo.preferredLargeHeapBlockSize = 100000;
+	allocatorInfo.pTypeExternalMemoryHandleTypes = nullptr;
+	allocatorInfo.pAllocationCallbacks = &AllocationCallbacks;
+	allocatorInfo.pDeviceMemoryCallbacks = &deviceMemoryCallbacks;
 	allocatorInfo.pHeapSizeLimit = nullptr;
 	allocatorInfo.pVulkanFunctions = nullptr;
 	

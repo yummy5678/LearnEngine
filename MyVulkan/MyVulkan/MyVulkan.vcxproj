@@ -134,7 +134,8 @@
     <ClCompile Include="SceneCamera.cpp" />
     <ClCompile Include="DescriptorBase.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
-    <ClCompile Include="ImageBuffer.cpp" />
+    <ClCompile Include="VImage.cpp" />
+    <ClCompile Include="VTextureBuffer.cpp" />
     <ClCompile Include="SwapchainImage.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
     <ClCompile Include="CommandGenerator.cpp" />
@@ -180,7 +181,8 @@
     <ClInclude Include="SceneCamera.h" />
     <ClInclude Include="DescriptorBase.h" />
     <ClInclude Include="FenceGenerator.h" />
-    <ClInclude Include="ImageBuffer.h" />
+    <ClInclude Include="VImage.h" />
+    <ClInclude Include="VTextureBuffer.h" />
     <ClInclude Include="SwapchainImage.h" />
     <ClInclude Include="DeviceExtensionManager.h" />
     <ClInclude Include="CommandGenerator.h" />
@@ -208,6 +210,7 @@
     <ClInclude Include="StagingImageBuffer.h" />
     <ClInclude Include="ViewProjection.h" />
     <ClInclude Include="ViewProjectionBuffer.h" />
+    <ClInclude Include="VmaCallbackFunction.h" />
     <ClInclude Include="VmaCreator.h" />
     <ClInclude Include="VmaUsage.h" />
     <ClInclude Include="VTextureDescriptor.h" />

@@ -35,9 +35,10 @@ void GraphicWindow::init(const std::string wName, const int width, const int hei
 	if (m_pInitializer->CheckSupportSurface(m_Surface.GetSurface()) == false)
 	{
 		// スワップチェイン出来ないエラーメッセージ
+		return;
 	}
 
-	m_GraphicController.Create(logicalDevice, physicalDevice, m_Surface.GetSurface());
+	m_GraphicController.Create(m_pInitializer->GetPVmaAllocator(), m_Surface.GetSurface());
 }
 
 void GraphicWindow::kill()
