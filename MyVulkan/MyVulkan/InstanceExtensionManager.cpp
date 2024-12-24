@@ -13,18 +13,6 @@ InstanceExtension::~InstanceExtension()
 
 std::vector<const char*>* InstanceExtension::GetExtensions()
 {
-	m_ExtensionList.clear();
-	
-	if (m_bGLFW)
-	{
-		CreateGLFWExtension();
-	}
-
-	if (VulkanDefine.ValidationEnabled)
-	{
-		CreateValidationExtension();
-	}
-
 	if (!CheckExtensionsSupport((m_ExtensionList)))
 	{
 		//エラー
@@ -34,17 +22,26 @@ std::vector<const char*>* InstanceExtension::GetExtensions()
 	return &m_ExtensionList;
 }
 
+std::vector<const char*>* InstanceExtension::GetValidationLayers()
+{
+	return &m_ValidationLayers;
+}
+
 void InstanceExtension::UseGLFW()
 {
-	m_bGLFW = true;
+	CreateGLFWExtension();
+}
+
+void InstanceExtension::UseValidation()
+{
+	CreateValidationExtension();
+	m_ValidationLayers.push_back("VK_LAYER_KHRONOS_validation");
 }
 
 void InstanceExtension::CreateGLFWExtension()
 {
+	// glfwInit();
 	std::cout << "GLFW拡張機能のリストの受け取り" << std::endl;
-
-	// インスタンス拡張機能のリストを作成する
-	std::vector<const char*> instanceExtensions;
 
 	// インスタンスが使用する拡張機能を設定する
 	uint32_t glfwExtensionCount = 0;	// GLFWは複数の拡張機能を要求する場合がある
@@ -64,8 +61,9 @@ void InstanceExtension::CreateGLFWExtension()
 void InstanceExtension::CreateValidationExtension()
 {
 	// バリデーションが有効な場合、検証用のデバッグ情報拡張機能を追加する
-	m_ExtensionList.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-	std::cout << "拡張機能名：" << VK_EXT_DEBUG_REPORT_EXTENSION_NAME << std::endl;
+	// m_ExtensionList.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+	m_ExtensionList.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	std::cout << "拡張機能名：" << VK_EXT_DEBUG_UTILS_EXTENSION_NAME << std::endl;
 }
 
 // 配列内の文字列が間違っていたり、

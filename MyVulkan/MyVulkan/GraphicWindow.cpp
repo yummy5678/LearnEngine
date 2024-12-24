@@ -8,7 +8,7 @@ GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_Surface(initializer),
 	m_GraphicController(initializer)
 {
-	glfwInit();
+
 }
 
 GraphicWindow::~GraphicWindow()
@@ -25,8 +25,6 @@ void GraphicWindow::init(const std::string wName, const int width, const int hei
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	vk::Instance instance = m_pInitializer->GetInstance();
-	vk::PhysicalDevice physicalDevice = m_pInitializer->GetPhysicalDevice();
-	vk::Device logicalDevice = m_pInitializer->GetLogicalDevice();
 
 	m_pWindow = glfwCreateWindow(width, height, wName.c_str(), nullptr, nullptr);
 

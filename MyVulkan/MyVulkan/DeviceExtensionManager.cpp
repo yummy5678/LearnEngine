@@ -8,8 +8,14 @@ DeviceExtension::~DeviceExtension()
 {
 }
 
-std::set<const char*> DeviceExtension::GetExtensions(vk::PhysicalDevice physicalDevice)
+std::vector<const char*> DeviceExtension::GetExtensions(vk::PhysicalDevice physicalDevice)
 {
+	if (CheckExtensionsSupport(m_ExtensionList, physicalDevice) == false)
+	{
+		// エラーメッセージ
+		std::cout << "GPUが登録された拡張機能に対応していません！" << std::endl;
+	}
+
 	//作成したリストを返す
 	return m_ExtensionList;
 }
@@ -17,12 +23,16 @@ std::set<const char*> DeviceExtension::GetExtensions(vk::PhysicalDevice physical
 //スワップチェーンの拡張機能を有効化(フラグで管理している)
 void DeviceExtension::UseSwapchain()
 {
-	m_ExtensionList.insert(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+	const char* extension = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+	if (CheckHasString(extension) == false)	//同じエクステンションが無ければ新しくリストに加える
+	m_ExtensionList.push_back(extension);
 }
 
 void DeviceExtension::UseDynamicRendering()
 {
-	m_ExtensionList.insert(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+	const char* extension = VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME;
+	if (CheckHasString(extension) == false)	//同じエクステンションが無ければ新しくリストに加える
+	m_ExtensionList.push_back(extension);
 }
 
 bool DeviceExtension::CheckExtensionsSupport(std::vector<const char*> checkExtensionNames, vk::PhysicalDevice physicalDevice)
@@ -64,4 +74,18 @@ bool DeviceExtension::CheckExtensionsSupport(std::vector<const char*> checkExten
 
 	// すべての必要な拡張機能が見つかった場合はtrueを返す
 	return true;
+}
+
+bool DeviceExtension::CheckHasString(const char* target)
+{
+	for (const char* string : m_ExtensionList) 
+	{
+		// 文字列が一致するか確認
+		if (std::strcmp(string, target) == 0)
+		{ 
+
+			return true;
+		}
+	}
+	return false;
 }

@@ -12,15 +12,16 @@ public:
 	~InstanceExtension();
 
 	std::vector<const char*>* GetExtensions();
+	std::vector<const char*>* GetValidationLayers();
 
 	void UseGLFW();
-
+	void UseValidation();
 
 private:
 	bool m_bGLFW = false;
 
 	std::vector<const char*> m_ExtensionList;
-
+	std::vector<const char*> m_ValidationLayers;
 	void CreateGLFWExtension();
 	void CreateValidationExtension();
 

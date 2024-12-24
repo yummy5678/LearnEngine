@@ -17,9 +17,9 @@ public:
 	vk::Format					GetColorFormat();
 	std::vector<vk::ImageView>	GetColorImageViews();
 
-	std::vector<vk::Image>		GetDepthImages();
+	//std::vector<vk::Image>		GetDepthImages();
 	vk::Format					GetDepthFormat();
-	std::vector<vk::ImageView>	GetDepthImageViews();
+	//std::vector<vk::ImageView>	GetDepthImageViews();
 
 private:
 	VmaAllocator* m_pAllocator;

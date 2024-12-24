@@ -43,12 +43,8 @@ private:
 	vk::Device			m_LogicalDevice;
 	VmaAllocator		m_VmaAllocator;			//アロケーター：物理デバイスのメモリ確保を補助してくれるオブジェクト
 
-	//コールバック
-	VkDebugReportCallbackEXT callback;
-
-	VkAllocationCallbacks m_Callbacks;
 	//デバイスの作成
-	void createDebugCallback();
+	
 	//void createLogicalDevice();
 
 

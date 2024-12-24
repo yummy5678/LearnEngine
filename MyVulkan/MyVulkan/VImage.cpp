@@ -51,8 +51,12 @@ void VImage::CreateBuffer(VmaAllocator* allocator, vk::ImageCreateInfo createInf
 {
 	VmaAllocationCreateInfo allocInfo;
 	allocInfo.usage = VMA_MEMORY_USAGE_AUTO;  // ©“®‚ÅÅ“K‚Èƒƒ‚ƒŠ‚ğ‘I‘ğ
-	VkImage image;
+	VkImage image = nullptr;
 	auto imageInfo = (VkImageCreateInfo)createInfo;
+
+
+
+
 	VkResult result = vmaCreateImage(*allocator, &imageInfo, &allocInfo, &image, &m_ImageAllocation, nullptr);
 
 	if (result != VK_SUCCESS)

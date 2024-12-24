@@ -3,7 +3,6 @@
 
 
 VulkanInitializer::VulkanInitializer() :
-	callback(),
 	m_InstanceExtension(),
 	m_DeviceExtension(),
 	m_VmaAllocator()
@@ -25,8 +24,6 @@ int VulkanInitializer::init()
 		//インスタンスの作成
 		instanceCreator.Create(m_InstanceExtension);
 		m_Instance = instanceCreator.GetInstanse();
-
-		createDebugCallback();
 
 		//物理・論理デバイスの作成
 		deviceCreator.Create(m_DeviceExtension, m_Instance);
@@ -88,11 +85,6 @@ void VulkanInitializer::cleanup()
 {
 	// デバイスの破棄
 	vkDestroyDevice(m_LogicalDevice, nullptr);
-	// デバッグコールバックの破棄
-	auto func = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(m_Instance, "vkDestroyDebugReportCallbackEXT");
-	if (func != nullptr) {
-		func(m_Instance, callback, nullptr);
-	}
 	// インスタンスの破棄
 	vkDestroyInstance(m_Instance, nullptr);
 	// アロケーターの破棄
@@ -105,21 +97,6 @@ bool VulkanInitializer::CheckSupportSurface(VkSurfaceKHR surface)
 	//使用可能な物理デバイスを探してくる
 	PhysicalDeviceSelector selector(m_Instance);
 	return selector.CheckSupportSurface(m_PhysicalDevice, surface);
-}
-
-void VulkanInitializer::createDebugCallback()
-{
-	// デバッグコールバックの作成情報
-	VkDebugReportCallbackCreateInfoEXT createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-	createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-    createInfo.pfnCallback = debugCallback;
-
-	// デバッグコールバックの作成
-	auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_Instance, "vkCreateDebugReportCallbackEXT");
-	if (func != nullptr) {
-		func(m_Instance, &createInfo, nullptr, &callback);
-	}
 }
 
 
@@ -147,7 +124,7 @@ void VulkanInitializer::CreateAllocator(vk::Instance instance, vk::Device logica
 	allocatorInfo.device = logicalDevice;
 	// allocatorInfo.preferredLargeHeapBlockSize = 100000;
 	allocatorInfo.pTypeExternalMemoryHandleTypes = nullptr;
-	allocatorInfo.pAllocationCallbacks = &AllocationCallbacks;
+	allocatorInfo.pAllocationCallbacks = nullptr;
 	allocatorInfo.pDeviceMemoryCallbacks = &deviceMemoryCallbacks;
 	allocatorInfo.pHeapSizeLimit = nullptr;
 	allocatorInfo.pVulkanFunctions = nullptr;

@@ -4,7 +4,7 @@
 SurfaceGenerator::SurfaceGenerator(VulkanInitializer& initializer)
 {
 	m_ClassName = "SurfaceGenerator";
-	
+	glfwInit();
 	// 拡張機能マネージャーにサーフェスの使用する拡張機能を追加
 	initializer.GetPInstanceExtension()->UseGLFW();
 }

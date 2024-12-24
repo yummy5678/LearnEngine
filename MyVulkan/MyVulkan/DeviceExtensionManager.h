@@ -12,7 +12,7 @@ public:
 	~DeviceExtension();	//デストラクタ
 
 	//拡張機能のリストを受け取る
-	std::set<const char*> GetExtensions(vk::PhysicalDevice physicalDevice);
+	std::vector<const char*> GetExtensions(vk::PhysicalDevice physicalDevice);
 
 	//スワップチェーンの拡張機能を有効化
 	void UseSwapchain();
@@ -20,10 +20,11 @@ public:
 
 
 private:
-	std::set<const char*> m_ExtensionList;
+	std::vector<const char*> m_ExtensionList;
 
 	// 引数の拡張機能の名前のものが利用できるか確認
 	bool CheckExtensionsSupport(std::vector<const char*> checkExtensionNames, vk::PhysicalDevice physicalDevice);
-
+	// 入力した文字列があるか調べる関数
+	bool CheckHasString(const char* target);
 };
 

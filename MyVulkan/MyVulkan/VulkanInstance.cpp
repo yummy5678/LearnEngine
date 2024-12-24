@@ -1,5 +1,5 @@
 #include "VulkanInstance.h"
-
+//VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 
 InstanceGenerator::InstanceGenerator()
@@ -21,15 +21,23 @@ void InstanceGenerator::Create(InstanceExtension extensionManager)
 	/*/////////////////////
 	* レイヤーリストの作成
 	*//////////////////////
-	auto layers = GetLayers();
+
+
+	extensionManager.GetExtensions();
 
 	m_ApplicationInfo = GetApplicationInfo();
-	auto instanceInfo = GetInstanceInfo(&m_ApplicationInfo, layers, extensionManager);
+	auto instanceInfo = GetInstanceInfo(&m_ApplicationInfo, extensionManager);
 
 	try
 	{
-		std::cout << m_ClassName << "インスタンスの作成に成功しました。" << std::endl;
+
 		m_Instance = vk::createInstance(instanceInfo);
+		std::cout << m_ClassName << "インスタンスの作成に成功しました。" << std::endl;
+		if (VulkanDefine.ValidationEnabled)
+		{
+			createDebugCallback();
+			std::cout << m_ClassName << "コールバックの作成に成功しました。" << std::endl;
+		}
 	}
 	catch (const std::runtime_error& e)
 	{
@@ -55,17 +63,28 @@ vk::Instance InstanceGenerator::GetInstanse()
 	return m_Instance;
 }
 
-InstanceLayerManager InstanceGenerator::GetLayers()
+void InstanceGenerator::createDebugCallback()
 {
-	InstanceLayerManager layers;
-	//レイヤリストの取得
-	if (VulkanDefine.ValidationEnabled)//検証レイヤーのフラグが立っていれば追加
-	{
-		layers.Add(VULKAN_LAYER_VALIDATION);
-	}
+	// DispatchLoaderDynamicのセットアップ
+	vk::DispatchLoaderDynamic dldi(m_Instance, vkGetInstanceProcAddr);
 
-	return layers;
+	vk::DebugUtilsMessengerCreateInfoEXT debugUtilsMessengerInfo{
+	vk::DebugUtilsMessengerCreateFlagsEXT{}, // 現在は空でOK
+	vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning 
+	| vk::DebugUtilsMessageSeverityFlagBitsEXT::eError 
+	//| vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo
+	//| vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose
+	,
+	vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation,
+	debugCallback, // コールバック関数
+	nullptr        // pUserData
+	};
+
+
+
+	callback = m_Instance.createDebugUtilsMessengerEXTUnique(debugUtilsMessengerInfo, nullptr, dldi);
 }
+
 
 
 vk::ApplicationInfo InstanceGenerator::GetApplicationInfo()
@@ -89,13 +108,16 @@ vk::ApplicationInfo InstanceGenerator::GetApplicationInfo()
 
 const vk::InstanceCreateInfo InstanceGenerator::GetInstanceInfo(
 	const vk::ApplicationInfo* appInfo,
-	InstanceLayerManager& layerManager,
 	InstanceExtension& extensionManager)
 {
 	std::cout << "インスタンス作成情報の作成" << std::endl;
-	auto layers = layerManager.GetList();
-	auto extensions = extensionManager.GetExtensions();
 
+	if (VulkanDefine.ValidationEnabled)//検証レイヤーのフラグが立っていれば追加
+	{
+		extensionManager.UseValidation();
+	}
+	auto extensions = extensionManager.GetExtensions();
+	auto layers = extensionManager.GetValidationLayers();
 	/*/////////////////////
 	* インスタンスの作成
 	*//////////////////////

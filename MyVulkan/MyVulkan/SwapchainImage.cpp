@@ -121,12 +121,12 @@ std::vector<vk::ImageView> SwapChainImage::GetColorImageViews()
 //{
 //    return m_DepthImages;
 //}
-//
-//vk::Format SwapChainImage::GetDepthFormat()
-//{
-//    return m_DepthFormat;
-//}
-//
+
+vk::Format SwapChainImage::GetDepthFormat()
+{
+    return m_DepthFormat;
+}
+
 //std::vector<vk::ImageView> SwapChainImage::GetDepthImageViews()
 //{
 //    return m_DepthImageViews;

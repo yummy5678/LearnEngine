@@ -1,9 +1,9 @@
 #pragma once
-#include <vulkan/vulkan.hpp> //glfwよりvulkan.hが先に来るようにする
-//#include <GLFW/glfw3.h>
+//#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+#include <vulkan/vulkan.hpp> 
 #include "GeneratorBase.h"
 #include "GraphicsDefine.h"
-#include "VulkanLayerManager.h"
+//#include "VulkanLayerManager.h"
 #include "InstanceExtensionManager.h"
 #include "DeviceExtensionManager.h"
 #include "VulkanValidation.h"
@@ -26,11 +26,15 @@ private:
 	vk::ApplicationInfo		m_ApplicationInfo;	//このアプリの名前などを入れる構造体
 	vk::Instance			m_Instance;
 
+	//コールバック
+	// VkDebugReportCallbackEXT callback;	//非推奨
+	//vk::UniqueDebugUtilsMessengerEXT callback;
+	vk::UniqueHandle<vk::DebugUtilsMessengerEXT, vk::DispatchLoaderDynamic> callback;
+
 	// インスタンス拡張機能のリストを作成する
 	std::vector<const char*> m_InstanceExtensions;
 
-	//レイヤーの取得
-	InstanceLayerManager			GetLayers();
+	void createDebugCallback();
 		;
 	//アプリケーション情報の取得
 	vk::ApplicationInfo				GetApplicationInfo();
@@ -38,7 +42,6 @@ private:
 	//インスタンスの作成情報の作成
 	const vk::InstanceCreateInfo	GetInstanceInfo(
 		const vk::ApplicationInfo* appInfo,
-		InstanceLayerManager& layerManager,
 		InstanceExtension& extensionManager);
 
 };
