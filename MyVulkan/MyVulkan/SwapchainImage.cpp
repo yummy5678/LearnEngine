@@ -65,8 +65,9 @@ void SwapChainImage::CreateDepth(VmaAllocator* allocator, vk::SwapchainCreateInf
 
     
     vk::Extent2D imageExtent = m_SwapchainInfo.imageExtent;
-    m_DepthFormat = m_SwapchainInfo.imageFormat;
-    auto imageInfo = CreateImageInfo(imageExtent, m_DepthFormat, vk::ImageUsageFlagBits::eDepthStencilAttachment);
+    m_DepthFormat = vk::Format::eD24UnormS8Uint;
+    vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    auto imageInfo = CreateImageInfo(imageExtent, m_DepthFormat, usage);
     for (uint32_t i = 0; i < imageCount; i++)
     {
         // ‰æ‘œ‚ðì¬

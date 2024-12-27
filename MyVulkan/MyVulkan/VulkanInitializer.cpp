@@ -20,6 +20,13 @@ int VulkanInitializer::init()
 	InstanceGenerator	instanceCreator;
 	DeviceGenerator		deviceCreator;
 
+	if (VulkanDefine.ValidationEnabled == true)
+	{
+		// RAMの状況を監視できる拡張機能を有効
+		m_DeviceExtension.UseMemoryBudget();
+		m_DeviceExtension.UseMemoryPriority();
+	}
+
 	try {
 		//インスタンスの作成
 		instanceCreator.Create(m_InstanceExtension);
@@ -41,6 +48,7 @@ int VulkanInitializer::init()
 
 		// Create our default "no texture" texture
 		//createTexture("plain.png");
+
 	}
 	catch (const std::runtime_error& e) {
 		//エラーメッセージ受け取り
@@ -117,17 +125,25 @@ void VulkanInitializer::CreateAllocator(vk::Instance instance, vk::Device logica
 {
 	// アロケータ作成情報
 	VmaAllocatorCreateInfo allocatorInfo;
-	//allocatorInfo.flags = 0;
+	allocatorInfo.flags = VMA_ALLOCATOR_CREATE_EXTERNALLY_SYNCHRONIZED_BIT | VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
 	allocatorInfo.vulkanApiVersion = VulkanDefine.ApiVersion;
 	allocatorInfo.instance = instance;
 	allocatorInfo.physicalDevice = physicalDevice;
 	allocatorInfo.device = logicalDevice;
-	// allocatorInfo.preferredLargeHeapBlockSize = 100000;
+	allocatorInfo.preferredLargeHeapBlockSize = 0; // 「0」でデフォルト値が設定される
 	allocatorInfo.pTypeExternalMemoryHandleTypes = nullptr;
-	allocatorInfo.pAllocationCallbacks = nullptr;
+	allocatorInfo.pAllocationCallbacks = &AllocationCallbacks;
 	allocatorInfo.pDeviceMemoryCallbacks = &deviceMemoryCallbacks;
 	allocatorInfo.pHeapSizeLimit = nullptr;
 	allocatorInfo.pVulkanFunctions = nullptr;
+	
+
+	if (VulkanDefine.ValidationEnabled == true)
+	{
+		allocatorInfo.pAllocationCallbacks = &AllocationCallbacks;
+		allocatorInfo.pDeviceMemoryCallbacks = &deviceMemoryCallbacks;
+	}
+
 	
 	// アロケータの作成
 	VkResult result = vmaCreateAllocator(&allocatorInfo, &m_VmaAllocator);

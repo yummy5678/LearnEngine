@@ -10,9 +10,12 @@ static void* AllocationFunction(
 	size_t alignment,
 	VkSystemAllocationScope allocationScope)
 {
-	// メモリの割り当て時に呼び出される関数
-	// 今のところ何もすることはないので nullptr を返す
-	return nullptr;
+	// アライメントに対応するメモリ確保
+	void* ptr = _aligned_malloc(size, alignment);
+	if (ptr == nullptr) {
+		std::cerr << "Allocation failed. Size: " << size << ", Alignment: " << alignment << std::endl;
+	}
+	return ptr;
 }
 
 static void* ReallocationFunction(
@@ -23,8 +26,18 @@ static void* ReallocationFunction(
 	VkSystemAllocationScope allocationScope)
 {
 	// メモリの再割り当て時に呼び出される関数
-	// 今のところ何もすることはないので nullptr を返す
-	return nullptr;
+
+	if (size == 0) {
+		std::free(pOriginal);
+		return nullptr;
+	}
+
+	// アライメントに対応する再確保（厳密には realloc はアライメント保証なし）
+	void* ptr = std::realloc(pOriginal, size);
+	if (ptr == nullptr) {
+		std::cerr << "Reallocation failed. Size: " << size << ", Alignment: " << alignment << std::endl;
+	}
+	return ptr;
 }
 
 static void FreeFunction(
@@ -59,9 +72,9 @@ static void InternalFreeFunction(
 static VkAllocationCallbacks AllocationCallbacks 
 {
 	nullptr, // pUserData;
-	nullptr, //AllocationFunction,			// pfnAllocation;
-	nullptr, // ReallocationFunction,		// pfnReallocation;
-	nullptr, // FreeFunction,				// pfnFree;
+	AllocationFunction,			// pfnAllocation;
+	ReallocationFunction,		// pfnReallocation;
+	FreeFunction,				// pfnFree;
 	InternalAllocationFunction,	// pfnInternalAllocation;
 	InternalFreeFunction		// pfnInternalFree;
 };

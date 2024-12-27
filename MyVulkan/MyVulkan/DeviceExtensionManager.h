@@ -14,8 +14,10 @@ public:
 	//拡張機能のリストを受け取る
 	std::vector<const char*> GetExtensions(vk::PhysicalDevice physicalDevice);
 
-	//スワップチェーンの拡張機能を有効化
+	// 拡張機能を有効化
 	void UseSwapchain();
+	void UseMemoryBudget();
+	void UseMemoryPriority();
 	void UseDynamicRendering();
 
 

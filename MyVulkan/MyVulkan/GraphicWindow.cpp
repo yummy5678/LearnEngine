@@ -17,9 +17,6 @@ GraphicWindow::~GraphicWindow()
 
 void GraphicWindow::init(const std::string wName, const int width, const int height)
 {
-	// Initialise GLFW
-	// glfwInit();
-
 	// Set GLFW to NOT work with OpenGL
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);

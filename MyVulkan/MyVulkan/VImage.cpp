@@ -50,11 +50,16 @@ vk::ImageView VImage::GetImageView()
 void VImage::CreateBuffer(VmaAllocator* allocator, vk::ImageCreateInfo createInfo)
 {
 	VmaAllocationCreateInfo allocInfo;
+	allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT;
 	allocInfo.usage = VMA_MEMORY_USAGE_AUTO;  // é©ìÆÇ≈ç≈ìKÇ»ÉÅÉÇÉäÇëIë
+	allocInfo.pool = VK_NULL_HANDLE;
+	allocInfo.memoryTypeBits = 0;
+	allocInfo.preferredFlags = 0;
+	allocInfo.priority = 1;
+	allocInfo.requiredFlags = 0;
+	allocInfo.pUserData = nullptr;
 	VkImage image = nullptr;
 	auto imageInfo = (VkImageCreateInfo)createInfo;
-
-
 
 
 	VkResult result = vmaCreateImage(*allocator, &imageInfo, &allocInfo, &image, &m_ImageAllocation, nullptr);

@@ -28,14 +28,12 @@ private:
 
 	//コールバック
 	// VkDebugReportCallbackEXT callback;	//非推奨
-	//vk::UniqueDebugUtilsMessengerEXT callback;
-	vk::UniqueHandle<vk::DebugUtilsMessengerEXT, vk::DispatchLoaderDynamic> callback;
+	vk::DebugUtilsMessengerEXT callback;
 
 	// インスタンス拡張機能のリストを作成する
 	std::vector<const char*> m_InstanceExtensions;
 
 	void createDebugCallback();
-		;
 	//アプリケーション情報の取得
 	vk::ApplicationInfo				GetApplicationInfo();
 

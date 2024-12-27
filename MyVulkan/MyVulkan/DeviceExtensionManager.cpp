@@ -28,6 +28,20 @@ void DeviceExtension::UseSwapchain()
 	m_ExtensionList.push_back(extension);
 }
 
+void DeviceExtension::UseMemoryBudget()
+{
+	const char* extension = VK_EXT_MEMORY_BUDGET_EXTENSION_NAME;
+	if (CheckHasString(extension) == false)	//同じエクステンションが無ければ新しくリストに加える
+		m_ExtensionList.push_back(extension);
+}
+
+void DeviceExtension::UseMemoryPriority()
+{
+	const char* extension = VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME;
+	if (CheckHasString(extension) == false)	//同じエクステンションが無ければ新しくリストに加える
+		m_ExtensionList.push_back(extension);
+}
+
 void DeviceExtension::UseDynamicRendering()
 {
 	const char* extension = VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME;

@@ -1,6 +1,6 @@
 #pragma once
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLFW_INCLUDE_VULKAN
+
 
 #include <stdexcept>
 #include <vector>
@@ -42,9 +42,6 @@ int main()
 	float deltaTime = 0.0f;
 	float lastTime = 0.0f;
 	RenderObject	m_Object;		//表示するモデルリスト
-
-	//std::shared_ptr<VMeshObject> meshResult = meshLoader.Load(allocator, "");
-	//m_Object.SetMesh(allocator, meshResult);
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!mainWindow.checkCloseWindow())
