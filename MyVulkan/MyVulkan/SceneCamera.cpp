@@ -1,7 +1,10 @@
 #include "SceneCamera.h"
 
 
-SceneCamera::SceneCamera()
+SceneCamera::SceneCamera() :
+    m_DescriptorPool(VK_NULL_HANDLE),
+    m_DescriptorSet(VK_NULL_HANDLE),
+    m_ProjectionBuffer()
 {
 }
 

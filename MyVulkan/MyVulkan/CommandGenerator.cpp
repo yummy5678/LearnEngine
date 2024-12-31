@@ -1,8 +1,6 @@
 #include "CommandGenerator.h"
 
 
-
-
 SwapChainCommandGenerator::SwapChainCommandGenerator():
     m_LogicalDevice(nullptr),
     m_PhysicalDevice(nullptr),
@@ -101,11 +99,13 @@ void SwapChainCommandGenerator::DrawFrame(
         auto objects = renderTasks[i].objects;
 		auto camera = renderTasks[i].camera;
 
+        // ToDo 毎回パイプラインレイアウトを作り直すようにしたい
+        config.();
         //if (config == nullptr || scene == nullptr) continue; //nullptrが入っている描画情報は無視する
 
         // ダイナミックレンダリングの設定
         vk::RenderingInfo renderingInfo;
-        renderingInfo.renderArea = config.GetRenderRect();
+        renderingInfo.renderArea = config->GetRenderRect();
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
@@ -115,9 +115,9 @@ void SwapChainCommandGenerator::DrawFrame(
         commandBuffer.beginRendering(renderingInfo);
 
         // 使用するパイプラインをバインドします。
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config.GetPipeline());
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config->GetPipeline());
 
-        RenderObjects(commandBuffer, config.GetPipelineLayout(), objects, camera);
+        RenderObjects(commandBuffer, config->GetPipelineLayout(), *objects, *camera);
     }
 
     commandBuffer.endRendering();

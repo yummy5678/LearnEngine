@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.hpp>
 #include <VMA/vk_mem_alloc.h>
 #include "VImage.h"
+#include "VTextureDescriptor.h"
 
 constexpr vk::Format DefaultImageFormat = vk::Format::eR8G8B8A8Unorm;
 
@@ -16,25 +17,29 @@ public:
 	std::vector<vk::Image>		GetColorImages();
 	vk::Format					GetColorFormat();
 	std::vector<vk::ImageView>	GetColorImageViews();
+	VTextureDescriptor			GetColorDescriptor();
 
-	//std::vector<vk::Image>		GetDepthImages();
+	std::vector<VImage>			GetDepthImages();
 	vk::Format					GetDepthFormat();
-	//std::vector<vk::ImageView>	GetDepthImageViews();
 
+	vk::Sampler					GetSampler();
 private:
 	VmaAllocator* m_pAllocator;
 	uint32_t m_Size;
+
+	// カラーイメージ
 	std::vector<vk::Image>			m_ColorImages;
 	vk::Format						m_ColorFormat;
 	std::vector<vk::ImageView>		m_ColorImageViews;
-	// std::vector<vk::DeviceMemory>	m_ColorImageMemory;
+	VTextureDescriptor				m_ColorDescriptor;
 
-	//std::vector<vk::Image>			m_DepthImages;
+	// 深度イメージ
 	std::vector<VImage>				m_DepthImages;
 	vk::Format						m_DepthFormat;
-	//std::vector<vk::ImageView>		m_DepthImageViews;
-	//std::vector<vk::DeviceMemory>	m_DepthImageMemory;
+	//VTextureDescriptor				m_DepthDescriptor;
 
+	// サンプラー
+	vk::Sampler						m_Sampler;
 
 	void CreateColor(vk::Device logicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
 	void CreateDepth(VmaAllocator* allocator, vk::SwapchainCreateInfoKHR m_SwapchainInfo);

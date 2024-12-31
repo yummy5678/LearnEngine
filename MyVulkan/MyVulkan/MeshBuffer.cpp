@@ -9,10 +9,10 @@ VMesh::~VMesh()
 	Cleanup();
 }
 
-void VMesh::SetMesh(VmaAllocator* allocator, Mesh mesh)
+void VMesh::SetMesh(VmaAllocator* allocator, Mesh* mesh)
 {
-	SetVertex(allocator, mesh.vertices);
-	SetIndex(allocator, mesh.indices);
+	SetVertex(allocator, mesh->vertices);
+	SetIndex(allocator, mesh->indices);
 }
 
 VVertexBuffer VMesh::GetVertex()

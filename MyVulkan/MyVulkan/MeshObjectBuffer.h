@@ -3,6 +3,7 @@
 #include "VTextureBuffer.h"
 #include "MeshObject.h" 
 
+
 class VMeshObject
 {
 public:
@@ -13,11 +14,12 @@ public:
 
 	std::vector<VMesh>&				GetMeshes();
 	std::vector<VTextureBuffer>&	GetTexture();
-
 private:
 	std::vector<VMesh>			m_Mesh;
 	std::vector<VTextureBuffer>	m_Texture;	// 今はテクスチャ画像だけ。あとでマテリアルクラスに書き換える
+	vk::Sampler					m_Sampler;
 
 	void SetMesh(VmaAllocator* allocator, MeshObject& meshObject);
 	void SetMaterial(VmaAllocator* allocator, MeshObject& meshObject);
+
 };

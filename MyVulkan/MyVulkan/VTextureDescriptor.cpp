@@ -12,7 +12,7 @@ VTextureDescriptor::~VTextureDescriptor()
 vk::DescriptorSet VTextureDescriptor::CreateSingleDescriptorSet(vk::ImageView imageView, vk::Sampler sampler)
 {
     // ディスクリプタセットの割り当て
-    vk::DescriptorSetAllocateInfo allocInfo{};
+    vk::DescriptorSetAllocateInfo allocInfo;
     allocInfo.descriptorPool = m_DescriptorPool;
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = &m_DescriptorSetLayout;
@@ -20,7 +20,7 @@ vk::DescriptorSet VTextureDescriptor::CreateSingleDescriptorSet(vk::ImageView im
     vk::DescriptorSet descriptorSet = m_LogicalDevice.allocateDescriptorSets(allocInfo)[0];
 
     // イメージとサンプラーをディスクリプタセットにバインド
-    vk::DescriptorImageInfo imageInfo{};
+    vk::DescriptorImageInfo imageInfo;
     imageInfo.imageView = imageView;
     imageInfo.sampler = sampler;
     imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;

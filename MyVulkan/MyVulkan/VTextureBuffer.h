@@ -17,7 +17,7 @@ public:
 	vk::Image GetImageBuffer();
 
 	vk::ImageView GetImageView();
-	VkDescriptorSet GetDescriptorSet();
+
 protected:
 	VmaAllocator*			m_Allocator;
 
@@ -31,14 +31,10 @@ protected:
 
 	vk::Image				m_Buffer;			// イメージバッファ
 	vk::ImageView			m_ImageView;		// イメージビュー
-	VmaAllocation			m_ImageAllocation;	// データバッファの領域
-	
+	VmaAllocation			m_ImageAllocation;	// データバッファの領域	
 
 	VkImageCreateInfo CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode);
 	void CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight);
 	void CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk::Format format, vk::ImageAspectFlags aspectFlag);
-	void CreateSampler();
-	void CreateDescripterSets(vk::ImageLayout imageLayout, vk::Sampler sampler) {};
-
 };
 

@@ -26,6 +26,9 @@ void SwapChainImage::Create(VmaAllocator* allocator, vk::SwapchainKHR swapchain,
         printf("エラー: %s\n", e.what());
     }
 
+
+    m_ColorDescriptor.CreateSingleDescriptorSet();
+
 }
 
 void SwapChainImage::CreateColor(vk::Device logicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo)
@@ -56,13 +59,6 @@ void SwapChainImage::CreateDepth(VmaAllocator* allocator, vk::SwapchainCreateInf
 {
     uint32_t imageCount = m_SwapchainInfo.minImageCount;
     m_DepthImages.resize(imageCount);
-    //m_DepthImageMemory.resize(m_Size);
-    //m_DepthImageViews.resize(m_Size);
-
-
-    //std::vector<vk::ImageViewCreateInfo> viewInfo;
-    //viewInfo.resize(m_Size);
-
     
     vk::Extent2D imageExtent = m_SwapchainInfo.imageExtent;
     m_DepthFormat = vk::Format::eD24UnormS8Uint;
@@ -72,15 +68,6 @@ void SwapChainImage::CreateDepth(VmaAllocator* allocator, vk::SwapchainCreateInf
     {
         // 画像を作成
 		m_DepthImages[i].Create(allocator, imageInfo, vk::ImageAspectFlagBits::eDepth);
-
-        //画像を作成
-        //m_DepthImages[i] = m_LogicalDevice.createImage(imageInfo);
-        //m_DepthImages[i] = vmaCreateImage(allocator, reinterpret_cast<const VkImageCreateInfo*>(&imageInfo), &allocCreateInfo, &image, &allocation, nullptr);
-
-        //画像のメモリを確保
-        //auto allocInfo = AllocateImageMemory(logicalDevice, physicalDevice, m_DepthImages[i], vk::MemoryPropertyFlagBits::eDeviceLocal);
-        //m_DepthImageMemory[i] = m_LogicalDevice.allocateMemory(allocInfo);
-        //m_LogicalDevice.bindImageMemory(m_DepthImages[i], m_DepthImageMemory[i], 0);  // バインド
 
         //画像を扱う際の情報を設定
         //auto viewInfo = CreateImageViewInfo(m_DepthImages[i], m_DepthFormat, vk::ImageAspectFlagBits::eDepth);
@@ -118,20 +105,25 @@ std::vector<vk::ImageView> SwapChainImage::GetColorImageViews()
     return m_ColorImageViews;
 }
 
-//std::vector<vk::Image> SwapChainImage::GetDepthImages()
-//{
-//    return m_DepthImages;
-//}
+VTextureDescriptor SwapChainImage::GetColorDescriptor()
+{
+    return m_ColorDescriptor;
+}
+
+std::vector<VImage> SwapChainImage::GetDepthImages()
+{
+    return m_DepthImages;
+}
 
 vk::Format SwapChainImage::GetDepthFormat()
 {
     return m_DepthFormat;
 }
 
-//std::vector<vk::ImageView> SwapChainImage::GetDepthImageViews()
-//{
-//    return m_DepthImageViews;
-//}
+vk::Sampler SwapChainImage::GetSampler()
+{
+    return m_Sampler;
+}
 
 vk::ImageCreateInfo SwapChainImage::CreateImageInfo(vk::Extent2D extent, vk::Format fomat,vk::ImageUsageFlags usage)
 {

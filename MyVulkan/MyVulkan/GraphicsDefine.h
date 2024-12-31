@@ -23,7 +23,14 @@ constexpr struct _VulkanDefine
 	uint32_t	ApiVersion = VK_API_VERSION_1_3;                // Vulkan API‚Ìƒo[ƒWƒ‡ƒ“
 } VulkanDefine;
 
+constexpr struct _ShaderDefine
+{
+	const char* VertexShaderPath	= "Shaders/vert.spv";
+	const char* FragmentShaderPath	= "Shaders/frag.spv";
 
+	const char* EntryName = "main";
+
+} DefaultShaderDefine;
 
 
 

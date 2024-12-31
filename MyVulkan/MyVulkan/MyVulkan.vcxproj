@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GltfLoader.cpp" />
+    <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="SceneCamera.cpp" />
     <ClCompile Include="DescriptorBase.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
@@ -176,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GltfLoader.h" />
+    <ClInclude Include="RendererBase.h" />
     <ClInclude Include="RenderTask.h" />
     <ClInclude Include="SceneCamera.h" />
     <ClInclude Include="DescriptorBase.h" />

@@ -11,13 +11,15 @@ VImage::VImage() :
 
 VImage::~VImage()
 {
-	Cleanup();
+
 }
 
 void VImage::Create(VmaAllocator* allocator, vk::ImageCreateInfo createInfo, vk::ImageAspectFlags aspectFlag)
 {
 	// 初期化
 	Cleanup();
+
+	m_Allocator = allocator;
 
 	// イメージとアロケーションの作成
 	CreateBuffer(allocator, createInfo);

@@ -9,7 +9,7 @@ public:
 	VMesh();
 	~VMesh();
 
-	void SetMesh(VmaAllocator* allocator, Mesh mesh);
+	void SetMesh(VmaAllocator* allocator, Mesh* mesh);
 
 	VVertexBuffer	GetVertex();
 	VIndexBuffer	GetIndex();

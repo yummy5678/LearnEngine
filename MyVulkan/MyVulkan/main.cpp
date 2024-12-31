@@ -15,9 +15,9 @@
 
 
 int main()
-{		
-	VulkanInitializer	vulkanInitializer;	//レンダラー
-	GraphicWindow		mainWindow(vulkanInitializer);
+{
+	VulkanInitializer	vulkanInitializer;
+	GraphicWindow		mainWindow(vulkanInitializer);	//レンダラー
 
 	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
 	if (vulkanInitializer.init() == EXIT_FAILURE)
@@ -28,20 +28,33 @@ int main()
 	// ウィンドウを作成
 	mainWindow.init("Vulkan Window", windowWidth, windowHeight);
 
-	RenderConfig renderConfig(vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
-	renderConfig.Initialize(
-		vulkanInitializer.GetLogicalDevice(), 
-		mainWindow.GetWindowSize(),
-		mainWindow.GetColorFormat(),
-		mainWindow.GetDepthFormat());
-
-
 	auto allocator = vulkanInitializer.GetPVmaAllocator();
 
 	float angle = 0.0f;
 	float deltaTime = 0.0f;
 	float lastTime = 0.0f;
-	RenderObject	m_Object;		//表示するモデルリスト
+	RenderObject m_Object;		//表示するモデルリスト
+
+	// モデルをロード
+	MeshObject mesh;
+	LoadGLTF("models/AliciaSolid.vrm", mesh);
+
+	// ロードしたモデルをVRAMに移動
+	VMeshObject vMesh;
+	vMesh.SetMeshObject(vulkanInitializer.GetPVmaAllocator(), mesh);
+
+	// 描画用のクラスにモデルをセット
+	m_Object.SetMesh(vulkanInitializer.GetPVmaAllocator(), &vMesh);
+	std::vector<RenderObject> objContainer = { m_Object };
+
+	// カメラクラスを作成
+	SceneCamera camera;
+
+	RenderConfig renderConfig(vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
+	renderConfig.Initialize(
+		mainWindow.GetRenderer(),
+		&objContainer,
+		&camera);
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!mainWindow.checkCloseWindow())
@@ -60,7 +73,7 @@ int main()
 		testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		m_Object.SetTransform(testMat);
 
-		mainWindow.AddRenderQueue({ renderConfig, {m_Object}, SceneCamera() });
+		mainWindow.AddRenderQueue({ &renderConfig, &objContainer, &SceneCamera() });
 	}
 
 	vulkanInitializer.cleanup();

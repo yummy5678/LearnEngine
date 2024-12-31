@@ -51,4 +51,6 @@ void VMeshObject::SetMaterial(VmaAllocator* allocator, MeshObject& meshObject)
     {
         m_Texture[i].SetImage(allocator, meshObject.materials[i].texture);
     }
+
 }
+

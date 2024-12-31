@@ -1,6 +1,7 @@
 #include "PipelineShaderCreator.h"
 
 
+
 PipelineShaderCreator::PipelineShaderCreator()
 {
 }
@@ -11,17 +12,15 @@ PipelineShaderCreator::~PipelineShaderCreator()
 	DestroyModule();
 }
 
-void PipelineShaderCreator::Create(vk::Device logicalDevice, std::string vertexShaderPath, std::string flagmentShaderPath)
+void PipelineShaderCreator::Create(vk::Device logicalDevice, std::string sprvVertexShaderPath, std::string sprvFragmentShaderPath)
 {
 	// SPIR-V シェーダーコードの読込
-	auto vertexShaderCode = readFile("Shaders/vert.spv");
-	auto fragmentShaderCode = readFile("Shaders/frag.spv");
+	auto vertexShaderCode = readFile(sprvVertexShaderPath);
+	auto fragmentShaderCode = readFile(sprvFragmentShaderPath);
 
 	// シェーダーモジュールの作成
 	m_VertexShaderModule	= CreateShaderModule(logicalDevice, vertexShaderCode);
 	m_FragmentShaderModule	= CreateShaderModule(logicalDevice, fragmentShaderCode);
-
-
 
 }
 
@@ -43,8 +42,7 @@ vk::ShaderModule PipelineShaderCreator::CreateShaderModule(vk::Device logicalDev
 	shaderModuleCreateInfo.codeSize = code.size();
 	shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-	try { return logicalDevice.createShaderModule(shaderModuleCreateInfo); }
-	catch(const std::exception&){ throw std::runtime_error("シェーダーモジュールの作成に失敗しました!"); }
+	return logicalDevice.createShaderModule(shaderModuleCreateInfo);
 }
 
 vk::PipelineShaderStageCreateInfo PipelineShaderCreator::CreateShaderStage(vk::ShaderModule module, vk::ShaderStageFlagBits type)
@@ -52,7 +50,7 @@ vk::PipelineShaderStageCreateInfo PipelineShaderCreator::CreateShaderStage(vk::S
 	vk::PipelineShaderStageCreateInfo resultStage;
 	resultStage.setModule(module);
 	resultStage.setStage(type);
-	resultStage.setPName("main");
+	resultStage.setPName(DefaultShaderDefine.EntryName);
 	return resultStage;
 }
 

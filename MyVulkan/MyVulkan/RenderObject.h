@@ -13,15 +13,19 @@ public:
 	RenderObject();
 	~RenderObject();
 
-	void SetMesh(VmaAllocator* allocator, std::shared_ptr<VMeshObject> mesh);
+	void SetMesh(VmaAllocator* allocator, VMeshObject* mesh);
 	std::vector<VMesh>&				GetMeshes();
 	std::vector<VTextureBuffer>&	GetMaterials();
 
 	void		SetTransform(glm::mat4 transform);
-	Transform* GetPTransform();
+	Transform*  GetPTransform();
+
+	std::vector<vk::DescriptorSet>  GetDescriptorSets();
 
 private:
 	Transform						m_Transform;	// トランスフォーム(オブジェクトの座標とかの情報)
-	std::shared_ptr<VMeshObject>	m_Mesh; 
+	VMeshObject*	m_Mesh; 
+
+
 
 };

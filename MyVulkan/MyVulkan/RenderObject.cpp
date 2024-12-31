@@ -12,8 +12,9 @@ RenderObject::~RenderObject() {
 	// デストラクタの実装
 }
 
-void RenderObject::SetMesh(VmaAllocator* allocator, std::shared_ptr<VMeshObject> mesh) 
+void RenderObject::SetMesh(VmaAllocator* allocator, VMeshObject* mesh) 
 {
+
 	m_Mesh = mesh;
 }
 
@@ -34,4 +35,9 @@ void RenderObject::SetTransform(glm::mat4 transform)
 
 Transform* RenderObject::GetPTransform() {
 	return &m_Transform;
+}
+
+std::vector<vk::DescriptorSet> RenderObject::GetDescriptorSets()
+{
+	return m_Mesh->GetDescriptor().CreateSingleDescriptorSet();
 }

@@ -5,7 +5,7 @@
 // 描画命令に必要な要素をまとめた構造体
 struct RenderTask
 {
-	RenderConfig config;
-	std::vector<RenderObject> objects;
-	SceneCamera camera;
+	RenderConfig* config;
+	std::vector<RenderObject>* objects;
+	SceneCamera* camera;
 };

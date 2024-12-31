@@ -27,9 +27,7 @@ public:
 
     //ウィンドウのポインターを渡す
     GLFWwindow* GetPointer();
-    vk::Extent2D GetWindowSize();
-    vk::Format GetColorFormat();
-    vk::Format GetDepthFormat();
+    RendererBase* GetRenderer();
 
     //ウィンドウの終了フラグが立っているか確認
     int checkCloseWindow();

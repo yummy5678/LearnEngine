@@ -1,7 +1,13 @@
 #include "RenderingPipelineCreator.h"
 
 
-RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initializer)
+RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initializer) :
+	m_LogicalDevice(VK_NULL_HANDLE),
+	m_Pipeline(VK_NULL_HANDLE),
+	m_PipelineInfo(),
+	m_PipelineLayout(VK_NULL_HANDLE),
+	m_PipelineLayoutInfo(),
+	m_TextureDescriptor()
 {
 	m_ClassName = "PipelineGenerator";
 	initializer.GetPDeviceExtension()->UseDynamicRendering();
@@ -23,10 +29,10 @@ void RenderingPipelineCreator::Create(
 
 	// 解放処理用に論理デバイスを保持しておく
 	m_LogicalDevice = logicalDevice;
-
-	//パイプラインレイアウトの作成
-	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptor.GetDescriptorSetLayout() };
-	CreatePipelineLayout(logicalDevice, { descriptorSetLayouts }, { GetPushConstantModelRange()});
+	//m_TextureDescriptor.CreateSingleDescriptorSet();
+	//パイプラインレイアウトの作成	//今は作らなくていいかも
+	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptor.GetDescriptorSetLayout() };
+	//CreatePipelineLayout(logicalDevice, { descriptorSetLayouts }, { GetPushConstantModelRange()});
 
 	//パイプラインの作成
 	CreateGraphicsPipeline(logicalDevice, extent, scissor, colorFormat, depthFormat, shaderStageInfos);
@@ -73,8 +79,8 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device logicalDevice, 
 	vk::Viewport viewport;
 	viewport.setX(0.0f);									// x座標の開始位置
 	viewport.setY(0.0f);									// y座標の開始位置
-	viewport.setWidth((float)extent.width);						// ビューポートの幅
-	viewport.setHeight((float)extent.height);					// ビューポートの高さ
+	viewport.setWidth((float)extent.width);					// ビューポートの幅
+	viewport.setHeight((float)extent.height);				// ビューポートの高さ
 	viewport.setMinDepth(0.0f);								// フレームバッファの最小深度
 	viewport.setMaxDepth(1.0f);								// フレームバッファの最大深度
 

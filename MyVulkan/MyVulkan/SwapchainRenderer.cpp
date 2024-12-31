@@ -2,9 +2,7 @@
 
 
 SwapchainRenderer::SwapchainRenderer(VulkanInitializer& initializer)
-{
-    m_ClassName = "SwapchainGenerator";
-      
+{    
     initializer.GetPDeviceExtension()->UseSwapchain();
 }
 
@@ -15,8 +13,6 @@ SwapchainRenderer::~SwapchainRenderer()
 
 void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
 {
-    std::cout  << m_ClassName << "を作成" << std::endl;
-    m_bCreated = true;
     m_pAllocator = allocator;
 
     // VMAに紐づけられているオブジェクトの情報を取得
@@ -38,30 +34,22 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
 
 void SwapchainRenderer::Destroy()
 {
-    //中身が作成されていないなら解放処理も行わない
-    if (m_bCreated == false) return;
-    m_bCreated = false;
-    
-
     //スワップチェーンの解放
     m_LogicalDevice.destroySwapchainKHR(m_Swapchain);
 }
 
 vk::SwapchainKHR SwapchainRenderer::GetSwapchain()
 {
-    CheckCreated();
     return m_Swapchain;
 }
 
 vk::SwapchainCreateInfoKHR SwapchainRenderer::GetSwapchainInfo()
 {
-    CheckCreated();
     return m_SwapchainInfo;
 }
 
 SwapChainImage SwapchainRenderer::GetImages()
 {
-    CheckCreated();
     return m_SwapChainImages;
 }
 
@@ -70,10 +58,26 @@ vk::Extent2D SwapchainRenderer::GetFrameExtent()
     return m_SwapchainInfo.imageExtent;
 }
 
+vk::Extent2D SwapchainRenderer::GetExtent()
+{
+    return m_SwapchainInfo.imageExtent;
+}
+
+vk::Format SwapchainRenderer::GetColorFormat()
+{
+    return m_SwapChainImages.GetColorFormat();
+}
+
+vk::Format SwapchainRenderer::GetDepthFormat()
+{
+    return m_SwapChainImages.GetDepthFormat();
+}
+
 void SwapchainRenderer::UpdateFrame(std::vector<RenderTask> renderTasks)
 {
     vk::ResultValue acquire = m_LogicalDevice.acquireNextImageKHR(m_Swapchain, std::numeric_limits<uint64_t>::max(), {}, nullptr);
     if (acquire.result != vk::Result::eSuccess) std::cerr << "次フレームの取得に失敗しました。" << std::endl;
+
 
     m_CommandGenerator.DrawFrame(
         acquire.value,

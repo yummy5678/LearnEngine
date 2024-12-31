@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.hpp>
 #include "GeneratorBase.h"
 #include "Utilities.h"
+#include "GraphicsDefine.h"
 
 // シェーダーの読み込みとモジュール、ステージの作成を行うクラス
 // シェーダーの作成個数に制限はないがパイプライン内において
@@ -16,7 +17,9 @@ public:
 
 
 	// 作成関数(テッセーションシェーダーは未対応)
-	void Create(vk::Device logicalDevice, std::string vertexShaderPath, std::string flagmentShaderPath);
+	void Create(vk::Device logicalDevice, 
+		std::string vertexShaderPath	= DefaultShaderDefine.VertexShaderPath,
+		std::string flagmentShaderPath	= DefaultShaderDefine.FragmentShaderPath);
 
 	
 	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();

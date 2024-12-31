@@ -1,6 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
-#include "GeneratorBase.h"
+#include "RendererBase.h"
 #include "QueueUtility.h"
 #include "GraphicsDefine.h"
 #include "VulkanInitializer.h"
@@ -12,7 +12,7 @@
 
 
 
-class SwapchainRenderer : public GeneratorBase
+class SwapchainRenderer : public RendererBase
 {
 public:
 	SwapchainRenderer(VulkanInitializer& initializer);
@@ -25,6 +25,9 @@ public:
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
 	SwapChainImage				GetImages();
 	vk::Extent2D				GetFrameExtent();
+	vk::Extent2D				GetExtent()  override;
+	vk::Format					GetColorFormat() override;
+	vk::Format					GetDepthFormat() override;
 	void						UpdateFrame(std::vector<RenderTask> renderingTasks);
 
 private:

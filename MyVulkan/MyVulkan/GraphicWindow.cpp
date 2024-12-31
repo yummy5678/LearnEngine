@@ -57,20 +57,12 @@ GLFWwindow* GraphicWindow::GetPointer()
 	return m_pWindow;
 }
 
-vk::Extent2D GraphicWindow::GetWindowSize()
+RendererBase* GraphicWindow::GetRenderer()
 {
-	return m_Surface.GetCapabilities(m_pInitializer->GetPhysicalDevice()).currentExtent;
+	return &m_GraphicController;
 }
 
-vk::Format GraphicWindow::GetColorFormat()
-{
-	return m_GraphicController.GetImages().GetColorFormat();
-}
 
-vk::Format GraphicWindow::GetDepthFormat()
-{
-	return m_GraphicController.GetImages().GetDepthFormat();
-}
 
 int GraphicWindow::checkCloseWindow()
 {

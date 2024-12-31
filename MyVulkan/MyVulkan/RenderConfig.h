@@ -4,6 +4,7 @@
 #include "PipelineShaderCreator.h"
 #include "RenderingPipelineCreator.h"
 #include "VulkanInitializer.h"
+#include "RendererBase.h"
 
 // シーンクラスからVulkanのグラフィックパイプラインへの
 // 描画モデルの情報の橋渡しを行うクラス
@@ -18,12 +19,21 @@ public:
 	RenderConfig(VulkanInitializer& initializer);
 	~RenderConfig();
 
+	// 初期化
+	//void Initialize(
+	//	vk::Device logicalDevice,
+	//	vk::Extent2D extent,
+	//	vk::Format colorFomat,
+	//	vk::Format depthFomat);
 	void Initialize(
-		vk::Device logicalDevice,
-		vk::Extent2D extent,
-		vk::Format colorFomat,
-		vk::Format depthFomat);
+	RendererBase* renderere, 
+	std::vector<RenderObject>* objects,
+		SceneCamera* camera);
 
+	// ディスクリプタなどを更新したい
+	void Update();
+
+	// 破棄
 	void Destroy();
 
 	vk::Rect2D			GetSissorRect();
@@ -32,8 +42,11 @@ public:
 	vk::PipelineLayout	GetPipelineLayout();
 	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
 
+	vk::DescriptorSet GetDescriptorSet();
 
 private:
+	vk::Device m_Device;
+
 	// 画面サイズ
 	vk::Offset2D			m_Offset;	//描画範囲の始点
 	vk::Extent2D			m_Extent;	//描画範囲の終点
@@ -44,4 +57,9 @@ private:
 
 	//パイプラインに渡すシェーダー情報の作成クラス
 	PipelineShaderCreator	m_Shader;
+
+	// デスクリプタ
+	VTextureDescriptor		m_TextureDescriptor;
+
+	void CreateDescriptors(std::vector<RenderObject>* objects, SceneCamera* camera);
 };
