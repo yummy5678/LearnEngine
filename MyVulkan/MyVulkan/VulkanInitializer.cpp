@@ -64,9 +64,9 @@ vk::Instance VulkanInitializer::GetInstance()
 	return m_Instance;
 }
 
-vk::Device VulkanInitializer::GetLogicalDevice()
+vk::Device* VulkanInitializer::GetPLogicalDevice()
 {
-	return m_LogicalDevice;
+	return &m_LogicalDevice;
 }
 
 vk::PhysicalDevice VulkanInitializer::GetPhysicalDevice()

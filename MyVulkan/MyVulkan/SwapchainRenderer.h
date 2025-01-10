@@ -7,7 +7,6 @@
 #include "SwapchainImage.h"
 #include "RenderConfig.h"
 #include "CommandGenerator.h"
-#include "RenderTask.h"
 
 
 
@@ -26,9 +25,10 @@ public:
 	SwapChainImage				GetImages();
 	vk::Extent2D				GetFrameExtent();
 	vk::Extent2D				GetExtent()  override;
+	std::vector<ImageViewSet>	GetImageSets() override;
 	vk::Format					GetColorFormat() override;
 	vk::Format					GetDepthFormat() override;
-	void						UpdateFrame(std::vector<RenderTask> renderingTasks);
+	void						UpdateFrame();
 
 private:
 	VmaAllocator* m_pAllocator;

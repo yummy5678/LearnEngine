@@ -9,39 +9,49 @@ VTextureDescriptor::~VTextureDescriptor()
 {
 }
 
-vk::DescriptorSet VTextureDescriptor::CreateSingleDescriptorSet(vk::ImageView imageView, vk::Sampler sampler)
+void VTextureDescriptor::Initialize(vk::Device* pLogicalDevice)
 {
-    // ディスクリプタセットの割り当て
-    vk::DescriptorSetAllocateInfo allocInfo;
+    m_pLogicalDevice = pLogicalDevice;
+
+    if (!m_DescriptorSetLayout) CreateDescriptorSetLayout();
+    if (!m_DescriptorPool)      CreateDescriptorPool();
+    if (!m_DescriptorSet)       CreateDescriptorSet();
+}
+
+void VTextureDescriptor::Update(vk::ImageView imageView, vk::Sampler sampler)
+{
+    UpdateDescriptorSet(imageView, sampler);
+}
+
+void VTextureDescriptor::CreateDescriptorSet()
+{
+    vk::DescriptorSetAllocateInfo allocInfo{};
     allocInfo.descriptorPool = m_DescriptorPool;
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = &m_DescriptorSetLayout;
 
-    vk::DescriptorSet descriptorSet = m_LogicalDevice.allocateDescriptorSets(allocInfo)[0];
+   m_DescriptorSet = m_pLogicalDevice->allocateDescriptorSets(allocInfo).front();
+}
 
+void VTextureDescriptor::UpdateDescriptorSet(vk::ImageView imageView, vk::Sampler sampler)
+{
     // イメージとサンプラーをディスクリプタセットにバインド
     vk::DescriptorImageInfo imageInfo;
     imageInfo.imageView = imageView;
     imageInfo.sampler = sampler;
     imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-    
-    vk::WriteDescriptorSet descriptorWrite;  
-    descriptorWrite.dstSet = descriptorSet;
+
+    vk::WriteDescriptorSet descriptorWrite;
+    descriptorWrite.dstSet = m_DescriptorSet;
     descriptorWrite.dstBinding = 0;
     descriptorWrite.dstArrayElement = 0;
-    descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+    descriptorWrite.descriptorType = m_DescriptorType;
     descriptorWrite.descriptorCount = 1;
     descriptorWrite.pImageInfo = &imageInfo;
 
-    m_LogicalDevice.updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
-
-    return descriptorSet;
+    m_pLogicalDevice->updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
 }
 
-vk::DescriptorSetLayout VTextureDescriptor::GetDescriptorSetLayout() const
-{
-    return m_DescriptorSetLayout;
-}
 
 void VTextureDescriptor::CreateDescriptorSetLayout()
 {
@@ -56,10 +66,10 @@ void VTextureDescriptor::CreateDescriptorSetLayout()
     layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = &layoutBinding;
 
-    m_DescriptorSetLayout = m_LogicalDevice.createDescriptorSetLayout(layoutInfo);
+    m_DescriptorSetLayout = m_pLogicalDevice->createDescriptorSetLayout(layoutInfo);
 }
 
-void VTextureDescriptor::CreateSingleDescriptorPool()
+void VTextureDescriptor::CreateDescriptorPool()
 {
     // ディスクリプタプールの作成
     vk::DescriptorPoolSize poolSize;
@@ -71,5 +81,5 @@ void VTextureDescriptor::CreateSingleDescriptorPool()
     poolInfo.poolSizeCount = 1;
     poolInfo.pPoolSizes = &poolSize;
 
-    m_DescriptorPool = m_LogicalDevice.createDescriptorPool(poolInfo);
+    m_DescriptorPool = m_pLogicalDevice->createDescriptorPool(poolInfo);
 }

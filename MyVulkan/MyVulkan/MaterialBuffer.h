@@ -13,18 +13,20 @@ public:
 	void SetMaterial(VmaAllocator* allocator, Material material);
 
 	vk::Image			GetTextureBuffer();
-	vk::DescriptorSet	GetDescriptorSet();
+	vk::ImageView		GetTextureImageView();
+	vk::Sampler			GetSampler();
+	//vk::DescriptorSet	GetDescriptorSet();
 private:
 	//glm::vec4 baseColor;	// ñ¢çÏê¨
 	//float metallic;
 	//float roughness;
-	VTextureBuffer	m_Texture;
+	VTextureBuffer		m_Texture;
 
 	vk::Sampler			m_Sampler;
-	VTextureDescriptor	m_SamplerDescriptor;
+	//VTextureDescriptor	m_SamplerDescriptor;
 
 	void SetTexture(VmaAllocator* allocator, Texture& texture);
 	void CreateSampler(vk::Device logicalDevice);
-	void CreateSamplerDescriptor(vk::Device logicalDevice);
+	//void CreateSamplerDescriptor(vk::Device logicalDevice);
 };
 

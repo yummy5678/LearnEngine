@@ -22,18 +22,18 @@ public:
 	~VDescriptorBase();
 
 
+	virtual vk::DescriptorSet		GetDescriptorSet();
+	virtual vk::DescriptorSetLayout GetDescriptorSetLayout();
+
+	virtual bool HasDescriptor();
 
 protected:
-	vk::Device					m_LogicalDevice;	// 作成＆破棄用のデバイス情報
+	vk::Device*					m_pLogicalDevice;	// 作成＆破棄用のデバイス情報
 	const vk::DescriptorType	m_DescriptorType;
 	const vk::ShaderStageFlags	m_StageFlags;
 	vk::DescriptorSetLayout		m_DescriptorSetLayout;
 	vk::DescriptorPool			m_DescriptorPool;
-
-
-	void CreateDescriptorSetLayout();
-
-
+	vk::DescriptorSet			m_DescriptorSet;
 
 
 };

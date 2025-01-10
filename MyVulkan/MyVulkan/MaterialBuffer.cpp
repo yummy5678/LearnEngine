@@ -1,6 +1,8 @@
 #include "MaterialBuffer.h"
 
-VMaterial::VMaterial()
+VMaterial::VMaterial() : 
+	m_Texture(),
+	m_Sampler(VK_NULL_HANDLE)
 {
 }
 
@@ -12,6 +14,12 @@ void VMaterial::SetMaterial(VmaAllocator* allocator, Material material)
 {
 	SetTexture(allocator, material.texture);
 
+	if (m_Sampler == VK_NULL_HANDLE)
+	{
+		VmaAllocatorInfo allocatorInfo;
+		vmaGetAllocatorInfo(*allocator, &allocatorInfo);
+		CreateSampler(allocatorInfo.device);
+	}
 }
 
 vk::Image VMaterial::GetTextureBuffer()
@@ -19,11 +27,15 @@ vk::Image VMaterial::GetTextureBuffer()
 	return m_Texture.GetImageBuffer();
 }
 
-vk::DescriptorSet VMaterial::GetDescriptorSet()
+vk::ImageView VMaterial::GetTextureImageView()
 {
-	auto imageView = m_Texture.GetImageView();
+	return m_Texture.GetImageView();
+}
 
-	return m_SamplerDescriptor.CreateSingleDescriptorSet(imageView, m_Sampler);
+
+vk::Sampler VMaterial::GetSampler()
+{
+	return m_Sampler;
 }
 
 void VMaterial::SetTexture(VmaAllocator* allocator, Texture& texture)

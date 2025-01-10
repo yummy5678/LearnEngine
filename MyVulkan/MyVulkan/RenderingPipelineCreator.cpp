@@ -2,7 +2,7 @@
 
 
 RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initializer) :
-	m_LogicalDevice(VK_NULL_HANDLE),
+	m_pLogicalDevice(nullptr),
 	m_Pipeline(VK_NULL_HANDLE),
 	m_PipelineInfo(),
 	m_PipelineLayout(VK_NULL_HANDLE),
@@ -11,6 +11,8 @@ RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initialize
 {
 	m_ClassName = "PipelineGenerator";
 	initializer.GetPDeviceExtension()->UseDynamicRendering();
+	m_pLogicalDevice = initializer.GetPLogicalDevice();
+
 }
 
 RenderingPipelineCreator::~RenderingPipelineCreator()
@@ -18,30 +20,32 @@ RenderingPipelineCreator::~RenderingPipelineCreator()
 }
 
 void RenderingPipelineCreator::Create(
-	vk::Device logicalDevice,
+	vk::Device* pLogicalDevice,
 	vk::Extent2D extent,
 	vk::Rect2D scissor,
 	vk::Format colorFormat,
 	vk::Format depthFormat,
-	std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos)
+	std::vector<vk::PipelineShaderStageCreateInfo>* pShaderStageInfos,
+	std::vector<vk::DescriptorSetLayout>* pDescriptorSetLayouts,
+	std::vector<vk::PushConstantRange>* pPushConstantRanges)
 {
 	m_bCreated = true;
 
-	// 解放処理用に論理デバイスを保持しておく
-	m_LogicalDevice = logicalDevice;
 	//m_TextureDescriptor.CreateSingleDescriptorSet();
 	//パイプラインレイアウトの作成	//今は作らなくていいかも
 	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptor.GetDescriptorSetLayout() };
-	//CreatePipelineLayout(logicalDevice, { descriptorSetLayouts }, { GetPushConstantModelRange()});
+	CreatePipelineLayout(pLogicalDevice, pDescriptorSetLayouts, pPushConstantRanges);
 
 	//パイプラインの作成
-	CreateGraphicsPipeline(logicalDevice, extent, scissor, colorFormat, depthFormat, shaderStageInfos);
+	CreateGraphicsPipeline(m_pLogicalDevice, extent, scissor, colorFormat, depthFormat, pShaderStageInfos);
 }
 
-void RenderingPipelineCreator::Destroy(vk::Device logicalDevice)
+void RenderingPipelineCreator::Destroy()
 {
-	logicalDevice.destroyPipelineLayout(m_PipelineLayout);
-	logicalDevice.destroyPipeline(m_Pipeline);
+	if (m_pLogicalDevice == nullptr) return;
+
+	m_pLogicalDevice->destroyPipelineLayout(m_PipelineLayout);
+	m_pLogicalDevice->destroyPipeline(m_Pipeline);
 
 	//パイプラインの作成後に不要になったシェーダーモジュールを破棄
 	//vkDestroyShaderModule(logicalDevice, fragmentShaderModule, nullptr);
@@ -60,17 +64,17 @@ vk::PipelineLayout RenderingPipelineCreator::GetPipelineLayout()
 	return m_PipelineLayout;
 }
 
-void RenderingPipelineCreator::CreatePipelineLayout(vk::Device logicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges)
+void RenderingPipelineCreator::CreatePipelineLayout(vk::Device* pLogicalDevice, std::vector<vk::DescriptorSetLayout>* pDescriptorSetLayouts, std::vector<vk::PushConstantRange>* pPushConstantRanges)
 {
 	vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
-	pipelineLayoutCreateInfo.setSetLayouts(descriptorSetLayouts);
-	pipelineLayoutCreateInfo.setPushConstantRanges(pushConstantRanges);
+	pipelineLayoutCreateInfo.setSetLayouts(*pDescriptorSetLayouts);
+	pipelineLayoutCreateInfo.setPushConstantRanges(*pPushConstantRanges);
 
-	try { m_PipelineLayout = logicalDevice.createPipelineLayout(pipelineLayoutCreateInfo); }
+	try { m_PipelineLayout = pLogicalDevice->createPipelineLayout(pipelineLayoutCreateInfo); }
 	catch (const std::runtime_error& e) { throw std::runtime_error("パイプラインレイアウトの作成に失敗しました！"); }
 }
 
-void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device logicalDevice, vk::Extent2D extent, vk::Rect2D scissor, vk::Format colorFormat, vk::Format depthFormat, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos)
+void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device* pLogicalDevice, vk::Extent2D extent, vk::Rect2D scissor, vk::Format colorFormat, vk::Format depthFormat, std::vector<vk::PipelineShaderStageCreateInfo>* pShaderStageInfos)
 {
 	if (!m_PipelineLayout)	throw std::runtime_error("グラフィクスパイプラインの作成前にパイプラインレイアウトを作成してください!");
 
@@ -170,7 +174,7 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device logicalDevice, 
 	pipelineRenderingInfo.depthAttachmentFormat = depthFormat;     // 深度アタッチメントのフォーマット
 #pragma endregion pipelineRenderingInfo
 
-	m_PipelineInfo.setStages(shaderStageInfos);						// シェーダーステージ
+	m_PipelineInfo.setStages(*pShaderStageInfos);						// シェーダーステージ
 	m_PipelineInfo.setPVertexInputState(&VertexInputBinding::GetVertexInputInfo());	// All the fixed function pipeline states
 	m_PipelineInfo.setPInputAssemblyState(&GetInputAssemblyInfo());
 	m_PipelineInfo.setPViewportState(&viewportStateInfo);
@@ -184,7 +188,7 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device logicalDevice, 
 
 
 	// Create Graphics Pipeline
-	auto result = logicalDevice.createGraphicsPipeline(nullptr, m_PipelineInfo);
+	auto result = m_pLogicalDevice->createGraphicsPipeline(nullptr, m_PipelineInfo);
 	if (result.result != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("グラフィクスパイプラインの作成に失敗しました!");
@@ -193,7 +197,7 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device logicalDevice, 
 	m_Pipeline = result.value;
 }
 
-inline vk::PipelineDepthStencilStateCreateInfo RenderingPipelineCreator::CreateDepthStencilStateInfo(bool depth, bool stencil)
+vk::PipelineDepthStencilStateCreateInfo RenderingPipelineCreator::CreateDepthStencilStateInfo(bool depth, bool stencil)
 {
 	// 深度およびステンシルステートの設定
 
@@ -249,14 +253,15 @@ vk::PipelineInputAssemblyStateCreateInfo& RenderingPipelineCreator::GetInputAsse
 	return assemblyStateInfo;
 }
 
-vk::PushConstantRange RenderingPipelineCreator::GetPushConstantModelRange()
-{
-	return vk::PushConstantRange{
-	vk::ShaderStageFlagBits::eVertex,	// 渡したいシェーダーステージ
-	0,								    // 渡したデータからどの位置のデータを見るか
-	sizeof(Transform)					// 渡したいデータのサイズ
-	};
-}
+//vk::PushConstantRange RenderingPipelineCreator::GetPushConstantModelRange()
+//{
+//	return vk::PushConstantRange
+//	{
+//		vk::ShaderStageFlagBits::eVertex,	// 渡したいシェーダーステージ
+//		0,								    // 渡したデータからどの位置のデータを見るか
+//		sizeof(Transform)					// 渡したいデータのサイズ
+//	};
+//}
 
 
 

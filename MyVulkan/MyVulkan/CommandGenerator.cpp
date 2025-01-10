@@ -67,61 +67,6 @@ std::vector<vk::CommandBuffer> SwapChainCommandGenerator::GetCommandBuffers()
     return m_CommandBuffers;
 }
 
-void SwapChainCommandGenerator::DrawFrame(
-    uint32_t                    commandIndex,
-    std::vector<RenderTask>     renderTasks,
-    vk::ImageView               colorImageView, 
-    vk::ImageView               depthImageView)
-{
-
-    // カラーバッファアタッチメント
-    vk::RenderingAttachmentInfo colorAttachment;
-    colorAttachment.imageView = colorImageView;
-    colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
-    colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-    colorAttachment.clearValue = vk::ClearValue(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
-    
-    // Depthバッファアタッチメント（3Dオブジェクト用に使用）
-    vk::RenderingAttachmentInfo depthAttachment;
-    depthAttachment.imageView = depthImageView;
-    depthAttachment.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
-    depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-    depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
-    depthAttachment.clearValue = vk::ClearValue(vk::ClearDepthStencilValue(1.0f, 0));
-
-    auto commandBuffer = m_CommandBuffers[commandIndex];
-
-
-    for (int i = 0; i < renderTasks.size(); i++)
-    {
-        auto config = renderTasks[i].config;
-        auto objects = renderTasks[i].objects;
-		auto camera = renderTasks[i].camera;
-
-        // ToDo 毎回パイプラインレイアウトを作り直すようにしたい
-        config.();
-        //if (config == nullptr || scene == nullptr) continue; //nullptrが入っている描画情報は無視する
-
-        // ダイナミックレンダリングの設定
-        vk::RenderingInfo renderingInfo;
-        renderingInfo.renderArea = config->GetRenderRect();
-        renderingInfo.layerCount = 1;
-        renderingInfo.colorAttachmentCount = 1;
-        renderingInfo.pColorAttachments = &colorAttachment;
-        renderingInfo.pDepthAttachment = &depthAttachment;
-
-        // Dynamic Renderingを開始
-        commandBuffer.beginRendering(renderingInfo);
-
-        // 使用するパイプラインをバインドします。
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, config->GetPipeline());
-
-        RenderObjects(commandBuffer, config->GetPipelineLayout(), *objects, *camera);
-    }
-
-    commandBuffer.endRendering();
-}
 
 void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain, uint32_t commandIndex)
 {
@@ -238,51 +183,6 @@ uint32_t SwapChainCommandGenerator::AcquireSwapchainNextImage(vk::SwapchainKHR s
     }
 
     return imageIndex;
-}
-
-void SwapChainCommandGenerator::RenderObjects(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout, std::vector<RenderObject> drawMeshes, SceneCamera sceneCamera)
-{
-    // 描画するメッシュをループします。
-    for (auto& model : drawMeshes)
-    {
-        // プッシュ定数をシェーダーに渡します。
-        commandBuffer.pushConstants(
-            pipelineLayout,
-            vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
-            0,                                  // オフセット
-            sizeof(Transform),                  // プッシュするデータのサイズ
-            model.GetPTransform()               // 実際のデータ
-        );
-
-        // 各メッシュをループします。
-        for (auto& mesh : model.GetMeshes())
-        {
-            // 頂点バッファをバインド
-            commandBuffer.bindVertexBuffers(0, mesh.GetVertex().GetBuffer(), { 0 });
-
-            // ディスクリプタセットをバインドします。
-            std::vector<vk::DescriptorSet> descriptorSetGroup =
-            {
-
-                //descriptorSets[currentImage], //たぶんカメラ情報が入ってる(uboViewProjection)
-                //samplerDescriptorSets[thisModel.getMesh(k)->getTexId()]
-                sceneCamera.GetDescriptorSet(),
-                model.GetMaterials()[0].GetDescriptorSet()
-            };
-
-            commandBuffer.bindDescriptorSets(
-                vk::PipelineBindPoint::eGraphics,
-                pipelineLayout,
-                0,
-                descriptorSetGroup,
-                nullptr
-            );
-
-            // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
-            commandBuffer.bindIndexBuffer(mesh.GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
-            commandBuffer.drawIndexed(mesh.GetIndex().GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
-        }
-    }
 }
 
 

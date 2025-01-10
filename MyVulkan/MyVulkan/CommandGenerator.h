@@ -6,7 +6,6 @@
 #include "FenceGenerator.h"
 #include "VertexBuffer.h"
 #include "RenderConfig.h"
-#include "RenderTask.h"
 
 
 
@@ -28,9 +27,6 @@ public:
 
 	// 作成されたコマンドバッファ配列の取得
 	std::vector<vk::CommandBuffer> GetCommandBuffers();
-
-	// GPU内で画像を描画
-	void DrawFrame(uint32_t commandIndex, std::vector<RenderTask> renderTasks, vk::ImageView colorImage, vk::ImageView depthImage);
 
 	// スワップチェーンに従って画像を表示
 	void PresentFrame(vk::SwapchainKHR swapchain, uint32_t commandIndex);
@@ -63,12 +59,6 @@ private:
 
 	uint32_t						AcquireSwapchainNextImage(vk::SwapchainKHR swapchain);
 
-	// メッシュオブジェクトから情報を仕分けて描画コマンドを発行するまでの流れを纏めたもの
-	void RenderObjects(
-		vk::CommandBuffer commandBuffer, 
-		vk::PipelineLayout pipelineLayout, 
-		std::vector<RenderObject> drawMeshes, 
-		SceneCamera sceneCamera);
 
 };
 

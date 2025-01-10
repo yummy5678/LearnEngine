@@ -27,7 +27,7 @@ void SwapChainImage::Create(VmaAllocator* allocator, vk::SwapchainKHR swapchain,
     }
 
 
-    m_ColorDescriptor.CreateSingleDescriptorSet();
+    //m_ColorDescriptor.CreateSingleDescriptorSet();
 
 }
 
@@ -105,10 +105,6 @@ std::vector<vk::ImageView> SwapChainImage::GetColorImageViews()
     return m_ColorImageViews;
 }
 
-VTextureDescriptor SwapChainImage::GetColorDescriptor()
-{
-    return m_ColorDescriptor;
-}
 
 std::vector<VImage> SwapChainImage::GetDepthImages()
 {
@@ -120,9 +116,21 @@ vk::Format SwapChainImage::GetDepthFormat()
     return m_DepthFormat;
 }
 
-vk::Sampler SwapChainImage::GetSampler()
+std::vector<ImageViewSet> SwapChainImage::GetImageSets()
 {
-    return m_Sampler;
+    std::vector<ImageViewSet> imageViewSets;
+    imageViewSets.reserve(m_Size);
+
+    for (uint32_t i = 0; i < m_Size; i++)
+    {
+        ImageViewSet set;
+        set.color = m_ColorImageViews[i];
+        set.depth = m_DepthImages[i].GetImageView();
+        imageViewSets[i] = set;
+    }
+
+
+    return imageViewSets;
 }
 
 vk::ImageCreateInfo SwapChainImage::CreateImageInfo(vk::Extent2D extent, vk::Format fomat,vk::ImageUsageFlags usage)

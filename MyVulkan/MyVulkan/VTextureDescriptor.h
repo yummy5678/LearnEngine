@@ -9,15 +9,21 @@ public:
     VTextureDescriptor();
     ~VTextureDescriptor();
 
-    // ディスクリプタセットの割り当て
-    vk::DescriptorSet CreateSingleDescriptorSet(vk::ImageView imageView, vk::Sampler sampler);
+    void Initialize(vk::Device* pLogicalDevice);
+    void Update(vk::ImageView imageView, vk::Sampler sampler);
 
-    vk::DescriptorSetLayout GetDescriptorSetLayout() const;
 
 private:
+
+
     // ディスクリプタセットレイアウトバインディングの設定
     void CreateDescriptorSetLayout();
-    void CreateSingleDescriptorPool();
+    void CreateDescriptorPool();
+    // ディスクリプタセットの割り当て
+    void CreateDescriptorSet();
+
+    void UpdateDescriptorSet(vk::ImageView imageView, vk::Sampler sampler);
+
 
 
 };

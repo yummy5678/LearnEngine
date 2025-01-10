@@ -8,10 +8,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "GraphicsDefine.h"
 #include "VulkanInitializer.h"
+#include "GltfLoader.h"
 #include "GraphicWindow.h"
 #include "RenderConfig.h"
 #include "SwapchainRenderer.h"
-#include "GltfLoader.h"
+
 
 
 int main()
@@ -36,15 +37,10 @@ int main()
 	RenderObject m_Object;		//表示するモデルリスト
 
 	// モデルをロード
-	MeshObject mesh;
-	LoadGLTF("models/AliciaSolid.vrm", mesh);
-
-	// ロードしたモデルをVRAMに移動
-	VMeshObject vMesh;
-	vMesh.SetMeshObject(vulkanInitializer.GetPVmaAllocator(), mesh);
+	std::vector<MeshObject> mesh = LoadGLTF("models/AliciaSolid.vrm");
 
 	// 描画用のクラスにモデルをセット
-	m_Object.SetMesh(vulkanInitializer.GetPVmaAllocator(), &vMesh);
+	m_Object.SetMesh(vulkanInitializer.GetPVmaAllocator(), &mesh);
 	std::vector<RenderObject> objContainer = { m_Object };
 
 	// カメラクラスを作成
@@ -73,7 +69,11 @@ int main()
 		testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		m_Object.SetTransform(testMat);
 
-		mainWindow.AddRenderQueue({ &renderConfig, &objContainer, &SceneCamera() });
+
+		// ToDo :	描画はRenderConfigに、
+		//			表示はRendererが担当するように機能を分割したい
+		renderConfig.DrawImage(&objContainer, &camera);
+		//mainWindow.AddRenderQueue({ &renderConfig, &objContainer, &camera });
 	}
 
 	vulkanInitializer.cleanup();

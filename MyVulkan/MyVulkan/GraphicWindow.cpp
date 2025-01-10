@@ -42,16 +42,6 @@ void GraphicWindow::kill()
 	glfwTerminate();
 }
 
-void GraphicWindow::AddRenderQueue(RenderTask renderTask)
-{
-	m_RenderTasks.push_back(renderTask);
-}
-
-void GraphicWindow::ExecuteRenderQueue()
-{
-	m_GraphicController.UpdateFrame(m_RenderTasks);
-}
-
 GLFWwindow* GraphicWindow::GetPointer()
 {
 	return m_pWindow;

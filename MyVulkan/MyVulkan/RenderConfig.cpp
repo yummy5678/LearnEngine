@@ -3,13 +3,16 @@
 
 
 RenderConfig::RenderConfig(VulkanInitializer& initializer):
-    m_Device(VK_NULL_HANDLE),
+    m_pLogicalDevice(nullptr),
+    m_PhygicalDevice(VK_NULL_HANDLE),
     m_GraphicsPipeline(initializer),
     m_Shader(), 
     m_RenderArea(), 
     m_Offset(), 
     m_Extent()
 {
+    m_pLogicalDevice = initializer.GetPLogicalDevice();
+    m_PhygicalDevice = initializer.GetPhysicalDevice();
 }
 
 RenderConfig::~RenderConfig()
@@ -21,29 +24,26 @@ void RenderConfig::Initialize(RendererBase* renderere, std::vector<RenderObject>
     vk::Format colorFomat = renderere->GetColorFormat();
     vk::Format depthFomat = renderere->GetDepthFormat();
     vk::Extent2D extent = renderere->GetExtent();
+    std::vector<ImageViewSet> imageView = renderere->GetImageSets();
 
-    m_Shader.Create(m_Device, DefaultShaderDefine.VertexShaderPath, DefaultShaderDefine.FragmentShaderPath);
+    m_Shader.Create(m_pLogicalDevice, DefaultShaderDefine.VertexShaderPath, DefaultShaderDefine.FragmentShaderPath);
     m_RenderArea.setOffset({ 0, 0 });
     m_RenderArea.setExtent(extent);
 
-    m_TextureDescriptor.CreateSingleDescriptorSet();
-    // ディスクリプタセットをバインドします。
-    std::vector<vk::DescriptorSet> descriptorSetGroup =
-    {
-        camera->GetDescriptorSet(),
-        objects[0]->GetMaterials()[0].GetDescriptorSet()
-    };
-    // パイプラインレイアウトの作成	//今は作らなくていいかも
-    std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptor.GetDescriptorSetLayout() };
-    //CreatePipelineLayout(logicalDevice, { descriptorSetLayouts }, { GetPushConstantModelRange()});
+    auto descriptorSetLayouts = GetDescriptorSetLayouts();
+    auto constantRanges = GetPushConstantRanges();
 
     m_GraphicsPipeline.Create(
-        m_Device,
+        m_pLogicalDevice,
         extent,
         m_RenderArea,
         colorFomat,
         depthFomat,
-        m_Shader.GetShaderStages());
+        m_Shader.GetPShaderStages(),
+        &descriptorSetLayouts,
+        &constantRanges);
+
+    m_DrawCommand.Create(m_pLogicalDevice, m_PhygicalDevice, imageView);
 }
 
 //void RenderConfig::Initialize(vk::Device logicalDevice, vk::Extent2D extent, vk::Format colorFomat, vk::Format depthFomat)
@@ -95,25 +95,65 @@ vk::PipelineLayout RenderConfig::GetPipelineLayout()
     return m_GraphicsPipeline.GetPipelineLayout();
 }
 
-std::vector<vk::PipelineShaderStageCreateInfo> RenderConfig::GetShaderStages()
+std::vector<vk::PipelineShaderStageCreateInfo>* RenderConfig::GetPShaderStages()
 {
-    return m_Shader.GetShaderStages();
+    return m_Shader.GetPShaderStages();
 }
 
-void RenderConfig::CreateDescriptors(std::vector<RenderObject>* objects, SceneCamera* camera)
+std::vector<vk::DescriptorSet> RenderConfig::GetDescriptorSets()
 {
     // ディスクリプタセットをバインド
-    std::vector<vk::DescriptorSet> descriptorSetGroup;
-    descriptorSetGroup.push_back(camera->GetDescriptorSet());
+    std::vector<vk::DescriptorSet> descriptorSets;
+    descriptorSets.push_back(m_CameraDescriptor.GetDescriptorSet());
+    descriptorSets.push_back(m_TextureDescriptor.GetDescriptorSet());
 
-    // 描画するメッシュをループ
+    return descriptorSets;
+}
+
+std::vector<vk::DescriptorSetLayout> RenderConfig::GetDescriptorSetLayouts()
+{
+    // ディスクリプタセットをバインド
+    std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
+    descriptorSetLayouts.push_back(m_CameraDescriptor.GetDescriptorSetLayout());
+    descriptorSetLayouts.push_back(m_TextureDescriptor.GetDescriptorSetLayout());
+
+    return descriptorSetLayouts;
+}
+
+std::vector<vk::PushConstantRange> RenderConfig::GetPushConstantRanges()
+{
+    return { GetPushConstantModelRange() };
+}
+
+void RenderConfig::DrawImage(std::vector<RenderObject>* objects, SceneCamera* camera)
+{
+    auto pipeline = m_GraphicsPipeline.GetPipeline();
+    auto pipelineLayout = m_GraphicsPipeline.GetPipelineLayout();
+    auto descriptorSets = GetDescriptorSets();
+
+    m_DrawCommand.BeginRendering(pipeline, m_RenderArea);
+
+    m_CameraDescriptor.Update(camera->GetProjectionBuffer());
+
+
     for (auto& model : *objects)
     {
-        // 各メッシュをループ
-        for (auto& mesh : model.GetMeshes())
+        for (auto& mesh : *model.GetMeshes())
         {
-            descriptorSetGroup.push_back(mesh.);
-
+            m_TextureDescriptor.Update(mesh.GetPMaterial()->GetTextureImageView(), mesh.GetPMaterial()->GetSampler());
+            m_DrawCommand.RenderMesh(m_GraphicsPipeline.GetPipelineLayout(), &descriptorSets, &mesh, model.GetPTransform());
         }
     }
+
+    m_DrawCommand.EndRendering();
+}
+
+vk::PushConstantRange RenderConfig::GetPushConstantModelRange()
+{
+    return vk::PushConstantRange
+    {
+        vk::ShaderStageFlagBits::eVertex,	// 渡したいシェーダーステージ
+        0,								    // 渡したデータからどの位置のデータを見るか
+        sizeof(Transform)					// 渡したいデータのサイズ
+    };
 }

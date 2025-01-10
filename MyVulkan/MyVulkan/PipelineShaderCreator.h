@@ -17,16 +17,16 @@ public:
 
 
 	// 作成関数(テッセーションシェーダーは未対応)
-	void Create(vk::Device logicalDevice, 
+	void Create(vk::Device* pLogicalDevice, 
 		std::string vertexShaderPath	= DefaultShaderDefine.VertexShaderPath,
 		std::string flagmentShaderPath	= DefaultShaderDefine.FragmentShaderPath);
 
 	
-	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
+	std::vector<vk::PipelineShaderStageCreateInfo>* GetPShaderStages();
 
 
 private:
-	vk::Device					m_LogicalDevice;
+	vk::Device*					m_pLogicalDevice;
 
 	// シェーダーモジュール
 	vk::ShaderModule			m_VertexShaderModule;

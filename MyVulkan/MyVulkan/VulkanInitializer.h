@@ -18,7 +18,7 @@ public:
 	int init();
 
 	vk::Instance		GetInstance();
-	vk::Device			GetLogicalDevice();
+	vk::Device*			GetPLogicalDevice();
 	vk::PhysicalDevice	GetPhysicalDevice();
 	VmaAllocator*		GetPVmaAllocator();
 

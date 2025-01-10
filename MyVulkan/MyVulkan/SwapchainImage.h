@@ -3,6 +3,7 @@
 #include <VMA/vk_mem_alloc.h>
 #include "VImage.h"
 #include "VTextureDescriptor.h"
+#include "ImageSet.h"
 
 constexpr vk::Format DefaultImageFormat = vk::Format::eR8G8B8A8Unorm;
 
@@ -17,12 +18,11 @@ public:
 	std::vector<vk::Image>		GetColorImages();
 	vk::Format					GetColorFormat();
 	std::vector<vk::ImageView>	GetColorImageViews();
-	VTextureDescriptor			GetColorDescriptor();
 
 	std::vector<VImage>			GetDepthImages();
 	vk::Format					GetDepthFormat();
 
-	vk::Sampler					GetSampler();
+	std::vector<ImageViewSet>	GetImageSets();
 private:
 	VmaAllocator* m_pAllocator;
 	uint32_t m_Size;
@@ -31,15 +31,12 @@ private:
 	std::vector<vk::Image>			m_ColorImages;
 	vk::Format						m_ColorFormat;
 	std::vector<vk::ImageView>		m_ColorImageViews;
-	VTextureDescriptor				m_ColorDescriptor;
+	//VTextureDescriptor				m_ColorDescriptor;
 
 	// 深度イメージ
 	std::vector<VImage>				m_DepthImages;
 	vk::Format						m_DepthFormat;
 	//VTextureDescriptor				m_DepthDescriptor;
-
-	// サンプラー
-	vk::Sampler						m_Sampler;
 
 	void CreateColor(vk::Device logicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
 	void CreateDepth(VmaAllocator* allocator, vk::SwapchainCreateInfoKHR m_SwapchainInfo);

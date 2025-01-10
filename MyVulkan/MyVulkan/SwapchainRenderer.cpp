@@ -63,6 +63,11 @@ vk::Extent2D SwapchainRenderer::GetExtent()
     return m_SwapchainInfo.imageExtent;
 }
 
+std::vector<ImageViewSet> SwapchainRenderer::GetImageSets()
+{
+    return m_SwapChainImages.GetImageSets();
+}
+
 vk::Format SwapchainRenderer::GetColorFormat()
 {
     return m_SwapChainImages.GetColorFormat();
@@ -73,17 +78,12 @@ vk::Format SwapchainRenderer::GetDepthFormat()
     return m_SwapChainImages.GetDepthFormat();
 }
 
-void SwapchainRenderer::UpdateFrame(std::vector<RenderTask> renderTasks)
+
+
+void SwapchainRenderer::UpdateFrame()
 {
     vk::ResultValue acquire = m_LogicalDevice.acquireNextImageKHR(m_Swapchain, std::numeric_limits<uint64_t>::max(), {}, nullptr);
     if (acquire.result != vk::Result::eSuccess) std::cerr << "ŽŸƒtƒŒ[ƒ€‚ÌŽæ“¾‚ÉŽ¸”s‚µ‚Ü‚µ‚½B" << std::endl;
-
-
-    m_CommandGenerator.DrawFrame(
-        acquire.value,
-        renderTasks,
-        m_SwapChainImages.GetColorImageViews()[acquire.value],
-        m_SwapChainImages.GetColorImageViews()[acquire.value]);
 
     m_CommandGenerator.PresentFrame(m_Swapchain, acquire.value);
 }

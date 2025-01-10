@@ -2,55 +2,45 @@
 
 VMeshObject::VMeshObject()
     : m_Mesh(),
-      m_Texture()
+      m_Material()
 {
 }
 
 VMeshObject::~VMeshObject()
 {
-    for (auto& mesh : m_Mesh)
-    {
-        mesh.Cleanup();
-    }
 
-    for (auto& texture : m_Texture)
-    {
-        texture.Cleanup();
-    }
+    // m_Mesh.Cleanup();
+
+
+    // m_Material.Cleanup();
+
 }
 
-void VMeshObject::SetMeshObject(VmaAllocator* allocator, MeshObject& meshObject)
+void VMeshObject::SetMeshObject(VmaAllocator* allocator, MeshObject* meshObject)
 {
     SetMesh(allocator, meshObject);
     SetMaterial(allocator, meshObject);
 }
 
-std::vector<VMesh>& VMeshObject::GetMeshes()
+VMesh* VMeshObject::GetPMesh()
 {
-    return m_Mesh;
+    return &m_Mesh;
 }
 
-std::vector<VTextureBuffer>& VMeshObject::GetTexture()
+VMaterial* VMeshObject::GetPMaterial()
 {
-    return m_Texture;
+    return &m_Material;
 }
 
-void VMeshObject::SetMesh(VmaAllocator* allocator, MeshObject& meshObject)
+void VMeshObject::SetMesh(VmaAllocator* allocator, MeshObject* meshObject)
 {
-    m_Mesh.resize(meshObject.meshes.size());
-    for (size_t i = 0; i < m_Mesh.size(); i++)
-    {
-        m_Mesh[i].SetMesh(allocator, meshObject.meshes[i]);
-    }
+    m_Mesh.SetMesh(allocator, &meshObject->mesh);
 }
 
-void VMeshObject::SetMaterial(VmaAllocator* allocator, MeshObject& meshObject)
+void VMeshObject::SetMaterial(VmaAllocator* allocator, MeshObject* meshObject)
 {
-    m_Texture.resize(meshObject.materials.size());
-    for (size_t i = 0; i < m_Texture.size(); i++)
-    {
-        m_Texture[i].SetImage(allocator, meshObject.materials[i].texture);
-    }
+    m_Material.SetMaterial(allocator, meshObject->material);
 
 }
+
 

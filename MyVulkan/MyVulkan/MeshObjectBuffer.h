@@ -1,6 +1,6 @@
 #pragma once
 #include "MeshBuffer.h"
-#include "VTextureBuffer.h"
+#include "MaterialBuffer.h"
 #include "MeshObject.h" 
 
 
@@ -10,16 +10,20 @@ public:
 	VMeshObject();
 	~VMeshObject();
 
-	void SetMeshObject(VmaAllocator* allocator, MeshObject& meshObject);
+	void SetMeshObject(VmaAllocator* allocator, MeshObject* meshObject);
 
-	std::vector<VMesh>&				GetMeshes();
-	std::vector<VTextureBuffer>&	GetTexture();
+	VMesh*			GetPMesh();
+	VMaterial*		GetPMaterial();
+	
 private:
-	std::vector<VMesh>			m_Mesh;
-	std::vector<VTextureBuffer>	m_Texture;	// 今はテクスチャ画像だけ。あとでマテリアルクラスに書き換える
-	vk::Sampler					m_Sampler;
+	std::string		m_Name;
+	Transform		m_Transform;	// トランスフォーム
+	VMesh			m_Mesh;
+	VMaterial		m_Material;	
+	
 
-	void SetMesh(VmaAllocator* allocator, MeshObject& meshObject);
-	void SetMaterial(VmaAllocator* allocator, MeshObject& meshObject);
+	void SetMesh(VmaAllocator* allocator, MeshObject* meshObject);
+	void SetMaterial(VmaAllocator* allocator, MeshObject* meshObject);
 
+	
 };

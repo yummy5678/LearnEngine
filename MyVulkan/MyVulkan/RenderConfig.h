@@ -5,6 +5,9 @@
 #include "RenderingPipelineCreator.h"
 #include "VulkanInitializer.h"
 #include "RendererBase.h"
+#include "SceneCamera.h"
+#include "VCameraDescriptor.h"
+#include "DrawCommand.h"
 
 // シーンクラスからVulkanのグラフィックパイプラインへの
 // 描画モデルの情報の橋渡しを行うクラス
@@ -40,12 +43,17 @@ public:
 	vk::Rect2D			GetRenderRect();
 	vk::Pipeline		GetPipeline();
 	vk::PipelineLayout	GetPipelineLayout();
-	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
+	std::vector<vk::PipelineShaderStageCreateInfo>* GetPShaderStages();
 
-	vk::DescriptorSet GetDescriptorSet();
+	std::vector<vk::DescriptorSet>			GetDescriptorSets();
+	std::vector<vk::DescriptorSetLayout>	GetDescriptorSetLayouts();
+	std::vector<vk::PushConstantRange>		GetPushConstantRanges();
+
+	void DrawImage(std::vector<RenderObject>* objects, SceneCamera* camera);
 
 private:
-	vk::Device m_Device;
+	vk::Device* m_pLogicalDevice;
+	vk::PhysicalDevice m_PhygicalDevice;
 
 	// 画面サイズ
 	vk::Offset2D			m_Offset;	//描画範囲の始点
@@ -60,6 +68,10 @@ private:
 
 	// デスクリプタ
 	VTextureDescriptor		m_TextureDescriptor;
+	VCameraDescriptor		m_CameraDescriptor;
 
-	void CreateDescriptors(std::vector<RenderObject>* objects, SceneCamera* camera);
+
+	DrawCommand				m_DrawCommand;
+
+	vk::PushConstantRange	GetPushConstantModelRange();
 };

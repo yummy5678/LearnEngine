@@ -3,7 +3,8 @@
 
 
 // メッシュの処理
-void ProcessMeshes(const tinygltf::Model& model, MeshObject& meshObject) {
+void ProcessMeshes(const tinygltf::Model& model, MeshObject& meshObject) 
+{
     for (const auto& gltfMesh : model.meshes) {
         for (const auto& primitive : gltfMesh.primitives) {
             Mesh mesh;
@@ -73,7 +74,7 @@ void ProcessMeshes(const tinygltf::Model& model, MeshObject& meshObject) {
                 }
             }
 
-            meshObject.meshes.push_back(mesh);
+            meshObject.mesh = mesh;
         }
     }
 }
@@ -115,32 +116,62 @@ void ProcessMaterials(const tinygltf::Model& model, MeshObject& meshObject) {
             material.texture.channel = image.component;
         }
 
-        meshObject.materials.push_back(material);
+        meshObject.material = material;
     }
 }
 
-bool LoadGLTF(const std::string& filePath, MeshObject& meshObject)
+
+std::vector<MeshObject> LoadGLTF(const std::string& filePath)
 {
+
     tinygltf::Model model;
     tinygltf::TinyGLTF loader;
     std::string err, warn;
 
     // ファイル読み込み
     bool success = loader.LoadASCIIFromFile(&model, &err, &warn, filePath);
-    if (!warn.empty()) {
+    if (!warn.empty()) 
+    {
         std::cout << "警告: " << warn << std::endl;
     }
-    if (!err.empty()) {
+    if (!err.empty()) 
+    {
         std::cerr << "エラー: " << err << std::endl;
-        return false;
+        return std::vector<MeshObject>();
     }
-    if (!success) {
+    if (!success) 
+    {
         std::cerr << "モデルの読み込みに失敗しました。" << std::endl;
-        return false;
+        return std::vector<MeshObject>();
     }
 
-    // メッシュとマテリアルの処理
-    ProcessMeshes(model, meshObject);
-    ProcessMaterials(model, meshObject);
-    return true;
+    // モデルの情報を表示する例
+    std::cout << "Number of scenes: " << model.scenes.size() << std::endl;
+    std::cout << "Number of nodes: "  << model.nodes.size() << std::endl;
+    std::cout << "Number of meshes: " << model.meshes.size() << std::endl;
+
+    std::vector<MeshObject> meshObjects;
+
+    meshObjects.reserve(model.nodes.size());
+
+    for (uint32_t i = 0; i < model.nodes.size(); i++)
+    {
+        auto node = model.nodes[i];
+
+        // ノードの名前情報を取得
+        meshObjects[i].name = node.name;
+
+        // トランスフォーム情報を取得
+        if (!node.matrix.empty())
+        meshObjects[i].transform = glm::make_mat4(node.matrix.data());
+
+        // メッシュとマテリアルを取得処理
+        ProcessMeshes(model, meshObjects[i]);
+        ProcessMaterials(model, meshObjects[i]);
+    }
+
+
+    return meshObjects;
 }
+
+

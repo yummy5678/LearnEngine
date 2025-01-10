@@ -2,7 +2,7 @@
 
 RenderObject::RenderObject() : 
 	m_Transform(glm::mat4(1.0f)),	
-	m_Mesh()
+	m_Meshes()
 
 {
 	// コンストラクタの実装
@@ -12,20 +12,27 @@ RenderObject::~RenderObject() {
 	// デストラクタの実装
 }
 
-void RenderObject::SetMesh(VmaAllocator* allocator, VMeshObject* mesh) 
+void RenderObject::SetMesh(VmaAllocator* allocator, std::vector<MeshObject>* meshes)
 {
+	if (allocator == nullptr || meshes->empty())
+	{
+		// ToDo エラーメッセージを設定する
+		return;
+	}
 
-	m_Mesh = mesh;
+	// RAMに置かれたモデルデータをVRAMに移動
+	size_t size = meshes->size();
+	m_Meshes.resize(size);
+	
+	for (size_t i = 0; i < size; i++)
+	{
+		m_Meshes[i].SetMeshObject(allocator, &(*meshes)[i]);
+	}
 }
 
-std::vector<VMesh>& RenderObject::GetMeshes()
+std::vector<VMeshObject>* RenderObject::GetMeshes()
 {
-	return m_Mesh->GetMeshes();
-}
-
-std::vector<VTextureBuffer>& RenderObject::GetMaterials() 
-{
-	return m_Mesh->GetTexture();
+	return &m_Meshes;
 }
 
 void RenderObject::SetTransform(glm::mat4 transform)
@@ -33,11 +40,8 @@ void RenderObject::SetTransform(glm::mat4 transform)
 	m_Transform = transform;
 }
 
-Transform* RenderObject::GetPTransform() {
+Transform* RenderObject::GetPTransform() 
+{
 	return &m_Transform;
 }
 
-std::vector<vk::DescriptorSet> RenderObject::GetDescriptorSets()
-{
-	return m_Mesh->GetDescriptor().CreateSingleDescriptorSet();
-}

@@ -16,14 +16,16 @@ public:
 	~RenderingPipelineCreator();
 
 	void Create(
-		vk::Device		logicalDevice,
+		vk::Device*		pLogicalDevice,
 		vk::Extent2D	extent,
 		vk::Rect2D		scissor,
 		vk::Format		colorFormat,
 		vk::Format		depthFormat,
-		std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos);
+		std::vector<vk::PipelineShaderStageCreateInfo>* pShaderStageInfos,
+		std::vector<vk::DescriptorSetLayout>* pDescriptorSetLayouts,
+		std::vector<vk::PushConstantRange>* pPushConstantRanges);
 
-	void Destroy(vk::Device logicalDevice);
+	void Destroy();
 
 	vk::Pipeline		GetPipeline();
 	vk::PipelineLayout	GetPipelineLayout();
@@ -31,7 +33,7 @@ public:
 	// int createTextureDescriptor(vk::Device logicalDevice, VkImageView textureImage);
 
 private:
-	vk::Device						m_LogicalDevice;
+	vk::Device*						m_pLogicalDevice;
 
 	vk::Pipeline					m_Pipeline;
 
@@ -44,14 +46,14 @@ private:
 	vk::GraphicsPipelineCreateInfo	m_PipelineInfo;
 	vk::PipelineLayoutCreateInfo	m_PipelineLayoutInfo;
 
-	void	CreatePipelineLayout(vk::Device logicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges);
+	void	CreatePipelineLayout(vk::Device* pLogicalDevice, std::vector<vk::DescriptorSetLayout>* pDescriptorSetLayouts, std::vector<vk::PushConstantRange>* pPushConstantRanges);
 	void	CreateGraphicsPipeline(
-		vk::Device		logicalDevice,
+		vk::Device*		pLogicalDevice,
 		vk::Extent2D	extent,
 		vk::Rect2D		scissor,
 		vk::Format		colorFormat,
 		vk::Format		depthFormat,
-		std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos);
+		std::vector<vk::PipelineShaderStageCreateInfo>* pShaderStageInfos);
 
 	vk::PipelineDepthStencilStateCreateInfo		CreateDepthStencilStateInfo(bool depth, bool stencil);
 
@@ -61,7 +63,7 @@ private:
 
 	vk::PipelineInputAssemblyStateCreateInfo& GetInputAssemblyInfo();
 
-	vk::PushConstantRange GetPushConstantModelRange();
+	// vk::PushConstantRange GetPushConstantModelRange();
 	
 };
 
