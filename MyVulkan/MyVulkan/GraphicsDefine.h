@@ -28,7 +28,7 @@ constexpr struct _ShaderDefine
 	const char* VertexShaderPath	= "Shaders/vert.spv";
 	const char* FragmentShaderPath	= "Shaders/frag.spv";
 
-	const char* EntryName = "main";
+	const char* EntryName			= "main";
 
 } DefaultShaderDefine;
 

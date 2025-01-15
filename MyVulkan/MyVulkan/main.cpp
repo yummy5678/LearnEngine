@@ -1,6 +1,11 @@
 #pragma once
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define TINYGLTF_NOEXCEPTION
+#define JSON_NOEXCEPTION
 
 #include <stdexcept>
 #include <vector>
@@ -37,7 +42,8 @@ int main()
 	RenderObject m_Object;		//表示するモデルリスト
 
 	// モデルをロード
-	std::vector<MeshObject> mesh = LoadGLTF("models/AliciaSolid.vrm");
+	//std::vector<MeshObject> mesh = FileLoader::LoadGLTF("models/AliciaSolid.vrm");
+	std::vector<MeshObject> mesh = FileLoader::LoadGLTF("models/Cube/Cube.gltf");
 
 	// 描画用のクラスにモデルをセット
 	m_Object.SetMesh(vulkanInitializer.GetPVmaAllocator(), &mesh);

@@ -1,17 +1,22 @@
 #include "VBufferBase.h"
 
-VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage, VmaMemoryUsage memoryUsage) : 
-	m_Buffer(nullptr),
-	m_Allocation(nullptr)
+VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage, VmaMemoryUsage memoryUsage, VmaAllocationCreateFlagBits allocationFlag) :
+	m_Allocator(VK_NULL_HANDLE),
+	m_Buffer(VK_NULL_HANDLE),
+	m_Allocation(VK_NULL_HANDLE),
+	m_MemoryUsage(VMA_MEMORY_USAGE_UNKNOWN),
+	m_DataSize(0),
+	m_AllocationFlag(VMA_ALLOCATION_CREATE_FLAG_BITS_MAX_ENUM)
 {
 	// m_DataUsageはステージングバッファからデータを設定するつもりなので転送先フラグを追加
 	m_BufferUsage = bufferusage | vk::BufferUsageFlagBits::eTransferDst;
 	m_MemoryUsage = memoryUsage;
-}
+	m_AllocationFlag = allocationFlag;
+};
 
 VBufferBase::~VBufferBase()
 {
-	Cleanup();
+	//Cleanup();
 }
 
 void VBufferBase::SetData(void* pData, vk::DeviceSize dataSize)
@@ -48,8 +53,14 @@ void VBufferBase::CreateBuffer(VmaAllocator* allocator, vk::DeviceSize dataSize)
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
 	VmaAllocationCreateInfo dataAllocateInfo;
+	dataAllocateInfo.priority = 1.0f;
+	dataAllocateInfo.flags = m_AllocationFlag;
 	dataAllocateInfo.usage = m_MemoryUsage;	// 自動で最適なメモリを選択(通常はGPUローカルメモリ)
-
+	dataAllocateInfo.pool = VK_NULL_HANDLE;
+	dataAllocateInfo.memoryTypeBits = NULL;
+	dataAllocateInfo.preferredFlags = NULL;
+	dataAllocateInfo.requiredFlags  = NULL;
+	dataAllocateInfo.pUserData = nullptr;
 
 	// GPU内で使う頂点バッファの作成
 	auto result = vmaCreateBuffer(*allocator, &dataBufferInfo, &dataAllocateInfo, &m_Buffer, &m_Allocation, nullptr);

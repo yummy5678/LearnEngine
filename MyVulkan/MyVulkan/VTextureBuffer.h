@@ -23,15 +23,18 @@ protected:
 
 
 	// バッファのタイプ
-	vk::ImageUsageFlags		m_Usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled; // 転送先&サンプリングに使用
+	vk::ImageUsageFlags		m_Usage;
 	// キュー間の読み取り設定
-	vk::SharingMode			m_SharingMode = vk::SharingMode::eExclusive;
-	vk::Format				m_Format = vk::Format::eR8G8B8A8Unorm;
-	vk::ImageAspectFlags	m_AspectFlag = vk::ImageAspectFlagBits::eColor;
+	vk::SharingMode			m_SharingMode;
+	vk::Format				m_Format;
+	vk::ImageAspectFlags	m_AspectFlag;
 
 	vk::Image				m_Buffer;			// イメージバッファ
 	vk::ImageView			m_ImageView;		// イメージビュー
 	VmaAllocation			m_ImageAllocation;	// データバッファの領域	
+
+	VmaMemoryUsage				m_MemoryUsage;
+	VmaAllocationCreateFlagBits m_AllocationFlag;
 
 	VkImageCreateInfo CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode);
 	void CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight);

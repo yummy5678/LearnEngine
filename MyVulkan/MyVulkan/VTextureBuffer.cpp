@@ -1,19 +1,25 @@
 #include "VTextureBuffer.h"
 
 
-VTextureBuffer::VTextureBuffer()
+VTextureBuffer::VTextureBuffer() : 
+	m_Allocator			(VK_NULL_HANDLE),
+	m_Buffer			(VK_NULL_HANDLE),
+	m_ImageView			(VK_NULL_HANDLE),
+	m_ImageAllocation	(VK_NULL_HANDLE),
+	m_Usage				(vk::ImageUsageFlagBits::eTransferDst | // 転送先
+						 vk::ImageUsageFlagBits::eSampled),		// サンプリングに使用
+	m_SharingMode		(vk::SharingMode::eExclusive),
+	m_Format			(vk::Format::eR8G8B8A8Unorm),
+	m_AspectFlag		(vk::ImageAspectFlagBits::eColor),
+	m_MemoryUsage		(VMA_MEMORY_USAGE_UNKNOWN),
+	m_AllocationFlag	(VMA_ALLOCATION_CREATE_FLAG_BITS_MAX_ENUM)
+
 {
+	
 }
 
 VTextureBuffer::~VTextureBuffer()
 {
-	Cleanup();
-}
-
-void VTextureBuffer::Cleanup()
-{
-	if(m_ImageAllocation) vmaDestroyImage(*m_Allocator, m_Buffer, m_ImageAllocation);
-	m_Allocator = nullptr;
 }
 
 void VTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
@@ -68,6 +74,17 @@ VkImageCreateInfo VTextureBuffer::CreateImageInfo(uint32_t imageWidth, uint32_t 
 void VTextureBuffer::CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight)
 {
 	auto imageInfo = CreateImageInfo(imageWidth, imageHeight, m_Format, m_Usage, m_SharingMode);
+
+	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
+	VmaAllocationCreateInfo dataAllocateInfo;
+	dataAllocateInfo.priority = 1.0f;
+	dataAllocateInfo.flags = m_AllocationFlag;
+	dataAllocateInfo.usage = m_MemoryUsage;	// 自動で最適なメモリを選択(通常はGPUローカルメモリ)
+	dataAllocateInfo.pool = VK_NULL_HANDLE;
+	dataAllocateInfo.memoryTypeBits = NULL;
+	dataAllocateInfo.preferredFlags = NULL;
+	dataAllocateInfo.requiredFlags = NULL;
+	dataAllocateInfo.pUserData = nullptr;
 
 
 	VmaAllocationCreateInfo allocInfo;

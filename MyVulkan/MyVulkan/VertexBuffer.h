@@ -2,7 +2,7 @@
 #include "VBufferBase.h"
 #include "StagingBuffer.h"
 #include "MeshObject.h"
-
+#include "PipelineDescriptions.h"
 
 class VVertexBuffer : public VBufferBase
 {
@@ -11,12 +11,12 @@ public:
 	~VVertexBuffer();
 
 	void		SetData(VmaAllocator* allocator, std::vector<Vertex>& vertices);
-	uint32_t	GetSize();
+	uint32_t	GetVertexCount();
 
 	// 頂点入力デスクリプションを返す
 	vk::PipelineVertexInputStateCreateInfo GetInputStateInfo();
 private:
-	uint32_t m_Size;	// データの個数
+	uint32_t m_VertexCount;	// データの個数
 	
 
 	static std::vector<vk::VertexInputBindingDescription>	m_BindingDescription;

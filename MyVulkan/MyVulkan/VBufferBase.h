@@ -13,7 +13,7 @@
 class VBufferBase
 {
 public:
-	VBufferBase(vk::BufferUsageFlags bufferusage, VmaMemoryUsage memoryUsage);
+	VBufferBase(vk::BufferUsageFlags bufferusage, VmaMemoryUsage memoryUsage, VmaAllocationCreateFlagBits allocationFlag);
 	~VBufferBase();
 
 	void SetData(void* pData,vk::DeviceSize dataSize);
@@ -32,6 +32,7 @@ protected:
 	vk::SharingMode				m_SharingMode = vk::SharingMode::eExclusive;
 
 	VmaMemoryUsage				m_MemoryUsage;
+	VmaAllocationCreateFlagBits m_AllocationFlag;
 
 	VkBuffer					m_Buffer;
 	VmaAllocation				m_Allocation;

@@ -1,7 +1,9 @@
 #include "StagingImageBuffer.h"
 
 VStagingImageBuffer::VStagingImageBuffer() :
-	VBufferBase(stagingImageUsage, VMA_MEMORY_USAGE_AUTO_PREFER_HOST)
+	VBufferBase(stagingImageUsage, 
+		VMA_MEMORY_USAGE_AUTO_PREFER_HOST,
+		VMA_ALLOCATION_CREATE_MAPPED_BIT)
 {
 	//m_BufferUsage = stagingImageUsage;
 	//m_MemoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;

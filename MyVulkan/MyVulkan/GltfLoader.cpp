@@ -3,7 +3,7 @@
 
 
 // メッシュの処理
-void ProcessMeshes(const tinygltf::Model& model, MeshObject& meshObject) 
+void FileLoader::ProcessMeshes(const tinygltf::Model& model, MeshObject& meshObject)
 {
     for (const auto& gltfMesh : model.meshes) {
         for (const auto& primitive : gltfMesh.primitives) {
@@ -80,7 +80,7 @@ void ProcessMeshes(const tinygltf::Model& model, MeshObject& meshObject)
 }
 
 // マテリアルの処理
-void ProcessMaterials(const tinygltf::Model& model, MeshObject& meshObject) {
+void FileLoader::ProcessMaterials(const tinygltf::Model& model, MeshObject& meshObject) {
     for (const auto& gltfMaterial : model.materials) {
         Material material;
 
@@ -120,8 +120,7 @@ void ProcessMaterials(const tinygltf::Model& model, MeshObject& meshObject) {
     }
 }
 
-
-std::vector<MeshObject> LoadGLTF(const std::string& filePath)
+std::vector<MeshObject> FileLoader::LoadGLTF(const std::string& filePath)
 {
 
     tinygltf::Model model;
@@ -152,14 +151,14 @@ std::vector<MeshObject> LoadGLTF(const std::string& filePath)
 
     std::vector<MeshObject> meshObjects;
 
-    meshObjects.reserve(model.nodes.size());
+    meshObjects.resize(model.nodes.size());
 
     for (uint32_t i = 0; i < model.nodes.size(); i++)
     {
         auto node = model.nodes[i];
 
         // ノードの名前情報を取得
-        meshObjects[i].name = node.name;
+        meshObjects[i].name.assign(node.name);
 
         // トランスフォーム情報を取得
         if (!node.matrix.empty())
@@ -173,5 +172,4 @@ std::vector<MeshObject> LoadGLTF(const std::string& filePath)
 
     return meshObjects;
 }
-
 

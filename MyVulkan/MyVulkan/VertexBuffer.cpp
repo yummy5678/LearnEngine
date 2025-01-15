@@ -1,10 +1,12 @@
 #include "VertexBuffer.h"
-#include "PipelineDescriptions.h"
 
 
-VVertexBuffer::VVertexBuffer():
+
+VVertexBuffer::VVertexBuffer(): 
+	m_VertexCount(0),
 	VBufferBase(vk::BufferUsageFlagBits::eVertexBuffer,	// 頂点バッファに使う
-		VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE)			// デバイスローカル優先でメモリを確保
+		VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,			// デバイスローカル優先でメモリを確保
+		VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT)
 {
 
 }
@@ -15,8 +17,8 @@ VVertexBuffer::~VVertexBuffer()
 
 void VVertexBuffer::SetData(VmaAllocator* allocator, std::vector<Vertex>& vertices)
 {
-	m_Size = (uint32_t)vertices.size();
-	vk::DeviceSize dataSize = sizeof(Vertex) * m_Size;
+	m_VertexCount = (uint32_t)vertices.size();
+	vk::DeviceSize dataSize = sizeof(Vertex) * m_VertexCount;
 
 
 	// 頂点用のバッファ及びメモリの作成
@@ -29,9 +31,9 @@ void VVertexBuffer::SetData(VmaAllocator* allocator, std::vector<Vertex>& vertic
 
 }
 
-uint32_t VVertexBuffer::GetSize()
+uint32_t VVertexBuffer::GetVertexCount()
 {
-	return m_Size;
+	return m_VertexCount;
 }
 
 vk::PipelineVertexInputStateCreateInfo VVertexBuffer::GetInputStateInfo()

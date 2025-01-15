@@ -2,7 +2,8 @@
 
 VStagingBuffer::VStagingBuffer() :
 	VBufferBase(stagingUsage,
-		VMA_MEMORY_USAGE_AUTO_PREFER_HOST)
+		VMA_MEMORY_USAGE_AUTO_PREFER_HOST,						// CPUからアクセス可能
+		VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT)	// ホストからの書き込みを許可
 {
 }
 
@@ -27,24 +28,26 @@ void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize
 	m_CommandBuffer		= CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
 	// グラフィックスキューの取得
 	m_Queue = m_LogicalDevice.getQueue(queueFamily.GetTransferIndex(), 0);
-
-	auto stagingBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
-
-
-	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
-	VmaAllocationCreateInfo stagingAllocateInfo;
-	stagingAllocateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;	// ホストからの書き込みを許可
-	stagingAllocateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;						// CPUからアクセス可能
+	
 
 
-	// ステージングバッファの作成
-	auto result = vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
-	// ステージングバッファとメモリの作成
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("ステージングバッファの作成に失敗しました!");
-	}
 
+	CreateBuffer(allocator, dataSize);
+
+	//auto stagingBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
+
+	//// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
+	//VmaAllocationCreateInfo stagingAllocateInfo;
+	//stagingAllocateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;	// ホストからの書き込みを許可
+	//stagingAllocateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;						// CPUからアクセス可能
+
+	//// ステージングバッファの作成
+	//auto result = vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
+	//// ステージングバッファとメモリの作成
+	//if (result != VK_SUCCESS)
+	//{
+	//	throw std::runtime_error("ステージングバッファの作成に失敗しました!");
+	//}
 }
 
 void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer)
