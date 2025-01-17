@@ -35,7 +35,7 @@ void VImage::Create(VmaAllocator* allocator, vk::ImageCreateInfo createInfo, vk:
 
 void VImage::Cleanup()
 {
-	if (m_ImageAllocation) vmaDestroyImage(*m_Allocator, m_Image, m_ImageAllocation);
+	if (m_ImageAllocation != nullptr) vmaDestroyImage(*m_Allocator, m_Image, m_ImageAllocation);
 	m_Allocator = nullptr;
 }
 

@@ -2,9 +2,6 @@
 #include "VBufferBase.h"
 #include "QueueUtility.h"
 
-// 送信用バッファに設定する予定のフラグ
-constexpr vk::BufferUsageFlags stagingUsage = vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst;
-
 class VStagingBuffer :
     public VBufferBase
 {
@@ -22,7 +19,7 @@ private:
     vk::CommandBuffer   m_CommandBuffer;
     vk::CommandPool	    m_CommandPool;
 
-    uint32_t            m_BufferDataSize;
+    //uint32_t            m_BufferDataSize;
     vk::Queue           m_Queue;
 
     vk::CommandPool CreateCommandPool(vk::Device logicalDevice, uint32_t queueFamilyIndex);

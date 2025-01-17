@@ -6,7 +6,7 @@ VMesh::VMesh()
 
 VMesh::~VMesh()
 {
-	Cleanup();
+	/*Cleanup();*/
 }
 
 void VMesh::SetMesh(VmaAllocator* allocator, Mesh* mesh)

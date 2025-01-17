@@ -1,12 +1,27 @@
 #include "StagingImageBuffer.h"
 
 VStagingImageBuffer::VStagingImageBuffer() :
-	VBufferBase(stagingImageUsage, 
-		VMA_MEMORY_USAGE_AUTO_PREFER_HOST,
-		VMA_ALLOCATION_CREATE_MAPPED_BIT)
+	VBufferBase(
+		vk::BufferUsageFlagBits::eTransferSrc | // このバッファはコピー元として利用する
+		vk::BufferUsageFlagBits::eTransferDst , // このバッファはメモリ転送先として利用できる
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |	//CPUからアクセス可能
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		VK_MEMORY_PROPERTY_HOST_CACHED_BIT,
+		VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+		VMA_ALLOCATION_CREATE_MAPPED_BIT),
+	m_LogicalDevice(VK_NULL_HANDLE),
+	m_PhysicalDevice(VK_NULL_HANDLE),
+	m_CommandBuffer(VK_NULL_HANDLE),
+	m_CommandPool(VK_NULL_HANDLE),
+	m_ImageWidth(0),
+	m_ImageHeight(0),
+	m_ImageChannel(0),
+	m_Queue(VK_NULL_HANDLE)
+
 {
 	//m_BufferUsage = stagingImageUsage;
 	//m_MemoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
+	
 }
 
 VStagingImageBuffer::~VStagingImageBuffer()
@@ -17,6 +32,7 @@ void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidt
 {
 	m_Allocator = allocator;
 
+	// アロケーターに登録されている情報を取得
 	VmaAllocatorInfo allocatorInfo;
 	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
 
@@ -26,7 +42,8 @@ void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidt
 	m_ImageHeight = imageHeight;
 	m_ImageChannel = imageChannel;
 
-	uint32_t dataSize = imageWidth * imageHeight * imageChannel;
+	// 画像のデータサイズ
+	m_DataSize = imageWidth * imageHeight * imageChannel;
 
 	// 転送用キューの取得
 	QueueFamilySelector queueFamily(m_PhysicalDevice);
@@ -34,32 +51,35 @@ void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidt
 	m_CommandBuffer = CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
 	m_Queue = m_LogicalDevice.getQueue(queueFamily.GetTransferIndex(), 0);
 
-	auto stagingBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
+	auto stagingBufferInfo = CreateBufferInfo(m_DataSize, m_BufferUsage, m_SharingMode);
 
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
 	VmaAllocationCreateInfo stagingAllocateInfo;
-	stagingAllocateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;	// ホストからの書き込みを許可
-	stagingAllocateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;						// CPUからアクセス可能
-
+	stagingAllocateInfo.priority = 1.0f;
+	stagingAllocateInfo.flags = m_AllocationFlag;
+	stagingAllocateInfo.requiredFlags = m_RequiredFlag;
+	stagingAllocateInfo.preferredFlags = m_PreferredFlag;
+	stagingAllocateInfo.pool = VK_NULL_HANDLE;
+	stagingAllocateInfo.memoryTypeBits = NULL;
+	stagingAllocateInfo.pUserData = nullptr;
+	stagingAllocateInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
 
 	// ステージングバッファの作成
-	auto result = vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
-	// ステージングバッファとメモリの作成
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("ステージングバッファの作成に失敗しました!");
-	}
+	vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
+
 
 }
 
 void VStagingImageBuffer::TransferDataToImageBuffer(void* transfarData, vk::Image toBuffer)
 {
-	if (!m_Allocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
+	if (m_Allocator == nullptr) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
+
+	VmaAllocationInfo allocInfo;
+	vmaGetAllocationInfo(*m_Allocator, m_Allocation, &allocInfo);
 
 	// データをステージングバッファにコピー
-	vk::DeviceSize dataSize = m_ImageWidth * m_ImageHeight * m_ImageChannel;
-	MapData(m_Allocator, transfarData, dataSize);
+	VBufferBase::MapData(transfarData, m_DataSize);
 
 	// 転送用バッファのデータを宛先のイメージバッファにコピー
 	SetCopyToImageCommand(m_CommandBuffer, m_Buffer, toBuffer, m_ImageWidth, m_ImageHeight);	// 転送コマンドを作成
@@ -117,6 +137,25 @@ void VStagingImageBuffer::SetCopyToImageCommand(vk::CommandBuffer commandBuffer,
 	beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 	commandBuffer.begin(beginInfo);
 
+	// イメージのレイアウトを変更(Undefined → TransferDstOptimal)
+	vk::ImageMemoryBarrier barrier;
+	barrier.oldLayout = vk::ImageLayout::eUndefined;
+	barrier.newLayout = vk::ImageLayout::eTransferDstOptimal;
+	barrier.image = dstImage;
+	barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.srcAccessMask = {};
+	barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+
+	commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
+		vk::PipelineStageFlagBits::eTransfer,
+		{}, {}, {}, barrier);
+
+
+	// ステージングバッファからイメージへコピー
 	vk::BufferImageCopy copyRegion;
 	copyRegion.bufferOffset = 0;
 	copyRegion.bufferRowLength = 0;			// "0"を指定しておくと自動的にExtentの値が入る
@@ -128,23 +167,33 @@ void VStagingImageBuffer::SetCopyToImageCommand(vk::CommandBuffer commandBuffer,
 	copyRegion.imageOffset = vk::Offset3D{ 0, 0, 0 };
 	copyRegion.imageExtent = vk::Extent3D{ imageWidth, imageHeight, 1 };
 
-
 	commandBuffer.copyBufferToImage(srcBuffer, dstImage, vk::ImageLayout::eTransferDstOptimal, { copyRegion });
+
+	// イメージのレイアウトを変更（TransferDstOptimal → ShaderReadOnlyOptimal）
+	barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
+	barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+	barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+	commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
+		vk::PipelineStageFlagBits::eFragmentShader,
+		{}, {}, {}, barrier);
 
 	// コマンドバッファの終了
 	commandBuffer.end();
 }
 
-void VStagingImageBuffer::MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize)
-{
-	// 確保したバッファの領域のポインタを取得
-	void* mapData;
-	vmaMapMemory(*allocator, m_Allocation, &mapData);
-
-	// 頂点データの情報を取得したバッファにコピー
-	memcpy(mapData, setData, dataSize);
-
-	// メモリのアクセス制限を解除
-	vmaUnmapMemory(*allocator, m_Allocation);
-
-}
+//void VStagingImageBuffer::MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize)
+//{
+//	// 確保したバッファの領域のポインタを取得
+//	void* mapData = nullptr;
+//
+//	vmaMapMemory(*allocator, m_Allocation, &mapData);
+//
+//	// 頂点データの情報を取得したバッファにコピー
+//	std::memcpy(mapData, setData, dataSize);
+//
+//	// メモリのアクセス制限を解除
+//	vmaUnmapMemory(*allocator, m_Allocation);
+//
+//}

@@ -22,21 +22,21 @@ uint32_t QueueFamilySelector::GetGraphicIndex()
 uint32_t QueueFamilySelector::GetComputeIndex()
 {
 	if (m_ComputeFamilyIndex == NoneQueueNumber) m_ComputeFamilyIndex = SearchComputeFamily();
-	std::cout << "計算ファミリー" << m_GraphicsFamilyIndex << "を返します" << std::endl;
+	std::cout << "計算ファミリー" << m_ComputeFamilyIndex << "を返します" << std::endl;
 	return m_ComputeFamilyIndex;
 }
 
 uint32_t QueueFamilySelector::GetTransferIndex()
 {
 	if (m_TransferFamilyIndex == NoneQueueNumber) m_TransferFamilyIndex = SearchTransferFamily();
-	std::cout << "転送ファミリー" << m_GraphicsFamilyIndex << "を返します" << std::endl;
+	std::cout << "転送ファミリー" << m_TransferFamilyIndex << "を返します" << std::endl;
 	return m_TransferFamilyIndex;
 }
 
 uint32_t QueueFamilySelector::GetPresentationIndex(vk::SurfaceKHR surface)
 {
 	if (m_PresentationFamilyIndex == NoneQueueNumber) m_PresentationFamilyIndex = SearchPresentationFamily(surface);
-	std::cout << "表示ファミリー" << m_GraphicsFamilyIndex << "を返します" << std::endl;
+	std::cout << "表示ファミリー" << m_PresentationFamilyIndex << "を返します" << std::endl;
 	return m_PresentationFamilyIndex;
 }
 

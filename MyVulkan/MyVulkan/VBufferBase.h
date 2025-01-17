@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include <VMA/vk_mem_alloc.h>
-
+#include <cstring>
 
 // バッファ作成用の基底クラス
 // 頂点バッファクラスなどに派生させて使う予定
@@ -13,10 +13,12 @@
 class VBufferBase
 {
 public:
-	VBufferBase(vk::BufferUsageFlags bufferusage, VmaMemoryUsage memoryUsage, VmaAllocationCreateFlagBits allocationFlag);
+	VBufferBase(vk::BufferUsageFlags bufferusage,	// バッファの使用用途
+		VkMemoryPropertyFlags requiredFlag,			// 使用するバッファの必須要件
+		VkMemoryPropertyFlags preferredFlag,		// 使用するバッファの優先要件
+		VmaAllocationCreateFlags allocationFlag);	// メモリの割り当て方式
 	~VBufferBase();
 
-	void SetData(void* pData,vk::DeviceSize dataSize);
 	vk::Buffer		GetBuffer();
 	vk::DeviceSize	GetDataSize();
 	
@@ -31,8 +33,10 @@ protected:
 	// キュー間の読み取り設定
 	vk::SharingMode				m_SharingMode = vk::SharingMode::eExclusive;
 
-	VmaMemoryUsage				m_MemoryUsage;
-	VmaAllocationCreateFlagBits m_AllocationFlag;
+	//VmaMemoryUsage				m_MemoryUsage = VMA_MEMORY_USAGE_AUTO;
+	VmaAllocationCreateFlags	m_AllocationFlag;	// メモリの割り当て方式
+	VkMemoryPropertyFlags		m_RequiredFlag;		// メモリの必須条件
+	VkMemoryPropertyFlags		m_PreferredFlag;	// メモリの優先条件
 
 	VkBuffer					m_Buffer;
 	VmaAllocation				m_Allocation;

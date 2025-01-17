@@ -2,7 +2,8 @@
 
 VViewProjectionBuffer::VViewProjectionBuffer() : 
 	VBufferBase(vk::BufferUsageFlagBits::eUniformBuffer,	// ユニフォームバッファに使う
-		VMA_MEMORY_USAGE_AUTO_PREFER_HOST,					// ホスト側からも見れるメモリ
+		NULL,												// 必須要件無し
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,				// デバイスローカル優先でメモリを確保
 		VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT)
 {
 }

@@ -1,9 +1,19 @@
 #include "StagingBuffer.h"
 
 VStagingBuffer::VStagingBuffer() :
-	VBufferBase(stagingUsage,
-		VMA_MEMORY_USAGE_AUTO_PREFER_HOST,						// CPUからアクセス可能
-		VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT)	// ホストからの書き込みを許可
+	VBufferBase(
+		vk::BufferUsageFlagBits::eTransferSrc | 				// バッファの使用用途
+		vk::BufferUsageFlagBits::eTransferDst,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |					// 使用するバッファの必須要件(CPUから見れる)		
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		VK_MEMORY_PROPERTY_HOST_CACHED_BIT,						// 使用するバッファの優先要件
+		VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |// メモリの割り当て方式
+		VMA_ALLOCATION_CREATE_MAPPED_BIT),
+	m_LogicalDevice(VK_NULL_HANDLE),
+	m_PhysicalDevice(VK_NULL_HANDLE),
+	m_CommandBuffer(VK_NULL_HANDLE),
+	m_CommandPool(VK_NULL_HANDLE),
+	m_Queue(VK_NULL_HANDLE)
 {
 }
 
@@ -20,9 +30,9 @@ void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize
 	m_LogicalDevice		= vk::Device(allocatorInfo.device);
 	m_PhysicalDevice	= vk::PhysicalDevice(allocatorInfo.physicalDevice);
 
-	m_BufferDataSize = dataSize;
+	m_DataSize = dataSize;
 
-	// Get indices of queue families from device
+	
 	QueueFamilySelector queueFamily(m_PhysicalDevice);
 	m_CommandPool		= CreateCommandPool(m_LogicalDevice, queueFamily.GetTransferIndex());
 	m_CommandBuffer		= CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
@@ -55,10 +65,10 @@ void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffe
 	if(!m_Allocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
 
 	// データをステージングバッファにコピー
-	MapData(transfarData, m_BufferDataSize);
+	MapData(transfarData, m_DataSize);
 
 	// トランスファーバッファのデータを宛先のバッファにコピー
-	SetCopyBufferCommand(m_CommandBuffer, m_Buffer, toBuffer, m_BufferDataSize);	// 転送コマンドを作成
+	SetCopyBufferCommand(m_CommandBuffer, m_Buffer, toBuffer, m_DataSize);	// 転送コマンドを作成
 
 	// コマンドバッファを実行
 	vk::SubmitInfo submitInfo;

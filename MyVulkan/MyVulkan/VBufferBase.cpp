@@ -1,17 +1,22 @@
 #include "VBufferBase.h"
+#include "GraphicsDefine.h"
+#include <iostream>
 
-VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage, VmaMemoryUsage memoryUsage, VmaAllocationCreateFlagBits allocationFlag) :
+VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage,
+	VkMemoryPropertyFlags requiredFlag,
+	VkMemoryPropertyFlags preferredFlag,
+	VmaAllocationCreateFlags allocationFlag) :
 	m_Allocator(VK_NULL_HANDLE),
 	m_Buffer(VK_NULL_HANDLE),
 	m_Allocation(VK_NULL_HANDLE),
-	m_MemoryUsage(VMA_MEMORY_USAGE_UNKNOWN),
+	m_RequiredFlag(requiredFlag),
+	m_PreferredFlag(preferredFlag),
+	//m_MemoryUsage(VMA_MEMORY_USAGE_UNKNOWN),
 	m_DataSize(0),
-	m_AllocationFlag(VMA_ALLOCATION_CREATE_FLAG_BITS_MAX_ENUM)
+	m_AllocationFlag(allocationFlag)
 {
 	// m_DataUsageはステージングバッファからデータを設定するつもりなので転送先フラグを追加
 	m_BufferUsage = bufferusage | vk::BufferUsageFlagBits::eTransferDst;
-	m_MemoryUsage = memoryUsage;
-	m_AllocationFlag = allocationFlag;
 };
 
 VBufferBase::~VBufferBase()
@@ -19,11 +24,6 @@ VBufferBase::~VBufferBase()
 	//Cleanup();
 }
 
-void VBufferBase::SetData(void* pData, vk::DeviceSize dataSize)
-{
-
-
-}
 
 vk::Buffer VBufferBase::GetBuffer()
 {
@@ -50,26 +50,19 @@ void VBufferBase::CreateBuffer(VmaAllocator* allocator, vk::DeviceSize dataSize)
 
 	auto dataBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
 
-
-	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
 	VmaAllocationCreateInfo dataAllocateInfo;
-	dataAllocateInfo.priority = 1.0f;
-	dataAllocateInfo.flags = m_AllocationFlag;
-	dataAllocateInfo.usage = m_MemoryUsage;	// 自動で最適なメモリを選択(通常はGPUローカルメモリ)
-	dataAllocateInfo.pool = VK_NULL_HANDLE;
-	dataAllocateInfo.memoryTypeBits = NULL;
-	dataAllocateInfo.preferredFlags = NULL;
-	dataAllocateInfo.requiredFlags  = NULL;
-	dataAllocateInfo.pUserData = nullptr;
+	dataAllocateInfo.priority = 1.0f;					// 優先度
+	dataAllocateInfo.flags = m_AllocationFlag;			// メモリの割り当て方式
+	dataAllocateInfo.requiredFlags  = m_RequiredFlag;	// メモリの必須条件
+	dataAllocateInfo.preferredFlags = m_PreferredFlag;	// メモリの優先条件
+	dataAllocateInfo.pool = VK_NULL_HANDLE;				// VMAに決めさせるのでNULL
+	dataAllocateInfo.memoryTypeBits = NULL;				// VMAに決めさせるのでNULL
+	dataAllocateInfo.pUserData = nullptr;				// 追加で渡す情報は今のところ無いのでnull
+	dataAllocateInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;	// 使用しなくなった値
+
 
 	// GPU内で使う頂点バッファの作成
-	auto result = vmaCreateBuffer(*allocator, &dataBufferInfo, &dataAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
-	// ステージングバッファとメモリの作成
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("ローカルバッファの作成に失敗しました!");
-	}
-
+	bool result = vmaCreateBuffer(*allocator, &dataBufferInfo, &dataAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
 }
 
 // 物理デバイス用のバッファの作成
@@ -118,11 +111,25 @@ uint32_t VBufferBase::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevic
 void VBufferBase::MapData(void* setData, vk::DeviceSize dataSize)
 {
 	// 確保したバッファの領域のポインタを取得
-	void* mapData;
-	vmaMapMemory(*m_Allocator, m_Allocation, &mapData); // 修正: *allocator に変更
+	void* mapData = nullptr;
+	vmaMapMemory(*m_Allocator, m_Allocation, &mapData);
 
-	// 頂点データの情報を取得したバッファにコピー
-	memcpy(mapData, setData, dataSize);
+
+	if (VulkanDefine.LogMessageEnabled)
+	{
+		errno_t err = memcpy_s(mapData, dataSize, mapData, dataSize);
+		if (err != 0) {
+			std::cerr << "Error copying data to staging buffer. Error code: " << err << std::endl;
+			return;  // エラー処理
+		}
+	}
+	else
+	{
+		// 頂点データの情報を取得したバッファにコピー
+		std::memcpy(mapData, setData, dataSize);
+	}
+
+
 
 	// メモリのアクセス制限を解除
 	vmaUnmapMemory(*m_Allocator, m_Allocation);

@@ -2,9 +2,6 @@
 #include "VBufferBase.h"
 #include "QueueUtility.h"
 
-// 送信用バッファに設定する予定のフラグ
-constexpr vk::BufferUsageFlags stagingImageUsage = vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst;
-
 class VStagingImageBuffer :
     public VBufferBase
 {
@@ -33,7 +30,7 @@ private:
     void SetCopyToImageCommand(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Image dstImage, uint32_t imageWidth, uint32_t imageHeight);
 
     // データをステージングバッファにコピー
-    void MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize);
+    //void MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize);
 
 };
 

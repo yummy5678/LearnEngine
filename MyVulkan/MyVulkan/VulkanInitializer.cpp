@@ -132,8 +132,8 @@ void VulkanInitializer::CreateAllocator(vk::Instance instance, vk::Device logica
 	allocatorInfo.device = logicalDevice;
 	allocatorInfo.preferredLargeHeapBlockSize = 0; // 「0」でデフォルト値が設定される
 	allocatorInfo.pTypeExternalMemoryHandleTypes = nullptr;
-	allocatorInfo.pAllocationCallbacks = &AllocationCallbacks;
-	allocatorInfo.pDeviceMemoryCallbacks = &deviceMemoryCallbacks;
+	allocatorInfo.pAllocationCallbacks = nullptr;
+	allocatorInfo.pDeviceMemoryCallbacks = nullptr;
 	allocatorInfo.pHeapSizeLimit = nullptr;
 	allocatorInfo.pVulkanFunctions = nullptr;
 	

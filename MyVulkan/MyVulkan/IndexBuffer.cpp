@@ -1,9 +1,10 @@
 #include "IndexBuffer.h"
 
 VIndexBuffer::VIndexBuffer() :
-	VBufferBase(vk::BufferUsageFlagBits::eIndexBuffer,
-		VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,			// デバイスローカルメモリを優先
-		VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT)
+	VBufferBase(vk::BufferUsageFlagBits::eIndexBuffer,	// バッファの使用用途
+		NULL,											// 使用するバッファの必須要件
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,			// 使用するバッファの優先要件
+		VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT)	// メモリの割り当て方式
 { 
 }
 

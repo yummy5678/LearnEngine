@@ -138,6 +138,7 @@
     <ClCompile Include="FenceGenerator.cpp" />
     <ClCompile Include="VCameraDescriptor.cpp" />
     <ClCompile Include="VImage.cpp" />
+    <ClCompile Include="VImageBufferBase.cpp" />
     <ClCompile Include="VTextureBuffer.cpp" />
     <ClCompile Include="SwapchainImage.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="FenceGenerator.h" />
     <ClInclude Include="VCameraDescriptor.h" />
     <ClInclude Include="VImage.h" />
+    <ClInclude Include="VImageBufferBase.h" />
     <ClInclude Include="VTextureBuffer.h" />
     <ClInclude Include="SwapchainImage.h" />
     <ClInclude Include="DeviceExtensionManager.h" />
