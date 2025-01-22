@@ -30,14 +30,14 @@ void PipelineShaderCreator::Create(vk::Device* logicalDevice, std::string sprvVe
 }
 
 // 
-std::vector<vk::PipelineShaderStageCreateInfo>* PipelineShaderCreator::GetPShaderStages()
+std::vector<vk::PipelineShaderStageCreateInfo> PipelineShaderCreator::GetShaderStages()
 {
 	// 後で自由にステージ追加出来るようにするか検討中
 	std::vector<vk::PipelineShaderStageCreateInfo> results;
-	if (m_VertexShaderModule) results.push_back(CreateShaderStage(m_VertexShaderModule, vk::ShaderStageFlagBits::eVertex));
-	if (m_FragmentShaderModule) results.push_back(CreateShaderStage(m_FragmentShaderModule, vk::ShaderStageFlagBits::eFragment));
+	if (m_VertexShaderModule != VK_NULL_HANDLE)		results.push_back(CreateShaderStage(m_VertexShaderModule, vk::ShaderStageFlagBits::eVertex));
+	if (m_FragmentShaderModule != VK_NULL_HANDLE)	results.push_back(CreateShaderStage(m_FragmentShaderModule, vk::ShaderStageFlagBits::eFragment));
 
-	return &results;
+	return results;
 }
 
 vk::ShaderModule PipelineShaderCreator::CreateShaderModule(vk::Device logicalDevice, const std::vector<char>& code)

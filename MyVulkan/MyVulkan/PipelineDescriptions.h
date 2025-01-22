@@ -29,7 +29,7 @@ namespace VertexInputBinding
     // “ü—Í‘®«‚Ì’è‹`
     constexpr std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions = {
         // À•W
-        vk::VertexInputAttributeDescription{ 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position) },
+       vk::VertexInputAttributeDescription{ 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position) },
 
         // –@ü
        vk::VertexInputAttributeDescription{ 0, 1, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal) },

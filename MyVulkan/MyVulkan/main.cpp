@@ -7,10 +7,13 @@
 #define TINYGLTF_NOEXCEPTION
 #define JSON_NOEXCEPTION
 
+//#define SPDLOG_WCHAR_TO_UTF8_SUPPORT
+
 #include <stdexcept>
 #include <vector>
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
+//#include "spdlog/spdlog.h"
 #include "GraphicsDefine.h"
 #include "VulkanInitializer.h"
 #include "GltfLoader.h"
@@ -22,8 +25,11 @@
 
 int main()
 {
+
+
 	VulkanInitializer	vulkanInitializer;
 	GraphicWindow		mainWindow(vulkanInitializer);	//レンダラー
+	RenderConfig		renderConfig(vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
 
 	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
 	if (vulkanInitializer.init() == EXIT_FAILURE)
@@ -50,9 +56,10 @@ int main()
 	std::vector<RenderObject> objContainer = { m_Object };
 
 	// カメラクラスを作成
-	SceneCamera camera;
+	SceneCamera camera(allocator);
+	
 
-	RenderConfig renderConfig(vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
+	
 	renderConfig.Initialize(
 		mainWindow.GetRenderer(),
 		&objContainer,

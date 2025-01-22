@@ -10,8 +10,10 @@ public:
 	VViewProjectionBuffer();
 	~VViewProjectionBuffer();
 
+	void Initialize(VmaAllocator* allocator);
+
 	void SetData(VmaAllocator* allocator, ViewProjection& projection);
-	void Update(VmaAllocator* allocator, ViewProjection& projection);
+	//void Update(VmaAllocator* allocator, ViewProjection& projection);
 
 private:
 

@@ -4,7 +4,7 @@
 #include "Utilities.h"
 #include "ShaderUtility.h"
 #include "PipelineShaderCreator.h"
-#include "PipelineDescriptions.h"
+// #include "PipelineDescriptions.h"
 #include "VertexBuffer.h"
 #include "VulkanInitializer.h"
 #include "VTextureDescriptor.h"
@@ -16,14 +16,15 @@ public:
 	~RenderingPipelineCreator();
 
 	void Create(
-		vk::Device*		pLogicalDevice,
-		vk::Extent2D	extent,
-		vk::Rect2D		scissor,
-		vk::Format		colorFormat,
-		vk::Format		depthFormat,
-		std::vector<vk::PipelineShaderStageCreateInfo>* pShaderStageInfos,
-		std::vector<vk::DescriptorSetLayout>* pDescriptorSetLayouts,
-		std::vector<vk::PushConstantRange>* pPushConstantRanges);
+		vk::Device* pLogicalDevice,
+		vk::Extent2D extent,
+		vk::Rect2D scissor,
+		vk::Format colorFormat,
+		vk::Format depthFormat,
+		vk::PipelineVertexInputStateCreateInfo* pVertexInputState,
+		std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos,
+		std::vector<vk::DescriptorSetLayout> descriptorSetLayouts,
+		std::vector<vk::PushConstantRange> pushConstantRanges);
 
 	void Destroy();
 
@@ -46,14 +47,15 @@ private:
 	vk::GraphicsPipelineCreateInfo	m_PipelineInfo;
 	vk::PipelineLayoutCreateInfo	m_PipelineLayoutInfo;
 
-	void	CreatePipelineLayout(vk::Device* pLogicalDevice, std::vector<vk::DescriptorSetLayout>* pDescriptorSetLayouts, std::vector<vk::PushConstantRange>* pPushConstantRanges);
+	void	CreatePipelineLayout(vk::Device* pLogicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges);
 	void	CreateGraphicsPipeline(
 		vk::Device*		pLogicalDevice,
 		vk::Extent2D	extent,
 		vk::Rect2D		scissor,
 		vk::Format		colorFormat,
 		vk::Format		depthFormat,
-		std::vector<vk::PipelineShaderStageCreateInfo>* pShaderStageInfos);
+		std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos,
+		vk::PipelineVertexInputStateCreateInfo* pVertexInputState);
 
 	vk::PipelineDepthStencilStateCreateInfo		CreateDepthStencilStateInfo(bool depth, bool stencil);
 

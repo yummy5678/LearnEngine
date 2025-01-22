@@ -19,7 +19,7 @@ public:
 
 	vk::Instance		GetInstance();
 	vk::Device*			GetPLogicalDevice();
-	vk::PhysicalDevice	GetPhysicalDevice();
+	vk::PhysicalDevice*	GetPPhysicalDevice();
 	VmaAllocator*		GetPVmaAllocator();
 
 	InstanceExtension*	GetPInstanceExtension();
@@ -30,6 +30,8 @@ public:
 
 	// サーフェスが表示に対応しているか確認
 	bool CheckSupportSurface(VkSurfaceKHR surface);
+
+	bool IsInitialized();
 
 private:
 	// 拡張機能

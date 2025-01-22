@@ -1,6 +1,8 @@
 #include "DeviceExtensionManager.h"
 
-DeviceExtension::DeviceExtension()
+DeviceExtension::DeviceExtension() : 
+	m_ExtensionList(),
+	m_PhysicalDeviceFeatures()
 {
 }
 
@@ -8,7 +10,12 @@ DeviceExtension::~DeviceExtension()
 {
 }
 
-std::vector<const char*> DeviceExtension::GetExtensions(vk::PhysicalDevice physicalDevice)
+vk::PhysicalDeviceVulkan13Features* DeviceExtension::GetCreateDevicePNext()
+{
+	return &m_PhysicalDeviceFeatures;
+}
+
+std::vector<const char*> DeviceExtension::GetEnabledExtensions(vk::PhysicalDevice physicalDevice)
 {
 	if (CheckExtensionsSupport(m_ExtensionList, physicalDevice) == false)
 	{
@@ -47,6 +54,10 @@ void DeviceExtension::UseDynamicRendering()
 	const char* extension = VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME;
 	if (CheckHasString(extension) == false)	//同じエクステンションが無ければ新しくリストに加える
 	m_ExtensionList.push_back(extension);
+
+	//　vk::DeviceCreateInfoのpNext設定する用の値を作成
+	m_PhysicalDeviceFeatures.pNext = nullptr;
+	m_PhysicalDeviceFeatures.dynamicRendering = VK_TRUE;
 }
 
 bool DeviceExtension::CheckExtensionsSupport(std::vector<const char*> checkExtensionNames, vk::PhysicalDevice physicalDevice)

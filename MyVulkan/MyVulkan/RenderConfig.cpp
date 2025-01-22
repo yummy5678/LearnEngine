@@ -1,10 +1,9 @@
 #include "RenderConfig.h"
-#include "SceneCamera.h"
 
 
 RenderConfig::RenderConfig(VulkanInitializer& initializer):
     m_pLogicalDevice(nullptr),
-    m_PhygicalDevice(VK_NULL_HANDLE),
+    m_pPhygicalDevice(nullptr),
     m_GraphicsPipeline(initializer),
     m_Shader(), 
     m_RenderArea(), 
@@ -12,7 +11,7 @@ RenderConfig::RenderConfig(VulkanInitializer& initializer):
     m_Extent()
 {
     m_pLogicalDevice = initializer.GetPLogicalDevice();
-    m_PhygicalDevice = initializer.GetPhysicalDevice();
+    m_pPhygicalDevice = initializer.GetPPhysicalDevice();
 }
 
 RenderConfig::~RenderConfig()
@@ -21,6 +20,9 @@ RenderConfig::~RenderConfig()
 
 void RenderConfig::Initialize(RendererBase* renderere, std::vector<RenderObject>* objects, SceneCamera* camera)
 {
+    m_CameraDescriptor.Initialize(m_pLogicalDevice);
+    m_TextureDescriptor.Initialize(m_pLogicalDevice);
+
     vk::Format colorFomat = renderere->GetColorFormat();
     vk::Format depthFomat = renderere->GetDepthFormat();
     vk::Extent2D extent = renderere->GetExtent();
@@ -30,8 +32,13 @@ void RenderConfig::Initialize(RendererBase* renderere, std::vector<RenderObject>
     m_RenderArea.setOffset({ 0, 0 });
     m_RenderArea.setExtent(extent);
 
-    auto descriptorSetLayouts = GetDescriptorSetLayouts();
-    auto constantRanges = GetPushConstantRanges();
+    m_CameraDescriptor.Update(camera->GetProjectionBuffer());
+    // m_TextureDescriptor.Update();
+
+
+    auto descriptorSetLayouts   = GetDescriptorSetLayouts();
+    auto constantRanges         = GetPushConstantRanges();
+    auto vertexInputState       = GetVertexInputState();
 
     m_GraphicsPipeline.Create(
         m_pLogicalDevice,
@@ -39,11 +46,12 @@ void RenderConfig::Initialize(RendererBase* renderere, std::vector<RenderObject>
         m_RenderArea,
         colorFomat,
         depthFomat,
-        m_Shader.GetPShaderStages(),
-        &descriptorSetLayouts,
-        &constantRanges);
+        &vertexInputState,
+        m_Shader.GetShaderStages(),
+        descriptorSetLayouts,
+        constantRanges);
 
-    m_DrawCommand.Create(m_pLogicalDevice, m_PhygicalDevice, imageView);
+    m_DrawCommand.Create(m_pLogicalDevice, m_pPhygicalDevice, imageView);
 }
 
 //void RenderConfig::Initialize(vk::Device logicalDevice, vk::Extent2D extent, vk::Format colorFomat, vk::Format depthFomat)
@@ -95,9 +103,9 @@ vk::PipelineLayout RenderConfig::GetPipelineLayout()
     return m_GraphicsPipeline.GetPipelineLayout();
 }
 
-std::vector<vk::PipelineShaderStageCreateInfo>* RenderConfig::GetPShaderStages()
+std::vector<vk::PipelineShaderStageCreateInfo> RenderConfig::GetShaderStages()
 {
-    return m_Shader.GetPShaderStages();
+    return m_Shader.GetShaderStages();
 }
 
 std::vector<vk::DescriptorSet> RenderConfig::GetDescriptorSets()
@@ -156,4 +164,39 @@ vk::PushConstantRange RenderConfig::GetPushConstantModelRange()
         0,								    // 渡したデータからどの位置のデータを見るか
         sizeof(Transform)					// 渡したいデータのサイズ
     };
+}
+
+vk::PipelineVertexInputStateCreateInfo RenderConfig::GetVertexInputState()
+{
+    // バインディングの定義   //後でテンプレート化する
+    m_BindingDescriptions =
+    {
+        vk::VertexInputBindingDescription
+        {
+           0,                              // binding  
+           sizeof(Vertex),                 // stride   
+           vk::VertexInputRate::eVertex    // inputRate
+        }
+    };
+
+    // 入力属性の定義
+    m_AttributeDescriptions = {
+        // 座標
+      vk::VertexInputAttributeDescription{ 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position) },
+
+       // 法線
+      vk::VertexInputAttributeDescription{ 0, 1, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal) },
+
+      // テクスチャ座標
+      vk::VertexInputAttributeDescription{ 0, 2, vk::Format::eR32G32Sfloat, offsetof(Vertex, textureCoord) }
+
+    };
+
+    // パイプライン頂点入力状態の作成
+    vk::PipelineVertexInputStateCreateInfo resultInfo;
+    resultInfo.pVertexBindingDescriptions = m_BindingDescriptions.data();
+    resultInfo.vertexBindingDescriptionCount = m_BindingDescriptions.size();
+    resultInfo.pVertexAttributeDescriptions = m_AttributeDescriptions.data();
+    resultInfo.vertexAttributeDescriptionCount = m_AttributeDescriptions.size();
+    return resultInfo;
 }

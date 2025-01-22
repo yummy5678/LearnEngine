@@ -22,7 +22,7 @@ public:
 		std::string flagmentShaderPath	= DefaultShaderDefine.FragmentShaderPath);
 
 	
-	std::vector<vk::PipelineShaderStageCreateInfo>* GetPShaderStages();
+	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
 
 
 private:

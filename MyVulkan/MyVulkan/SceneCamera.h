@@ -5,19 +5,21 @@
 class SceneCamera
 {
 public:
-	SceneCamera();
+	SceneCamera(VmaAllocator* allocator);
 	~SceneCamera();
 
 
-	void UpdateBuffer(VmaAllocator* allocator, ViewProjection viewProjection);
+	void UpdateBuffer(ViewProjection viewProjection);
 	vk::Buffer GetProjectionBuffer();
 
 
 
 
 private:
+	VmaAllocator* m_pAllocator;
 	VViewProjectionBuffer	m_ProjectionBuffer;
 
+	void Initialize();
 
 };
 

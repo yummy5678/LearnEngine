@@ -15,7 +15,7 @@ public:
 	~DrawCommand();
 
 	// 作成関数
-	void Create(vk::Device* pLogicalDevice, vk::PhysicalDevice physicalDevice, std::vector<ImageViewSet> imageSet);
+	void Create(vk::Device* pLogicalDevice, vk::PhysicalDevice* pPhysicalDevice, std::vector<ImageViewSet> imageSet);
 
 	// 破棄関数
 	void Destroy();
@@ -39,7 +39,7 @@ public:
 		Transform* ObjectTransform);
 private:
 	vk::Device*						m_pLogicalDevice;
-	vk::PhysicalDevice				m_PhysicalDevice;
+	vk::PhysicalDevice*				m_pPhysicalDevice;
 
 	// 画像の組が複数枚あるとき(主にスワップチェイン)の描画用インデックス
 	uint32_t						m_ImageDrawIndex;
@@ -60,7 +60,7 @@ private:
 
 
 	//コマンドプールの作成
-	vk::CommandPool CreateCommandPool(vk::Device* pLogicalDevice, vk::PhysicalDevice physicalDevice);
+	vk::CommandPool CreateCommandPool(vk::Device* pLogicalDevice, vk::PhysicalDevice* pPhysicalDevice);
 
 	//コマンドバッファの作成(コマンドプールの割り当て)
 	std::vector<vk::CommandBuffer>	CreateCommandBuffers(vk::Device* pLogicalDevice, uint32_t commandSize, vk::CommandPool commandPool);

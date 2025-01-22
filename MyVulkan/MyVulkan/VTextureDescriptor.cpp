@@ -13,9 +13,9 @@ void VTextureDescriptor::Initialize(vk::Device* pLogicalDevice)
 {
     m_pLogicalDevice = pLogicalDevice;
 
-    if (!m_DescriptorSetLayout) CreateDescriptorSetLayout();
-    if (!m_DescriptorPool)      CreateDescriptorPool();
-    if (!m_DescriptorSet)       CreateDescriptorSet();
+    CreateDescriptorSetLayout();
+    CreateDescriptorPool();
+    CreateDescriptorSet();
 }
 
 void VTextureDescriptor::Update(vk::ImageView imageView, vk::Sampler sampler)

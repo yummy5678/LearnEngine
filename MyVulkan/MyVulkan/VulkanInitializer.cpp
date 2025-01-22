@@ -3,9 +3,12 @@
 
 
 VulkanInitializer::VulkanInitializer() :
+	m_Instance(VK_NULL_HANDLE),
+	m_LogicalDevice(VK_NULL_HANDLE),
+	m_PhysicalDevice(VK_NULL_HANDLE),
+	m_VmaAllocator(VK_NULL_HANDLE),
 	m_InstanceExtension(),
-	m_DeviceExtension(),
-	m_VmaAllocator()
+	m_DeviceExtension()
 {
 }
 
@@ -69,9 +72,9 @@ vk::Device* VulkanInitializer::GetPLogicalDevice()
 	return &m_LogicalDevice;
 }
 
-vk::PhysicalDevice VulkanInitializer::GetPhysicalDevice()
+vk::PhysicalDevice* VulkanInitializer::GetPPhysicalDevice()
 {
-	return m_PhysicalDevice;
+	return &m_PhysicalDevice;
 }
 
 VmaAllocator* VulkanInitializer::GetPVmaAllocator()
@@ -105,6 +108,19 @@ bool VulkanInitializer::CheckSupportSurface(VkSurfaceKHR surface)
 	//使用可能な物理デバイスを探してくる
 	PhysicalDeviceSelector selector(m_Instance);
 	return selector.CheckSupportSurface(m_PhysicalDevice, surface);
+}
+
+bool VulkanInitializer::IsInitialized()
+{
+	// 必要なオブジェクトをすべて持っていればTRUE
+	if(	m_Instance			!= VK_NULL_HANDLE ||
+		m_LogicalDevice		!= VK_NULL_HANDLE ||
+		m_PhysicalDevice	!= VK_NULL_HANDLE ||
+		m_VmaAllocator		!= VK_NULL_HANDLE )
+	return true;
+
+	// それ以外の場合はFALSE
+	return false;
 }
 
 

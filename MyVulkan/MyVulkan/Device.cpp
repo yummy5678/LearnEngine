@@ -1,4 +1,5 @@
 #include "Device.h"
+#include "GraphicsDefine.h"
 
 
 DeviceGenerator::DeviceGenerator()
@@ -22,12 +23,21 @@ void DeviceGenerator::Create(DeviceExtension extensionManager, vk::Instance inst
 	m_PhysicalDevice = selectDevice.Handle;
 	std::vector<vk::DeviceQueueCreateInfo> queueInfos = selectDevice.QueueInfo;
 
+	auto pNext		= extensionManager.GetCreateDevicePNext();
+	auto extension	= extensionManager.GetEnabledExtensions(m_PhysicalDevice);
 
-	auto extension = extensionManager.GetExtensions(m_PhysicalDevice);
+	if (VulkanDefine.LogMessageEnabled == true)
+	{
+		std::printf("以下のデバイスエクステンションを使用します\n");
+		for (size_t i = 0; i < extension.size(); i++)
+		{
+			std::cout << extension[i] << std::endl;
+		}
+	}
 
 	// 論理デバイスに設定する情報を作成
 	vk::DeviceCreateInfo deviceInfo;
-	deviceInfo.pNext;
+	deviceInfo.pNext = pNext;
 	deviceInfo.flags;
 	deviceInfo.queueCreateInfoCount = (uint32_t)queueInfos.size();	// キュー作成情報の数
 	deviceInfo.pQueueCreateInfos = queueInfos.data();					// デバイスが必要とするキューを作成するためのキュー作成情報のリスト

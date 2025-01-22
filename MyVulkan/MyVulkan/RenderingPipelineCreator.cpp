@@ -10,6 +10,9 @@ RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initialize
 	m_TextureDescriptor()
 {
 	m_ClassName = "PipelineGenerator";
+
+	if (initializer.IsInitialized() == true) 
+		printf("イニシャライザーをイニシャライズする前にパイプラインのコンストラクタを読んでください");
 	initializer.GetPDeviceExtension()->UseDynamicRendering();
 	m_pLogicalDevice = initializer.GetPLogicalDevice();
 
@@ -25,19 +28,20 @@ void RenderingPipelineCreator::Create(
 	vk::Rect2D scissor,
 	vk::Format colorFormat,
 	vk::Format depthFormat,
-	std::vector<vk::PipelineShaderStageCreateInfo>* pShaderStageInfos,
-	std::vector<vk::DescriptorSetLayout>* pDescriptorSetLayouts,
-	std::vector<vk::PushConstantRange>* pPushConstantRanges)
+	vk::PipelineVertexInputStateCreateInfo* pVertexInputState,
+	std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos,
+	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts,
+	std::vector<vk::PushConstantRange> pushConstantRanges)
 {
 	m_bCreated = true;
 
 	//m_TextureDescriptor.CreateSingleDescriptorSet();
 	//パイプラインレイアウトの作成	//今は作らなくていいかも
 	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptor.GetDescriptorSetLayout() };
-	CreatePipelineLayout(pLogicalDevice, pDescriptorSetLayouts, pPushConstantRanges);
+	CreatePipelineLayout(pLogicalDevice, descriptorSetLayouts, pushConstantRanges);
 
 	//パイプラインの作成
-	CreateGraphicsPipeline(m_pLogicalDevice, extent, scissor, colorFormat, depthFormat, pShaderStageInfos);
+	CreateGraphicsPipeline(m_pLogicalDevice, extent, scissor, colorFormat, depthFormat, shaderStageInfos, pVertexInputState);
 }
 
 void RenderingPipelineCreator::Destroy()
@@ -64,17 +68,16 @@ vk::PipelineLayout RenderingPipelineCreator::GetPipelineLayout()
 	return m_PipelineLayout;
 }
 
-void RenderingPipelineCreator::CreatePipelineLayout(vk::Device* pLogicalDevice, std::vector<vk::DescriptorSetLayout>* pDescriptorSetLayouts, std::vector<vk::PushConstantRange>* pPushConstantRanges)
+void RenderingPipelineCreator::CreatePipelineLayout(vk::Device* pLogicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges)
 {
 	vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
-	pipelineLayoutCreateInfo.setSetLayouts(*pDescriptorSetLayouts);
-	pipelineLayoutCreateInfo.setPushConstantRanges(*pPushConstantRanges);
+	pipelineLayoutCreateInfo.setSetLayouts(descriptorSetLayouts);
+	pipelineLayoutCreateInfo.setPushConstantRanges(pushConstantRanges);
 
-	try { m_PipelineLayout = pLogicalDevice->createPipelineLayout(pipelineLayoutCreateInfo); }
-	catch (const std::runtime_error& e) { throw std::runtime_error("パイプラインレイアウトの作成に失敗しました！"); }
+	m_PipelineLayout = pLogicalDevice->createPipelineLayout(pipelineLayoutCreateInfo); 
 }
 
-void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device* pLogicalDevice, vk::Extent2D extent, vk::Rect2D scissor, vk::Format colorFormat, vk::Format depthFormat, std::vector<vk::PipelineShaderStageCreateInfo>* pShaderStageInfos)
+void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device* pLogicalDevice, vk::Extent2D extent, vk::Rect2D scissor, vk::Format colorFormat, vk::Format depthFormat, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos, vk::PipelineVertexInputStateCreateInfo* pVertexInputState)
 {
 	if (!m_PipelineLayout)	throw std::runtime_error("グラフィクスパイプラインの作成前にパイプラインレイアウトを作成してください!");
 
@@ -98,16 +101,22 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device* pLogicalDevice
 
 	// ラスタライザーの設定
 #pragma region rasterizationInfo
+	/* //////////////////////////////////////////////////////
+		頂点データをピクセルのデータに変換するときの処理設定
+	*/ //////////////////////////////////////////////////////
 	vk::PipelineRasterizationStateCreateInfo rasterizationInfo;
-	rasterizationInfo.setDepthClampEnable(VK_FALSE);					// 深度クランプを無効
-	rasterizationInfo.setRasterizerDiscardEnable(VK_FALSE);				// ラスタライザーを有効
-	rasterizationInfo.setPolygonMode(vk::PolygonMode::eFill);			// 塗りつぶしモード
-	rasterizationInfo.setCullMode(vk::CullModeFlagBits::eBack);			// 背面カリング
-	rasterizationInfo.setFrontFace(vk::FrontFace::eCounterClockwise);	// 順方向を反時計回りに設定
-	rasterizationInfo.setDepthBiasEnable(VK_FALSE);						// 深度バイアスを無効
-	rasterizationInfo.setDepthBiasConstantFactor(0.0f);					// 深度バイアスの定数因子
-	rasterizationInfo.setDepthBiasClamp(0.0f);							// 深度バイアスのクランプ値
-	rasterizationInfo.setDepthBiasSlopeFactor(0.0f);					// 深度バイアスのスロープ因子
+	rasterizationInfo.pNext = nullptr;							// 拡張用ポインタ
+	rasterizationInfo.flags;									// 予約済みフィールド
+	rasterizationInfo.cullMode = vk::CullModeFlagBits::eBack;	// 背面カリング
+	rasterizationInfo.depthBiasClamp = 0.0f;					// 深度バイアスのクランプ値
+	rasterizationInfo.depthBiasConstantFactor = 0.0f;			// 深度バイアスの定数係数
+	rasterizationInfo.depthBiasEnable = VK_FALSE;				// 深度バイアスの有無
+	rasterizationInfo.depthBiasSlopeFactor = 0.0f;				// 深度バイアスのスロープ係数
+	rasterizationInfo.depthClampEnable = VK_FALSE;				// 深度クランピングの有無
+	rasterizationInfo.lineWidth = 1.0f;							// 線の幅
+	rasterizationInfo.polygonMode = vk::PolygonMode::eFill;		// ポリゴンの描画モード
+	rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;		// ラスタライザーの処理の有無
+	rasterizationInfo.frontFace = vk::FrontFace::eCounterClockwise;	// ポリゴンの前面の定義
 #pragma endregion rasterizationInfo
 
 	// マルチサンプリングの設定
@@ -174,9 +183,19 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device* pLogicalDevice
 	pipelineRenderingInfo.depthAttachmentFormat = depthFormat;     // 深度アタッチメントのフォーマット
 #pragma endregion pipelineRenderingInfo
 
-	m_PipelineInfo.setStages(*pShaderStageInfos);						// シェーダーステージ
-	m_PipelineInfo.setPVertexInputState(&VertexInputBinding::GetVertexInputInfo());	// All the fixed function pipeline states
-	m_PipelineInfo.setPInputAssemblyState(&GetInputAssemblyInfo());
+
+	// 入力アセンブリステートの設定
+#pragma region assemblyStateInfo
+	vk::PipelineInputAssemblyStateCreateInfo assemblyStateInfo;
+	assemblyStateInfo.setPNext(nullptr);
+	//assemblyStateInfo.setFlags((vk::PipelineInputAssemblyStateCreateFlags)0);	// 初期化のため0を入れる
+	assemblyStateInfo.setTopology(vk::PrimitiveTopology::eTriangleList);   // トポロジー(三角形リスト)
+	assemblyStateInfo.primitiveRestartEnable = VK_FALSE;                 // プリミティブ再開を無効にする
+#pragma endregion assemblyStateInfo
+
+	m_PipelineInfo.setStages(shaderStageInfos);						// シェーダーステージ
+	m_PipelineInfo.setPVertexInputState(pVertexInputState);	// All the fixed function pipeline states
+	m_PipelineInfo.setPInputAssemblyState(&assemblyStateInfo);
 	m_PipelineInfo.setPViewportState(&viewportStateInfo);
 	m_PipelineInfo.setPDynamicState(nullptr);						//ダイナミックステートとは:パイプラインを作り直さなくても一部情報を変更できる機能
 	m_PipelineInfo.setPRasterizationState(&rasterizationInfo);
@@ -189,10 +208,6 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device* pLogicalDevice
 
 	// Create Graphics Pipeline
 	auto result = m_pLogicalDevice->createGraphicsPipeline(nullptr, m_PipelineInfo);
-	if (result.result != vk::Result::eSuccess)
-	{
-		throw std::runtime_error("グラフィクスパイプラインの作成に失敗しました!");
-	}
 
 	m_Pipeline = result.value;
 }
@@ -248,7 +263,9 @@ vk::Format RenderingPipelineCreator::FindSupportedDepthFormat(vk::PhysicalDevice
 vk::PipelineInputAssemblyStateCreateInfo& RenderingPipelineCreator::GetInputAssemblyInfo()
 {
 	vk::PipelineInputAssemblyStateCreateInfo assemblyStateInfo;
-	assemblyStateInfo.topology = vk::PrimitiveTopology::eTriangleList;   // トポロジー(三角形リスト)
+	assemblyStateInfo.setPNext(nullptr);
+	//assemblyStateInfo.setFlags((vk::PipelineInputAssemblyStateCreateFlags)0);	// 初期化のため0を入れる
+	assemblyStateInfo.setTopology(vk::PrimitiveTopology::eTriangleList);   // トポロジー(三角形リスト)
 	assemblyStateInfo.primitiveRestartEnable = VK_FALSE;                 // プリミティブ再開を無効にする
 	return assemblyStateInfo;
 }

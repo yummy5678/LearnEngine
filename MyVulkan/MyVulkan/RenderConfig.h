@@ -43,7 +43,7 @@ public:
 	vk::Rect2D			GetRenderRect();
 	vk::Pipeline		GetPipeline();
 	vk::PipelineLayout	GetPipelineLayout();
-	std::vector<vk::PipelineShaderStageCreateInfo>* GetPShaderStages();
+	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
 
 	std::vector<vk::DescriptorSet>			GetDescriptorSets();
 	std::vector<vk::DescriptorSetLayout>	GetDescriptorSetLayouts();
@@ -53,7 +53,7 @@ public:
 
 private:
 	vk::Device* m_pLogicalDevice;
-	vk::PhysicalDevice m_PhygicalDevice;
+	vk::PhysicalDevice* m_pPhygicalDevice;
 
 	// 画面サイズ
 	vk::Offset2D			m_Offset;	//描画範囲の始点
@@ -70,8 +70,13 @@ private:
 	VTextureDescriptor		m_TextureDescriptor;
 	VCameraDescriptor		m_CameraDescriptor;
 
+	// 頂点入力情報	//ToDo:後で専用のクラスに分ける
+	std::vector<vk::VertexInputBindingDescription>		m_BindingDescriptions;
+	std::vector<vk::VertexInputAttributeDescription>	m_AttributeDescriptions;
+
 
 	DrawCommand				m_DrawCommand;
 
 	vk::PushConstantRange	GetPushConstantModelRange();
+	vk::PipelineVertexInputStateCreateInfo GetVertexInputState();
 };

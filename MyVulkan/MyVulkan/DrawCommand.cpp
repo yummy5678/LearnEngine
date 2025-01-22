@@ -4,7 +4,7 @@
 
 DrawCommand::DrawCommand() : 
     m_pLogicalDevice(nullptr),
-    m_PhysicalDevice(VK_NULL_HANDLE),
+    m_pPhysicalDevice(VK_NULL_HANDLE),
     m_ImageDrawIndex(0),
     m_ImageSet(),
     m_CommandBuffers(),
@@ -16,10 +16,10 @@ DrawCommand::~DrawCommand()
 {
 }
 
-void DrawCommand::Create(vk::Device* pLogicalDevice, vk::PhysicalDevice physicalDevice, std::vector<ImageViewSet> imageSet)
+void DrawCommand::Create(vk::Device* pLogicalDevice, vk::PhysicalDevice* pPhysicalDevice, std::vector<ImageViewSet> imageSet)
 {
     m_pLogicalDevice = pLogicalDevice;
-    m_PhysicalDevice = physicalDevice;
+    m_pPhysicalDevice = pPhysicalDevice;
     m_ImageSet = imageSet;
 
     //// セマフォの作成
@@ -32,7 +32,7 @@ void DrawCommand::Create(vk::Device* pLogicalDevice, vk::PhysicalDevice physical
     //m_Fences = m_FenceGenerator.GetFence();
 
     //コマンドプール(コマンドを置く領域)を作成
-    m_CommandPool = CreateCommandPool(pLogicalDevice, physicalDevice);
+    m_CommandPool = CreateCommandPool(pLogicalDevice, pPhysicalDevice);
 
     //コマンドプールにコマンドバッファを割り当て
     m_CommandBuffers = CreateCommandBuffers(pLogicalDevice, imageSet.size(), m_CommandPool);
@@ -99,10 +99,10 @@ void DrawCommand::EndRendering()
 }
 
 
-vk::CommandPool DrawCommand::CreateCommandPool(vk::Device* pLogicalDevice, vk::PhysicalDevice physicalDevice)
+vk::CommandPool DrawCommand::CreateCommandPool(vk::Device* pLogicalDevice, vk::PhysicalDevice* pPhysicalDevice)
 {
     // Get indices of queue families from device
-    QueueFamilySelector queue(physicalDevice);
+    QueueFamilySelector queue(*pPhysicalDevice);
 
     // コマンドプールの作成に必要な情報を設定する
     VkCommandPoolCreateInfo poolInfo = {};
