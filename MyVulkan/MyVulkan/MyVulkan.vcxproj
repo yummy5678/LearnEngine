@@ -139,6 +139,7 @@
     <ClCompile Include="VCameraDescriptor.cpp" />
     <ClCompile Include="VImage.cpp" />
     <ClCompile Include="VImageBufferBase.cpp" />
+    <ClCompile Include="VShaderConfigureBase.cpp" />
     <ClCompile Include="VTextureBuffer.cpp" />
     <ClCompile Include="SwapchainImage.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="VCameraDescriptor.h" />
     <ClInclude Include="VImage.h" />
     <ClInclude Include="VImageBufferBase.h" />
+    <ClInclude Include="VShaderConfigureBase.h" />
     <ClInclude Include="VTextureBuffer.h" />
     <ClInclude Include="SwapchainImage.h" />
     <ClInclude Include="DeviceExtensionManager.h" />

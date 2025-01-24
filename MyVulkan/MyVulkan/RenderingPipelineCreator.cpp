@@ -23,7 +23,6 @@ RenderingPipelineCreator::~RenderingPipelineCreator()
 }
 
 void RenderingPipelineCreator::Create(
-	vk::Device* pLogicalDevice,
 	vk::Extent2D extent,
 	vk::Rect2D scissor,
 	vk::Format colorFormat,
@@ -38,15 +37,15 @@ void RenderingPipelineCreator::Create(
 	//m_TextureDescriptor.CreateSingleDescriptorSet();
 	//パイプラインレイアウトの作成	//今は作らなくていいかも
 	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptor.GetDescriptorSetLayout() };
-	CreatePipelineLayout(pLogicalDevice, descriptorSetLayouts, pushConstantRanges);
+	CreatePipelineLayout(descriptorSetLayouts, pushConstantRanges);
 
 	//パイプラインの作成
-	CreateGraphicsPipeline(m_pLogicalDevice, extent, scissor, colorFormat, depthFormat, shaderStageInfos, pVertexInputState);
+	CreateGraphicsPipeline(extent, scissor, colorFormat, depthFormat, shaderStageInfos, pVertexInputState);
 }
 
 void RenderingPipelineCreator::Destroy()
 {
-	if (m_pLogicalDevice == nullptr) return;
+	if (*m_pLogicalDevice == VK_NULL_HANDLE) return;
 
 	m_pLogicalDevice->destroyPipelineLayout(m_PipelineLayout);
 	m_pLogicalDevice->destroyPipeline(m_Pipeline);
@@ -68,18 +67,34 @@ vk::PipelineLayout RenderingPipelineCreator::GetPipelineLayout()
 	return m_PipelineLayout;
 }
 
-void RenderingPipelineCreator::CreatePipelineLayout(vk::Device* pLogicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges)
+void RenderingPipelineCreator::CreatePipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges)
 {
+	if (*m_pLogicalDevice == VK_NULL_HANDLE) throw std::runtime_error("パイプラインレイアウトの作成前に論理デバイスを作成してください!");
+
 	vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 	pipelineLayoutCreateInfo.setSetLayouts(descriptorSetLayouts);
 	pipelineLayoutCreateInfo.setPushConstantRanges(pushConstantRanges);
 
-	m_PipelineLayout = pLogicalDevice->createPipelineLayout(pipelineLayoutCreateInfo); 
+	m_PipelineLayout = m_pLogicalDevice->createPipelineLayout(pipelineLayoutCreateInfo); 
 }
 
-void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device* pLogicalDevice, vk::Extent2D extent, vk::Rect2D scissor, vk::Format colorFormat, vk::Format depthFormat, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos, vk::PipelineVertexInputStateCreateInfo* pVertexInputState)
+void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::Rect2D scissor, vk::Format colorFormat, vk::Format depthFormat, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos, vk::PipelineVertexInputStateCreateInfo* pVertexInputState)
 {
-	if (!m_PipelineLayout)	throw std::runtime_error("グラフィクスパイプラインの作成前にパイプラインレイアウトを作成してください!");
+	if (*m_pLogicalDevice == VK_NULL_HANDLE)throw std::runtime_error("グラフィクスパイプラインの作成前に論理デバイスを作成してください!");
+	if (m_PipelineLayout == VK_NULL_HANDLE)	throw std::runtime_error("グラフィクスパイプラインの作成前にパイプラインレイアウトを作成してください!");
+
+	// ダイナミックレンダリングの設定
+#pragma region pipelineRenderingInfo
+	// 4. Dynamic Rendering用のPipelineRenderingCreateInfoの設定
+	vk::PipelineRenderingCreateInfo pipelineRenderingInfo;
+	pipelineRenderingInfo.pNext = nullptr;
+	pipelineRenderingInfo.pColorAttachmentFormats = &colorFormat;  // カラーアタッチメントのフォーマット
+	pipelineRenderingInfo.colorAttachmentCount = 1;
+	pipelineRenderingInfo.depthAttachmentFormat = depthFormat;     // 深度アタッチメントのフォーマット
+	pipelineRenderingInfo.stencilAttachmentFormat = vk::Format::eUndefined;	//ステンシルのみ使用する場合に設定する
+	pipelineRenderingInfo.viewMask = 0;								// マルチビューの設定
+
+#pragma endregion pipelineRenderingInfo
 
 	// ビューポートの設定情報を作成
 #pragma region viewport
@@ -174,14 +189,7 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device* pLogicalDevice
 	auto depthStencilInfo = CreateDepthStencilStateInfo(true, false);
 #pragma endregion depthStencilInfo
 
-	// ダイナミックレンダリングの設定
-#pragma region pipelineRenderingInfo
-	// 4. Dynamic Rendering用のPipelineRenderingCreateInfoの設定
-	vk::PipelineRenderingCreateInfo pipelineRenderingInfo;
-	pipelineRenderingInfo.colorAttachmentCount = 1;
-	pipelineRenderingInfo.pColorAttachmentFormats = &colorFormat;  // カラーアタッチメントのフォーマット
-	pipelineRenderingInfo.depthAttachmentFormat = depthFormat;     // 深度アタッチメントのフォーマット
-#pragma endregion pipelineRenderingInfo
+
 
 
 	// 入力アセンブリステートの設定
@@ -193,17 +201,20 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Device* pLogicalDevice
 	assemblyStateInfo.primitiveRestartEnable = VK_FALSE;                 // プリミティブ再開を無効にする
 #pragma endregion assemblyStateInfo
 
-	m_PipelineInfo.setStages(shaderStageInfos);						// シェーダーステージ
-	m_PipelineInfo.setPVertexInputState(pVertexInputState);	// All the fixed function pipeline states
-	m_PipelineInfo.setPInputAssemblyState(&assemblyStateInfo);
-	m_PipelineInfo.setPViewportState(&viewportStateInfo);
-	m_PipelineInfo.setPDynamicState(nullptr);						//ダイナミックステートとは:パイプラインを作り直さなくても一部情報を変更できる機能
-	m_PipelineInfo.setPRasterizationState(&rasterizationInfo);
-	m_PipelineInfo.setPMultisampleState(&multisamplingInfo);
-	m_PipelineInfo.setPColorBlendState(&colorBlendingInfo);
-	m_PipelineInfo.setPDepthStencilState(&depthStencilInfo);
-	m_PipelineInfo.layout = m_PipelineLayout;
-	m_PipelineInfo.pNext = &pipelineRenderingInfo;					// ダイナミックレンダリングを使用するための値
+	m_PipelineInfo.pNext				= &pipelineRenderingInfo;	// ダイナミックレンダリングを使用するための設定情報
+	m_PipelineInfo.layout				= m_PipelineLayout;			// パイプラインレイアウト
+	m_PipelineInfo.pStages				= shaderStageInfos.data();	// シェーダーステージ
+	m_PipelineInfo.stageCount			= shaderStageInfos.size();	// シェーダーステージ
+	m_PipelineInfo.pVertexInputState	= pVertexInputState;		// パイプラインで使用する頂点の設定情報
+	m_PipelineInfo.pInputAssemblyState	= &assemblyStateInfo;
+	m_PipelineInfo.pViewportState		= &viewportStateInfo;
+	m_PipelineInfo.pRasterizationState	= &rasterizationInfo;
+	m_PipelineInfo.pMultisampleState	= &multisamplingInfo;
+	m_PipelineInfo.pColorBlendState		= &colorBlendingInfo;
+	m_PipelineInfo.pDepthStencilState	= &depthStencilInfo;
+	m_PipelineInfo.renderPass			= VK_NULL_HANDLE;			// レンダーパス(ダイナミックレンダリングでは使用しない)
+	m_PipelineInfo.pDynamicState		= VK_NULL_HANDLE;			//ダイナミックステートとは:パイプラインを作り直さなくても一部情報を変更できる機能
+
 
 
 	// Create Graphics Pipeline

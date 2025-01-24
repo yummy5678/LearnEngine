@@ -7,6 +7,13 @@
 #include "VulkanInitializer.h" 
 #include "SwapchainRenderer.h"
 
+struct RenderTask
+{
+    RenderConfig* config;
+    std::vector<RenderObject>* objects;
+    SceneCamera* camera;
+};
+
 //ウィンドウ作成用のクラス
 class GraphicWindow
 {
@@ -20,22 +27,27 @@ public:
     //ウィンドウの終了処理
     void kill();
 
-
-	void ExecuteRenderQueue();
+    void AddDrawTask(RenderConfig* pRenderConfig, std::vector<RenderObject>* pObjects, SceneCamera* pCamera);
+	void ExecuteDrawTask();
 
     //ウィンドウのポインターを渡す
-    GLFWwindow* GetPointer();
-    RendererBase* GetRenderer();
+    GLFWwindow*     GetPointer();
+    RendererBase*   GetRenderer();
 
     //ウィンドウの終了フラグが立っているか確認
     int checkCloseWindow();
 
 private:
     //GLFWウィンドウのポインター
-    GLFWwindow* m_pWindow;
+    GLFWwindow*             m_pWindow;
 
-    VulkanInitializer* m_pInitializer;
+    VulkanInitializer*      m_pInitializer;
 
-    SurfaceGenerator m_Surface;
-    SwapchainRenderer m_GraphicController;
+    SurfaceGenerator        m_Surface;
+    SwapchainRenderer       m_GraphicController;
+
+    DrawCommand             m_DrawCommand;
+    std::vector<RenderTask> m_DrawTasks;
 };
+
+

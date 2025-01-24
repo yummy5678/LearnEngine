@@ -51,7 +51,7 @@ void DrawCommand::Destroy()
     m_pLogicalDevice->destroyCommandPool(m_CommandPool);
 }
 
-void DrawCommand::BeginRendering(vk::Pipeline pipeline, vk::Rect2D renderArea)
+void DrawCommand::BeginRendering(vk::Rect2D renderArea)
 {
     if (m_ImageSet.empty() == true) return; // 描画する為のイメージビューがセットされていなければ何もしない
 
@@ -88,8 +88,7 @@ void DrawCommand::BeginRendering(vk::Pipeline pipeline, vk::Rect2D renderArea)
     auto commandBuffer = m_CommandBuffers[m_ImageDrawIndex];
     commandBuffer.beginRendering(renderingInfo);
 
-    // 使用するパイプラインをバインドします。
-    m_CommandBuffers[m_ImageDrawIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+
 
 }
 
@@ -177,11 +176,15 @@ vk::SubmitInfo DrawCommand::CreateSubmitInfo(vk::CommandBuffer& commandBuffer)
 }
 
 void DrawCommand::RenderMesh(
+    vk::Pipeline pipeline,
     vk::PipelineLayout pipelineLayout,
     std::vector<vk::DescriptorSet>* descriptorSets,
     VMeshObject* drawMesh,
     Transform* ObjectTransform)
 {
+
+    // 使用するパイプラインをバインドします。
+    m_CommandBuffers[m_ImageDrawIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
 
     // プッシュ定数をシェーダーに渡します。
     m_CommandBuffers[m_ImageDrawIndex].pushConstants(

@@ -2,66 +2,101 @@
 
 
 
-PipelineShaderCreator::PipelineShaderCreator():
-	m_pLogicalDevice(nullptr),
-	m_FragmentStageInfo(),
-	m_FragmentShaderModule(VK_NULL_HANDLE),
-	m_VertexStageInfo(),
-	m_VertexShaderModule(VK_NULL_HANDLE)
+
+VModelShaderConfiguer::VModelShaderConfiguer():
+	VShaderConfigureBase(),
+	m_TextureDescriptor(),
+	m_CameraDescriptor(),
+	m_BindingDescriptions(),
+	m_AttributeDescriptions()
 {
 }
 
-PipelineShaderCreator::~PipelineShaderCreator()
+VModelShaderConfiguer::~VModelShaderConfiguer()
 {
-	// モジュールはパイプライン作成後は不要になる
-	DestroyModule();
 }
 
-void PipelineShaderCreator::Create(vk::Device* logicalDevice, std::string sprvVertexShaderPath, std::string sprvFragmentShaderPath)
+void VModelShaderConfiguer::Create(vk::Device* pLogicalDevice)
 {
-	// SPIR-V シェーダーコードの読込
-	auto vertexShaderCode = readFile(sprvVertexShaderPath);
-	auto fragmentShaderCode = readFile(sprvFragmentShaderPath);
+	m_CameraDescriptor.Initialize(m_pLogicalDevice, 0);
+	m_TextureDescriptor.Initialize(m_pLogicalDevice, 0);
 
-	// シェーダーモジュールの作成
-	m_VertexShaderModule	= CreateShaderModule(*logicalDevice, vertexShaderCode);
-	m_FragmentShaderModule	= CreateShaderModule(*logicalDevice, fragmentShaderCode);
+	// シェーダーの読込とモジュールの作成
+	VShaderConfigureBase::CreateShaderModules(
+		pLogicalDevice, 
+		DefaultShaderDefine.VertexShaderPath,
+		DefaultShaderDefine.FragmentShaderPath,
+		DefaultShaderDefine.EntryName,
+		DefaultShaderDefine.EntryName);
 
+	// バインディングの定義
+	m_BindingDescriptions =
+	{
+		vk::VertexInputBindingDescription
+		{
+		   0,                              // binding  
+		   sizeof(Vertex),                 // stride   
+		   vk::VertexInputRate::eVertex    // inputRate
+		}
+	};
+
+	// 入力属性の定義
+	m_AttributeDescriptions = {
+		// 座標
+	  vk::VertexInputAttributeDescription{ 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position) },
+
+	  // 法線
+	 vk::VertexInputAttributeDescription{ 1, 0, vk::Format::eR32G32B32Sfloat,  offsetof(Vertex, normal) },
+
+	 // テクスチャ座標
+	 vk::VertexInputAttributeDescription{ 2, 0, vk::Format::eR32G32Sfloat,     offsetof(Vertex, textureCoord) }
+	};
 }
 
-// 
-std::vector<vk::PipelineShaderStageCreateInfo> PipelineShaderCreator::GetShaderStages()
+std::vector<vk::DescriptorSet> VModelShaderConfiguer::GetDescriptorSets()
 {
-	// 後で自由にステージ追加出来るようにするか検討中
-	std::vector<vk::PipelineShaderStageCreateInfo> results;
-	if (m_VertexShaderModule != VK_NULL_HANDLE)		results.push_back(CreateShaderStage(m_VertexShaderModule, vk::ShaderStageFlagBits::eVertex));
-	if (m_FragmentShaderModule != VK_NULL_HANDLE)	results.push_back(CreateShaderStage(m_FragmentShaderModule, vk::ShaderStageFlagBits::eFragment));
+	// ディスクリプタセットをバインド
+	std::vector<vk::DescriptorSet> descriptorSets;
+	descriptorSets.push_back(m_CameraDescriptor.GetDescriptorSet());
+	descriptorSets.push_back(m_TextureDescriptor.GetDescriptorSet());
 
-	return results;
+	return descriptorSets;
 }
 
-vk::ShaderModule PipelineShaderCreator::CreateShaderModule(vk::Device logicalDevice, const std::vector<char>& code)
+std::vector<vk::DescriptorSetLayout> VModelShaderConfiguer::GetDescriptorSetLayouts()
 {
-	// Shader Module creation information
-	vk:: ShaderModuleCreateInfo shaderModuleCreateInfo;
-	shaderModuleCreateInfo.codeSize = code.size();
-	shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+	// ディスクリプタセットレイアウトをバインド
+	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
+	descriptorSetLayouts.push_back(m_CameraDescriptor.GetDescriptorSetLayout());
+	descriptorSetLayouts.push_back(m_TextureDescriptor.GetDescriptorSetLayout());
 
-	return logicalDevice.createShaderModule(shaderModuleCreateInfo);
+	return descriptorSetLayouts;
 }
 
-vk::PipelineShaderStageCreateInfo PipelineShaderCreator::CreateShaderStage(vk::ShaderModule module, vk::ShaderStageFlagBits type)
+std::vector<vk::PushConstantRange> VModelShaderConfiguer::GetPushConstantRanges()
 {
-	vk::PipelineShaderStageCreateInfo resultStage;
-	resultStage.setModule(module);
-	resultStage.setStage(type);
-	resultStage.setPName(DefaultShaderDefine.EntryName);
-	return resultStage;
+	return { GetPushConstantModelRange() };
 }
 
-void PipelineShaderCreator::DestroyModule()
+vk::PushConstantRange VModelShaderConfiguer::GetPushConstantModelRange()
 {
-	// モジュール削除関数
-	if (m_FragmentShaderModule)	m_pLogicalDevice->destroyShaderModule(m_FragmentShaderModule);
-	if(m_VertexShaderModule)	m_pLogicalDevice->destroyShaderModule(m_VertexShaderModule);
+	return vk::PushConstantRange
+	{
+		vk::ShaderStageFlagBits::eVertex,	// 渡したいシェーダーステージ
+		0,								    // 渡したデータからどの位置のデータを見るか
+		sizeof(Transform)					// 渡したいデータのサイズ
+	};
+}
+
+vk::PipelineVertexInputStateCreateInfo VModelShaderConfiguer::GetVertexInputState()
+{
+	// パイプライン頂点入力状態の作成
+	vk::PipelineVertexInputStateCreateInfo resultInfo;
+	resultInfo.pVertexBindingDescriptions = m_BindingDescriptions.data();
+	resultInfo.vertexBindingDescriptionCount = m_BindingDescriptions.size();
+	resultInfo.pVertexAttributeDescriptions = m_AttributeDescriptions.data();
+	resultInfo.vertexAttributeDescriptionCount = m_AttributeDescriptions.size();
+
+	return resultInfo;
+
 }

@@ -33,6 +33,7 @@ void DeviceGenerator::Create(DeviceExtension extensionManager, vk::Instance inst
 		{
 			std::cout << extension[i] << std::endl;
 		}
+		std::printf("\n");
 	}
 
 	// 論理デバイスに設定する情報を作成

@@ -16,7 +16,6 @@ public:
 	~RenderingPipelineCreator();
 
 	void Create(
-		vk::Device* pLogicalDevice,
 		vk::Extent2D extent,
 		vk::Rect2D scissor,
 		vk::Format colorFormat,
@@ -47,9 +46,8 @@ private:
 	vk::GraphicsPipelineCreateInfo	m_PipelineInfo;
 	vk::PipelineLayoutCreateInfo	m_PipelineLayoutInfo;
 
-	void	CreatePipelineLayout(vk::Device* pLogicalDevice, std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges);
+	void	CreatePipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges);
 	void	CreateGraphicsPipeline(
-		vk::Device*		pLogicalDevice,
 		vk::Extent2D	extent,
 		vk::Rect2D		scissor,
 		vk::Format		colorFormat,

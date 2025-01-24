@@ -28,10 +28,7 @@ public:
 	//	vk::Extent2D extent,
 	//	vk::Format colorFomat,
 	//	vk::Format depthFomat);
-	void Initialize(
-	RendererBase* renderere, 
-	std::vector<RenderObject>* objects,
-		SceneCamera* camera);
+	void Initialize(RendererBase* renderere);
 
 	// ディスクリプタなどを更新したい
 	void Update();
@@ -43,13 +40,13 @@ public:
 	vk::Rect2D			GetRenderRect();
 	vk::Pipeline		GetPipeline();
 	vk::PipelineLayout	GetPipelineLayout();
-	std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
+	VModelShaderConfiguer* GetPShaderConfiguer();
 
-	std::vector<vk::DescriptorSet>			GetDescriptorSets();
-	std::vector<vk::DescriptorSetLayout>	GetDescriptorSetLayouts();
-	std::vector<vk::PushConstantRange>		GetPushConstantRanges();
+	//std::vector<vk::DescriptorSet>			GetDescriptorSets();
+	//std::vector<vk::DescriptorSetLayout>	GetDescriptorSetLayouts();
+	//std::vector<vk::PushConstantRange>		GetPushConstantRanges();
 
-	void DrawImage(std::vector<RenderObject>* objects, SceneCamera* camera);
+	//void DrawImage(std::vector<RenderObject>* objects, SceneCamera* camera);
 
 private:
 	vk::Device* m_pLogicalDevice;
@@ -64,19 +61,18 @@ private:
 	RenderingPipelineCreator m_GraphicsPipeline;
 
 	//パイプラインに渡すシェーダー情報の作成クラス
-	PipelineShaderCreator	m_Shader;
+	VModelShaderConfiguer	m_Shader;
 
-	// デスクリプタ
-	VTextureDescriptor		m_TextureDescriptor;
-	VCameraDescriptor		m_CameraDescriptor;
+	//// デスクリプタ
+	//VTextureDescriptor		m_TextureDescriptor;
+	//VCameraDescriptor		m_CameraDescriptor;
 
-	// 頂点入力情報	//ToDo:後で専用のクラスに分ける
-	std::vector<vk::VertexInputBindingDescription>		m_BindingDescriptions;
-	std::vector<vk::VertexInputAttributeDescription>	m_AttributeDescriptions;
+	//// 頂点入力情報	//ToDo:後で専用のクラスに分ける
+	//std::vector<vk::VertexInputBindingDescription>		m_BindingDescriptions;
+	//std::vector<vk::VertexInputAttributeDescription>	m_AttributeDescriptions;
+	//vk::PipelineVertexInputStateCreateInfo				m_InputStateInfo;
 
 
-	DrawCommand				m_DrawCommand;
-
-	vk::PushConstantRange	GetPushConstantModelRange();
-	vk::PipelineVertexInputStateCreateInfo GetVertexInputState();
+	//vk::PushConstantRange	GetPushConstantModelRange();
+	//vk::PipelineVertexInputStateCreateInfo GetVertexInputState();
 };

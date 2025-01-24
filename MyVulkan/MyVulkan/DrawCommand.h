@@ -20,7 +20,7 @@ public:
 	// 破棄関数
 	void Destroy();
 
-	void BeginRendering(vk::Pipeline pipeline, vk::Rect2D renderArea);
+	void BeginRendering(vk::Rect2D renderArea);
 	void EndRendering();
 
 	// GPU内で画像を描画
@@ -33,6 +33,7 @@ public:
 
 	// メッシュオブジェクトから情報を仕分けて描画コマンドを発行するまでの流れを纏めたもの
 	void RenderMesh(
+		vk::Pipeline pipeline, 
 		vk::PipelineLayout pipelineLayout,
 		std::vector<vk::DescriptorSet>* descriptorSets,
 		VMeshObject* drawMeshes,
@@ -44,7 +45,7 @@ private:
 	// 画像の組が複数枚あるとき(主にスワップチェイン)の描画用インデックス
 	uint32_t						m_ImageDrawIndex;
 
-	std::vector<ImageViewSet>			m_ImageSet;
+	std::vector<ImageViewSet>		m_ImageSet;
 
 	vk::CommandPool					m_CommandPool;		//コマンドプール
 	std::vector<vk::CommandBuffer>	m_CommandBuffers;	//コマンドバッファ

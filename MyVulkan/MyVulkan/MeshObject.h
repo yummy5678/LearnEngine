@@ -25,19 +25,18 @@ struct Texture
 	uint8_t* data = 0;			// RAM上の画像データのポインタ
 	uint32_t width = 0;			// 画像の幅
 	uint32_t height = 0;		// 画像の高さ
-	uint32_t channel = 0;		// 1画素に含まれるチャンネル数
-
-	// SamplerInfo samplerInfo;
+	uint32_t channel = 0;		// 1画素に含まれるチャンネル数	
 };
 
 // マテリアル(色やテクスチャ)の情報を格納するための構造体
 struct Material
 {
-	glm::vec4 baseColor = glm::vec4(1.0f);	// 基本色 (r, g, b, a)
-	float metallic		= 0.0f;				// 金属感
-	float roughness		= 0.0f;				// 表面の粗さ
+	glm::vec4	baseColor		= glm::vec4(1.0f);	// 基本色 (r, g, b, a)
+	float		metallic		= 0.0f;				// 金属感
+	float		roughness		= 0.0f;				// 表面の粗さ
 
-	Texture texture		= Texture();		// テクスチャ画像のデータ
+	Texture		texture			= Texture();		// テクスチャ画像のデータ
+	// SamplerInfo	samplerInfo;
 };
 
 

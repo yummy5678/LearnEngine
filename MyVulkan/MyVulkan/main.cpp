@@ -25,10 +25,8 @@
 
 int main()
 {
-
-
 	VulkanInitializer	vulkanInitializer;
-	GraphicWindow		mainWindow(vulkanInitializer);	//レンダラー
+	GraphicWindow		mainWindow(vulkanInitializer);		//レンダラー
 	RenderConfig		renderConfig(vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
 
 	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
@@ -60,10 +58,7 @@ int main()
 	
 
 	
-	renderConfig.Initialize(
-		mainWindow.GetRenderer(),
-		&objContainer,
-		&camera);
+	renderConfig.Initialize(mainWindow.GetRenderer());
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!mainWindow.checkCloseWindow())
@@ -85,8 +80,9 @@ int main()
 
 		// ToDo :	描画はRenderConfigに、
 		//			表示はRendererが担当するように機能を分割したい
-		renderConfig.DrawImage(&objContainer, &camera);
-		//mainWindow.AddRenderQueue({ &renderConfig, &objContainer, &camera });
+		//renderConfig.DrawImage(&objContainer, &camera);
+		mainWindow.AddDrawTask(&renderConfig, &objContainer, &camera);
+		mainWindow.ExecuteDrawTask();
 	}
 
 	vulkanInitializer.cleanup();

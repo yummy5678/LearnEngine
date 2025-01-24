@@ -1,8 +1,10 @@
 #include "MeshObjectBuffer.h"
 
-VMeshObject::VMeshObject()
-    : m_Mesh(),
-      m_Material()
+VMeshObject::VMeshObject() :
+    m_Name(""),
+    m_Transform(0),
+    m_Mesh(),
+    m_Material()
 {
 }
 

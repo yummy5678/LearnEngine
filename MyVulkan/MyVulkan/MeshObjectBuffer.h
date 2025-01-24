@@ -20,7 +20,7 @@ private:
 	Transform		m_Transform;	// トランスフォーム
 	VMesh			m_Mesh;
 	VMaterial		m_Material;	
-	
+
 
 	void SetMesh(VmaAllocator* allocator, MeshObject* meshObject);
 	void SetMaterial(VmaAllocator* allocator, MeshObject* meshObject);

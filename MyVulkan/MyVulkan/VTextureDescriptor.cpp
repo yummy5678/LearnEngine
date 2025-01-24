@@ -9,11 +9,11 @@ VTextureDescriptor::~VTextureDescriptor()
 {
 }
 
-void VTextureDescriptor::Initialize(vk::Device* pLogicalDevice)
+void VTextureDescriptor::Initialize(vk::Device* pLogicalDevice, uint32_t bindNumber)
 {
     m_pLogicalDevice = pLogicalDevice;
 
-    CreateDescriptorSetLayout();
+    CreateDescriptorSetLayout(bindNumber);
     CreateDescriptorPool();
     CreateDescriptorSet();
 }
@@ -53,11 +53,11 @@ void VTextureDescriptor::UpdateDescriptorSet(vk::ImageView imageView, vk::Sample
 }
 
 
-void VTextureDescriptor::CreateDescriptorSetLayout()
+void VTextureDescriptor::CreateDescriptorSetLayout(uint32_t bindNumber)
 {
     // ディスクリプタセットレイアウトバインディングの設定
     vk::DescriptorSetLayoutBinding layoutBinding;
-    layoutBinding.binding = 0;
+    layoutBinding.binding = bindNumber;
     layoutBinding.descriptorType = m_DescriptorType; // テクスチャ用
     layoutBinding.descriptorCount = 1;
     layoutBinding.stageFlags = m_StageFlags;
