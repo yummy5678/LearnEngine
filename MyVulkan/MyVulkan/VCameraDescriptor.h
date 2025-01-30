@@ -5,7 +5,7 @@
 
 
 class VCameraDescriptor :
-    public VDescriptorBase	// ベースクラス(Get関数等をまとめるために使用している)
+    public VDescriptorLayoutBase	// ベースクラス(Get関数等をまとめるために使用している)
 {
 public:
 	VCameraDescriptor();

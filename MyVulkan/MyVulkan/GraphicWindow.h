@@ -34,6 +34,7 @@ public:
     GLFWwindow*     GetPointer();
     RendererBase*   GetRenderer();
 
+
     //ウィンドウの終了フラグが立っているか確認
     int checkCloseWindow();
 
@@ -48,6 +49,8 @@ private:
 
     DrawCommand             m_DrawCommand;
     std::vector<RenderTask> m_DrawTasks;
+
+   
 };
 
 

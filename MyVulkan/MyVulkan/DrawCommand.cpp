@@ -8,8 +8,10 @@ DrawCommand::DrawCommand() :
     m_ImageDrawIndex(0),
     m_ImageSet(),
     m_CommandBuffers(),
-    m_CommandPool()
+    m_CommandPool(VK_NULL_HANDLE),
+    m_QueueSelector(m_pPhysicalDevice)
 {
+
 }
 
 DrawCommand::~DrawCommand()
@@ -32,10 +34,10 @@ void DrawCommand::Create(vk::Device* pLogicalDevice, vk::PhysicalDevice* pPhysic
     //m_Fences = m_FenceGenerator.GetFence();
 
     //コマンドプール(コマンドを置く領域)を作成
-    m_CommandPool = CreateCommandPool(pLogicalDevice, pPhysicalDevice);
+    CreateCommandPool(pLogicalDevice);
 
     //コマンドプールにコマンドバッファを割り当て
-    m_CommandBuffers = CreateCommandBuffers(pLogicalDevice, imageSet.size(), m_CommandPool);
+    CreateCommandBuffers(pLogicalDevice, imageSet.size(), m_CommandPool);
 
 }
 
@@ -51,13 +53,20 @@ void DrawCommand::Destroy()
     m_pLogicalDevice->destroyCommandPool(m_CommandPool);
 }
 
-void DrawCommand::BeginRendering(vk::Rect2D renderArea)
+vk::CommandBuffer DrawCommand::GetBuffer()
 {
-    if (m_ImageSet.empty() == true) return; // 描画する為のイメージビューがセットされていなければ何もしない
+    if (m_CommandBuffers.empty() == true) 
+        throw std::runtime_error("コマンドを取り出そうとしましたが、それはまだ発行されていません");
+
+    return m_CommandBuffers[m_ImageDrawIndex];
+}
+
+void DrawCommand::BeginRendering(uint32_t index, vk::Rect2D renderArea)
+{
+    if (m_ImageSet.empty() == true) return; // 描画する為のイメージがセットされていなければ何もしない
 
     // インデックスのカウントを進める
-    m_ImageDrawIndex++;
-    m_ImageDrawIndex %= m_ImageSet.size();
+    m_ImageDrawIndex = index % m_ImageSet.size();   //  添え字がコマンド数の範囲内に収まるよう調整
 
     // カラーバッファアタッチメント
     vk::RenderingAttachmentInfo colorAttachment;
@@ -75,6 +84,11 @@ void DrawCommand::BeginRendering(vk::Rect2D renderArea)
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
     depthAttachment.clearValue = vk::ClearValue(vk::ClearDepthStencilValue(1.0f, 0));
 
+    vk::CommandBufferBeginInfo beginInfo;
+    beginInfo.flags;
+    beginInfo.pNext;
+    beginInfo.pInheritanceInfo; // セカンダリコマンドバッファ(使用しない)
+
 
     // ダイナミックレンダリングの設定
     vk::RenderingInfo renderingInfo;
@@ -86,6 +100,7 @@ void DrawCommand::BeginRendering(vk::Rect2D renderArea)
 
     // Dynamic Renderingを開始
     auto commandBuffer = m_CommandBuffers[m_ImageDrawIndex];
+    commandBuffer.begin(beginInfo);
     commandBuffer.beginRendering(renderingInfo);
 
 
@@ -95,36 +110,40 @@ void DrawCommand::BeginRendering(vk::Rect2D renderArea)
 void DrawCommand::EndRendering()
 {
     m_CommandBuffers[m_ImageDrawIndex].endRendering();
+    m_CommandBuffers[m_ImageDrawIndex].end();
+
+    // キューにコマンドを送信
+    vk::Queue queue = m_pLogicalDevice->getQueue(m_QueueSelector.GetGraphicIndex(), 0);
+    queue.submit(CreateSubmitInfo(m_CommandBuffers[m_ImageDrawIndex]), m_Fences[m_ImageDrawIndex]);
 }
 
 
-vk::CommandPool DrawCommand::CreateCommandPool(vk::Device* pLogicalDevice, vk::PhysicalDevice* pPhysicalDevice)
+void DrawCommand::CreateCommandPool(vk::Device* pLogicalDevice)
 {
-    // Get indices of queue families from device
-    QueueFamilySelector queue(*pPhysicalDevice);
+    if(m_pLogicalDevice == nullptr || *m_pLogicalDevice == VK_NULL_HANDLE)
+        throw std::runtime_error("コマンドプールを作成しようとしましたが、論理デバイスがNULLです");
+
+    if (m_pPhysicalDevice == nullptr || *m_pPhysicalDevice == VK_NULL_HANDLE)
+        throw std::runtime_error("コマンドプールを作成しようとしましたが、物理デバイスがNULLです");
 
     // コマンドプールの作成に必要な情報を設定する
-    VkCommandPoolCreateInfo poolInfo = {};
+    VkCommandPoolCreateInfo poolInfo;
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;	// コマンドバッファのリセットを許可する場合はフラグを追加する
-    poolInfo.queueFamilyIndex = queue.GetGraphicIndex();	            // このコマンドプールが使用するキューファミリー
+    poolInfo.queueFamilyIndex = m_QueueSelector.GetGraphicIndex();	            // このコマンドプールが使用するキューファミリー
 
-    // グラフィックスキューファミリー用のコマンドプールを作成する
-    vk::CommandPool pool;
-    try
-    {
-        pool = pLogicalDevice->createCommandPool(poolInfo);
-    }
-    catch (const std::exception&)
-    {
-        throw std::runtime_error("コマンドプールの作成に失敗しました！");
-    }
-
-    return pool;
+   m_CommandPool = pLogicalDevice->createCommandPool(poolInfo);
 }
 
-std::vector<vk::CommandBuffer> DrawCommand::CreateCommandBuffers(vk::Device* pLogicalDevice, uint32_t commandSize, vk::CommandPool commandPool)
+void DrawCommand::CreateCommandBuffers(vk::Device* pLogicalDevice, uint32_t commandSize, vk::CommandPool commandPool)
 {
+    if (m_pLogicalDevice == nullptr || *m_pLogicalDevice == VK_NULL_HANDLE)
+        throw std::runtime_error("コマンドバッファを作成しようとしましたが、論理デバイスがNULLです");
+
+    if (m_CommandPool == VK_NULL_HANDLE)
+        throw std::runtime_error("コマンドバッファを作成しようとしましたが、コマンドプールがNULLです");
+
+
     // コマンドバッファをアロケート(割り当てる)ための情報を設定する
     vk::CommandBufferAllocateInfo cbAllocInfo;
     cbAllocInfo.commandPool = commandPool;                  // コマンドバッファを割り当てるコマンドプール
@@ -132,24 +151,16 @@ std::vector<vk::CommandBuffer> DrawCommand::CreateCommandBuffers(vk::Device* pLo
     cbAllocInfo.commandBufferCount = commandSize;           // 割り当てるコマンドバッファの数
 
     // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
-    std::vector<vk::CommandBuffer> commandBuffers = pLogicalDevice->allocateCommandBuffers(cbAllocInfo); //配列で情報をやり取りする
+    m_CommandBuffers = pLogicalDevice->allocateCommandBuffers(cbAllocInfo); //配列で情報をやり取りする
 
-    // エラーチェック
-    if (commandBuffers.empty())
-    {
-        throw std::runtime_error("コマンドバッファの割り当てに失敗しました！");
-    }
-
-    return commandBuffers;
 }
 
 vk::SubmitInfo DrawCommand::CreateSubmitInfo(std::vector<vk::CommandBuffer>& commandBuffers, std::vector<vk::Semaphore>& signalSemaphores, std::vector<vk::Semaphore>& waitSemaphores)
 {
     vk::SubmitInfo submitInfo;
-    //submitInfo.pNext;
+    submitInfo.pNext;
     submitInfo.signalSemaphoreCount = (uint32_t)m_SignalSemaphores.size();
     submitInfo.pSignalSemaphores = m_SignalSemaphores.data();
-    submitInfo.allowDuplicate;
     submitInfo.pWaitDstStageMask;
     submitInfo.waitSemaphoreCount = (uint32_t)m_WaitSemaphores.size();
     submitInfo.pWaitSemaphores = m_WaitSemaphores.data();
@@ -175,39 +186,39 @@ vk::SubmitInfo DrawCommand::CreateSubmitInfo(vk::CommandBuffer& commandBuffer)
     return submitInfo;
 }
 
-void DrawCommand::RenderMesh(
-    vk::Pipeline pipeline,
-    vk::PipelineLayout pipelineLayout,
-    std::vector<vk::DescriptorSet>* descriptorSets,
-    VMeshObject* drawMesh,
-    Transform* ObjectTransform)
-{
-
-    // 使用するパイプラインをバインドします。
-    m_CommandBuffers[m_ImageDrawIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
-
-    // プッシュ定数をシェーダーに渡します。
-    m_CommandBuffers[m_ImageDrawIndex].pushConstants(
-        pipelineLayout,
-        vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
-        0,                                  // オフセット
-        sizeof(Transform),                  // プッシュするデータのサイズ
-        ObjectTransform                     // 実際のデータ
-    );
-
-
-    // 頂点バッファをバインド
-    m_CommandBuffers[m_ImageDrawIndex].bindVertexBuffers(0, drawMesh->GetPMesh()->GetVertex().GetBuffer(), {0});
-
-    m_CommandBuffers[m_ImageDrawIndex].bindDescriptorSets(
-        vk::PipelineBindPoint::eGraphics,
-        pipelineLayout,
-        0,
-        *descriptorSets,
-        nullptr);
-
-        // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
-    m_CommandBuffers[m_ImageDrawIndex].bindIndexBuffer(drawMesh->GetPMesh()->GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
-    m_CommandBuffers[m_ImageDrawIndex].drawIndexed(drawMesh->GetPMesh()->GetIndex().GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
-
-}
+//void DrawCommand::RenderMesh(
+//    vk::Pipeline pipeline,
+//    vk::PipelineLayout pipelineLayout,
+//    std::vector<vk::DescriptorSet>* descriptorSets,
+//    VMeshObject* drawMesh,
+//    Transform* ObjectTransform)
+//{
+//
+//    // 使用するパイプラインをバインドします。
+//    m_CommandBuffers[m_ImageDrawIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+//
+//    // プッシュ定数をシェーダーに渡します。
+//    m_CommandBuffers[m_ImageDrawIndex].pushConstants(
+//        pipelineLayout,
+//        vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
+//        0,                                  // オフセット
+//        sizeof(Transform),                  // プッシュするデータのサイズ
+//        ObjectTransform                     // 実際のデータ
+//    );
+//
+//
+//    // 頂点バッファをバインド
+//    m_CommandBuffers[m_ImageDrawIndex].bindVertexBuffers(0, drawMesh->GetPMesh()->GetVertex().GetBuffer(), {0});
+//
+//    m_CommandBuffers[m_ImageDrawIndex].bindDescriptorSets(
+//        vk::PipelineBindPoint::eGraphics,
+//        pipelineLayout,
+//        0,
+//        *descriptorSets,
+//        nullptr);
+//
+//        // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
+//    m_CommandBuffers[m_ImageDrawIndex].bindIndexBuffer(drawMesh->GetPMesh()->GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
+//    m_CommandBuffers[m_ImageDrawIndex].drawIndexed(drawMesh->GetPMesh()->GetIndex().GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
+//
+//}

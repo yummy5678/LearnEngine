@@ -72,7 +72,7 @@
     <ClCompile Include="PipelineShaderCreator.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="DescriptorBase.cpp">
+    <ClCompile Include="VDescriptorLayoutBase.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="ModelTexture.cpp">
@@ -111,7 +111,7 @@
     <ClCompile Include="StagingImageBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="VTextureDescriptor.cpp">
+    <ClCompile Include="VTextureDescriptorLayout.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="ViewProjectionBuffer.cpp">
@@ -145,6 +145,12 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="VShaderConfigureBase.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Observer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="VSingleDescriptor.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -225,7 +231,7 @@
     <ClInclude Include="PipelineDescriptions.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="DescriptorBase.h">
+    <ClInclude Include="VDescriptorLayoutBase.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="ModelTexture.h">
@@ -267,7 +273,7 @@
     <ClInclude Include="StagingImageBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="VTextureDescriptor.h">
+    <ClInclude Include="VTextureDescriptorLayout.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="ViewProjection.h">
@@ -310,6 +316,12 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="VShaderConfigureBase.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Observer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="VSingleDescriptor.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

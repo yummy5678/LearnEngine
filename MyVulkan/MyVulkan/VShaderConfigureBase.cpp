@@ -29,11 +29,11 @@ std::vector<vk::PipelineShaderStageCreateInfo> VShaderConfigureBase::GetShaderSt
 
 void VShaderConfigureBase::DestroyModule()
 {
-	if (m_pLogicalDevice == nullptr || *m_pLogicalDevice == VK_NULL_HANDLE) return;
+	//if (m_pLogicalDevice == nullptr || *m_pLogicalDevice == VK_NULL_HANDLE) return;
 
 	// モジュール削除関数
-	if (m_FragmentShaderModule)	m_pLogicalDevice->destroyShaderModule(m_FragmentShaderModule);
-	if (m_VertexShaderModule)	m_pLogicalDevice->destroyShaderModule(m_VertexShaderModule);
+	if (m_FragmentShaderModule != VK_NULL_HANDLE)	m_pLogicalDevice->destroyShaderModule(m_FragmentShaderModule);
+	if (m_FragmentShaderModule != VK_NULL_HANDLE)	m_pLogicalDevice->destroyShaderModule(m_VertexShaderModule);
 }
 
 void VShaderConfigureBase::CreateShaderModules(
@@ -56,6 +56,10 @@ void VShaderConfigureBase::CreateShaderModules(
 	// シェーダーモジュールの作成
 	m_VertexShaderModule	= CreateShaderModule(vertexShaderCode);
 	m_FragmentShaderModule	= CreateShaderModule(fragmentShaderCode);
+
+	// エントリポイントの名前を記憶
+	m_VertexEntryName = vertexEntry;
+	m_FragmentEntryName = fragmentEntry;
 }
 
 vk::ShaderModule VShaderConfigureBase::CreateShaderModule(const std::vector<char>& code)

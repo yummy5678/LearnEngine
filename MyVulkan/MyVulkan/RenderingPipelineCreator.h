@@ -40,7 +40,7 @@ private:
 	vk::PipelineLayout				m_PipelineLayout;
 
 	// デスクリプタ
-	VTextureDescriptor				m_TextureDescriptor;
+	VTextureDescriptorLayout				m_TextureDescriptor;
 
 
 	vk::GraphicsPipelineCreateInfo	m_PipelineInfo;

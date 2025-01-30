@@ -34,9 +34,9 @@ void RenderingPipelineCreator::Create(
 {
 	m_bCreated = true;
 
-	//m_TextureDescriptor.CreateSingleDescriptorSet();
+	//m_TextureDescriptors.CreateSingleDescriptorSet();
 	//パイプラインレイアウトの作成	//今は作らなくていいかも
-	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptor.GetDescriptorSetLayout() };
+	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptors.GetDescriptorSetLayout() };
 	CreatePipelineLayout(descriptorSetLayouts, pushConstantRanges);
 
 	//パイプラインの作成

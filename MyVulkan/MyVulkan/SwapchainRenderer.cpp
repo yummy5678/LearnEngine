@@ -53,11 +53,6 @@ SwapChainImage SwapchainRenderer::GetImages()
     return m_SwapChainImages;
 }
 
-vk::Extent2D SwapchainRenderer::GetFrameExtent()
-{
-    return m_SwapchainInfo.imageExtent;
-}
-
 vk::Extent2D SwapchainRenderer::GetExtent()
 {
     return m_SwapchainInfo.imageExtent;

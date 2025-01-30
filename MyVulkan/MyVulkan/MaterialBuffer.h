@@ -1,7 +1,7 @@
 #pragma once
 #include "MeshObject.h"
 #include "VTextureBuffer.h"
-#include "VTextureDescriptor.h"
+#include "Observer.h"
 
 
 class VMaterial
@@ -15,7 +15,11 @@ public:
 	vk::Image			GetTextureBuffer();
 	vk::ImageView		GetTextureImageView();
 	vk::Sampler			GetSampler();
-	//vk::DescriptorSet	GetDescriptorSet();
+
+	// オブザーバーの管理関数
+	void SetMMaterialUpdateObserver(ObserveFunction function);
+	void DeleteMaterialUpdateObserver(ObserveFunction function);
+
 private:
 	//glm::vec4 baseColor;	// 未作成
 	//float metallic;
@@ -23,10 +27,11 @@ private:
 	VTextureBuffer		m_Texture;
 
 	vk::Sampler			m_Sampler;
-	//VTextureDescriptor	m_SamplerDescriptor;
+
+	Subject			m_BufferUpdateSubject;
 
 	void SetTexture(VmaAllocator* allocator, Texture& texture);
 	void CreateSampler(vk::Device logicalDevice);
-	//void CreateSamplerDescriptor(vk::Device logicalDevice);
+
 };
 

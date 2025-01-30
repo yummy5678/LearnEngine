@@ -31,12 +31,12 @@ private:
 	std::vector<vk::Image>			m_ColorImages;
 	vk::Format						m_ColorFormat;
 	std::vector<vk::ImageView>		m_ColorImageViews;
-	//VTextureDescriptor				m_ColorDescriptor;
+	//VTextureDescriptorLayout				m_ColorDescriptor;
 
 	// 深度イメージ
 	std::vector<VImage>				m_DepthImages;
 	vk::Format						m_DepthFormat;
-	//VTextureDescriptor				m_DepthDescriptor;
+	//VTextureDescriptorLayout				m_DepthDescriptor;
 
 	void CreateColor(vk::Device logicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
 	void CreateDepth(VmaAllocator* allocator, vk::SwapchainCreateInfoKHR m_SwapchainInfo);

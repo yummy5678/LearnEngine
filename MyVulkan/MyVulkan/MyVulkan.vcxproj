@@ -132,14 +132,16 @@
   <ItemGroup>
     <ClCompile Include="DrawCommand.cpp" />
     <ClCompile Include="GltfLoader.cpp" />
+    <ClCompile Include="Observer.cpp" />
     <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="SceneCamera.cpp" />
-    <ClCompile Include="DescriptorBase.cpp" />
+    <ClCompile Include="VDescriptorLayoutBase.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
     <ClCompile Include="VCameraDescriptor.cpp" />
     <ClCompile Include="VImage.cpp" />
     <ClCompile Include="VImageBufferBase.cpp" />
     <ClCompile Include="VShaderConfigureBase.cpp" />
+    <ClCompile Include="VSingleDescriptor.cpp" />
     <ClCompile Include="VTextureBuffer.cpp" />
     <ClCompile Include="SwapchainImage.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
@@ -166,7 +168,7 @@
     <ClCompile Include="ViewProjectionBuffer.cpp" />
     <ClCompile Include="VmaCreator.cpp" />
     <ClCompile Include="VmaUsage.cpp" />
-    <ClCompile Include="VTextureDescriptor.cpp" />
+    <ClCompile Include="VTextureDescriptorLayout.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
     <ClCompile Include="VulkanInitializer.cpp" />
@@ -183,14 +185,16 @@
     <ClInclude Include="DrawCommand.h" />
     <ClInclude Include="GltfLoader.h" />
     <ClInclude Include="ImageSet.h" />
+    <ClInclude Include="Observer.h" />
     <ClInclude Include="RendererBase.h" />
     <ClInclude Include="SceneCamera.h" />
-    <ClInclude Include="DescriptorBase.h" />
+    <ClInclude Include="VDescriptorLayoutBase.h" />
     <ClInclude Include="FenceGenerator.h" />
     <ClInclude Include="VCameraDescriptor.h" />
     <ClInclude Include="VImage.h" />
     <ClInclude Include="VImageBufferBase.h" />
     <ClInclude Include="VShaderConfigureBase.h" />
+    <ClInclude Include="VSingleDescriptor.h" />
     <ClInclude Include="VTextureBuffer.h" />
     <ClInclude Include="SwapchainImage.h" />
     <ClInclude Include="DeviceExtensionManager.h" />
@@ -222,7 +226,7 @@
     <ClInclude Include="VmaCallbackFunction.h" />
     <ClInclude Include="VmaCreator.h" />
     <ClInclude Include="VmaUsage.h" />
-    <ClInclude Include="VTextureDescriptor.h" />
+    <ClInclude Include="VTextureDescriptorLayout.h" />
     <ClInclude Include="QueueUtility.h" />
     <ClInclude Include="VulkanInitializer.h" />
     <ClInclude Include="ShaderUtility.h" />

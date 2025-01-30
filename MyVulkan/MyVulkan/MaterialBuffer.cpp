@@ -38,9 +38,20 @@ vk::Sampler VMaterial::GetSampler()
 	return m_Sampler;
 }
 
+void VMaterial::SetMMaterialUpdateObserver(ObserveFunction function)
+{
+	m_BufferUpdateSubject.addObserver(function);
+}
+
+void VMaterial::DeleteMaterialUpdateObserver(ObserveFunction function)
+{
+	m_BufferUpdateSubject.removeObserver(function);
+}
+
 void VMaterial::SetTexture(VmaAllocator* allocator, Texture& texture)
 {
 	m_Texture.SetImage(allocator, texture);
+	m_BufferUpdateSubject.notifyObservers();
 }
 
 void VMaterial::CreateSampler(vk::Device logicalDevice)

@@ -51,7 +51,7 @@ int main()
 
 	// 描画用のクラスにモデルをセット
 	m_Object.SetMesh(vulkanInitializer.GetPVmaAllocator(), &mesh);
-	std::vector<RenderObject> objContainer = { m_Object };
+	std::vector<RenderObject*> objContainer = { &m_Object };
 
 	// カメラクラスを作成
 	SceneCamera camera(allocator);
@@ -78,9 +78,9 @@ int main()
 		m_Object.SetTransform(testMat);
 
 
-		// ToDo :	描画はRenderConfigに、
+		//  ToDo :	描画はRenderConfigに、
 		//			表示はRendererが担当するように機能を分割したい
-		//renderConfig.DrawImage(&objContainer, &camera);
+		// renderConfig.DrawImage(&objContainer, &camera);
 		mainWindow.AddDrawTask(&renderConfig, &objContainer, &camera);
 		mainWindow.ExecuteDrawTask();
 	}

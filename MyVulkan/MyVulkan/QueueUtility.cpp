@@ -2,10 +2,10 @@
 
 
 
-QueueFamilySelector::QueueFamilySelector(vk::PhysicalDevice& physicalDevice)
+QueueFamilySelector::QueueFamilySelector(vk::PhysicalDevice* physicalDevice)
 {
 	std::cout << "QueueFamilySelector‚ªì¬‚³‚ê‚Ü‚µ‚½" << std::endl;
-	m_pPhysicalDevice = &physicalDevice;
+	m_pPhysicalDevice = physicalDevice;
 }
 
 QueueFamilySelector::~QueueFamilySelector()

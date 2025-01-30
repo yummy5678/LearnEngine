@@ -9,7 +9,7 @@ constexpr uint32_t NoneQueueNumber = UINT32_MAX;   //ÉLÉÖÅ[Ç™å©Ç¬Ç©Ç¡ÇΩÇ©ÇÃîªíËÇ
 class QueueFamilySelector
 {
 public:
-    QueueFamilySelector(vk::PhysicalDevice& physicalDevice);
+    QueueFamilySelector(vk::PhysicalDevice* pPhysicalDevice);
     ~QueueFamilySelector();
 
     uint32_t GetGraphicIndex();

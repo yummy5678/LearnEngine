@@ -7,7 +7,7 @@
 #include "RendererBase.h"
 #include "SceneCamera.h"
 #include "VCameraDescriptor.h"
-#include "DrawCommand.h"
+#include "VSingleDescriptor.h"
 
 // シーンクラスからVulkanのグラフィックパイプラインへの
 // 描画モデルの情報の橋渡しを行うクラス
@@ -48,6 +48,8 @@ public:
 
 	//void DrawImage(std::vector<RenderObject>* objects, SceneCamera* camera);
 
+	void BindRenderingCommand(vk::CommandBuffer command, std::vector<RenderObject>* pObjects, SceneCamera* pCamera);
+
 private:
 	vk::Device* m_pLogicalDevice;
 	vk::PhysicalDevice* m_pPhygicalDevice;
@@ -63,8 +65,11 @@ private:
 	//パイプラインに渡すシェーダー情報の作成クラス
 	VModelShaderConfiguer	m_Shader;
 
+	std::vector<std::weak_ptr<VMaterial*>>				m_RenderObjects;
+	std::unordered_map<std::weak_ptr<VMaterial*>, VSingleDescriptor>	m_TextureDescriptors;
+
 	//// デスクリプタ
-	//VTextureDescriptor		m_TextureDescriptor;
+	//VTextureDescriptorLayout		m_TextureDescriptors;
 	//VCameraDescriptor		m_CameraDescriptor;
 
 	//// 頂点入力情報	//ToDo:後で専用のクラスに分ける
@@ -75,4 +80,6 @@ private:
 
 	//vk::PushConstantRange	GetPushConstantModelRange();
 	//vk::PipelineVertexInputStateCreateInfo GetVertexInputState();
+	void CreateTextureDescriptor(VMaterial* pMaterial);
+	void UpdateTextureDescriptor();
 };

@@ -23,6 +23,6 @@ private:
 	void SetVertex(VmaAllocator* allocator, std::vector<Vertex>  vertex);
 	void SetIndex(VmaAllocator* allocator, std::vector<uint32_t> index);
 
-
+	Subject			m_MeshUpdateSubject;
 };
 

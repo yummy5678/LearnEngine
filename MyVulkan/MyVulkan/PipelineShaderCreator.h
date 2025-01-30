@@ -2,8 +2,9 @@
 #include "VShaderConfigureBase.h"
 #include "GraphicsDefine.h"
 #include "MeshObject.h"
-#include "VTextureDescriptor.h"
+#include "VTextureDescriptorLayout.h"
 #include "VCameraDescriptor.h"
+
 
 // シェーダーの読み込みとモジュール、ステージの作成を行うクラス
 // 一緒にデスクリプタの管理も行う 
@@ -25,11 +26,14 @@ public:
 	std::vector<vk::PushConstantRange>		GetPushConstantRanges()		override;
 	vk::PipelineVertexInputStateCreateInfo	GetVertexInputState()		override;
 
+	vk::DescriptorSetLayout					GetTextureDescriptorLayout();
+	vk::DescriptorSetLayout					GetCameraDescriptorLayout();
+
 protected:
 
 	// デスクリプタ
-	VTextureDescriptor		m_TextureDescriptor;
-	VCameraDescriptor		m_CameraDescriptor;
+	VTextureDescriptorLayout							m_TextureLauout;
+	VCameraDescriptor									m_CameraDescriptor;
 
 	// 頂点入力情報	
 	std::vector<vk::VertexInputBindingDescription>		m_BindingDescriptions;

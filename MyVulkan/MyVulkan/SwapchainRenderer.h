@@ -23,7 +23,6 @@ public:
 	vk::SwapchainKHR			GetSwapchain();
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
 	SwapChainImage				GetImages();
-	vk::Extent2D				GetFrameExtent();
 	vk::Extent2D				GetExtent()  override;
 	std::vector<ImageViewSet>	GetImageSets() override;
 	vk::Format					GetColorFormat() override;

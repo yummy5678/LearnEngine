@@ -2,7 +2,7 @@
 
 
 VCameraDescriptor::VCameraDescriptor() : 
-	VDescriptorBase(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex)
+	VDescriptorLayoutBase(vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex)
 {
 }
 
@@ -29,7 +29,8 @@ void VCameraDescriptor::Update(vk::Buffer buffer)
 
 void VCameraDescriptor::CreateDescriptorSetLayout(uint32_t bindNumber)
 {
-    if (m_pLogicalDevice == nullptr) throw std::runtime_error("CreateDescriptorSet : 論理デバイスがnullptrです!");
+    if (m_pLogicalDevice == nullptr ||
+        *m_pLogicalDevice == nullptr) throw std::runtime_error("CreateDescriptorSet : 論理デバイスがnullptrです!");
     vk::DescriptorSetLayoutBinding descSetLayoutBinding;
     descSetLayoutBinding.binding = bindNumber;              // シェーダー側の位置
     descSetLayoutBinding.descriptorType = m_DescriptorType; // ユニフォームバッファの情報

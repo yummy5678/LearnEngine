@@ -32,6 +32,7 @@ void GraphicWindow::init(const std::string wName, const int width, const int hei
 	if (m_pInitializer->CheckSupportSurface(m_Surface.GetSurface()) == false)
 	{
 		// スワップチェイン出来ないエラーメッセージ
+		throw std::runtime_error("サーフェスがスワップチェインに対応していません！");
 		return;
 	}
 
@@ -56,25 +57,18 @@ void GraphicWindow::AddDrawTask(RenderConfig* pRenderConfig, std::vector<RenderO
 
 void GraphicWindow::ExecuteDrawTask()
 {
-	m_DrawCommand.BeginRendering({ {0, 0}, m_GraphicController.GetFrameExtent() });
+	// 描画コマンドの記録開始
+	m_DrawCommand.BeginRendering(0, { {0, 0}, m_GraphicController.GetExtent() });
 
+	// オブジェクトをパイプラインを通して描画
 	for (const auto& task : m_DrawTasks)
 	{
-		auto pipeline = task.config->GetPipeline();
-		auto pipelineLayout = task.config->GetPipelineLayout();
-		auto descriptorSets = task.config->GetPShaderConfiguer()->GetDescriptorSets();
-
-		for (auto& model : *task.objects)
-		{
-		    for (auto& mesh : *model.GetMeshes())
-		    {
-		        // m_TextureDescriptor.Update(mesh.GetPMaterial()->GetTextureImageView(), mesh.GetPMaterial()->GetSampler());
-		        m_DrawCommand.RenderMesh(pipeline, pipelineLayout, &descriptorSets, &mesh, model.GetPTransform());
-		    }
-		}
+		task.config->BindRenderingCommand(m_DrawCommand.GetBuffer(), task.objects, task.camera);
 	}
 
+	// コマンドの記録の終了とキューへの送信
 	m_DrawCommand.EndRendering();
+
 }
 
 GLFWwindow* GraphicWindow::GetPointer()
