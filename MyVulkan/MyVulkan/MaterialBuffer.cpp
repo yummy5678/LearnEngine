@@ -1,8 +1,10 @@
 #include "MaterialBuffer.h"
 
 VMaterial::VMaterial() : 
+	m_LogicalDevice(VK_NULL_HANDLE),
 	m_Texture(),
-	m_Sampler(VK_NULL_HANDLE)
+	m_Sampler(VK_NULL_HANDLE),
+	m_DescriptorManager(&m_LogicalDevice)
 {
 }
 
@@ -12,14 +14,19 @@ VMaterial::~VMaterial()
 
 void VMaterial::SetMaterial(VmaAllocator* allocator, Material material)
 {
+	VmaAllocatorInfo allocatorInfo;
+	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
+
+	m_LogicalDevice = allocatorInfo.device;
 	SetTexture(allocator, material.texture);
 
 	if (m_Sampler == VK_NULL_HANDLE)
 	{
-		VmaAllocatorInfo allocatorInfo;
-		vmaGetAllocatorInfo(*allocator, &allocatorInfo);
 		CreateSampler(allocatorInfo.device);
 	}
+
+
+	m_DescriptorManager.UpdateAll(m_Texture.GetImageView(), m_Sampler);
 }
 
 vk::Image VMaterial::GetTextureBuffer()
@@ -38,20 +45,32 @@ vk::Sampler VMaterial::GetSampler()
 	return m_Sampler;
 }
 
-void VMaterial::SetMMaterialUpdateObserver(ObserveFunction function)
-{
-	m_BufferUpdateSubject.addObserver(function);
-}
+//void VMaterial::SetMMaterialUpdateObserver(ObserveFunction function)
+//{
+//	m_BufferUpdateSubject.addObserver(function);
+//}
+//
+//void VMaterial::DeleteMaterialUpdateObserver(ObserveFunction function)
+//{
+//	m_BufferUpdateSubject.removeObserver(function);
+//}
 
-void VMaterial::DeleteMaterialUpdateObserver(ObserveFunction function)
+vk::DescriptorSet VMaterial::GetDescriptorLayout(std::weak_ptr<vk::DescriptorSetLayout> wDescriptorSetLayout)
 {
-	m_BufferUpdateSubject.removeObserver(function);
+	if (m_DescriptorManager.HasDescriptor(wDescriptorSetLayout) == false)
+	{
+		m_DescriptorManager.SetDescriptorSet(wDescriptorSetLayout);
+		m_DescriptorManager.UpdateAll(m_Texture.GetImageView(), m_Sampler);
+	}
+
+
+	return m_DescriptorManager.GetVDescriptorSet(wDescriptorSetLayout).GetDescriptorSet();
 }
 
 void VMaterial::SetTexture(VmaAllocator* allocator, Texture& texture)
 {
 	m_Texture.SetImage(allocator, texture);
-	m_BufferUpdateSubject.notifyObservers();
+	//m_BufferUpdateSubject.notifyObservers();
 }
 
 void VMaterial::CreateSampler(vk::Device logicalDevice)

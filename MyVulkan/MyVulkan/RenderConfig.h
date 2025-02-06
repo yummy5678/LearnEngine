@@ -7,13 +7,17 @@
 #include "RendererBase.h"
 #include "SceneCamera.h"
 #include "VCameraDescriptor.h"
-#include "VSingleDescriptor.h"
+#include "DescriptorHandleManeger.h"
+#include "GraphicWindow.h"
+#include "RenderFunction.h"
 
 // シーンクラスからVulkanのグラフィックパイプラインへの
 // 描画モデルの情報の橋渡しを行うクラス
 
 // シェーダーや描画時の細かい設定も
 // ここで決められるようにしたい。
+
+using RenderingObjects = std::vector<RenderObject*>;
 
 // まだ仮クラス
 class RenderConfig
@@ -47,8 +51,8 @@ public:
 	//std::vector<vk::PushConstantRange>		GetPushConstantRanges();
 
 	//void DrawImage(std::vector<RenderObject>* objects, SceneCamera* camera);
-
-	void BindRenderingCommand(vk::CommandBuffer command, std::vector<RenderObject>* pObjects, SceneCamera* pCamera);
+	std::shared_ptr<RenderFunction> GetRenderFunction(RenderingObjects* pObjects, SceneCamera* pCamera);
+	//oid BindRenderingCommand(vk::CommandBuffer command, std::vector<RenderObject*>* pObjects, SceneCamera* pCamera);
 
 private:
 	vk::Device* m_pLogicalDevice;
@@ -65,12 +69,18 @@ private:
 	//パイプラインに渡すシェーダー情報の作成クラス
 	VModelShaderConfiguer	m_Shader;
 
-	std::vector<std::weak_ptr<VMaterial*>>				m_RenderObjects;
-	std::unordered_map<std::weak_ptr<VMaterial*>, VSingleDescriptor>	m_TextureDescriptors;
+	std::vector<std::weak_ptr<RenderFunction>>		m_RenderFunction;
+	std::unordered_map<void*, RenderingObjects*>	m_pObjects;
+	std::unordered_map<void*, SceneCamera*>			m_pCamera;
+
+	//DescriptorHandleManeger<VMaterial> m_DescriptorHandleManeger;
+	//std::vector<std::pair<std::weak_ptr<VMaterial*>, VSingleTextureDescriptor>>	m_RenderObjects;
+
+	//std::pair<std::weak_ptr<VMaterial*>, VSingleTextureDescriptor>* SearchTextureDeskriptor(VMaterial* target);
 
 	//// デスクリプタ
-	//VTextureDescriptorLayout		m_TextureDescriptors;
-	//VCameraDescriptor		m_CameraDescriptor;
+	//VTextureDescriptorSetLayout		m_TextureDescriptors;
+	//VCameraDescriptorSetLayout		m_CameraDescriptor;
 
 	//// 頂点入力情報	//ToDo:後で専用のクラスに分ける
 	//std::vector<vk::VertexInputBindingDescription>		m_BindingDescriptions;
@@ -80,6 +90,8 @@ private:
 
 	//vk::PushConstantRange	GetPushConstantModelRange();
 	//vk::PipelineVertexInputStateCreateInfo GetVertexInputState();
-	void CreateTextureDescriptor(VMaterial* pMaterial);
+	void CreateTextureDescriptor(VTextureBuffer* pMaterial);
 	void UpdateTextureDescriptor();
+
+
 };

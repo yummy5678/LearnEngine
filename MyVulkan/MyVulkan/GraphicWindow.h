@@ -1,18 +1,21 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h> //ウィンドウの作成にGLFWライブラリを使う
+#include <GLFW/glfw3.h>         //ウィンドウの作成にGLFWライブラリを使う
 #include <string>
 #include "Surface.h"
 #include "VulkanInitializer.h" 
 #include "SwapchainRenderer.h"
+#include "DrawCommand.h"
+#include "RenderFunction.h"
 
-struct RenderTask
-{
-    RenderConfig* config;
-    std::vector<RenderObject>* objects;
-    SceneCamera* camera;
-};
+//struct RenderTask
+//{
+//    RenderConfig* config;
+//    std::vector<RenderObject*>* objects;
+//    SceneCamera* camera;
+//};
+
 
 //ウィンドウ作成用のクラス
 class GraphicWindow
@@ -27,7 +30,7 @@ public:
     //ウィンドウの終了処理
     void kill();
 
-    void AddDrawTask(RenderConfig* pRenderConfig, std::vector<RenderObject>* pObjects, SceneCamera* pCamera);
+    void AddDrawTask(std::shared_ptr<RenderFunction> function);
 	void ExecuteDrawTask();
 
     //ウィンドウのポインターを渡す
@@ -48,8 +51,8 @@ private:
     SwapchainRenderer       m_GraphicController;
 
     DrawCommand             m_DrawCommand;
-    std::vector<RenderTask> m_DrawTasks;
-
+    //std::vector<RenderTask> m_DrawTasks;
+    std::vector<std::shared_ptr<RenderFunction>> m_RenderFunctions;
    
 };
 

@@ -49,7 +49,7 @@ private:
 
 
 	//コマンドプールの作成
-	vk::CommandPool CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice);
+	vk::CommandPool CreateCommandPool();
 
 	//コマンドバッファの作成(コマンドプールの割り当て)
 	std::vector<vk::CommandBuffer>	CreateCommandBuffers(vk::Device logicalDevice, uint32_t commandSize, vk::CommandPool commandPool);

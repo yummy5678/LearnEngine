@@ -19,7 +19,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectGraphicsDevice()
 	// 適切なデバイスが見つかるまでループする
 	for (auto& device : m_PhysicalDevices)
 	{
-        QueueFamilySelector queueFamily(device);
+        QueueFamilySelector queueFamily(&device);
 		//デバイスが使用する拡張機能、
 		if (queueFamily.GetGraphicIndex() != NoneQueueNumber)
 		{
@@ -37,7 +37,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectComputeDevice()
     // 適切なデバイスが見つかるまでループする
     for (auto& device : m_PhysicalDevices)
     {
-        QueueFamilySelector queueFamily(device);
+        QueueFamilySelector queueFamily(&device);
         if (queueFamily.GetComputeIndex() != NoneQueueNumber)
         {
             // 適切なデバイスが見つかった
@@ -54,7 +54,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectTransferDevice()
     // 適切なデバイスが見つかるまでループする
     for (auto& device : m_PhysicalDevices)
     {
-        QueueFamilySelector queueFamily(device);
+        QueueFamilySelector queueFamily(&device);
         if (queueFamily.GetTransferIndex() != NoneQueueNumber)
         {
             // 適切なデバイスが見つかった
@@ -73,7 +73,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice()
     {
         // 描画用キューと表示用キューが存在し、
         // 拡張機能にも対応している
-        QueueFamilySelector queueFamily(device);
+        QueueFamilySelector queueFamily(&device);
         if (queueFamily.GetGraphicIndex()               != NoneQueueNumber &&
             //queueFamily.GetPresentationIndex(surface)   != NoneQueueNumber &&
             //CheckSupportSurface(device,surface) == true                     &&

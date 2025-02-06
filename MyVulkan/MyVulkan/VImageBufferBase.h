@@ -3,8 +3,6 @@
 #include <VMA/vk_mem_alloc.h>
 #include "MeshObject.h"
 #include "StagingImageBuffer.h"
-#include "Observer.h"
-
 
 
 class VImageBufferBase

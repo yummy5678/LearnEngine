@@ -8,7 +8,8 @@ GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_Surface(initializer),
 	m_GraphicController(initializer),
 	m_DrawCommand(),
-	m_DrawTasks()
+	m_RenderFunctions()
+	/*m_DrawTasks()*/
 {
 
 }
@@ -50,9 +51,10 @@ void GraphicWindow::kill()
 	glfwTerminate();
 }
 
-void GraphicWindow::AddDrawTask(RenderConfig* pRenderConfig, std::vector<RenderObject>* pObjects, SceneCamera* pCamera)
+void GraphicWindow::AddDrawTask(std::shared_ptr<RenderFunction> function)
 {
-	m_DrawTasks.push_back(RenderTask{ pRenderConfig, pObjects, pCamera });
+	// 後で描画コマンドを発行する関数自体を入れるようにしたい
+	m_RenderFunctions.push_back(function);
 }
 
 void GraphicWindow::ExecuteDrawTask()
@@ -61,10 +63,12 @@ void GraphicWindow::ExecuteDrawTask()
 	m_DrawCommand.BeginRendering(0, { {0, 0}, m_GraphicController.GetExtent() });
 
 	// オブジェクトをパイプラインを通して描画
-	for (const auto& task : m_DrawTasks)
+	for (auto& function : m_RenderFunctions)
 	{
-		task.config->BindRenderingCommand(m_DrawCommand.GetBuffer(), task.objects, task.camera);
+		//task.config->BindRenderingCommand(m_DrawCommand.GetBuffer(), task.objects, task.camera);
+		(*function)(m_DrawCommand.GetBuffer(),  this);
 	}
+
 
 	// コマンドの記録の終了とキューへの送信
 	m_DrawCommand.EndRendering();

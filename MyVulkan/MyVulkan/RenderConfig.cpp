@@ -29,8 +29,8 @@ void RenderConfig::Initialize(RendererBase* renderere)
     m_RenderArea.setOffset({ 0, 0 });
     m_RenderArea.setExtent(extent);
 
-    // m_CameraDescriptor.Update(camera->GetProjectionBuffer());
-    // m_TextureDescriptors.Update();
+    // m_CameraDescriptor.UpdateAll(camera->GetProjectionBuffer());
+    // m_TextureDescriptors.UpdateAll();
 
 
     auto descriptorSetLayouts   = m_Shader.GetDescriptorSetLayouts();
@@ -77,79 +77,127 @@ VModelShaderConfiguer* RenderConfig::GetPShaderConfiguer()
     return &m_Shader;
 }
 
-void RenderConfig::BindRenderingCommand(
-    vk::CommandBuffer command,
-    std::vector<RenderObject>* pObjects, 
-    SceneCamera* pCamera)
+std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects* pObjects, SceneCamera* pCamera)
 {
-    // NULLチェック
-    if (command == VK_NULL_HANDLE || pObjects == nullptr || pCamera == nullptr)
-        return;
+    // ToDo : 必要なくなったm_RenderFunctionとそれに付随するオブジェクトのリンクを削除
 
-    auto pipeline = m_GraphicsPipeline.GetPipeline();
-    auto pipelineLayout = m_GraphicsPipeline.GetPipelineLayout();
 
-    // 使用するパイプラインをバインドします。
-    command.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
-
-    for (auto& object : *pObjects)
-    {
-        for (auto& mesh : *object.GetMeshes())
+    /*std::function<void(vk::CommandBuffer commandBuffer)>;*/
+    std::shared_ptr<RenderFunction> result = std::make_shared<RenderFunction>(
+        [this](vk::CommandBuffer commandBuffer, void* key)
         {
-            CreateTextureDescriptor(mesh.GetPMaterial());
-
-            // プッシュ定数をシェーダーに渡します。
-            command.pushConstants(
-                pipelineLayout,
-                vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
-                0,                                  // オフセット
-                sizeof(Transform),                  // プッシュするデータのサイズ
-                object.GetPTransform()              // 実際のデータ
-            );
-
-            auto vertexBuffer = mesh.GetPMesh()->GetVertex();
-            auto indexBuffer = mesh.GetPMesh()->GetIndex();
+            // NULLチェック
+            if (commandBuffer == VK_NULL_HANDLE || m_pObjects[key] == nullptr || m_pCamera[key] == nullptr)
+                return;
 
 
-            // 頂点バッファをバインド
-            command.bindVertexBuffers(0, vertexBuffer.GetBuffer(), {0});
+            auto pipeline = m_GraphicsPipeline.GetPipeline();
+            auto pipelineLayout = m_GraphicsPipeline.GetPipelineLayout();
 
-            command.bindDescriptorSets(
-                vk::PipelineBindPoint::eGraphics,
-                pipelineLayout,
-                0,
-                m_Shader.GetDescriptorSets(),
-                nullptr);
+            // 使用するパイプラインをバインドします。
+            commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
 
-            // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
-            command.bindIndexBuffer(indexBuffer.GetBuffer(), 0, vk::IndexType::eUint32);
-            command.drawIndexed(indexBuffer.GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
+            for (auto& object : *m_pObjects[key])
+            {
+                for (auto& mesh : *object->GetMeshes())
+                {
+                    mesh.GetSPMaterial().get()->GetDescriptorLayout(m_Shader.GetTextureDescriptorLayout());
 
-        }
-    }
+                    // プッシュ定数をシェーダーに渡します。
+                    commandBuffer.pushConstants(
+                        pipelineLayout,
+                        vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
+                        0,                                  // オフセット
+                        sizeof(Transform),                  // プッシュするデータのサイズ
+                        object->GetPTransform()              // 実際のデータ
+                    );
+
+                    auto vertexBuffer = mesh.GetSPMesh()->GetVertex();
+                    auto indexBuffer = mesh.GetSPMesh()->GetIndex();
+
+
+                    // 頂点バッファをバインド
+                    commandBuffer.bindVertexBuffers(0, vertexBuffer.GetBuffer(), { 0 });
+
+                    commandBuffer.bindDescriptorSets(
+                        vk::PipelineBindPoint::eGraphics,
+                        pipelineLayout,
+                        0,
+                        m_Shader.GetDescriptorSets(),
+                        nullptr);
+
+                    // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
+                    commandBuffer.bindIndexBuffer(indexBuffer.GetBuffer(), 0, vk::IndexType::eUint32);
+                    commandBuffer.drawIndexed(indexBuffer.GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
+
+                }
+            }
+        });
+    m_RenderFunction.push_back(result);
+    m_pObjects[&result] = pObjects;
+    m_pCamera[&result] = pCamera;
+    return result;
 }
 
-void RenderConfig::CreateTextureDescriptor(VMaterial* pMaterial)
-{
-    //auto material = std::make_shared<VMaterial*>(std::move(pMaterial));
-    auto material = std::make_shared<VMaterial*>(pMaterial);
-    m_RenderObjects.push_back(material);
-    m_TextureDescriptors[material].Initialize(m_pLogicalDevice, m_Shader.GetTextureDescriptorLayout());
+//void RenderConfig::BindRenderingCommand(
+//    vk::CommandBuffer command,
+//    std::vector<RenderObject*>* pObjects, 
+//    SceneCamera* pCamera)
+//{
+//     NULLチェック
+//    if (command == VK_NULL_HANDLE || pObjects == nullptr || pCamera == nullptr)
+//        return;
+//
+//    auto pipeline = m_GraphicsPipeline.GetPipeline();
+//    auto pipelineLayout = m_GraphicsPipeline.GetPipelineLayout();
+//
+//     使用するパイプラインをバインドします。
+//    command.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+//
+//    for (auto& object : *pObjects)
+//    {
+//        for (auto& mesh : *object->GetMeshes())
+//        {
+//            mesh.GetSPMaterial().get()->GetDescriptorLayout(m_Shader.GetTextureDescriptorLayout());
+//
+//             プッシュ定数をシェーダーに渡します。
+//            command.pushConstants(
+//                pipelineLayout,
+//                vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
+//                0,                                  // オフセット
+//                sizeof(Transform),                  // プッシュするデータのサイズ
+//                object->GetPTransform()              // 実際のデータ
+//            );
+//
+//            auto vertexBuffer = mesh.GetSPMesh()->GetVertex();
+//            auto indexBuffer = mesh.GetSPMesh()->GetIndex();
+//
+//
+//             頂点バッファをバインド
+//            command.bindVertexBuffers(0, vertexBuffer.GetBuffer(), {0});
+//
+//            command.bindDescriptorSets(
+//                vk::PipelineBindPoint::eGraphics,
+//                pipelineLayout,
+//                0,
+//                m_Shader.GetDescriptorSets(),
+//                nullptr);
+//
+//             インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
+//            command.bindIndexBuffer(indexBuffer.GetBuffer(), 0, vk::IndexType::eUint32);
+//            command.drawIndexed(indexBuffer.GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
+//
+//        }
+//    }
+//}
 
-    pMaterial->SetMMaterialUpdateObserver([](){});
-}
-
-void RenderConfig::UpdateTextureDescriptor()
-{
-
-}
 
 //std::vector<vk::DescriptorSet> RenderConfig::GetDescriptorSets()
 //{
 //    // ディスクリプタセットをバインド
 //    std::vector<vk::DescriptorSet> descriptorSets;
-//    descriptorSets.push_back(m_CameraDescriptor.GetDescriptorSet());
-//    descriptorSets.push_back(m_TextureDescriptors.GetDescriptorSet());
+//    descriptorSets.push_back(m_CameraDescriptor.GetPDescriptorSets());
+//    descriptorSets.push_back(m_TextureDescriptors.GetPDescriptorSets());
 //
 //    return descriptorSets;
 //}
@@ -177,14 +225,14 @@ void RenderConfig::UpdateTextureDescriptor()
 //
 //    m_DrawCommand.BeginRendering(pipeline, m_RenderArea);
 //
-//    m_CameraDescriptor.Update(camera->GetProjectionBuffer());
+//    m_CameraDescriptor.UpdateAll(camera->GetProjectionBuffer());
 //
 //
 //    for (auto& model : *objects)
 //    {
 //        for (auto& mesh : *model.GetMeshes())
 //        {
-//            m_TextureDescriptors.Update(mesh.GetPMaterial()->GetTextureImageView(), mesh.GetPMaterial()->GetSampler());
+//            m_TextureDescriptors.UpdateAll(mesh.GetSPMaterial()->GetTextureImageView(), mesh.GetSPMaterial()->GetSampler());
 //            m_DrawCommand.RenderMesh(m_GraphicsPipeline.GetPipelineLayout(), &descriptorSets, &mesh, model.GetPTransform());
 //        }
 //    }

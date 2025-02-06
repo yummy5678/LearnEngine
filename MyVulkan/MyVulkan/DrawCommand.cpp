@@ -208,7 +208,7 @@ vk::SubmitInfo DrawCommand::CreateSubmitInfo(vk::CommandBuffer& commandBuffer)
 //
 //
 //    // 頂点バッファをバインド
-//    m_CommandBuffers[m_ImageDrawIndex].bindVertexBuffers(0, drawMesh->GetPMesh()->GetVertex().GetBuffer(), {0});
+//    m_CommandBuffers[m_ImageDrawIndex].bindVertexBuffers(0, drawMesh->GetSPMesh()->GetVertex().GetBuffer(), {0});
 //
 //    m_CommandBuffers[m_ImageDrawIndex].bindDescriptorSets(
 //        vk::PipelineBindPoint::eGraphics,
@@ -218,7 +218,7 @@ vk::SubmitInfo DrawCommand::CreateSubmitInfo(vk::CommandBuffer& commandBuffer)
 //        nullptr);
 //
 //        // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
-//    m_CommandBuffers[m_ImageDrawIndex].bindIndexBuffer(drawMesh->GetPMesh()->GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
-//    m_CommandBuffers[m_ImageDrawIndex].drawIndexed(drawMesh->GetPMesh()->GetIndex().GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
+//    m_CommandBuffers[m_ImageDrawIndex].bindIndexBuffer(drawMesh->GetSPMesh()->GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
+//    m_CommandBuffers[m_ImageDrawIndex].drawIndexed(drawMesh->GetSPMesh()->GetIndex().GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
 //
 //}

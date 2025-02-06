@@ -2,7 +2,7 @@
 #include "MeshBuffer.h"
 #include "MaterialBuffer.h"
 #include "MeshObject.h" 
-#include "Observer.h"
+//#include "Observer.h"
 
 
 class VMeshObject
@@ -17,17 +17,17 @@ public:
 	//void SetMMaterialUpdateObserver(Observer function);
 	//void DeleteMaterialUpdateObserver(Observer function);
 
-	VMesh*			GetPMesh();
-	VMaterial*		GetPMaterial();
+	std::shared_ptr<VMesh>		GetSPMesh();
+	std::shared_ptr<VMaterial>	GetSPMaterial();
 	
 private:
-	std::string		m_Name;
-	Transform		m_Transform;	// トランスフォーム
-	VMesh			m_Mesh;
-	VMaterial		m_Material;	
+	std::string					m_Name;
+	Transform					m_Transform;	// トランスフォーム
+	std::shared_ptr<VMesh>		m_Mesh;
+	std::shared_ptr<VMaterial>	m_Material;
 
 	//Subject			m_MeshUpdateSubject;
-	/*Subject			m_BufferUpdateSubject;*/
+	//Subject			m_BufferUpdateSubject;
 
 
 

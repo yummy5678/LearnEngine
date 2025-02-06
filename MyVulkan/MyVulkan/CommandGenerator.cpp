@@ -2,9 +2,9 @@
 
 
 SwapChainCommandGenerator::SwapChainCommandGenerator():
-    m_LogicalDevice(nullptr),
-    m_PhysicalDevice(nullptr),
-    m_CommandPool(nullptr),
+    m_LogicalDevice(VK_NULL_HANDLE),
+    m_PhysicalDevice(VK_NULL_HANDLE),
+    m_CommandPool(VK_NULL_HANDLE),
     m_CommandBuffers()
 {
     m_ClassName = "CommandGenerator";
@@ -32,7 +32,7 @@ void SwapChainCommandGenerator::Create(vk::Device logicalDevice, vk::PhysicalDev
     m_Fences            = m_FenceGenerator.GetFence();
 
     //コマンドプール(コマンドを置く領域)を作成
-    m_CommandPool       = CreateCommandPool(logicalDevice, physicalDevice);
+    m_CommandPool       = CreateCommandPool();
 
     //コマンドプールにコマンドバッファを割り当て
     m_CommandBuffers    = CreateCommandBuffers(logicalDevice, commandSize, m_CommandPool);
@@ -77,7 +77,7 @@ void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain, uint32_
     presentInfo.pImageIndices =     &commandIndex;
 
     // 使用するキュー(グラフィックキューやプレゼントキューなど)のインデックスを取得
-    auto queueFamily = QueueFamilySelector(m_PhysicalDevice);
+    auto queueFamily = QueueFamilySelector(&m_PhysicalDevice);
     auto graphicsQueue = m_LogicalDevice.getQueue(queueFamily.GetGraphicIndex(), 0);
 
     if (graphicsQueue.presentKHR(presentInfo) != vk::Result::eSuccess)
@@ -86,22 +86,22 @@ void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain, uint32_
     }
 }
 
-vk::CommandPool SwapChainCommandGenerator::CreateCommandPool(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice)
+vk::CommandPool SwapChainCommandGenerator::CreateCommandPool()
 { 
-    // Get indices of queue families from device
-    QueueFamilySelector queue(physicalDevice);
+    if(m_LogicalDevice == VK_NULL_HANDLE || m_PhysicalDevice == VK_NULL_HANDLE)
+    QueueFamilySelector queueFamily(&m_PhysicalDevice);
 
     // コマンドプールの作成に必要な情報を設定する
-    VkCommandPoolCreateInfo poolInfo = {};
+    VkCommandPoolCreateInfo poolInfo;
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;	// コマンドバッファのリセットを許可する場合はフラグを追加する
-    poolInfo.queueFamilyIndex = queue.GetGraphicIndex();	            // このコマンドプールが使用するキューファミリー
+    poolInfo.queueFamilyIndex = queueFamily.GetGraphicIndex();	            // このコマンドプールが使用するキューファミリー
 
     // グラフィックスキューファミリー用のコマンドプールを作成する
     vk::CommandPool pool;
     try
     {
-        pool = logicalDevice.createCommandPool(poolInfo);
+        pool = m_LogicalDevice.createCommandPool(poolInfo);
     }
     catch (const std::exception&)
     {

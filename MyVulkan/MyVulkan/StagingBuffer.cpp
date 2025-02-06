@@ -33,7 +33,7 @@ void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize
 	m_DataSize = dataSize;
 
 	
-	QueueFamilySelector queueFamily(m_PhysicalDevice);
+	QueueFamilySelector queueFamily(&m_PhysicalDevice);
 	m_CommandPool		= CreateCommandPool(m_LogicalDevice, queueFamily.GetTransferIndex());
 	m_CommandBuffer		= CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
 	// グラフィックスキューの取得

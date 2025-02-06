@@ -81,7 +81,7 @@ int main()
 		//  ToDo :	描画はRenderConfigに、
 		//			表示はRendererが担当するように機能を分割したい
 		// renderConfig.DrawImage(&objContainer, &camera);
-		mainWindow.AddDrawTask(&renderConfig, &objContainer, &camera);
+		mainWindow.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
 		mainWindow.ExecuteDrawTask();
 	}
 

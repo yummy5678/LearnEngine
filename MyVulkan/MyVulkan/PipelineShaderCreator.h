@@ -6,6 +6,7 @@
 #include "VCameraDescriptor.h"
 
 
+
 // シェーダーの読み込みとモジュール、ステージの作成を行うクラス
 // 一緒にデスクリプタの管理も行う 
 
@@ -26,14 +27,14 @@ public:
 	std::vector<vk::PushConstantRange>		GetPushConstantRanges()		override;
 	vk::PipelineVertexInputStateCreateInfo	GetVertexInputState()		override;
 
-	vk::DescriptorSetLayout					GetTextureDescriptorLayout();
-	vk::DescriptorSetLayout					GetCameraDescriptorLayout();
+	std::shared_ptr<vk::DescriptorSetLayout>GetTextureDescriptorLayout();
+	std::shared_ptr<vk::DescriptorSetLayout>GetCameraDescriptorLayout();
 
 protected:
 
 	// デスクリプタ
-	VTextureDescriptorLayout							m_TextureLauout;
-	VCameraDescriptor									m_CameraDescriptor;
+	VTextureDescriptorSetLayout							m_TextureLauout;
+	VCameraDescriptorSetLayout							m_CameraDescriptor;
 
 	// 頂点入力情報	
 	std::vector<vk::VertexInputBindingDescription>		m_BindingDescriptions;

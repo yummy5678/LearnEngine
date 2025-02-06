@@ -15,21 +15,21 @@ Vulkanは非常に低レベルなグラフィックスAPIで、
 プログラムが どのデータをシェーダーに渡すか を簡単に管理・変更できるようになります。
 */
 
-class VDescriptorLayoutBase
+class VDescriptorSetLayoutBase
 {
 public:
-	VDescriptorLayoutBase(vk::DescriptorType type, vk::ShaderStageFlags stageFlag);
-	~VDescriptorLayoutBase();
+	VDescriptorSetLayoutBase(vk::DescriptorType type, vk::ShaderStageFlags stageFlag);
+	~VDescriptorSetLayoutBase();
 
-	virtual vk::DescriptorSetLayout GetDescriptorSetLayout();
-	virtual vk::DescriptorType		GetDescriptorType();
-	const vk::ShaderStageFlags		GetStageFlag();
+	virtual std::shared_ptr<vk::DescriptorSetLayout>	GetDescriptorSetLayout();
+	virtual vk::DescriptorType							GetDescriptorType();
+	const vk::ShaderStageFlags							GetStageFlag();
 
 protected:
-	vk::Device*					m_pLogicalDevice;	// 作成＆破棄用のデバイス情報
-	const vk::DescriptorType	m_DescriptorType;
-	const vk::ShaderStageFlags	m_StageFlags;
-	vk::DescriptorSetLayout		m_DescriptorSetLayout;
+	vk::Device*									m_pLogicalDevice;	// 作成＆破棄用のデバイス情報
+	const vk::DescriptorType					m_DescriptorType;
+	const vk::ShaderStageFlags					m_StageFlags;
+	std::shared_ptr<vk::DescriptorSetLayout>	m_DescriptorSetLayout;
 
 
 };

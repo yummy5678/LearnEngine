@@ -130,9 +130,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DescriptorHandleManeger.cpp" />
     <ClCompile Include="DrawCommand.cpp" />
     <ClCompile Include="GltfLoader.cpp" />
-    <ClCompile Include="Observer.cpp" />
     <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="SceneCamera.cpp" />
     <ClCompile Include="VDescriptorLayoutBase.cpp" />
@@ -141,7 +141,9 @@
     <ClCompile Include="VImage.cpp" />
     <ClCompile Include="VImageBufferBase.cpp" />
     <ClCompile Include="VShaderConfigureBase.cpp" />
-    <ClCompile Include="VSingleDescriptor.cpp" />
+    <ClCompile Include="SingleTextureDescriptor.cpp" />
+    <ClCompile Include="DescriptorBase.cpp" />
+    <ClCompile Include="SingleBufferDescriptor.cpp" />
     <ClCompile Include="VTextureBuffer.cpp" />
     <ClCompile Include="SwapchainImage.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
@@ -182,11 +184,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DescriptorHandleManeger.h" />
     <ClInclude Include="DrawCommand.h" />
     <ClInclude Include="GltfLoader.h" />
     <ClInclude Include="ImageSet.h" />
-    <ClInclude Include="Observer.h" />
     <ClInclude Include="RendererBase.h" />
+    <ClInclude Include="RenderFunction.h" />
     <ClInclude Include="SceneCamera.h" />
     <ClInclude Include="VDescriptorLayoutBase.h" />
     <ClInclude Include="FenceGenerator.h" />
@@ -194,7 +197,9 @@
     <ClInclude Include="VImage.h" />
     <ClInclude Include="VImageBufferBase.h" />
     <ClInclude Include="VShaderConfigureBase.h" />
-    <ClInclude Include="VSingleDescriptor.h" />
+    <ClInclude Include="SingleTextureDescriptor.h" />
+    <ClInclude Include="DescriptorBase.h" />
+    <ClInclude Include="SingleBufferDescriptor.h" />
     <ClInclude Include="VTextureBuffer.h" />
     <ClInclude Include="SwapchainImage.h" />
     <ClInclude Include="DeviceExtensionManager.h" />

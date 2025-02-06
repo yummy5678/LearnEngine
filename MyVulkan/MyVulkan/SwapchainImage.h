@@ -2,7 +2,6 @@
 #include <vulkan/vulkan.hpp>
 #include <VMA/vk_mem_alloc.h>
 #include "VImage.h"
-#include "VTextureDescriptor.h"
 #include "ImageSet.h"
 
 constexpr vk::Format DefaultImageFormat = vk::Format::eR8G8B8A8Unorm;
@@ -31,12 +30,12 @@ private:
 	std::vector<vk::Image>			m_ColorImages;
 	vk::Format						m_ColorFormat;
 	std::vector<vk::ImageView>		m_ColorImageViews;
-	//VTextureDescriptorLayout				m_ColorDescriptor;
+	//VTextureDescriptorSetLayout				m_ColorDescriptor;
 
 	// 深度イメージ
 	std::vector<VImage>				m_DepthImages;
 	vk::Format						m_DepthFormat;
-	//VTextureDescriptorLayout				m_DepthDescriptor;
+	//VTextureDescriptorSetLayout				m_DepthDescriptor;
 
 	void CreateColor(vk::Device logicalDevice, vk::SwapchainKHR swapchain, vk::SwapchainCreateInfoKHR m_SwapchainInfo);
 	void CreateDepth(VmaAllocator* allocator, vk::SwapchainCreateInfoKHR m_SwapchainInfo);

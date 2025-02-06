@@ -1,22 +1,22 @@
 #include "VTextureDescriptorLayout.h"
 
-VTextureDescriptorLayout::VTextureDescriptorLayout() :
-    VDescriptorLayoutBase(vk::DescriptorType::eSampledImage, vk::ShaderStageFlagBits::eFragment)
+VTextureDescriptorSetLayout::VTextureDescriptorSetLayout() :
+    VDescriptorSetLayoutBase(vk::DescriptorType::eSampledImage, vk::ShaderStageFlagBits::eFragment)
 {
 }
 
-VTextureDescriptorLayout::~VTextureDescriptorLayout()
+VTextureDescriptorSetLayout::~VTextureDescriptorSetLayout()
 {
 }
 
-void VTextureDescriptorLayout::Initialize(vk::Device* pLogicalDevice, uint32_t bindNumber)
+void VTextureDescriptorSetLayout::Initialize(vk::Device* pLogicalDevice, uint32_t bindNumber)
 {
     m_pLogicalDevice = pLogicalDevice;
 
     CreateDescriptorSetLayout(bindNumber);
 }
 
-void VTextureDescriptorLayout::CreateDescriptorSetLayout(uint32_t bindNumber)
+void VTextureDescriptorSetLayout::CreateDescriptorSetLayout(uint32_t bindNumber)
 {
     // ディスクリプタセットレイアウトバインディングの設定
     vk::DescriptorSetLayoutBinding layoutBinding;
@@ -29,5 +29,5 @@ void VTextureDescriptorLayout::CreateDescriptorSetLayout(uint32_t bindNumber)
     layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = &layoutBinding;
 
-    m_DescriptorSetLayout = m_pLogicalDevice->createDescriptorSetLayout(layoutInfo);
+    m_DescriptorSetLayout = std::make_shared<vk::DescriptorSetLayout>(m_pLogicalDevice->createDescriptorSetLayout(layoutInfo));
 }

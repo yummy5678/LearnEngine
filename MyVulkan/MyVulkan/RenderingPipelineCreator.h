@@ -4,10 +4,8 @@
 #include "Utilities.h"
 #include "ShaderUtility.h"
 #include "PipelineShaderCreator.h"
-// #include "PipelineDescriptions.h"
 #include "VertexBuffer.h"
 #include "VulkanInitializer.h"
-#include "VTextureDescriptor.h"
 
 class RenderingPipelineCreator : public GeneratorBase
 {
@@ -40,7 +38,7 @@ private:
 	vk::PipelineLayout				m_PipelineLayout;
 
 	// デスクリプタ
-	VTextureDescriptorLayout				m_TextureDescriptor;
+	VTextureDescriptorSetLayout				m_TextureDescriptor;
 
 
 	vk::GraphicsPipelineCreateInfo	m_PipelineInfo;

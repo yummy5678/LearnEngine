@@ -1,7 +1,7 @@
 #include "VDescriptorLayoutBase.h"
 
 
-VDescriptorLayoutBase::VDescriptorLayoutBase(vk::DescriptorType type, vk::ShaderStageFlags stageFlag) :
+VDescriptorSetLayoutBase::VDescriptorSetLayoutBase(vk::DescriptorType type, vk::ShaderStageFlags stageFlag) :
     m_pLogicalDevice(nullptr),
     m_DescriptorType(type),
     m_StageFlags(stageFlag),
@@ -9,28 +9,29 @@ VDescriptorLayoutBase::VDescriptorLayoutBase(vk::DescriptorType type, vk::Shader
 {
 }
 
-VDescriptorLayoutBase::~VDescriptorLayoutBase()
+VDescriptorSetLayoutBase::~VDescriptorSetLayoutBase()
 {
-    if (m_pLogicalDevice == nullptr) return;
+    if (*m_pLogicalDevice == VK_NULL_HANDLE) return;
 
-    if (m_DescriptorSetLayout) 
+    vk::DescriptorSetLayout layout = *m_DescriptorSetLayout.get();
+    if (layout != VK_NULL_HANDLE)
     {
-        m_pLogicalDevice->destroyDescriptorSetLayout(m_DescriptorSetLayout);
+        m_pLogicalDevice->destroyDescriptorSetLayout(layout);
     }
 
 }
 
-vk::DescriptorSetLayout VDescriptorLayoutBase::GetDescriptorSetLayout()
+std::shared_ptr<vk::DescriptorSetLayout> VDescriptorSetLayoutBase::GetDescriptorSetLayout()
 {
     return m_DescriptorSetLayout;
 }
 
-vk::DescriptorType VDescriptorLayoutBase::GetDescriptorType()
+vk::DescriptorType VDescriptorSetLayoutBase::GetDescriptorType()
 {
     return m_DescriptorType;
 }
 
-const vk::ShaderStageFlags VDescriptorLayoutBase::GetStageFlag()
+const vk::ShaderStageFlags VDescriptorSetLayoutBase::GetStageFlag()
 {
     return m_StageFlags;
 }

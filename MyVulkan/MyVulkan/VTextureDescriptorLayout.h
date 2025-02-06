@@ -2,12 +2,12 @@
 #include "VDescriptorLayoutBase.h"
 
 
-class VTextureDescriptorLayout :
-    public VDescriptorLayoutBase
+class VTextureDescriptorSetLayout :
+    public VDescriptorSetLayoutBase
 {
 public:
-    VTextureDescriptorLayout();
-    ~VTextureDescriptorLayout();
+    VTextureDescriptorSetLayout();
+    ~VTextureDescriptorSetLayout();
 
     void Initialize(vk::Device* pLogicalDevice, uint32_t bindNumber);
     

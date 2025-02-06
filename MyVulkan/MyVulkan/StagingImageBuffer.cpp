@@ -46,7 +46,7 @@ void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidt
 	m_DataSize = imageWidth * imageHeight * imageChannel;
 
 	// ì]ëóópÉLÉÖÅ[ÇÃéÊìæ
-	QueueFamilySelector queueFamily(m_PhysicalDevice);
+	QueueFamilySelector queueFamily(&m_PhysicalDevice);
 	m_CommandPool = CreateCommandPool(m_LogicalDevice, queueFamily.GetTransferIndex());
 	m_CommandBuffer = CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
 	m_Queue = m_LogicalDevice.getQueue(queueFamily.GetTransferIndex(), 0);
