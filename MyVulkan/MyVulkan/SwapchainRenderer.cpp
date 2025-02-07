@@ -1,7 +1,13 @@
 #include "SwapChainRenderer.h"
 
 
-SwapchainRenderer::SwapchainRenderer(VulkanInitializer& initializer)
+SwapchainRenderer::SwapchainRenderer(VulkanInitializer& initializer) : 
+    m_pAllocator(nullptr),
+    m_LogicalDevice(VK_NULL_HANDLE),
+    m_SwapchainInfo(),
+    m_Swapchain(VK_NULL_HANDLE),
+    m_SwapChainImages()//,
+    //m_CommandGenerator()
 {    
     initializer.GetPDeviceExtension()->UseSwapchain();
 }
@@ -29,7 +35,7 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
     m_SwapChainImages.Create(allocator, m_Swapchain, m_SwapchainInfo);
 
     //コマンドバッファの作成
-    m_CommandGenerator.Create(m_LogicalDevice, physicalDevice, m_SwapchainInfo.minImageCount);
+    //m_CommandGenerator.Create(m_LogicalDevice, physicalDevice, m_SwapchainInfo.minImageCount);
 }
 
 void SwapchainRenderer::Destroy()
@@ -80,7 +86,7 @@ void SwapchainRenderer::UpdateFrame()
     vk::ResultValue acquire = m_LogicalDevice.acquireNextImageKHR(m_Swapchain, std::numeric_limits<uint64_t>::max(), {}, nullptr);
     if (acquire.result != vk::Result::eSuccess) std::cerr << "次フレームの取得に失敗しました。" << std::endl;
 
-    m_CommandGenerator.PresentFrame(m_Swapchain, acquire.value);
+    //m_CommandGenerator.PresentFrame(m_Swapchain, acquire.value);
 }
 
 /// <summary>

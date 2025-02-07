@@ -1,21 +1,22 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include <vector>
+#include <iostream>
 #include <unordered_map>
 #include "DescriptorBase.h"
 #include "SingleTextureDescriptor.h"
 
-class TextureDescriptorManeger
+class TextureDescriptorManager
 {
 public:
-	TextureDescriptorManeger(vk::Device* pLogicalDevice);
-	~TextureDescriptorManeger() = default;
+	TextureDescriptorManager(vk::Device* pLogicalDevice);
+	~TextureDescriptorManager() = default;
 
-	void SetDescriptorSet(std::weak_ptr<vk::DescriptorSetLayout> layout);// デスクリプタセットを登録
+	void SetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout);// デスクリプタセットを登録
 	
-	VSingleTextureDescriptor GetVDescriptorSet(std::weak_ptr<vk::DescriptorSetLayout> layout);// デスクリプタセットを取得
-	void DeleteDescriptorSet(std::weak_ptr<vk::DescriptorSetLayout> layout);// 所有者が存在するか確認
-	bool HasDescriptor(std::weak_ptr<vk::DescriptorSetLayout> layout);// 所有者が存在するか確認
+	VSingleTextureDescriptor GetVDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout);// デスクリプタセットを取得
+	void DeleteDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout);// 所有者が存在するか確認
+	bool HasDescriptor(std::shared_ptr<vk::DescriptorSetLayout> layout);// 所有者が存在するか確認
 
 	void CleanupDeathOwner();// 無効になったオーナーを削除
 
@@ -23,7 +24,7 @@ public:
 
 private:
 	vk::Device* m_pLogicalDevice;
-	std::unordered_map<std::weak_ptr<vk::DescriptorSetLayout>, VSingleTextureDescriptor, std::owner_less<std::weak_ptr<void>>>	m_Descriptors;
+	std::unordered_map<std::shared_ptr<vk::DescriptorSetLayout>, VSingleTextureDescriptor>	m_Descriptors;
 
 
 

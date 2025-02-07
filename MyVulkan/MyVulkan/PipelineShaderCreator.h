@@ -22,7 +22,7 @@ public:
 
 	
 	//std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();
-	std::vector<vk::DescriptorSet>			GetDescriptorSets()			override;
+	//std::vector<vk::DescriptorSet>			GetDescriptorSets()			override;
 	std::vector<vk::DescriptorSetLayout>	GetDescriptorSetLayouts()	override;
 	std::vector<vk::PushConstantRange>		GetPushConstantRanges()		override;
 	vk::PipelineVertexInputStateCreateInfo	GetVertexInputState()		override;

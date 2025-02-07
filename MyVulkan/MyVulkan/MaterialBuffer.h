@@ -20,7 +20,7 @@ public:
 	//void SetMMaterialUpdateObserver(ObserveFunction function);
 	//void DeleteMaterialUpdateObserver(ObserveFunction function);
 
-	vk::DescriptorSet GetDescriptorLayout(std::weak_ptr<vk::DescriptorSetLayout> wDescriptorSetLayout);
+	vk::DescriptorSet GetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> wDescriptorSetLayout);
 
 private:
 	vk::Device			m_LogicalDevice;
@@ -31,7 +31,7 @@ private:
 
 	vk::Sampler			m_Sampler;
 
-	TextureDescriptorManeger m_DescriptorManager;
+	TextureDescriptorManager m_DescriptorManager;
 
 	//Subject			m_BufferUpdateSubject;
 

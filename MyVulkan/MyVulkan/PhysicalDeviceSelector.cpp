@@ -21,7 +21,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectGraphicsDevice()
 	{
         QueueFamilySelector queueFamily(&device);
 		//デバイスが使用する拡張機能、
-		if (queueFamily.GetGraphicIndex() != NoneQueueNumber)
+		if (queueFamily.GetGraphicIndex() != UndefinedQueueNumber)
 		{
 			// 適切なデバイスが見つかった
             return { device, CreateQueueInfos({queueFamily.GetGraphicIndex()}) };
@@ -38,7 +38,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectComputeDevice()
     for (auto& device : m_PhysicalDevices)
     {
         QueueFamilySelector queueFamily(&device);
-        if (queueFamily.GetComputeIndex() != NoneQueueNumber)
+        if (queueFamily.GetComputeIndex() != UndefinedQueueNumber)
         {
             // 適切なデバイスが見つかった
             return { device, CreateQueueInfos({queueFamily.GetComputeIndex()}) };
@@ -55,7 +55,7 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectTransferDevice()
     for (auto& device : m_PhysicalDevices)
     {
         QueueFamilySelector queueFamily(&device);
-        if (queueFamily.GetTransferIndex() != NoneQueueNumber)
+        if (queueFamily.GetTransferIndex() != UndefinedQueueNumber)
         {
             // 適切なデバイスが見つかった
             return { device, CreateQueueInfos({queueFamily.GetComputeIndex()}) };
@@ -74,8 +74,8 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice()
         // 描画用キューと表示用キューが存在し、
         // 拡張機能にも対応している
         QueueFamilySelector queueFamily(&device);
-        if (queueFamily.GetGraphicIndex()               != NoneQueueNumber &&
-            //queueFamily.GetPresentationIndex(surface)   != NoneQueueNumber &&
+        if (queueFamily.GetGraphicIndex()               != UndefinedQueueNumber &&
+            //queueFamily.GetPresentationIndex(surface)   != UndefinedQueueNumber &&
             //CheckSupportSurface(device,surface) == true                     &&
             CheckExtensionNames(device, { VK_KHR_SWAPCHAIN_EXTENSION_NAME }) == true)
         {

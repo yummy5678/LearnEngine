@@ -41,6 +41,8 @@ std::vector<vk::Fence> FenceGenerator::GetFence()
 
 std::vector<vk::Fence> FenceGenerator::CreateFences(vk::Device logicalDevice, uint32_t fenceCount)
 {
+	if(logicalDevice == VK_NULL_HANDLE) throw std::runtime_error("フェンスの作成に失敗しました！");
+
 	// 作成分領域を確保する
 	std::vector<vk::Fence> fenes;
 	fenes.resize(fenceCount);
@@ -50,17 +52,10 @@ std::vector<vk::Fence> FenceGenerator::CreateFences(vk::Device logicalDevice, ui
 	fenceCreateInfo.pNext;
 	fenceCreateInfo.flags;
 
-	try
+	for (uint32_t i = 0; i < fenceCount; i++)
 	{
-		for (uint32_t i = 0; i < fenceCount; i++)
-		{
-			// フェンスを作成する
-			fenes[i] = logicalDevice.createFence(fenceCreateInfo);
-		}
-		return fenes;
+		// フェンスを作成する
+		fenes[i] = logicalDevice.createFence(fenceCreateInfo);
 	}
-	catch (vk::SystemError& err)
-	{
-		throw std::runtime_error("フェンスの作成に失敗しました！");
-	}
+	return fenes;
 }

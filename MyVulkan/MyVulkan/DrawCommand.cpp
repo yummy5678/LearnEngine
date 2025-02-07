@@ -20,8 +20,8 @@ DrawCommand::~DrawCommand()
 
 void DrawCommand::Create(vk::Device* pLogicalDevice, vk::PhysicalDevice* pPhysicalDevice, std::vector<ImageViewSet> imageSet)
 {
-    m_pLogicalDevice = pLogicalDevice;
-    m_pPhysicalDevice = pPhysicalDevice;
+    m_pLogicalDevice = *&pLogicalDevice;
+    m_pPhysicalDevice = *&pPhysicalDevice;
     m_ImageSet = imageSet;
 
     //// セマフォの作成

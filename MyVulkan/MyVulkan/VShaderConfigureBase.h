@@ -14,7 +14,7 @@ public:
 	~VShaderConfigureBase();
 	
 	virtual std::vector<vk::PipelineShaderStageCreateInfo>	GetShaderStages();
-	virtual std::vector<vk::DescriptorSet>					GetDescriptorSets() = 0;
+	//virtual std::vector<vk::DescriptorSet>					GetDescriptorSets() = 0;
 	virtual std::vector<vk::DescriptorSetLayout>			GetDescriptorSetLayouts() = 0;
 	virtual std::vector<vk::PushConstantRange>				GetPushConstantRanges() = 0;
 	virtual vk::PipelineVertexInputStateCreateInfo			GetVertexInputState() = 0;

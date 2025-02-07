@@ -101,7 +101,7 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
             {
                 for (auto& mesh : *object->GetMeshes())
                 {
-                    mesh.GetSPMaterial().get()->GetDescriptorLayout(m_Shader.GetTextureDescriptorLayout());
+                    //mesh.GetSPMaterial().get()->GetDescriptorSet(m_Shader.GetTextureDescriptorLayout());
 
                     // プッシュ定数をシェーダーに渡します。
                     commandBuffer.pushConstants(
@@ -123,7 +123,7 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
                         vk::PipelineBindPoint::eGraphics,
                         pipelineLayout,
                         0,
-                        m_Shader.GetDescriptorSets(),
+                        mesh.GetSPMaterial().get()->GetDescriptorSet(m_Shader.GetTextureDescriptorLayout()),
                         nullptr);
 
                     // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
@@ -158,7 +158,7 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
 //    {
 //        for (auto& mesh : *object->GetMeshes())
 //        {
-//            mesh.GetSPMaterial().get()->GetDescriptorLayout(m_Shader.GetTextureDescriptorLayout());
+//            mesh.GetSPMaterial().get()->GetDescriptorSet(m_Shader.GetTextureDescriptorLayout());
 //
 //             プッシュ定数をシェーダーに渡します。
 //            command.pushConstants(

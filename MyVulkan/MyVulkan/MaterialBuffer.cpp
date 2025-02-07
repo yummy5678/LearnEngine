@@ -55,16 +55,16 @@ vk::Sampler VMaterial::GetSampler()
 //	m_BufferUpdateSubject.removeObserver(function);
 //}
 
-vk::DescriptorSet VMaterial::GetDescriptorLayout(std::weak_ptr<vk::DescriptorSetLayout> wDescriptorSetLayout)
+vk::DescriptorSet VMaterial::GetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> sDescriptorSetLayout)
 {
-	if (m_DescriptorManager.HasDescriptor(wDescriptorSetLayout) == false)
+	if (m_DescriptorManager.HasDescriptor(sDescriptorSetLayout) == false)
 	{
-		m_DescriptorManager.SetDescriptorSet(wDescriptorSetLayout);
+		m_DescriptorManager.SetDescriptorSet(sDescriptorSetLayout);
 		m_DescriptorManager.UpdateAll(m_Texture.GetImageView(), m_Sampler);
 	}
 
 
-	return m_DescriptorManager.GetVDescriptorSet(wDescriptorSetLayout).GetDescriptorSet();
+	return m_DescriptorManager.GetVDescriptorSet(sDescriptorSetLayout).GetDescriptorSet();
 }
 
 void VMaterial::SetTexture(VmaAllocator* allocator, Texture& texture)

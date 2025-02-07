@@ -66,7 +66,7 @@ void GraphicWindow::ExecuteDrawTask()
 	for (auto& function : m_RenderFunctions)
 	{
 		//task.config->BindRenderingCommand(m_DrawCommand.GetBuffer(), task.objects, task.camera);
-		(*function)(m_DrawCommand.GetBuffer(),  this);
+		(*function)(m_DrawCommand.GetBuffer(), &(*function));
 	}
 
 

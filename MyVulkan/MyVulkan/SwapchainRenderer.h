@@ -1,12 +1,12 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include "RendererBase.h"
-#include "QueueUtility.h"
 #include "GraphicsDefine.h"
+#include "QueueUtility.h"
 #include "VulkanInitializer.h"
 #include "SwapchainImage.h"
-#include "RenderConfig.h"
-#include "CommandGenerator.h"
+//#include "RenderConfig.h"
+//#include "CommandGenerator.h"
 
 
 
@@ -30,15 +30,15 @@ public:
 	void						UpdateFrame();
 
 private:
-	VmaAllocator* m_pAllocator;
-	vk::Device m_LogicalDevice;
+	VmaAllocator*						m_pAllocator;
+	vk::Device							m_LogicalDevice;
 
 	vk::SwapchainCreateInfoKHR			m_SwapchainInfo;
 	vk::SwapchainKHR					m_Swapchain;
 
 	SwapChainImage						m_SwapChainImages;
 
-	SwapChainCommandGenerator			m_CommandGenerator;
+	//SwapChainCommandGenerator			m_CommandGenerator;
 
 	// スワップチェーンの作成関数
 	vk::SwapchainCreateInfoKHR CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);

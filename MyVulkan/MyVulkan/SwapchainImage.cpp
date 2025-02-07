@@ -1,7 +1,15 @@
 #include "SwapchainImage.h"
 
 
-SwapChainImage::SwapChainImage()
+SwapChainImage::SwapChainImage() :
+    m_ColorImages(),
+    m_ColorFormat(vk::Format::eUndefined),
+    m_ColorImageViews(),
+    m_DepthImages(),
+    m_DepthFormat(vk::Format::eUndefined)
+
+
+
 {
 }
 

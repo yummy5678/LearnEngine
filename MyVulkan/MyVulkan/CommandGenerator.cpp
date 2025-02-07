@@ -5,7 +5,12 @@ SwapChainCommandGenerator::SwapChainCommandGenerator():
     m_LogicalDevice(VK_NULL_HANDLE),
     m_PhysicalDevice(VK_NULL_HANDLE),
     m_CommandPool(VK_NULL_HANDLE),
-    m_CommandBuffers()
+    m_CommandBuffers(),
+    m_SignalSemaphores(),
+    m_WaitSemaphores(),
+    m_Fences(),
+    m_SemaphoreGenerator(),
+    m_FenceGenerator()
 {
     m_ClassName = "CommandGenerator";
 }
@@ -88,14 +93,15 @@ void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain, uint32_
 
 vk::CommandPool SwapChainCommandGenerator::CreateCommandPool()
 { 
-    if(m_LogicalDevice == VK_NULL_HANDLE || m_PhysicalDevice == VK_NULL_HANDLE)
+    if (m_LogicalDevice == VK_NULL_HANDLE || m_PhysicalDevice == VK_NULL_HANDLE) return VK_NULL_HANDLE;
     QueueFamilySelector queueFamily(&m_PhysicalDevice);
 
     // コマンドプールの作成に必要な情報を設定する
-    VkCommandPoolCreateInfo poolInfo;
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;	// コマンドバッファのリセットを許可する場合はフラグを追加する
-    poolInfo.queueFamilyIndex = queueFamily.GetGraphicIndex();	            // このコマンドプールが使用するキューファミリー
+    vk::CommandPoolCreateInfo poolInfo;
+    poolInfo.pNext;
+    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+    poolInfo.queueFamilyIndex = queueFamily.GetGraphicIndex();
+
 
     // グラフィックスキューファミリー用のコマンドプールを作成する
     vk::CommandPool pool;

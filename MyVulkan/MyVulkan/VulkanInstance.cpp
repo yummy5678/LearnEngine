@@ -120,6 +120,7 @@ const vk::InstanceCreateInfo InstanceGenerator::GetInstanceInfo(
 	}
 	auto extensions = extensionManager.GetExtensions();
 	auto layers = extensionManager.GetValidationLayers();
+
 	/*/////////////////////
 	* インスタンスの作成
 	*//////////////////////

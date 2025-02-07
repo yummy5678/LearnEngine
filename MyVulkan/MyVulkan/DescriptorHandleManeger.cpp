@@ -1,60 +1,54 @@
 #include "DescriptorHandleManeger.h"
-#include <iostream>
 
-TextureDescriptorManeger::TextureDescriptorManeger(vk::Device* pLogicalDevice) :
-	m_pLogicalDevice(pLogicalDevice),
-	m_Descriptors()
+
+TextureDescriptorManager::TextureDescriptorManager(vk::Device* pLogicalDevice) :
+    m_pLogicalDevice(pLogicalDevice),
+    m_Descriptors()
 {
 }
 
-void TextureDescriptorManeger::SetDescriptorSet(std::weak_ptr<vk::DescriptorSetLayout> layout)
+void TextureDescriptorManager::SetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout)
 {
     // 既に登録済みなら何もしない
-    if (HasDescriptor(layout) == true) return;
+    if (HasDescriptor(layout)) return;
 
-    // weak_ptr から shared_ptr を取得して、有効であるか確認
-    auto spLayout = layout.lock();
-    if (!spLayout || *spLayout.get() == VK_NULL_HANDLE) 
+    if (!layout || *layout == VK_NULL_HANDLE)
     {
-        std::cerr << "SetDescriptorSet: layout is expired." << std::endl;
+        std::cerr << "SetDescriptorSet: layout is invalid." << std::endl;
         return;
     }
 
     // 必要に応じた VDescriptorBase 派生クラスのインスタンスを生成
     VSingleTextureDescriptor pVDescriptor;
-    pVDescriptor.Initialize(m_pLogicalDevice, *spLayout.get());
-    m_Descriptors.emplace(layout, pVDescriptor);
+    pVDescriptor.Initialize(m_pLogicalDevice, *layout);
+    m_Descriptors.try_emplace(layout, std::move(pVDescriptor));
 }
 
-VSingleTextureDescriptor TextureDescriptorManeger::GetVDescriptorSet(std::weak_ptr<vk::DescriptorSetLayout> layout)
+VSingleTextureDescriptor TextureDescriptorManager::GetVDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout)
 {
     CleanupDeathOwner();
     auto it = m_Descriptors.find(layout);
     if (it != m_Descriptors.end()) {
         return it->second;  // コピー（もしくはムーブ）して返す
     }
-
     return VSingleTextureDescriptor(); // デフォルト値を返す
 }
 
-void TextureDescriptorManeger::DeleteDescriptorSet(std::weak_ptr<vk::DescriptorSetLayout> layout)
+void TextureDescriptorManager::DeleteDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout)
 {
-    auto it = m_Descriptors.find(layout);
-    if (it != m_Descriptors.end()) {
-        m_Descriptors.erase(it);
-    }
+    m_Descriptors.erase(layout);
 }
 
-bool TextureDescriptorManeger::HasDescriptor(std::weak_ptr<vk::DescriptorSetLayout> layout)
+bool TextureDescriptorManager::HasDescriptor(std::shared_ptr<vk::DescriptorSetLayout> layout)
 {
-    return (m_Descriptors.find(layout) != m_Descriptors.end());
+    return m_Descriptors.find(layout) != m_Descriptors.end();
 }
 
-void TextureDescriptorManeger::CleanupDeathOwner()
+void TextureDescriptorManager::CleanupDeathOwner()
 {
-    for (auto it = m_Descriptors.begin(); it != m_Descriptors.end(); ) 
+    for (auto it = m_Descriptors.begin(); it != m_Descriptors.end(); )
     {
-        if (it->first.expired()) {
+        if (it->first.use_count() == 1) { // 他に参照がない場合削除
             it = m_Descriptors.erase(it);
         }
         else {
@@ -63,7 +57,7 @@ void TextureDescriptorManeger::CleanupDeathOwner()
     }
 }
 
-void TextureDescriptorManeger::UpdateAll(vk::ImageView imageView, vk::Sampler sampler)
+void TextureDescriptorManager::UpdateAll(vk::ImageView imageView, vk::Sampler sampler)
 {
     // 登録されているすべてのディスクリプタセットを更新
     for (auto& pair : m_Descriptors)
