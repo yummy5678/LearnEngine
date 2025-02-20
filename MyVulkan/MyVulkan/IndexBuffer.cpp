@@ -12,10 +12,10 @@ VIndexBuffer::~VIndexBuffer()
 {
 }
 
-void VIndexBuffer::SetData(VmaAllocator* allocator, std::vector<uint32_t>& indices)
+void VIndexBuffer::SetData(VmaAllocator* allocator, std::vector<uint32_t>* indices)
 {
 
-	m_Size = (uint32_t)indices.size();
+	m_Size = (uint32_t)indices->size();
 	vk::DeviceSize dataSize = sizeof(uint32_t) * m_Size;
 
 	// 頂点用のバッファ及びメモリの作成
@@ -24,7 +24,7 @@ void VIndexBuffer::SetData(VmaAllocator* allocator, std::vector<uint32_t>& indic
 	// ステージングバッファを踏んでデータを入れてもらう
 	VStagingBuffer StagingBuffer;
 	StagingBuffer.Initialize(allocator, dataSize);					//一度ステージングバッファにデータを入れてから
-	StagingBuffer.TransferDataToBuffer(indices.data(), m_Buffer);	//indicesBuffer(VRAMに作られたバッファ)にコピーする
+	StagingBuffer.TransferDataToBuffer(indices->data(), m_Buffer);	//indicesBuffer(VRAMに作られたバッファ)にコピーする
 }
 
 uint32_t VIndexBuffer::GetSize()

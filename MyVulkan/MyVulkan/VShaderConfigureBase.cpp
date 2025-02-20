@@ -29,7 +29,7 @@ std::vector<vk::PipelineShaderStageCreateInfo> VShaderConfigureBase::GetShaderSt
 
 void VShaderConfigureBase::DestroyModule()
 {
-	//if (m_pLogicalDevice == nullptr || *m_pLogicalDevice == VK_NULL_HANDLE) return;
+	//if (m_LogicalDevice == nullptr || *m_LogicalDevice == VK_NULL_HANDLE) return;
 
 	// ƒ‚ƒWƒ…[ƒ‹íœŠÖ”
 	if (m_FragmentShaderModule != VK_NULL_HANDLE)	m_pLogicalDevice->destroyShaderModule(m_FragmentShaderModule);

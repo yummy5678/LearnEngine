@@ -135,7 +135,7 @@
     <ClCompile Include="RendererBase.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="VCameraDescriptor.cpp">
+    <ClCompile Include="VCameraDescriptorSetLayout.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="DrawCommand.cpp">
@@ -148,9 +148,6 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="SingleTextureDescriptor.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="DescriptorHandleManeger.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="DescriptorBase.cpp">
@@ -309,7 +306,7 @@
     <ClInclude Include="RendererBase.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="VCameraDescriptor.h">
+    <ClInclude Include="VCameraDescriptorSetLayout.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DrawCommand.h">
@@ -325,9 +322,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="SingleTextureDescriptor.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="DescriptorHandleManeger.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DescriptorBase.h">

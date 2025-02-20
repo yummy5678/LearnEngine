@@ -4,7 +4,7 @@ VStagingBuffer::VStagingBuffer() :
 	VBufferBase(
 		vk::BufferUsageFlagBits::eTransferSrc | 				// バッファの使用用途
 		vk::BufferUsageFlagBits::eTransferDst,
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |					// 使用するバッファの必須要件(CPUから見れる)		
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |					// 使用するバッファの必須要件		
 		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		VK_MEMORY_PROPERTY_HOST_CACHED_BIT,						// 使用するバッファの優先要件
 		VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |// メモリの割り当て方式
@@ -33,7 +33,8 @@ void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize
 	m_DataSize = dataSize;
 
 	
-	QueueFamilySelector queueFamily(&m_PhysicalDevice);
+	QueueFamilySelector queueFamily;
+	queueFamily.Initialize(m_PhysicalDevice);
 	m_CommandPool		= CreateCommandPool(m_LogicalDevice, queueFamily.GetTransferIndex());
 	m_CommandBuffer		= CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
 	// グラフィックスキューの取得
@@ -83,6 +84,7 @@ vk::CommandPool VStagingBuffer::CreateCommandPool(vk::Device logicalDevice, uint
 {
 	// コマンドプールの作成に必要な情報を設定する
 	vk::CommandPoolCreateInfo poolInfo;
+	poolInfo.pNext = nullptr;
 	poolInfo.queueFamilyIndex = queueFamilyIndex;
 	poolInfo.flags = vk::CommandPoolCreateFlagBits::eTransient;	// コマンドバッファのリセットを許可する場合はフラグを追加する
 

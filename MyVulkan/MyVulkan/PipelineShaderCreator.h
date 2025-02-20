@@ -3,7 +3,8 @@
 #include "GraphicsDefine.h"
 #include "MeshObject.h"
 #include "VTextureDescriptorLayout.h"
-#include "VCameraDescriptor.h"
+#include "VCameraDescriptorSetLayout.h"
+
 
 
 
@@ -33,7 +34,7 @@ public:
 protected:
 
 	// デスクリプタ
-	VTextureDescriptorSetLayout							m_TextureLauout;
+	VTextureDescriptorSetLayout							m_TextureLayout;
 	VCameraDescriptorSetLayout							m_CameraDescriptor;
 
 	// 頂点入力情報	

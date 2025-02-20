@@ -5,7 +5,7 @@
 
 VModelShaderConfiguer::VModelShaderConfiguer():
 	VShaderConfigureBase(),
-	m_TextureLauout(),
+	m_TextureLayout(),
 	m_CameraDescriptor(),
 	m_BindingDescriptions(),
 	m_AttributeDescriptions()
@@ -21,7 +21,7 @@ void VModelShaderConfiguer::Create(vk::Device* pLogicalDevice)
 	m_pLogicalDevice = pLogicalDevice;
 
 	m_CameraDescriptor.Initialize(m_pLogicalDevice, 0);
-	m_TextureLauout.Initialize(m_pLogicalDevice, 0);
+	m_TextureLayout.Initialize(m_pLogicalDevice, 0);
 
 	// シェーダーの読込とモジュールの作成
 	VShaderConfigureBase::CreateShaderModules(
@@ -60,7 +60,7 @@ void VModelShaderConfiguer::Create(vk::Device* pLogicalDevice)
 //	// ディスクリプタセットをバインド
 //	std::vector<vk::DescriptorSet> descriptorSets;
 //	descriptorSets.push_back(m_CameraDescriptor.GetDescriptorSet());
-//	descriptorSets.push_back(m_TextureLauout.GetDescriptorSet());
+//	descriptorSets.push_back(m_TextureLayout.GetDescriptorSet());
 //
 //	return descriptorSets;
 //}
@@ -70,7 +70,7 @@ std::vector<vk::DescriptorSetLayout> VModelShaderConfiguer::GetDescriptorSetLayo
 	// ディスクリプタセットレイアウトをバインド
 	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
 	descriptorSetLayouts.push_back(*m_CameraDescriptor.GetDescriptorSetLayout().get());
-	descriptorSetLayouts.push_back(*m_TextureLauout.GetDescriptorSetLayout().get());
+	descriptorSetLayouts.push_back(*m_TextureLayout.GetDescriptorSetLayout().get());
 
 	return descriptorSetLayouts;
 }
@@ -105,7 +105,7 @@ vk::PipelineVertexInputStateCreateInfo VModelShaderConfiguer::GetVertexInputStat
 
 std::shared_ptr<vk::DescriptorSetLayout> VModelShaderConfiguer::GetTextureDescriptorLayout()
 {
-	return m_TextureLauout.GetDescriptorSetLayout();
+	return m_TextureLayout.GetDescriptorSetLayout();
 }
 
 std::shared_ptr<vk::DescriptorSetLayout> VModelShaderConfiguer::GetCameraDescriptorLayout()

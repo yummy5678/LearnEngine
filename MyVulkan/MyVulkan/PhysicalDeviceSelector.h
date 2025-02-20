@@ -37,8 +37,9 @@ public:
     bool CheckExtensionNames(vk::PhysicalDevice physicalDevice, std::vector<std::string> extensionNames);
 
 private:
-    std::vector<vk::PhysicalDevice>     m_PhysicalDevices;
-    vk::Instance m_instance;
+    std::vector<vk::PhysicalDevice> m_PhysicalDevices;
+    vk::Instance                    m_instance;
+    QueueFamilySelector             m_QueueFamilySelector;
 
     std::vector<vk::DeviceQueueCreateInfo> CreateQueueInfos(std::set<uint32_t> queues);
 };

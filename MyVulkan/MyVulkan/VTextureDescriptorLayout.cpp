@@ -1,7 +1,7 @@
 #include "VTextureDescriptorLayout.h"
 
 VTextureDescriptorSetLayout::VTextureDescriptorSetLayout() :
-    VDescriptorSetLayoutBase(vk::DescriptorType::eSampledImage, vk::ShaderStageFlagBits::eFragment)
+    VDescriptorSetLayoutBase(vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment)
 {
 }
 

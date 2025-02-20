@@ -13,7 +13,7 @@ public:
 	void Initialize(VmaAllocator* allocator);
 
 	void SetData(VmaAllocator* allocator, ViewProjection& projection);
-	//void UpdateAll(VmaAllocator* allocator, ViewProjection& projection);
+	//void UpdateDescriptorSets(VmaAllocator* allocator, ViewProjection& projection);
 
 private:
 

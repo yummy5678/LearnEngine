@@ -15,7 +15,7 @@ public:
 
 
 protected:
-	vk::Device* m_pLogicalDevice;	// 作成＆破棄用のデバイス情報
+	vk::Device m_LogicalDevice;	// 作成＆破棄用のデバイス情報
 	const vk::DescriptorType		m_DescriptorType;
 	uint32_t						m_SetCount;			// 作成するデスクリプタセットの数
 	vk::DescriptorPool				m_DescriptorPool;

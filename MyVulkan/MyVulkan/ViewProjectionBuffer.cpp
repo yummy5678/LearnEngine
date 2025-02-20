@@ -46,7 +46,7 @@ void VViewProjectionBuffer::SetData(VmaAllocator* allocator, ViewProjection& pro
 
 }
 
-//void VViewProjectionBuffer::UpdateAll(VmaAllocator* allocator, ViewProjection& projection)
+//void VViewProjectionBuffer::UpdateDescriptorSets(VmaAllocator* allocator, ViewProjection& projection)
 //{
 //	MapData(&projection, sizeof(ViewProjection));
 //}

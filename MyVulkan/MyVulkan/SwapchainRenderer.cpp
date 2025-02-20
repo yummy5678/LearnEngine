@@ -135,7 +135,8 @@ vk::SwapchainCreateInfoKHR SwapchainRenderer::CreateSwapchainInfo(vk::PhysicalDe
     // キューの共有設定
     //////////////////////////////
     // キューファミリが異なる場合は共有モードを設定
-    QueueFamilySelector queueFamilySelector(&physicalDevice);
+    QueueFamilySelector queueFamilySelector;
+    queueFamilySelector.Initialize(physicalDevice);
     if (queueFamilySelector.GetGraphicIndex() != queueFamilySelector.GetPresentationIndex(surface))
     {
         std::vector<uint32_t> queueFamilyIndices = { queueFamilySelector.GetGraphicIndex(), queueFamilySelector.GetPresentationIndex(surface) };

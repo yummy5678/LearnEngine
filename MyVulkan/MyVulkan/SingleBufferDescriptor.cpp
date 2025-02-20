@@ -10,9 +10,9 @@ VSingleBufferDescriptor::~VSingleBufferDescriptor()
 {
 }
 
-void VSingleBufferDescriptor::Initialize(vk::Device* pLogicalDevice, vk::DescriptorSetLayout layout)
+void VSingleBufferDescriptor::Initialize(vk::Device logicalDevice, vk::DescriptorSetLayout layout)
 {
-	m_pLogicalDevice = pLogicalDevice;
+	m_LogicalDevice = logicalDevice;
 	VDescriptorBase::CreateDescriptorPool(m_SetCount);
 	VDescriptorBase::CreateDescriptorSet(m_SetCount, &layout);
 }
@@ -20,6 +20,11 @@ void VSingleBufferDescriptor::Initialize(vk::Device* pLogicalDevice, vk::Descrip
 void VSingleBufferDescriptor::Update(vk::Buffer buffer, vk::DeviceSize bufferSize)
 {
 	UpdateDescriptorSet(buffer, bufferSize);
+}
+
+vk::DescriptorSet VSingleBufferDescriptor::GetDescriptorSet()
+{
+    return m_DescriptorSet.front();
 }
 
 void VSingleBufferDescriptor::UpdateDescriptorSet(vk::Buffer buffer, vk::DeviceSize bufferSize)
@@ -37,5 +42,5 @@ void VSingleBufferDescriptor::UpdateDescriptorSet(vk::Buffer buffer, vk::DeviceS
     descriptorWrite.descriptorCount = 1;
     descriptorWrite.pBufferInfo = &bufferInfo;
 
-    m_pLogicalDevice->updateDescriptorSets(descriptorWrite, nullptr);
+    m_LogicalDevice.updateDescriptorSets(descriptorWrite, nullptr);
 }

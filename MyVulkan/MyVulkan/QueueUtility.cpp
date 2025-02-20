@@ -2,14 +2,37 @@
 
 
 
-QueueFamilySelector::QueueFamilySelector(vk::PhysicalDevice* physicalDevice)
+QueueFamilySelector::QueueFamilySelector() :
+	m_PhysicalDevice(VK_NULL_HANDLE),
+	m_GraphicsFamilyIndex(UndefinedQueueNumber),
+	m_ComputeFamilyIndex(UndefinedQueueNumber),
+	m_TransferFamilyIndex(UndefinedQueueNumber),
+	m_PresentationFamilyIndex(UndefinedQueueNumber)
+
 {
 	std::cout << "QueueFamilySelectorが作成されました" << std::endl;
-	m_pPhysicalDevice = physicalDevice;
 }
 
 QueueFamilySelector::~QueueFamilySelector()
 {
+}
+
+void QueueFamilySelector::Initialize(vk::PhysicalDevice physicalDevice)
+{
+	if(m_PhysicalDevice != VK_NULL_HANDLE) std::runtime_error("キューセレクタはすでに初期化されています");
+	if (physicalDevice == VK_NULL_HANDLE) std::runtime_error("キューセレクタの引数の物理デバイスがNULLです！");
+	m_PhysicalDevice = physicalDevice;
+
+
+}
+
+void QueueFamilySelector::Cleanup()
+{
+	m_PhysicalDevice			= VK_NULL_HANDLE;		 // 物理デバイス
+	m_GraphicsFamilyIndex		= UndefinedQueueNumber;  // 描画用キューファミリー
+	m_ComputeFamilyIndex		= UndefinedQueueNumber;  // 計算用キューファミリー
+	m_TransferFamilyIndex		= UndefinedQueueNumber;  // 転送用キューファミリー
+	m_PresentationFamilyIndex	= UndefinedQueueNumber;  // 表示用キューファミリー
 }
 
 uint32_t QueueFamilySelector::GetGraphicIndex()
@@ -44,11 +67,11 @@ uint32_t QueueFamilySelector::GetPresentationIndex(vk::SurfaceKHR surface)
 
 uint32_t QueueFamilySelector::SearchGraphicsFamily()
 {
-	if(m_pPhysicalDevice == nullptr || *m_pPhysicalDevice == VK_NULL_HANDLE) 
+	if(m_PhysicalDevice == VK_NULL_HANDLE) 
 		throw std::runtime_error("キューファミリーを探そうとしましたが、物理デバイスがNULLです！");
 
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
-	const auto queueFamilyList = m_pPhysicalDevice->getQueueFamilyProperties();
+	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
 	uint32_t index = UndefinedQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
@@ -69,7 +92,7 @@ uint32_t QueueFamilySelector::SearchGraphicsFamily()
 uint32_t QueueFamilySelector::SearchComputeFamily()
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
-	const auto queueFamilyList = m_pPhysicalDevice->getQueueFamilyProperties();
+	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
 	uint32_t index = UndefinedQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
@@ -90,7 +113,7 @@ uint32_t QueueFamilySelector::SearchComputeFamily()
 uint32_t QueueFamilySelector::SearchTransferFamily()
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
-	const auto queueFamilyList = m_pPhysicalDevice->getQueueFamilyProperties();
+	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
 	uint32_t index = UndefinedQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
@@ -111,14 +134,14 @@ uint32_t QueueFamilySelector::SearchTransferFamily()
 uint32_t QueueFamilySelector::SearchPresentationFamily(vk::SurfaceKHR surface)
 {
 	// 物理デバイスに備わっているすべてのキューファミリープロパティ情報を取得する
-	const auto queueFamilyList = m_pPhysicalDevice->getQueueFamilyProperties();
+	const auto queueFamilyList = m_PhysicalDevice.getQueueFamilyProperties();
 	uint32_t index = UndefinedQueueNumber;
 
 	for (uint32_t i = 0; i < queueFamilyList.size(); i++)
 	{
 		// 1. キューファミリーを1つでもキューを持っているか確認する
 		// 2. 画像の表示機能があるか確認する
-		if (queueFamilyList[i].queueCount > 0 && m_pPhysicalDevice->getSurfaceSupportKHR(i, surface))
+		if (queueFamilyList[i].queueCount > 0 && m_PhysicalDevice.getSurfaceSupportKHR(i, surface))
 		{
 			index = i;	// キューファミリーが有効であれば、そのインデックスを取得する
 			break;

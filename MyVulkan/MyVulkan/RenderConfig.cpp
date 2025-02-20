@@ -29,8 +29,8 @@ void RenderConfig::Initialize(RendererBase* renderere)
     m_RenderArea.setOffset({ 0, 0 });
     m_RenderArea.setExtent(extent);
 
-    // m_CameraDescriptor.UpdateAll(camera->GetProjectionBuffer());
-    // m_TextureDescriptors.UpdateAll();
+    // m_CameraDescriptor.UpdateDescriptorSets(camera->GetProjectionBuffer());
+    // m_TextureDescriptors.UpdateDescriptorSets();
 
 
     auto descriptorSetLayouts   = m_Shader.GetDescriptorSetLayouts();
@@ -88,8 +88,11 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
         {
             // NULLチェック
             if (commandBuffer == VK_NULL_HANDLE || m_pObjects[key] == nullptr || m_pCamera[key] == nullptr)
+            {
                 return;
+            }
 
+            vk::DescriptorSet cameraDescriptorSet = m_pCamera[key]->GetDescriptorSet(m_Shader.GetCameraDescriptorLayout());
 
             auto pipeline = m_GraphicsPipeline.GetPipeline();
             auto pipelineLayout = m_GraphicsPipeline.GetPipelineLayout();
@@ -123,7 +126,10 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
                         vk::PipelineBindPoint::eGraphics,
                         pipelineLayout,
                         0,
-                        mesh.GetSPMaterial().get()->GetDescriptorSet(m_Shader.GetTextureDescriptorLayout()),
+                        { 
+                            cameraDescriptorSet,
+                            mesh.GetDescriptorSet(m_Shader.GetTextureDescriptorLayout())
+                        },
                         nullptr);
 
                     // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
@@ -134,8 +140,8 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
             }
         });
     m_RenderFunction.push_back(result);
-    m_pObjects[&result] = pObjects;
-    m_pCamera[&result] = pCamera;
+    m_pObjects[result.get()] = pObjects;
+    m_pCamera[result.get()] = pCamera;
     return result;
 }
 
@@ -225,14 +231,14 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
 //
 //    m_DrawCommand.BeginRendering(pipeline, m_RenderArea);
 //
-//    m_CameraDescriptor.UpdateAll(camera->GetProjectionBuffer());
+//    m_CameraDescriptor.UpdateDescriptorSets(camera->GetProjectionBuffer());
 //
 //
 //    for (auto& model : *objects)
 //    {
 //        for (auto& mesh : *model.GetMeshes())
 //        {
-//            m_TextureDescriptors.UpdateAll(mesh.GetSPMaterial()->GetTextureImageView(), mesh.GetSPMaterial()->GetSampler());
+//            m_TextureDescriptors.UpdateDescriptorSets(mesh.GetSPMaterial()->GetTextureImageView(), mesh.GetSPMaterial()->GetSampler());
 //            m_DrawCommand.RenderMesh(m_GraphicsPipeline.GetPipelineLayout(), &descriptorSets, &mesh, model.GetPTransform());
 //        }
 //    }

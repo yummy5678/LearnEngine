@@ -11,7 +11,7 @@ FenceGenerator::~FenceGenerator()
 {
 }
 
-void FenceGenerator::Create(vk::Device logicalDevice, uint32_t fenceCount)
+void FenceGenerator::Create(vk::Device logicalDevice, size_t fenceCount)
 {
 	m_bCreated = true;
 
@@ -39,7 +39,7 @@ std::vector<vk::Fence> FenceGenerator::GetFence()
 	return m_Fences;
 }
 
-std::vector<vk::Fence> FenceGenerator::CreateFences(vk::Device logicalDevice, uint32_t fenceCount)
+std::vector<vk::Fence> FenceGenerator::CreateFences(vk::Device logicalDevice, size_t fenceCount)
 {
 	if(logicalDevice == VK_NULL_HANDLE) throw std::runtime_error("フェンスの作成に失敗しました！");
 

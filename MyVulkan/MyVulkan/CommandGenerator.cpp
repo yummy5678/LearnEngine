@@ -82,7 +82,8 @@ void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain, uint32_
     presentInfo.pImageIndices =     &commandIndex;
 
     // 使用するキュー(グラフィックキューやプレゼントキューなど)のインデックスを取得
-    auto queueFamily = QueueFamilySelector(&m_PhysicalDevice);
+    QueueFamilySelector queueFamily;
+    queueFamily.Initialize(m_PhysicalDevice);
     auto graphicsQueue = m_LogicalDevice.getQueue(queueFamily.GetGraphicIndex(), 0);
 
     if (graphicsQueue.presentKHR(presentInfo) != vk::Result::eSuccess)
@@ -94,11 +95,12 @@ void SwapChainCommandGenerator::PresentFrame(vk::SwapchainKHR swapchain, uint32_
 vk::CommandPool SwapChainCommandGenerator::CreateCommandPool()
 { 
     if (m_LogicalDevice == VK_NULL_HANDLE || m_PhysicalDevice == VK_NULL_HANDLE) return VK_NULL_HANDLE;
-    QueueFamilySelector queueFamily(&m_PhysicalDevice);
+    QueueFamilySelector queueFamily;
+    queueFamily.Initialize(m_PhysicalDevice);
 
     // コマンドプールの作成に必要な情報を設定する
     vk::CommandPoolCreateInfo poolInfo;
-    poolInfo.pNext;
+    poolInfo.pNext = nullptr;
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
     poolInfo.queueFamilyIndex = queueFamily.GetGraphicIndex();
 

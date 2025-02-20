@@ -130,14 +130,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DescriptorHandleManeger.cpp" />
     <ClCompile Include="DrawCommand.cpp" />
     <ClCompile Include="GltfLoader.cpp" />
     <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="SceneCamera.cpp" />
     <ClCompile Include="VDescriptorLayoutBase.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
-    <ClCompile Include="VCameraDescriptor.cpp" />
+    <ClCompile Include="VCameraDescriptorSetLayout.cpp" />
     <ClCompile Include="VImage.cpp" />
     <ClCompile Include="VImageBufferBase.cpp" />
     <ClCompile Include="VShaderConfigureBase.cpp" />
@@ -184,7 +183,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DescriptorHandleManeger.h" />
     <ClInclude Include="DrawCommand.h" />
     <ClInclude Include="GltfLoader.h" />
     <ClInclude Include="ImageSet.h" />
@@ -193,7 +191,7 @@
     <ClInclude Include="SceneCamera.h" />
     <ClInclude Include="VDescriptorLayoutBase.h" />
     <ClInclude Include="FenceGenerator.h" />
-    <ClInclude Include="VCameraDescriptor.h" />
+    <ClInclude Include="VCameraDescriptorSetLayout.h" />
     <ClInclude Include="VImage.h" />
     <ClInclude Include="VImageBufferBase.h" />
     <ClInclude Include="VShaderConfigureBase.h" />

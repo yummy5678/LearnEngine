@@ -1,4 +1,4 @@
-#include "VCameraDescriptor.h"
+#include "VCameraDescriptorSetLayout.h"
 
 
 
@@ -47,19 +47,19 @@ void VCameraDescriptorSetLayout::CreateDescriptorSetLayout(uint32_t bindNumber)
 
 //void VCameraDescriptorSetLayout::CreateDescriptorSet()
 //{
-//    if (m_pLogicalDevice == nullptr) throw std::runtime_error("CreateDescriptorSet : 論理デバイスがnullptrです!");
+//    if (m_LogicalDevice == nullptr) throw std::runtime_error("CreateDescriptorSet : 論理デバイスがnullptrです!");
 //
 //    vk::DescriptorSetAllocateInfo setAllocateInfo;
 //    setAllocateInfo.descriptorPool = m_DescriptorPool;
 //    setAllocateInfo.descriptorSetCount = 1;
 //    setAllocateInfo.pSetLayouts = &m_DescriptorSetLayout;
 //
-//    m_DescriptorSet = m_pLogicalDevice->allocateDescriptorSets(setAllocateInfo).front();
+//    m_DescriptorSet = m_LogicalDevice->allocateDescriptorSets(setAllocateInfo).front();
 //}
 //
 //void VCameraDescriptorSetLayout::CreateDescriptorPool()
 //{
-//    if (m_pLogicalDevice == nullptr) throw std::runtime_error("CreateDescriptorSet : 論理デバイスがnullptrです!");
+//    if (m_LogicalDevice == nullptr) throw std::runtime_error("CreateDescriptorSet : 論理デバイスがnullptrです!");
 //    vk::DescriptorPoolSize poolSize;
 //    poolSize.type = m_DescriptorType;
 //    poolSize.descriptorCount = 1; // ディスクリプタの数
@@ -69,7 +69,7 @@ void VCameraDescriptorSetLayout::CreateDescriptorSetLayout(uint32_t bindNumber)
 //    poolInfo.poolSizeCount = 1;
 //    poolInfo.pPoolSizes = &poolSize;
 //
-//    m_DescriptorPool = m_pLogicalDevice->createDescriptorPool(poolInfo);
+//    m_DescriptorPool = m_LogicalDevice->createDescriptorPool(poolInfo);
 //}
 
 //void VCameraDescriptorSetLayout::UpdateDescriptorSet(vk::DescriptorSet descriptorSet, vk::Buffer buffer, vk::DeviceSize bufferSize)
@@ -87,5 +87,5 @@ void VCameraDescriptorSetLayout::CreateDescriptorSetLayout(uint32_t bindNumber)
 //    descriptorWrite.descriptorCount = 1;
 //    descriptorWrite.pBufferInfo = &bufferInfo;
 //
-//    m_pLogicalDevice->updateDescriptorSets(descriptorWrite, nullptr);
+//    m_LogicalDevice->updateDescriptorSets(descriptorWrite, nullptr);
 //}

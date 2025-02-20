@@ -9,7 +9,7 @@ DrawCommand::DrawCommand() :
     m_ImageSet(),
     m_CommandBuffers(),
     m_CommandPool(VK_NULL_HANDLE),
-    m_QueueSelector(m_pPhysicalDevice)
+    m_QueueSelector()
 {
 
 }
@@ -20,18 +20,18 @@ DrawCommand::~DrawCommand()
 
 void DrawCommand::Create(vk::Device* pLogicalDevice, vk::PhysicalDevice* pPhysicalDevice, std::vector<ImageViewSet> imageSet)
 {
-    m_pLogicalDevice = *&pLogicalDevice;
-    m_pPhysicalDevice = *&pPhysicalDevice;
+    m_pLogicalDevice = pLogicalDevice;
+    m_pPhysicalDevice = pPhysicalDevice;
     m_ImageSet = imageSet;
-
+    m_QueueSelector.Initialize(*m_pPhysicalDevice);
     //// セマフォの作成
     //m_SemaphoreGenerator.Create(pLogicalDevice, commandSize);
     //m_SignalSemaphores = m_SemaphoreGenerator.GetSignalSemaphores();
     //m_WaitSemaphores = m_SemaphoreGenerator.GetWaitSemaphores();
 
-    ////フェンスの作成
-    //m_FenceGenerator.Create(pLogicalDevice, commandSize);
-    //m_Fences = m_FenceGenerator.GetFence();
+    //フェンスの作成
+    m_FenceGenerator.Create(*pLogicalDevice, imageSet.size());
+    m_Fences = m_FenceGenerator.GetFence();
 
     //コマンドプール(コマンドを置く領域)を作成
     CreateCommandPool(pLogicalDevice);
@@ -113,8 +113,16 @@ void DrawCommand::EndRendering()
     m_CommandBuffers[m_ImageDrawIndex].end();
 
     // キューにコマンドを送信
-    vk::Queue queue = m_pLogicalDevice->getQueue(m_QueueSelector.GetGraphicIndex(), 0);
-    queue.submit(CreateSubmitInfo(m_CommandBuffers[m_ImageDrawIndex]), m_Fences[m_ImageDrawIndex]);
+    try
+    {
+        vk::Queue queue = m_pLogicalDevice->getQueue(m_QueueSelector.GetGraphicIndex(), 0);
+        queue.submit(CreateSubmitInfo(m_CommandBuffers[m_ImageDrawIndex]), m_Fences.at(m_ImageDrawIndex));
+    }
+    catch(const std::out_of_range& e)
+    {
+        std::cout << "範囲外アクセス（NULL返却）" << std::endl;
+    }
+
 }
 
 
@@ -127,9 +135,9 @@ void DrawCommand::CreateCommandPool(vk::Device* pLogicalDevice)
         throw std::runtime_error("コマンドプールを作成しようとしましたが、物理デバイスがNULLです");
 
     // コマンドプールの作成に必要な情報を設定する
-    VkCommandPoolCreateInfo poolInfo;
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;	// コマンドバッファのリセットを許可する場合はフラグを追加する
+    vk::CommandPoolCreateInfo poolInfo;
+    poolInfo.pNext = nullptr;
+    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;	// コマンドバッファのリセットを許可する場合はフラグを追加する
     poolInfo.queueFamilyIndex = m_QueueSelector.GetGraphicIndex();	            // このコマンドプールが使用するキューファミリー
 
    m_CommandPool = pLogicalDevice->createCommandPool(poolInfo);
@@ -152,6 +160,8 @@ void DrawCommand::CreateCommandBuffers(vk::Device* pLogicalDevice, uint32_t comm
 
     // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
     m_CommandBuffers = pLogicalDevice->allocateCommandBuffers(cbAllocInfo); //配列で情報をやり取りする
+
+
 
 }
 

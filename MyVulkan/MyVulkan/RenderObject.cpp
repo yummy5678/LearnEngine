@@ -14,7 +14,7 @@ RenderObject::~RenderObject() {
 
 void RenderObject::SetMesh(VmaAllocator* allocator, std::vector<MeshObject>* meshes)
 {
-	if (allocator == nullptr || meshes->empty())
+	if (allocator == nullptr || meshes->empty() == true)
 	{
 		// ToDo エラーメッセージを設定する
 		return;
@@ -26,7 +26,7 @@ void RenderObject::SetMesh(VmaAllocator* allocator, std::vector<MeshObject>* mes
 	
 	for (size_t i = 0; i < size; i++)
 	{
-		m_Meshes[i].SetMeshObject(allocator, &(*meshes)[i]);
+		m_Meshes[i].SetMeshObject(allocator, &meshes->at(i));
 	}
 }
 

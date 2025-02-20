@@ -10,7 +10,7 @@ public:
 	VIndexBuffer();
 	~VIndexBuffer();
 
-	void SetData(VmaAllocator* allocator, std::vector<uint32_t>& indices);
+	void SetData(VmaAllocator* allocator, std::vector<uint32_t>* indices);
 	uint32_t GetSize();
 
 

@@ -8,7 +8,7 @@ public:
 	VSingleTextureDescriptor();
 	~VSingleTextureDescriptor();
 
-	void Initialize(vk::Device* pLogicalDevice, vk::DescriptorSetLayout layout);
+	void Initialize(vk::Device logicalDevice, vk::DescriptorSetLayout layout);
 	void Update(vk::ImageView imageView, vk::Sampler sampler);
 
 

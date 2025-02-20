@@ -16,9 +16,9 @@ VVertexBuffer::~VVertexBuffer()
 {
 }
 
-void VVertexBuffer::SetData(VmaAllocator* allocator, std::vector<Vertex>& vertices)
+void VVertexBuffer::SetData(VmaAllocator* allocator, std::vector<Vertex>* vertices)
 {
-	m_VertexCount = (uint32_t)vertices.size();
+	m_VertexCount = vertices->size();
 	vk::DeviceSize dataSize = sizeof(Vertex) * m_VertexCount;
 
 
@@ -28,7 +28,7 @@ void VVertexBuffer::SetData(VmaAllocator* allocator, std::vector<Vertex>& vertic
 	// ステージングバッファを踏んでデータを入れてもらう
 	VStagingBuffer StagingBuffer;
 	StagingBuffer.Initialize(allocator, dataSize);					//一度ステージングバッファにデータを入れてから
-	StagingBuffer.TransferDataToBuffer(vertices.data(), m_Buffer);	//VertexBuffer(VRAMに作られたバッファ)にコピーする
+	StagingBuffer.TransferDataToBuffer(vertices->data(), m_Buffer);	//VertexBuffer(VRAMに作られたバッファ)にコピーする
 
 }
 

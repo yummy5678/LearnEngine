@@ -9,8 +9,11 @@ constexpr uint32_t UndefinedQueueNumber = UINT32_MAX;   //キューが見つかったかの
 class QueueFamilySelector
 {
 public:
-    QueueFamilySelector(vk::PhysicalDevice* pPhysicalDevice);
+    QueueFamilySelector();
     ~QueueFamilySelector();
+
+    void Initialize(vk::PhysicalDevice physicalDevice);
+    void Cleanup();
 
     uint32_t GetGraphicIndex();
     uint32_t GetComputeIndex();
@@ -19,14 +22,12 @@ public:
     std::vector<vk::DeviceQueueCreateInfo> GetQueueInfos(); //デバイスの作成用
 
 private:   
-    vk::PhysicalDevice* m_pPhysicalDevice;
-    uint32_t m_GraphicsFamilyIndex       = UndefinedQueueNumber;  // 描画用キューファミリーの場所
-    uint32_t m_ComputeFamilyIndex        = UndefinedQueueNumber;  // 計算用キューファミリーの場所
-    uint32_t m_TransferFamilyIndex       = UndefinedQueueNumber;  // 転送用キューファミリーの場所
-    uint32_t m_PresentationFamilyIndex   = UndefinedQueueNumber;  // プレゼンテーションキューファミリー(画像の表示)の場所
+    vk::PhysicalDevice  m_PhysicalDevice;
+    uint32_t m_GraphicsFamilyIndex;  // 描画用キューファミリーの場所
+    uint32_t m_ComputeFamilyIndex;  // 計算用キューファミリーの場所
+    uint32_t m_TransferFamilyIndex;  // 転送用キューファミリーの場所
+    uint32_t m_PresentationFamilyIndex;  // プレゼンテーションキューファミリー(画像の表示)の場所
 
-    // キュー作成情報用のベクター
-    std::vector<vk::DeviceQueueCreateInfo> m_QueueCreateInfos;
 
     uint32_t SearchGraphicsFamily();
     uint32_t SearchComputeFamily();

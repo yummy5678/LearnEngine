@@ -10,9 +10,10 @@ VSingleTextureDescriptor::~VSingleTextureDescriptor()
 {
 }
 
-void VSingleTextureDescriptor::Initialize(vk::Device* pLogicalDevice, vk::DescriptorSetLayout layout)
+void VSingleTextureDescriptor::Initialize(vk::Device logicalDevice, vk::DescriptorSetLayout layout)
 {
-    m_pLogicalDevice = pLogicalDevice;    
+
+    m_LogicalDevice = logicalDevice;    
     VDescriptorBase::CreateDescriptorPool(m_SetCount);
     VDescriptorBase::CreateDescriptorSet(m_SetCount, &layout);
 }
@@ -43,5 +44,5 @@ void VSingleTextureDescriptor::UpdateDescriptorSet(vk::ImageView imageView, vk::
     descriptorWrite.descriptorCount = m_SetCount;
     descriptorWrite.pImageInfo = &imageInfo;
 
-    m_pLogicalDevice->updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+    m_LogicalDevice.updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
 }

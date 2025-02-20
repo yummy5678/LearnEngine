@@ -19,12 +19,13 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectGraphicsDevice()
 	// 適切なデバイスが見つかるまでループする
 	for (auto& device : m_PhysicalDevices)
 	{
-        QueueFamilySelector queueFamily(&device);
+        m_QueueFamilySelector.Cleanup();
+        m_QueueFamilySelector.Initialize(device);
 		//デバイスが使用する拡張機能、
-		if (queueFamily.GetGraphicIndex() != UndefinedQueueNumber)
+		if (m_QueueFamilySelector.GetGraphicIndex() != UndefinedQueueNumber)
 		{
 			// 適切なデバイスが見つかった
-            return { device, CreateQueueInfos({queueFamily.GetGraphicIndex()}) };
+            return { device, CreateQueueInfos({m_QueueFamilySelector.GetGraphicIndex()}) };
 		}
 	}
 
@@ -37,11 +38,12 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectComputeDevice()
     // 適切なデバイスが見つかるまでループする
     for (auto& device : m_PhysicalDevices)
     {
-        QueueFamilySelector queueFamily(&device);
-        if (queueFamily.GetComputeIndex() != UndefinedQueueNumber)
+        m_QueueFamilySelector.Cleanup();
+        m_QueueFamilySelector.Initialize(device);
+        if (m_QueueFamilySelector.GetComputeIndex() != UndefinedQueueNumber)
         {
             // 適切なデバイスが見つかった
-            return { device, CreateQueueInfos({queueFamily.GetComputeIndex()}) };
+            return { device, CreateQueueInfos({m_QueueFamilySelector.GetComputeIndex()}) };
         }
     }
 
@@ -54,11 +56,12 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectTransferDevice()
     // 適切なデバイスが見つかるまでループする
     for (auto& device : m_PhysicalDevices)
     {
-        QueueFamilySelector queueFamily(&device);
-        if (queueFamily.GetTransferIndex() != UndefinedQueueNumber)
+        m_QueueFamilySelector.Cleanup();
+        m_QueueFamilySelector.Initialize(device);
+        if (m_QueueFamilySelector.GetTransferIndex() != UndefinedQueueNumber)
         {
             // 適切なデバイスが見つかった
-            return { device, CreateQueueInfos({queueFamily.GetComputeIndex()}) };
+            return { device, CreateQueueInfos({m_QueueFamilySelector.GetComputeIndex()}) };
         }
     }
 
@@ -73,15 +76,16 @@ PhysicalDeviceContainer PhysicalDeviceSelector::SelectSwapchainDevice()
     {
         // 描画用キューと表示用キューが存在し、
         // 拡張機能にも対応している
-        QueueFamilySelector queueFamily(&device);
-        if (queueFamily.GetGraphicIndex()               != UndefinedQueueNumber &&
+        m_QueueFamilySelector.Cleanup();
+        m_QueueFamilySelector.Initialize(device);
+        if (m_QueueFamilySelector.GetGraphicIndex() != UndefinedQueueNumber &&
             //queueFamily.GetPresentationIndex(surface)   != UndefinedQueueNumber &&
             //CheckSupportSurface(device,surface) == true                     &&
             CheckExtensionNames(device, { VK_KHR_SWAPCHAIN_EXTENSION_NAME }) == true)
         {
             // 適切なデバイスが見つかった
             //return { device, CreateQueueInfos({queueFamily.GetGraphicIndex(), queueFamily.GetPresentationIndex(surface)}) };
-            return { device, CreateQueueInfos({queueFamily.GetGraphicIndex()}) };
+            return { device, CreateQueueInfos({m_QueueFamilySelector.GetGraphicIndex()}) };
         }
     }
 
@@ -124,13 +128,16 @@ bool PhysicalDeviceSelector::CheckExtensionNames(vk::PhysicalDevice physicalDevi
 
     // 拡張機能の名前をセットにして、存在確認を効率化
     std::set<std::string> availableExtensionsSet;
-    for (const auto& extension : availableExtensions) {
+    for (const auto& extension : availableExtensions) 
+    {
         availableExtensionsSet.insert(extension.extensionName);
     }
 
     // 必要な拡張機能がサポートされているか確認
-    for (const auto& extensionName : extensionNames) {
-        if (availableExtensionsSet.find(extensionName) == availableExtensionsSet.end()) {
+    for (const auto& extensionName : extensionNames) 
+    {
+        if (availableExtensionsSet.find(extensionName) == availableExtensionsSet.end()) 
+        {
             return false; // 必要な拡張機能が見つからない
         }
     }

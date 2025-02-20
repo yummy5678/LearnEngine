@@ -6,8 +6,6 @@
 #include "VulkanInitializer.h"
 #include "RendererBase.h"
 #include "SceneCamera.h"
-#include "VCameraDescriptor.h"
-#include "DescriptorHandleManeger.h"
 #include "GraphicWindow.h"
 #include "RenderFunction.h"
 

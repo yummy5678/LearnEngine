@@ -3,8 +3,8 @@
 VMaterial::VMaterial() : 
 	m_LogicalDevice(VK_NULL_HANDLE),
 	m_Texture(),
-	m_Sampler(VK_NULL_HANDLE),
-	m_DescriptorManager(&m_LogicalDevice)
+	m_Sampler(VK_NULL_HANDLE)/*,
+	m_DescriptorSets()*/
 {
 }
 
@@ -12,13 +12,13 @@ VMaterial::~VMaterial()
 {
 }
 
-void VMaterial::SetMaterial(VmaAllocator* allocator, Material material)
+void VMaterial::SetMaterial(VmaAllocator* allocator, Material* material)
 {
 	VmaAllocatorInfo allocatorInfo;
 	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
 
 	m_LogicalDevice = allocatorInfo.device;
-	SetTexture(allocator, material.texture);
+	SetTexture(allocator, material->texture);
 
 	if (m_Sampler == VK_NULL_HANDLE)
 	{
@@ -26,7 +26,7 @@ void VMaterial::SetMaterial(VmaAllocator* allocator, Material material)
 	}
 
 
-	m_DescriptorManager.UpdateAll(m_Texture.GetImageView(), m_Sampler);
+	/*UpdateDescriptorSets(m_Texture.GetImageView(), m_Sampler);*/
 }
 
 vk::Image VMaterial::GetTextureBuffer()
@@ -55,17 +55,14 @@ vk::Sampler VMaterial::GetSampler()
 //	m_BufferUpdateSubject.removeObserver(function);
 //}
 
-vk::DescriptorSet VMaterial::GetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> sDescriptorSetLayout)
-{
-	if (m_DescriptorManager.HasDescriptor(sDescriptorSetLayout) == false)
-	{
-		m_DescriptorManager.SetDescriptorSet(sDescriptorSetLayout);
-		m_DescriptorManager.UpdateAll(m_Texture.GetImageView(), m_Sampler);
-	}
-
-
-	return m_DescriptorManager.GetVDescriptorSet(sDescriptorSetLayout).GetDescriptorSet();
-}
+//vk::DescriptorSet VMaterial::GetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> sDescriptorSetLayout)
+//{
+//	// 既に登録済みなら何もしない
+//	if (m_DescriptorSets.find(sDescriptorSetLayout) == m_DescriptorSets.end())
+//		SetDescriptorSet(sDescriptorSetLayout);
+//
+//	return m_DescriptorSets[sDescriptorSetLayout].GetDescriptorSet();
+//}
 
 void VMaterial::SetTexture(VmaAllocator* allocator, Texture& texture)
 {
@@ -95,4 +92,46 @@ void VMaterial::CreateSampler(vk::Device logicalDevice)
 	m_Sampler = logicalDevice.createSampler(samplerCreateInfo);
 
 }
+
+//void VMaterial::SetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout)
+//{
+//	if (*layout.get() == VK_NULL_HANDLE)
+//	{
+//		std::cerr << "SetDescriptorSet: layout is invalid." << std::endl;
+//		return;
+//	}
+//
+//	// 必要に応じた VDescriptorBase 派生クラスのインスタンスを生成
+//	VSingleTextureDescriptor descriptor;
+//	descriptor.Initialize(m_LogicalDevice, *layout.get());
+//	m_DescriptorSets.insert({ layout, descriptor });
+//}
+//
+//void VMaterial::DeleteDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout)
+//{
+//	m_DescriptorSets.erase(layout);
+//}
+//
+//void VMaterial::CleanupDescriptorSets()
+//{
+//	for (auto& pair : m_DescriptorSets)
+//	{
+//		// shared_ptrの中身が初期化されていたら削除
+//		if (*pair.first.get() == VK_NULL_HANDLE)
+//		{
+//			m_DescriptorSets.erase(pair.first);
+//		}
+//	}
+//}
+//
+//void VMaterial::UpdateDescriptorSets(vk::ImageView imageView, vk::Sampler sampler)
+//{
+//	// 登録されているすべてのディスクリプタセットを更新
+//	for (auto& pair : m_DescriptorSets)
+//	{
+//		pair.second.Update(imageView, sampler);
+//	}
+//}
+//
+//
 

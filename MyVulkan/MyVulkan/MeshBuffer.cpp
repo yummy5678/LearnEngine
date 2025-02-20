@@ -11,8 +11,8 @@ VMesh::~VMesh()
 
 void VMesh::SetMesh(VmaAllocator* allocator, Mesh* mesh)
 {
-	SetVertex(allocator, mesh->vertices);
-	SetIndex(allocator, mesh->indices);
+	SetVertex(allocator, &mesh->vertices);
+	SetIndex(allocator, &mesh->indices);
 }
 
 VVertexBuffer VMesh::GetVertex()
@@ -31,12 +31,12 @@ void VMesh::Cleanup()
 	m_Index.Cleanup();
 }
 
-void VMesh::SetVertex(VmaAllocator *allocator, std::vector<Vertex> vertex)
+void VMesh::SetVertex(VmaAllocator *allocator, std::vector<Vertex>* vertex)
 {
 	m_Vertex.SetData(allocator, vertex);
 }
 
-void VMesh::SetIndex(VmaAllocator* allocator, std::vector<uint32_t> index)
+void VMesh::SetIndex(VmaAllocator* allocator, std::vector<uint32_t>* index)
 {
 	m_Index.SetData(allocator, index);
 

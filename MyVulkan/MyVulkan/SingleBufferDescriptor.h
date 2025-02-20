@@ -8,7 +8,7 @@ public:
 	VSingleBufferDescriptor();
 	~VSingleBufferDescriptor();
 
-	void Initialize(vk::Device* pLogicalDevice, vk::DescriptorSetLayout layout);
+	void Initialize(vk::Device logicalDevice, vk::DescriptorSetLayout layout);
 	void Update(vk::Buffer buffer, vk::DeviceSize bufferSize);
 
 
