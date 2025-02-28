@@ -24,12 +24,14 @@ public:
 	vk::CommandBuffer GetBuffer();
 
 	void BeginRendering(vk::Rect2D renderArea);
-	void EndRendering();
+	void EndRendering(vk::ImageLayout newImageLayout);
 
 	vk::Semaphore GetImageAvableSemaphore();
+	vk::Semaphore GetSignalSemaphore();
 	vk::Fence GetFence();
 
 	uint32_t GetCurrentIndex();
+	void WaitFence();
 
 	// GPU内で画像を描画
 	//void DrawFrame(		
@@ -54,12 +56,14 @@ private:
 	QueueFamilySelector				m_QueueSelector;
 
 	// 画像の組が複数枚あるとき(主にスワップチェイン)の描画用インデックス
-	uint32_t						m_CurrentIndex;	// 今から描画するイメージインデックス
-	uint32_t						m_NextIndex;	// 次フレームで描画するイメージインデックス
+	// 今から描画するイメージインデックス
+	uint32_t						m_CurrentIndex;	// 用途 : フェンス、セマフォ
+	// 次フレームで描画するイメージインデックス
+	uint32_t						m_NextIndex;	// 用途 : コマンド、画像
 
 
 
-	std::vector<RenderingImageSet>		m_ImageSet;
+	std::vector<RenderingImageSet>	m_ImageSet;
 
 	vk::CommandPool					m_CommandPool;		//コマンドプール
 	std::vector<vk::CommandBuffer>	m_CommandBuffers;	//コマンドバッファ
@@ -84,7 +88,7 @@ private:
 	vk::SubmitInfo CreateSubmitInfo(std::vector<vk::PipelineStageFlags>* waitStages);
 
 	uint32_t AcquireSwapchainNextImage();
-	void ImageMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+	void ImageMemoryBarrier(vk::Image& image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 	//uint32_t						AcquireSwapchainNextImage(vk::SwapchainKHR swapchain);
 
 

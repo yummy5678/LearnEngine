@@ -38,18 +38,27 @@ void VPresentationCommand::Initialize(vk::Device logicalDevice, vk::PhysicalDevi
 
 void VPresentationCommand::RunningCommand(vk::Semaphore imageAvailableSemaphore)
 {
-    m_SwapChainIndex = AcquireSwapchainNextImage(imageAvailableSemaphore);
+    vk::SemaphoreCreateInfo semaphoreInfo;
+    semaphoreInfo.pNext;
+    m_Semaphores.push_back(m_LogicalDevice.createSemaphore(semaphoreInfo));
+    m_SwapChainIndex = AcquireSwapchainNextImage(m_Semaphores.front());
+    //m_SwapChainIndex = 0;
+
+    vk::Result result;
 
     vk::PresentInfoKHR presentInfo;
-
+    presentInfo.pNext;
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = &m_Swapchain;
     presentInfo.pImageIndices = &m_SwapChainIndex;
+    presentInfo.pResults = &result;
+    presentInfo.pWaitSemaphores = &imageAvailableSemaphore;
+    presentInfo.waitSemaphoreCount = 1;
 
     // 使用するキュー(グラフィックキューやプレゼントキューなど)のインデックスを取得
     auto graphicsQueue = m_LogicalDevice.getQueue(m_QueueFamily.GetGraphicIndex(), 0);
-
-    if (graphicsQueue.presentKHR(presentInfo) != vk::Result::eSuccess)
+    graphicsQueue.presentKHR(presentInfo);
+    if (result != vk::Result::eSuccess)
     {
         throw std::runtime_error("スワップチェーンの画像の表示に失敗しました！");
     }

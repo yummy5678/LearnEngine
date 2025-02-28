@@ -26,7 +26,7 @@ void DrawCommand::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDe
 {
     m_LogicalDevice = logicalDevice;
     m_PhysicalDevice = physicalDevice;
-    m_ImageSet = { imageSet };
+    m_ImageSet = { *imageSet };
     m_QueueSelector.Initialize(m_PhysicalDevice);
 
     // 使用するフレームの枚数
@@ -96,14 +96,21 @@ void DrawCommand::Destroy()
 vk::CommandBuffer DrawCommand::GetBuffer()
 {
     if (m_CommandBuffers.empty() == true) 
-        throw std::runtime_error("コマンドを取り出そうとしましたが、それはまだ発行されていません");
+        throw std::runtime_error("コマンドを取り出そうとしましたが、まだ発行されていません");
 
-    return m_CommandBuffers[m_CurrentIndex];
+    return m_CommandBuffers[m_NextIndex];
 }
 
 void DrawCommand::BeginRendering(vk::Rect2D renderArea)
 {
     if (m_ImageSet.empty() == true) return; // 描画する為のイメージがセットされていなければ何もしない
+
+    // インデックスのカウントを進める
+    m_CurrentIndex = (m_CurrentIndex + 1) % m_ImageSet.size();   //  添え字がコマンド数の範囲内に収まるよう調整
+
+    WaitFence();
+
+
 
     m_NextIndex = AcquireSwapchainNextImage();
 
@@ -146,9 +153,15 @@ void DrawCommand::BeginRendering(vk::Rect2D renderArea)
 
 }
 
-void DrawCommand::EndRendering()
+void DrawCommand::EndRendering(vk::ImageLayout newImageLayout)
 {
+    // 描画コマンドの記録を終了する
     m_CommandBuffers[m_NextIndex].endRendering();
+
+    // コマンドの終了前にイメージの状態を使用目的に合わせて変更する
+    ImageMemoryBarrier(m_ImageSet[m_NextIndex].color.image, vk::ImageLayout::eUndefined, newImageLayout);
+
+    // コマンドの記録を閉じる
     m_CommandBuffers[m_NextIndex].end();
 
     std::vector<vk::PipelineStageFlags> waitStages = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
@@ -157,14 +170,16 @@ void DrawCommand::EndRendering()
     // キューにコマンドを送信
     vk::Queue queue = m_LogicalDevice.getQueue(m_QueueSelector.GetGraphicIndex(), 0);
     queue.submit(submitInfo, m_Fences[m_CurrentIndex]);
-
-    // インデックスのカウントを進める
-    m_CurrentIndex = (m_CurrentIndex + 1) % m_ImageSet.size();   //  添え字がコマンド数の範囲内に収まるよう調整
 }
 
 vk::Semaphore DrawCommand::GetImageAvableSemaphore()
 {
     return m_ImageAvailableSemaphores[m_CurrentIndex];
+}
+
+vk::Semaphore DrawCommand::GetSignalSemaphore()
+{
+    return m_SignalSemaphores[m_CurrentIndex];
 }
 
 vk::Fence DrawCommand::GetFence()
@@ -175,6 +190,17 @@ vk::Fence DrawCommand::GetFence()
 uint32_t DrawCommand::GetCurrentIndex()
 {
     return m_CurrentIndex;
+}
+
+void DrawCommand::WaitFence()
+{
+    std::vector<vk::Fence> usingFences = { m_Fences[m_CurrentIndex] };
+    m_LogicalDevice.waitForFences(
+        usingFences,							// 利用するフェンス達
+        VK_TRUE,								// フェンスが全てシグナル状態になるまで待つ
+        UINT64_MAX);							// 最大待機時間
+
+    m_LogicalDevice.resetFences(usingFences);	// フェンスを非シグナル状態にする
 }
 
 
@@ -276,7 +302,7 @@ uint32_t DrawCommand::AcquireSwapchainNextImage()
     return imageIndex;
 }
 
-void DrawCommand::ImageMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+void DrawCommand::ImageMemoryBarrier(vk::Image& image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
 {
 
     vk::ImageSubresourceRange subresourceRange;
@@ -290,7 +316,7 @@ void DrawCommand::ImageMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout 
     vk::ImageMemoryBarrier imageMemoryBarrier;
     imageMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eNoneKHR;
     imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    imageMemoryBarrier.image = m_ImageSet[m_CurrentIndex].color.image;
+    imageMemoryBarrier.image = image;
     imageMemoryBarrier.newLayout = newLayout;
     imageMemoryBarrier.oldLayout = oldLayout;
     imageMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
@@ -298,7 +324,7 @@ void DrawCommand::ImageMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout 
     imageMemoryBarrier.subresourceRange = subresourceRange;
 
     // パイプラインバリア
-    m_CommandBuffers[m_CurrentIndex].pipelineBarrier
+    m_CommandBuffers[m_NextIndex].pipelineBarrier
     (
         vk::PipelineStageFlagBits::eColorAttachmentOutput, // sourceStage (レンダリングの最後)
         vk::PipelineStageFlagBits::eBottomOfPipe,         // destinationStage (次の処理)

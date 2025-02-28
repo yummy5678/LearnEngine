@@ -61,14 +61,14 @@ void GraphicWindow::ExecuteDrawTask()
 {
 	vk::Device* logicalDevice = m_pInitializer->GetPLogicalDevice();
 
-	std::vector<vk::Fence> usingFences = { m_DrawCommand.GetFence() };
+	//std::vector<vk::Fence> usingFences = { m_DrawCommand.GetFence() };
 
-	logicalDevice->waitForFences(
-		usingFences,							// 利用するフェンス達
-		VK_TRUE,								// フェンスが全てシグナル状態になるまで待つ
-		UINT64_MAX);							// 最大待機時間
+	//logicalDevice->waitForFences(
+	//	usingFences,							// 利用するフェンス達
+	//	VK_TRUE,								// フェンスが全てシグナル状態になるまで待つ
+	//	UINT64_MAX);							// 最大待機時間
 
-	logicalDevice->resetFences(usingFences);	// フェンスを非シグナル状態にする
+	//logicalDevice->resetFences(usingFences);	// フェンスを非シグナル状態にする
 
 	// 描画コマンドの記録開始
 	m_DrawCommand.BeginRendering({ {0, 0}, m_Swapchain.GetExtent() });
@@ -82,7 +82,7 @@ void GraphicWindow::ExecuteDrawTask()
 
 
 	// コマンドの記録の終了とキューへの送信
-	m_DrawCommand.EndRendering();
+	m_DrawCommand.EndRendering(vk::ImageLayout::ePresentSrcKHR);
 
 	// 描画した画像をウィンドウに表示
 	Presentation();
