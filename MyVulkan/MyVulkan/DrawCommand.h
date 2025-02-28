@@ -6,6 +6,8 @@
 #include "FenceGenerator.h"
 #include "VertexBuffer.h"
 #include "ImageSet.h"
+#include "RendererBase.h"
+#include "SwapchainRenderer.h"
 
 
 class DrawCommand
@@ -15,15 +17,19 @@ public:
 	~DrawCommand();
 
 	// 作成関数
-	void Create(vk::Device* pLogicalDevice, vk::PhysicalDevice* pPhysicalDevice, std::vector<ImageViewSet> imageSet);
-
-	// 破棄関数
+	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, RenderingImageSet* imageSet);
+	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, SwapchainRenderer* swapchainRenderer);
 	void Destroy();
 
 	vk::CommandBuffer GetBuffer();
 
-	void BeginRendering(uint32_t index, vk::Rect2D renderArea);
+	void BeginRendering(vk::Rect2D renderArea);
 	void EndRendering();
+
+	vk::Semaphore GetImageAvableSemaphore();
+	vk::Fence GetFence();
+
+	uint32_t GetCurrentIndex();
 
 	// GPU内で画像を描画
 	//void DrawFrame(		
@@ -41,38 +47,44 @@ public:
 	//	VMeshObject* drawMeshes,
 	//	Transform* ObjectTransform);
 private:
-	vk::Device*						m_pLogicalDevice;
-	vk::PhysicalDevice*				m_pPhysicalDevice;
+	vk::Device						m_LogicalDevice;
+	vk::PhysicalDevice				m_PhysicalDevice;
+	vk::SwapchainKHR				m_Swapchain;
 
 	QueueFamilySelector				m_QueueSelector;
 
 	// 画像の組が複数枚あるとき(主にスワップチェイン)の描画用インデックス
-	uint32_t						m_ImageDrawIndex;
+	uint32_t						m_CurrentIndex;	// 今から描画するイメージインデックス
+	uint32_t						m_NextIndex;	// 次フレームで描画するイメージインデックス
 
-	std::vector<ImageViewSet>		m_ImageSet;
+
+
+	std::vector<RenderingImageSet>		m_ImageSet;
 
 	vk::CommandPool					m_CommandPool;		//コマンドプール
 	std::vector<vk::CommandBuffer>	m_CommandBuffers;	//コマンドバッファ
 
 	// 同期オブジェクト
 	std::vector<vk::Semaphore>		m_SignalSemaphores;
-	std::vector<vk::Semaphore>		m_WaitSemaphores;
+	std::vector<vk::Semaphore>		m_ImageAvailableSemaphores;
 	std::vector<vk::Fence>			m_Fences;
 
-	SemaphoreGenerator				m_SemaphoreGenerator;
-	FenceGenerator					m_FenceGenerator;
+	//SemaphoreGenerator				m_SemaphoreGenerator;
+	//FenceGenerator					m_FenceGenerator;
 
-
+	void CreateSemaphore(vk::Semaphore& semaphore);
+	void CreateFence(vk::Fence& fence);
 
 	//コマンドプールの作成
-	void CreateCommandPool(vk::Device* pLogicalDevice);
+	void CreateCommandPool();
 
 	//コマンドバッファの作成(コマンドプールの割り当て)
-	void CreateCommandBuffers(vk::Device* pLogicalDevice, uint32_t commandSize, vk::CommandPool commandPool);
+	void CreateCommandBuffers(uint32_t commandSize, vk::CommandPool commandPool);
 
-	vk::SubmitInfo					CreateSubmitInfo(std::vector<vk::CommandBuffer>& commandBuffers, std::vector<vk::Semaphore>& signalSemaphores, std::vector<vk::Semaphore>& waitSemaphores);
-	vk::SubmitInfo					CreateSubmitInfo(vk::CommandBuffer& commandBuffer);
+	vk::SubmitInfo CreateSubmitInfo(std::vector<vk::PipelineStageFlags>* waitStages);
 
+	uint32_t AcquireSwapchainNextImage();
+	void ImageMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 	//uint32_t						AcquireSwapchainNextImage(vk::SwapchainKHR swapchain);
 
 

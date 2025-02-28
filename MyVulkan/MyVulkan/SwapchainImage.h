@@ -21,7 +21,7 @@ public:
 	std::vector<VImage>			GetDepthImages();
 	vk::Format					GetDepthFormat();
 
-	std::vector<ImageViewSet>	GetImageSets();
+	std::vector<RenderingImageSet>	GetImageSets();
 private:
 	VmaAllocator* m_pAllocator;
 	uint32_t m_Size;

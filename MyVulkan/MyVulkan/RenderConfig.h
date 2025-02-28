@@ -30,7 +30,7 @@ public:
 	//	vk::Extent2D extent,
 	//	vk::Format colorFomat,
 	//	vk::Format depthFomat);
-	void Initialize(RendererBase* renderere);
+	void Initialize(RenderTarget* renderere);
 
 	// ディスクリプタなどを更新したい
 	void Update();

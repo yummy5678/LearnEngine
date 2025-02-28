@@ -6,8 +6,10 @@ SwapchainRenderer::SwapchainRenderer(VulkanInitializer& initializer) :
     m_LogicalDevice(VK_NULL_HANDLE),
     m_SwapchainInfo(),
     m_Swapchain(VK_NULL_HANDLE),
-    m_SwapChainImages()//,
-    //m_CommandGenerator()
+    m_SwapChainImages(),
+    m_Semaphore(VK_NULL_HANDLE),
+    m_Fence(VK_NULL_HANDLE),
+    m_PresentationCommand()
 {    
     initializer.GetPDeviceExtension()->UseSwapchain();
 }
@@ -27,15 +29,27 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
     m_LogicalDevice = allocatorInfo.device;
 	vk::PhysicalDevice physicalDevice = allocatorInfo.physicalDevice;
 
+    // セマフォの作成
+    vk::SemaphoreCreateInfo semaphoreInfo;
+    semaphoreInfo.pNext;
+    semaphoreInfo.flags;
+    m_Semaphore = m_LogicalDevice.createSemaphore(semaphoreInfo);
 
+    // フェンスの作成
+    vk::FenceCreateInfo fenceCreateInfo;
+    fenceCreateInfo.pNext;
+    fenceCreateInfo.flags = vk::FenceCreateFlagBits::eSignaled; // 作成時からシグナル状態
+    m_Fence = m_LogicalDevice.createFence(fenceCreateInfo);
+
+    // スワップチェインの作成
     m_SwapchainInfo = CreateSwapchainInfo(physicalDevice, surface);
-
     m_Swapchain = m_LogicalDevice.createSwapchainKHR(m_SwapchainInfo);
 
+    // スワップチェイン用のフレームバッファの作成
     m_SwapChainImages.Create(allocator, m_Swapchain, m_SwapchainInfo);
 
     //コマンドバッファの作成
-    //m_CommandGenerator.Create(m_LogicalDevice, physicalDevice, m_SwapchainInfo.minImageCount);
+    m_PresentationCommand.Initialize(m_LogicalDevice, physicalDevice, m_Swapchain);
 }
 
 void SwapchainRenderer::Destroy()
@@ -64,7 +78,7 @@ vk::Extent2D SwapchainRenderer::GetExtent()
     return m_SwapchainInfo.imageExtent;
 }
 
-std::vector<ImageViewSet> SwapchainRenderer::GetImageSets()
+std::vector<RenderingImageSet> SwapchainRenderer::GetImageSets()
 {
     return m_SwapChainImages.GetImageSets();
 }
@@ -79,14 +93,29 @@ vk::Format SwapchainRenderer::GetDepthFormat()
     return m_SwapChainImages.GetDepthFormat();
 }
 
-
-
-void SwapchainRenderer::UpdateFrame()
+vk::Semaphore SwapchainRenderer::GetSemaphore()
 {
-    vk::ResultValue acquire = m_LogicalDevice.acquireNextImageKHR(m_Swapchain, std::numeric_limits<uint64_t>::max(), {}, nullptr);
-    if (acquire.result != vk::Result::eSuccess) std::cerr << "次フレームの取得に失敗しました。" << std::endl;
+    return m_Semaphore;
+}
 
-    //m_CommandGenerator.PresentFrame(m_Swapchain, acquire.value);
+vk::Fence SwapchainRenderer::GetFence()
+{
+    return m_Fence;
+}
+
+uint32_t SwapchainRenderer::AcquireSwapchainNextImage(vk::Semaphore imageAvailableSemaphore)
+{
+    return m_PresentationCommand.AcquireSwapchainNextImage(imageAvailableSemaphore);
+}
+
+void SwapchainRenderer::UpdateFrame(vk::Semaphore imageAvailableSemaphore)
+{
+    //vk::ResultValue acquire = m_LogicalDevice.acquireNextImageKHR(
+    //    m_Swapchain, std::numeric_limits<uint64_t>::max(), m_Semaphore, m_Fence);
+    //if (acquire.result != vk::Result::eSuccess) std::cerr << "次フレームの取得に失敗しました。" << std::endl;
+
+    /*m_PresentationCommand.PresentFrame(m_Swapchain, acquire.value);*/
+    m_PresentationCommand.RunningCommand(imageAvailableSemaphore);
 }
 
 /// <summary>
@@ -174,6 +203,7 @@ vk::PresentModeKHR SwapchainRenderer::SelectPresentMode(const std::vector<vk::Pr
             return availablePresentMode;
         }
     }
+
     // 無ければFIFOキューを使用する(必ずサポートされている)
     return vk::PresentModeKHR::eFifo; 
 }

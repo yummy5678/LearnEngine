@@ -6,7 +6,7 @@ GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_pWindow(nullptr),
 	m_pInitializer(&initializer),
 	m_Surface(initializer),
-	m_GraphicController(initializer),
+	m_Swapchain(initializer),
 	m_DrawCommand(),
 	m_RenderFunctions()
 	/*m_DrawTasks()*/
@@ -37,12 +37,12 @@ void GraphicWindow::init(const std::string wName, const int width, const int hei
 		return;
 	}
 
-	m_GraphicController.Create(m_pInitializer->GetPVmaAllocator(), m_Surface.GetSurface());
+	m_Swapchain.Create(m_pInitializer->GetPVmaAllocator(), m_Surface.GetSurface());
 
 	m_DrawCommand.Create(
-		m_pInitializer->GetPLogicalDevice(), 
-		m_pInitializer->GetPPhysicalDevice(),
-		m_GraphicController.GetImageSets());
+		*m_pInitializer->GetPLogicalDevice(), 
+		*m_pInitializer->GetPPhysicalDevice(),
+		&m_Swapchain);
 }
 
 void GraphicWindow::kill()
@@ -59,8 +59,19 @@ void GraphicWindow::AddDrawTask(std::shared_ptr<RenderFunction> function)
 
 void GraphicWindow::ExecuteDrawTask()
 {
+	vk::Device* logicalDevice = m_pInitializer->GetPLogicalDevice();
+
+	std::vector<vk::Fence> usingFences = { m_DrawCommand.GetFence() };
+
+	logicalDevice->waitForFences(
+		usingFences,							// 利用するフェンス達
+		VK_TRUE,								// フェンスが全てシグナル状態になるまで待つ
+		UINT64_MAX);							// 最大待機時間
+
+	logicalDevice->resetFences(usingFences);	// フェンスを非シグナル状態にする
+
 	// 描画コマンドの記録開始
-	m_DrawCommand.BeginRendering(0, { {0, 0}, m_GraphicController.GetExtent() });
+	m_DrawCommand.BeginRendering({ {0, 0}, m_Swapchain.GetExtent() });
 
 	// オブジェクトをパイプラインを通して描画
 	for (auto& function : m_RenderFunctions)
@@ -73,6 +84,13 @@ void GraphicWindow::ExecuteDrawTask()
 	// コマンドの記録の終了とキューへの送信
 	m_DrawCommand.EndRendering();
 
+	// 描画した画像をウィンドウに表示
+	Presentation();
+}
+
+void GraphicWindow::Presentation()
+{
+	m_Swapchain.UpdateFrame(m_DrawCommand.GetImageAvableSemaphore());
 }
 
 GLFWwindow* GraphicWindow::GetPointer()
@@ -80,9 +98,9 @@ GLFWwindow* GraphicWindow::GetPointer()
 	return m_pWindow;
 }
 
-RendererBase* GraphicWindow::GetRenderer()
+RenderTarget* GraphicWindow::GetRenderer()
 {
-	return &m_GraphicController;
+	return &m_Swapchain;
 }
 
 

@@ -32,10 +32,11 @@ public:
 
     void AddDrawTask(std::shared_ptr<RenderFunction> function);
 	void ExecuteDrawTask();
+    void Presentation();
 
     //ウィンドウのポインターを渡す
     GLFWwindow*     GetPointer();
-    RendererBase*   GetRenderer();
+    RenderTarget*   GetRenderer();
 
 
     //ウィンドウの終了フラグが立っているか確認
@@ -48,7 +49,8 @@ private:
     VulkanInitializer*      m_pInitializer;
 
     SurfaceGenerator        m_Surface;
-    SwapchainRenderer       m_GraphicController;
+    SwapchainRenderer       m_Swapchain;
+
 
     DrawCommand             m_DrawCommand;
     //std::vector<RenderTask> m_DrawTasks;

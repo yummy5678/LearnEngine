@@ -139,6 +139,7 @@
     <ClCompile Include="VCameraDescriptorSetLayout.cpp" />
     <ClCompile Include="VImage.cpp" />
     <ClCompile Include="VImageBufferBase.cpp" />
+    <ClCompile Include="VPresentationCommand.cpp" />
     <ClCompile Include="VShaderConfigureBase.cpp" />
     <ClCompile Include="SingleTextureDescriptor.cpp" />
     <ClCompile Include="DescriptorBase.cpp" />
@@ -146,7 +147,6 @@
     <ClCompile Include="VTextureBuffer.cpp" />
     <ClCompile Include="SwapchainImage.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
-    <ClCompile Include="CommandGenerator.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="GraphicWindow.cpp" />
     <ClCompile Include="GeneratorBase.cpp" />
@@ -194,6 +194,7 @@
     <ClInclude Include="VCameraDescriptorSetLayout.h" />
     <ClInclude Include="VImage.h" />
     <ClInclude Include="VImageBufferBase.h" />
+    <ClInclude Include="VPresentationCommand.h" />
     <ClInclude Include="VShaderConfigureBase.h" />
     <ClInclude Include="SingleTextureDescriptor.h" />
     <ClInclude Include="DescriptorBase.h" />
@@ -201,7 +202,6 @@
     <ClInclude Include="VTextureBuffer.h" />
     <ClInclude Include="SwapchainImage.h" />
     <ClInclude Include="DeviceExtensionManager.h" />
-    <ClInclude Include="CommandGenerator.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="GraphicWindow.h" />
     <ClInclude Include="GeneratorBase.h" />

@@ -124,9 +124,9 @@ vk::Format SwapChainImage::GetDepthFormat()
     return m_DepthFormat;
 }
 
-std::vector<ImageViewSet> SwapChainImage::GetImageSets()
+std::vector<RenderingImageSet> SwapChainImage::GetImageSets()
 {
-    std::vector<ImageViewSet> imageViewSets;
+    std::vector<RenderingImageSet> imageViewSets;
     imageViewSets.resize(m_Size);
 
     for (uint32_t i = 0; i < m_Size; i++)

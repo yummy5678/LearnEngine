@@ -3,12 +3,16 @@
 
 
 DrawCommand::DrawCommand() : 
-    m_pLogicalDevice(nullptr),
-    m_pPhysicalDevice(VK_NULL_HANDLE),
-    m_ImageDrawIndex(0),
+    m_LogicalDevice(VK_NULL_HANDLE),
+    m_PhysicalDevice(VK_NULL_HANDLE),
+    m_Swapchain(VK_NULL_HANDLE),
+    m_CurrentIndex(0),
+    m_NextIndex(0),
     m_ImageSet(),
     m_CommandBuffers(),
     m_CommandPool(VK_NULL_HANDLE),
+    m_SignalSemaphores(),
+    m_Fences(),
     m_QueueSelector()
 {
 
@@ -18,39 +22,75 @@ DrawCommand::~DrawCommand()
 {
 }
 
-void DrawCommand::Create(vk::Device* pLogicalDevice, vk::PhysicalDevice* pPhysicalDevice, std::vector<ImageViewSet> imageSet)
+void DrawCommand::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, RenderingImageSet* imageSet)
 {
-    m_pLogicalDevice = pLogicalDevice;
-    m_pPhysicalDevice = pPhysicalDevice;
-    m_ImageSet = imageSet;
-    m_QueueSelector.Initialize(*m_pPhysicalDevice);
-    //// セマフォの作成
-    //m_SemaphoreGenerator.Create(pLogicalDevice, commandSize);
-    //m_SignalSemaphores = m_SemaphoreGenerator.GetSignalSemaphores();
-    //m_WaitSemaphores = m_SemaphoreGenerator.GetWaitSemaphores();
+    m_LogicalDevice = logicalDevice;
+    m_PhysicalDevice = physicalDevice;
+    m_ImageSet = { imageSet };
+    m_QueueSelector.Initialize(m_PhysicalDevice);
+
+    // 使用するフレームの枚数
+    size_t imageSize = m_ImageSet.size();
+
+    // フレームの数だけセマフォとフェンスを作成
+    m_SignalSemaphores.resize(imageSize);
+    m_ImageAvailableSemaphores.resize(imageSize);
+    m_Fences.resize(imageSize);
 
     //フェンスの作成
-    m_FenceGenerator.Create(*pLogicalDevice, imageSet.size());
-    m_Fences = m_FenceGenerator.GetFence();
+    CreateFence(m_Fences[0]);
 
     //コマンドプール(コマンドを置く領域)を作成
-    CreateCommandPool(pLogicalDevice);
+    CreateCommandPool();
 
     //コマンドプールにコマンドバッファを割り当て
-    CreateCommandBuffers(pLogicalDevice, imageSet.size(), m_CommandPool);
+    CreateCommandBuffers(m_ImageSet.size(), m_CommandPool);
 
+}
+
+void DrawCommand::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, SwapchainRenderer* swapchainRenderer)
+{
+    m_Swapchain = swapchainRenderer->GetSwapchain();
+
+    m_LogicalDevice = logicalDevice;
+    m_PhysicalDevice = physicalDevice;
+    m_ImageSet = swapchainRenderer->GetImageSets();
+    m_QueueSelector.Initialize(m_PhysicalDevice);
+
+    // 使用するフレームの枚数
+    size_t imageSize = m_ImageSet.size();
+
+    // フレームの数だけセマフォとフェンスを作成
+    m_SignalSemaphores.resize(imageSize);
+    m_ImageAvailableSemaphores.resize(imageSize);
+    m_Fences.resize(imageSize);
+    for (size_t i = 0; i < imageSize; i++)
+    {
+        // セマフォの作成
+        CreateSemaphore(m_SignalSemaphores[i]);
+        CreateSemaphore(m_ImageAvailableSemaphores[i]);
+
+        //フェンスの作成
+        CreateFence(m_Fences[i]);
+    }
+
+    //コマンドプール(コマンドを置く領域)を作成
+    CreateCommandPool();
+
+    //コマンドプールにコマンドバッファを割り当て
+    CreateCommandBuffers(imageSize, m_CommandPool);
 }
 
 void DrawCommand::Destroy()
 {
     //コマンドプールの解放
-    m_pLogicalDevice->freeCommandBuffers(
+    m_LogicalDevice.freeCommandBuffers(
         m_CommandPool,
         (uint32_t)m_CommandBuffers.size(),
         m_CommandBuffers.data());
 
     //コマンドプールの破棄
-    m_pLogicalDevice->destroyCommandPool(m_CommandPool);
+    m_LogicalDevice.destroyCommandPool(m_CommandPool);
 }
 
 vk::CommandBuffer DrawCommand::GetBuffer()
@@ -58,19 +98,18 @@ vk::CommandBuffer DrawCommand::GetBuffer()
     if (m_CommandBuffers.empty() == true) 
         throw std::runtime_error("コマンドを取り出そうとしましたが、それはまだ発行されていません");
 
-    return m_CommandBuffers[m_ImageDrawIndex];
+    return m_CommandBuffers[m_CurrentIndex];
 }
 
-void DrawCommand::BeginRendering(uint32_t index, vk::Rect2D renderArea)
+void DrawCommand::BeginRendering(vk::Rect2D renderArea)
 {
     if (m_ImageSet.empty() == true) return; // 描画する為のイメージがセットされていなければ何もしない
 
-    // インデックスのカウントを進める
-    m_ImageDrawIndex = index % m_ImageSet.size();   //  添え字がコマンド数の範囲内に収まるよう調整
+    m_NextIndex = AcquireSwapchainNextImage();
 
     // カラーバッファアタッチメント
     vk::RenderingAttachmentInfo colorAttachment;
-    colorAttachment.imageView = m_ImageSet[m_ImageDrawIndex].color;
+    colorAttachment.imageView = m_ImageSet[m_NextIndex].color.imageView;
     colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
@@ -78,7 +117,7 @@ void DrawCommand::BeginRendering(uint32_t index, vk::Rect2D renderArea)
 
     // Depthバッファアタッチメント（3Dオブジェクト用に使用）
     vk::RenderingAttachmentInfo depthAttachment;
-    depthAttachment.imageView = m_ImageSet[m_ImageDrawIndex].depth;
+    depthAttachment.imageView = m_ImageSet[m_NextIndex].depth.imageView;
     depthAttachment.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
     depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
@@ -99,7 +138,7 @@ void DrawCommand::BeginRendering(uint32_t index, vk::Rect2D renderArea)
     renderingInfo.pDepthAttachment = &depthAttachment;
 
     // Dynamic Renderingを開始
-    auto commandBuffer = m_CommandBuffers[m_ImageDrawIndex];
+    auto commandBuffer = m_CommandBuffers[m_NextIndex];
     commandBuffer.begin(beginInfo);
     commandBuffer.beginRendering(renderingInfo);
 
@@ -109,29 +148,57 @@ void DrawCommand::BeginRendering(uint32_t index, vk::Rect2D renderArea)
 
 void DrawCommand::EndRendering()
 {
-    m_CommandBuffers[m_ImageDrawIndex].endRendering();
-    m_CommandBuffers[m_ImageDrawIndex].end();
+    m_CommandBuffers[m_NextIndex].endRendering();
+    m_CommandBuffers[m_NextIndex].end();
+
+    std::vector<vk::PipelineStageFlags> waitStages = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+    vk::SubmitInfo submitInfo = CreateSubmitInfo(&waitStages);
 
     // キューにコマンドを送信
-    try
-    {
-        vk::Queue queue = m_pLogicalDevice->getQueue(m_QueueSelector.GetGraphicIndex(), 0);
-        queue.submit(CreateSubmitInfo(m_CommandBuffers[m_ImageDrawIndex]), m_Fences.at(m_ImageDrawIndex));
-    }
-    catch(const std::out_of_range& e)
-    {
-        std::cout << "範囲外アクセス（NULL返却）" << std::endl;
-    }
+    vk::Queue queue = m_LogicalDevice.getQueue(m_QueueSelector.GetGraphicIndex(), 0);
+    queue.submit(submitInfo, m_Fences[m_CurrentIndex]);
 
+    // インデックスのカウントを進める
+    m_CurrentIndex = (m_CurrentIndex + 1) % m_ImageSet.size();   //  添え字がコマンド数の範囲内に収まるよう調整
+}
+
+vk::Semaphore DrawCommand::GetImageAvableSemaphore()
+{
+    return m_ImageAvailableSemaphores[m_CurrentIndex];
+}
+
+vk::Fence DrawCommand::GetFence()
+{
+    return m_Fences[m_CurrentIndex];
+}
+
+uint32_t DrawCommand::GetCurrentIndex()
+{
+    return m_CurrentIndex;
 }
 
 
-void DrawCommand::CreateCommandPool(vk::Device* pLogicalDevice)
+void DrawCommand::CreateSemaphore(vk::Semaphore& semaphore)
 {
-    if(m_pLogicalDevice == nullptr || *m_pLogicalDevice == VK_NULL_HANDLE)
+    vk::SemaphoreCreateInfo semaphoreInfo;
+    semaphoreInfo.pNext;
+    semaphore = m_LogicalDevice.createSemaphore(semaphoreInfo);
+}
+
+void DrawCommand::CreateFence(vk::Fence& fence)
+{
+    vk::FenceCreateInfo fenceInfo;
+    fenceInfo.pNext;
+    fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+    fence = m_LogicalDevice.createFence(fenceInfo);
+}
+
+void DrawCommand::CreateCommandPool()
+{
+    if(m_LogicalDevice == VK_NULL_HANDLE)
         throw std::runtime_error("コマンドプールを作成しようとしましたが、論理デバイスがNULLです");
 
-    if (m_pPhysicalDevice == nullptr || *m_pPhysicalDevice == VK_NULL_HANDLE)
+    if (m_PhysicalDevice == VK_NULL_HANDLE)
         throw std::runtime_error("コマンドプールを作成しようとしましたが、物理デバイスがNULLです");
 
     // コマンドプールの作成に必要な情報を設定する
@@ -140,12 +207,12 @@ void DrawCommand::CreateCommandPool(vk::Device* pLogicalDevice)
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;	// コマンドバッファのリセットを許可する場合はフラグを追加する
     poolInfo.queueFamilyIndex = m_QueueSelector.GetGraphicIndex();	            // このコマンドプールが使用するキューファミリー
 
-   m_CommandPool = pLogicalDevice->createCommandPool(poolInfo);
+   m_CommandPool = m_LogicalDevice.createCommandPool(poolInfo);
 }
 
-void DrawCommand::CreateCommandBuffers(vk::Device* pLogicalDevice, uint32_t commandSize, vk::CommandPool commandPool)
+void DrawCommand::CreateCommandBuffers(uint32_t commandSize, vk::CommandPool commandPool)
 {
-    if (m_pLogicalDevice == nullptr || *m_pLogicalDevice == VK_NULL_HANDLE)
+    if (m_LogicalDevice == VK_NULL_HANDLE)
         throw std::runtime_error("コマンドバッファを作成しようとしましたが、論理デバイスがNULLです");
 
     if (m_CommandPool == VK_NULL_HANDLE)
@@ -159,76 +226,86 @@ void DrawCommand::CreateCommandBuffers(vk::Device* pLogicalDevice, uint32_t comm
     cbAllocInfo.commandBufferCount = commandSize;           // 割り当てるコマンドバッファの数
 
     // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
-    m_CommandBuffers = pLogicalDevice->allocateCommandBuffers(cbAllocInfo); //配列で情報をやり取りする
+    m_CommandBuffers = m_LogicalDevice.allocateCommandBuffers(cbAllocInfo); //配列で情報をやり取りする
 
 
 
 }
 
-vk::SubmitInfo DrawCommand::CreateSubmitInfo(std::vector<vk::CommandBuffer>& commandBuffers, std::vector<vk::Semaphore>& signalSemaphores, std::vector<vk::Semaphore>& waitSemaphores)
+vk::SubmitInfo DrawCommand::CreateSubmitInfo(
+    std::vector<vk::PipelineStageFlags>* waitStages)
 {
     vk::SubmitInfo submitInfo;
     submitInfo.pNext;
-    submitInfo.signalSemaphoreCount = (uint32_t)m_SignalSemaphores.size();
-    submitInfo.pSignalSemaphores = m_SignalSemaphores.data();
-    submitInfo.pWaitDstStageMask;
-    submitInfo.waitSemaphoreCount = (uint32_t)m_WaitSemaphores.size();
-    submitInfo.pWaitSemaphores = m_WaitSemaphores.data();
-    submitInfo.commandBufferCount = (uint32_t)commandBuffers.size();
-    submitInfo.pCommandBuffers = commandBuffers.data();
-
-    return submitInfo;
-}
-
-vk::SubmitInfo DrawCommand::CreateSubmitInfo(vk::CommandBuffer& commandBuffer)
-{
-    vk::SubmitInfo submitInfo;
-    //submitInfo.pNext;
-    //submitInfo.signalSemaphoreCount;
-    //submitInfo.pSignalSemaphores;
-    //submitInfo.allowDuplicate;
-    //submitInfo.pWaitDstStageMask;
-    //submitInfo.waitSemaphoreCount;
-    //submitInfo.pWaitSemaphores;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
+    submitInfo.pCommandBuffers = &m_CommandBuffers[m_NextIndex];
+
+    // 画像の枚数が複数ある場合は同期処理を行う
+    if (m_Swapchain != VK_NULL_HANDLE)
+    {
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &m_SignalSemaphores[m_CurrentIndex];
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphores[m_CurrentIndex];
+        submitInfo.pWaitDstStageMask = waitStages->data();   
+    }
 
     return submitInfo;
 }
 
-//void DrawCommand::RenderMesh(
-//    vk::Pipeline pipeline,
-//    vk::PipelineLayout pipelineLayout,
-//    std::vector<vk::DescriptorSet>* descriptorSets,
-//    VMeshObject* drawMesh,
-//    Transform* ObjectTransform)
-//{
-//
-//    // 使用するパイプラインをバインドします。
-//    m_CommandBuffers[m_ImageDrawIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
-//
-//    // プッシュ定数をシェーダーに渡します。
-//    m_CommandBuffers[m_ImageDrawIndex].pushConstants(
-//        pipelineLayout,
-//        vk::ShaderStageFlagBits::eVertex,   // プッシュ定数を更新するシェーダーステージ
-//        0,                                  // オフセット
-//        sizeof(Transform),                  // プッシュするデータのサイズ
-//        ObjectTransform                     // 実際のデータ
-//    );
-//
-//
-//    // 頂点バッファをバインド
-//    m_CommandBuffers[m_ImageDrawIndex].bindVertexBuffers(0, drawMesh->GetSPMesh()->GetVertex().GetBuffer(), {0});
-//
-//    m_CommandBuffers[m_ImageDrawIndex].bindDescriptorSets(
-//        vk::PipelineBindPoint::eGraphics,
-//        pipelineLayout,
-//        0,
-//        *descriptorSets,
-//        nullptr);
-//
-//        // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
-//    m_CommandBuffers[m_ImageDrawIndex].bindIndexBuffer(drawMesh->GetSPMesh()->GetIndex().GetBuffer(), 0, vk::IndexType::eUint32);
-//    m_CommandBuffers[m_ImageDrawIndex].drawIndexed(drawMesh->GetSPMesh()->GetIndex().GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
-//
-//}
+uint32_t DrawCommand::AcquireSwapchainNextImage()
+{
+    if (m_Swapchain == VK_NULL_HANDLE) return 0;
+
+    // スワップチェーンから次に描画するイメージ（フレームバッファのようなもの）のインデックスを取得します。
+    uint32_t imageIndex;
+    vk::Result result = m_LogicalDevice.acquireNextImageKHR(
+        m_Swapchain,                                // スワップチェーン
+        std::numeric_limits<uint64_t>::max(),       // タイムアウトの設定(ここでは無限待機)
+        m_ImageAvailableSemaphores[m_CurrentIndex], // イメージが使用可能になるのを通知するセマフォ
+        nullptr,                                    // フェンス(ここでは使用しないのでnullptr)
+        &imageIndex                                 // イメージのインデックスが格納される
+    );
+
+    // イメージ取得に失敗した場合、エラーメッセージを投げる
+    if (result != vk::Result::eSuccess)
+    {
+        throw std::runtime_error("スワップチェーンからイメージを取得できませんでした！");
+    }
+
+    return imageIndex;
+}
+
+void DrawCommand::ImageMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+{
+
+    vk::ImageSubresourceRange subresourceRange;
+    subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.layerCount = 1;
+    subresourceRange.levelCount = 1;
+    
+    // イメージバリアの設定
+    vk::ImageMemoryBarrier imageMemoryBarrier;
+    imageMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eNoneKHR;
+    imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.image = m_ImageSet[m_CurrentIndex].color.image;
+    imageMemoryBarrier.newLayout = newLayout;
+    imageMemoryBarrier.oldLayout = oldLayout;
+    imageMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+    imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.subresourceRange = subresourceRange;
+
+    // パイプラインバリア
+    m_CommandBuffers[m_CurrentIndex].pipelineBarrier
+    (
+        vk::PipelineStageFlagBits::eColorAttachmentOutput, // sourceStage (レンダリングの最後)
+        vk::PipelineStageFlagBits::eBottomOfPipe,         // destinationStage (次の処理)
+        vk::DependencyFlags{},                            // 依存関係フラグ (特になし)
+        nullptr,                                          // メモリバリア (なし)
+        nullptr,                                          // バッファバリア (なし)
+        imageMemoryBarrier                                // イメージバリア (1つ)
+    );
+}
+
