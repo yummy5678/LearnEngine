@@ -17,20 +17,19 @@ public:
 	~DrawCommand();
 
 	// 作成関数
-	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, RenderingImageSet* imageSet);
-	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, SwapchainRenderer* swapchainRenderer);
+	void Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice);
+
 	void Destroy();
 
 	vk::CommandBuffer GetBuffer();
 
-	void BeginRendering(vk::Rect2D renderArea);
+	void BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imageAvableSemaphore, vk::Rect2D renderArea);
 	void EndRendering(vk::ImageLayout newImageLayout);
 
-	vk::Semaphore GetImageAvableSemaphore();
 	vk::Semaphore GetSignalSemaphore();
 	vk::Fence GetFence();
 
-	uint32_t GetCurrentIndex();
+	//uint32_t GetCurrentIndex();
 	void WaitFence();
 
 	// GPU内で画像を描画
@@ -57,21 +56,23 @@ private:
 
 	// 画像の組が複数枚あるとき(主にスワップチェイン)の描画用インデックス
 	// 今から描画するイメージインデックス
-	uint32_t						m_CurrentIndex;	// 用途 : フェンス、セマフォ
-	// 次フレームで描画するイメージインデックス
-	uint32_t						m_NextIndex;	// 用途 : コマンド、画像
+	//uint32_t						m_CurrentIndex;	// 用途 : フェンス、セマフォ
+	//// 次フレームで描画するイメージインデックス
+	//uint32_t						m_NextIndex;	// 用途 : コマンド、画像
 
 
 
-	std::vector<RenderingImageSet>	m_ImageSet;
+	RenderingImageSet*				m_ImageSet;
 
 	vk::CommandPool					m_CommandPool;		//コマンドプール
-	std::vector<vk::CommandBuffer>	m_CommandBuffers;	//コマンドバッファ
+	vk::CommandBuffer				m_CommandBuffers;	//コマンドバッファ
 
 	// 同期オブジェクト
-	std::vector<vk::Semaphore>		m_SignalSemaphores;
-	std::vector<vk::Semaphore>		m_ImageAvailableSemaphores;
-	std::vector<vk::Fence>			m_Fences;
+	vk::Semaphore					m_RenderFinishedSemaphores;
+
+	// 描画処理の完了を知らせるためのセマフォ
+	vk::Semaphore					m_ImageAvailableSemaphores;
+	vk::Fence						m_Fences;
 
 	//SemaphoreGenerator				m_SemaphoreGenerator;
 	//FenceGenerator					m_FenceGenerator;
@@ -87,13 +88,7 @@ private:
 
 	vk::SubmitInfo CreateSubmitInfo(std::vector<vk::PipelineStageFlags>* waitStages);
 
-	uint32_t AcquireSwapchainNextImage();
 	void ImageMemoryBarrier(vk::Image& image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
-	//uint32_t						AcquireSwapchainNextImage(vk::SwapchainKHR swapchain);
-
-
-
-
 
 
 

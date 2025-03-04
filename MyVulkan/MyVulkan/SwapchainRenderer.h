@@ -5,7 +5,6 @@
 #include "QueueUtility.h"
 #include "VulkanInitializer.h"
 #include "SwapchainImage.h"
-#include "VPresentationCommand.h"
 //#include "RenderConfig.h"
 //#include "CommandGenerator.h"
 
@@ -28,11 +27,12 @@ public:
 	std::vector<RenderingImageSet>	GetImageSets() override;
 	vk::Format					GetColorFormat() override;
 	vk::Format					GetDepthFormat() override;
-	vk::Semaphore				GetSemaphore();
+	vk::Semaphore				GetImageAvailableSemaphore();
 	vk::Fence					GetFence();
-	uint32_t					AcquireSwapchainNextImage(vk::Semaphore imageAvailableSemaphore);
 
-	void						UpdateFrame(vk::Semaphore imageAvailableSemaphore);
+	const uint32_t				GetUseImageIndex();
+
+	void						UpdateFrame();
 
 private:
 	VmaAllocator*				m_pAllocator;
@@ -41,13 +41,20 @@ private:
 	vk::SwapchainCreateInfoKHR	m_SwapchainInfo;
 	vk::SwapchainKHR			m_Swapchain;
 
-	SwapChainImage				m_SwapChainImages;
+	vk::SurfaceKHR				m_Surface;
 
-	vk::Semaphore				m_Semaphore;
-	vk::Fence					m_Fence;
+	SwapChainImage				m_SwapChainImages;
+	QueueFamilySelector			m_QueueFamily;
+	std::vector<vk::Semaphore>	m_ImageAvailableSemaphores;
+	/*vk::Fence					m_Fence;*/
 
 	//SwapChainCommandGenerator	m_PresentationCommand;
-	VPresentationCommand		m_PresentationCommand;
+	//VPresentationCommand		m_PresentationCommand;
+	// コマンドバッファ
+	vk::CommandPool					m_PresentCommandPool;		//コマンドプール
+	std::vector<vk::CommandBuffer>	m_PresentCommandBuffers;	//コマンドバッファ
+
+	uint32_t					m_ImageIndex;
 
 	// スワップチェーンの作成関数
 	vk::SwapchainCreateInfoKHR CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
@@ -57,6 +64,11 @@ private:
 	// スワップチェーンのプレゼントモードを選択する関数
 	vk::PresentModeKHR SelectPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
 
+	void AcquireSwapchainNextImage(vk::Semaphore imageAvailableSemaphore);
+
+	void CreatePresentationCommands();
+
+	void Presentation(vk::SurfaceKHR surface, vk::Semaphore imageAvailableSemaphore);
 
 };
 

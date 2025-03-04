@@ -139,7 +139,6 @@
     <ClCompile Include="VCameraDescriptorSetLayout.cpp" />
     <ClCompile Include="VImage.cpp" />
     <ClCompile Include="VImageBufferBase.cpp" />
-    <ClCompile Include="VPresentationCommand.cpp" />
     <ClCompile Include="VShaderConfigureBase.cpp" />
     <ClCompile Include="SingleTextureDescriptor.cpp" />
     <ClCompile Include="DescriptorBase.cpp" />
@@ -194,7 +193,6 @@
     <ClInclude Include="VCameraDescriptorSetLayout.h" />
     <ClInclude Include="VImage.h" />
     <ClInclude Include="VImageBufferBase.h" />
-    <ClInclude Include="VPresentationCommand.h" />
     <ClInclude Include="VShaderConfigureBase.h" />
     <ClInclude Include="SingleTextureDescriptor.h" />
     <ClInclude Include="DescriptorBase.h" />
