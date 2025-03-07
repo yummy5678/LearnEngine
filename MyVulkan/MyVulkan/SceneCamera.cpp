@@ -18,7 +18,6 @@ void SceneCamera::UpdateBuffer(ViewProjection viewProjection)
 {
     m_ProjectionBuffer.SetData(m_pAllocator, viewProjection);
 
-
 }
 
 vk::Buffer SceneCamera::GetProjectionBuffer()

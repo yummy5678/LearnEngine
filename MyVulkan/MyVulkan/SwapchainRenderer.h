@@ -8,9 +8,6 @@
 //#include "RenderConfig.h"
 //#include "CommandGenerator.h"
 
-
-
-
 class SwapchainRenderer : public RenderTarget
 {
 public:
@@ -46,7 +43,7 @@ private:
 	SwapChainImage				m_SwapChainImages;
 	QueueFamilySelector			m_QueueFamily;
 	std::vector<vk::Semaphore>	m_ImageAvailableSemaphores;
-	/*vk::Fence					m_Fence;*/
+	//std::vector<vk::Fence>		m_Fences;
 
 	//SwapChainCommandGenerator	m_PresentationCommand;
 	//VPresentationCommand		m_PresentationCommand;
@@ -65,6 +62,7 @@ private:
 	vk::PresentModeKHR SelectPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
 
 	void AcquireSwapchainNextImage(vk::Semaphore imageAvailableSemaphore);
+	void AcquireSwapchainNextImage(vk::Fence fence);
 
 	void CreatePresentationCommands();
 

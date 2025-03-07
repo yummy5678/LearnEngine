@@ -46,7 +46,7 @@ void DeviceGenerator::Create(DeviceExtension extensionManager, vk::Instance inst
 	deviceInfo.ppEnabledLayerNames = nullptr;
 	deviceInfo.enabledExtensionCount = (uint32_t)extension.size();			// 有効なロジカルデバイス拡張機能の数
 	deviceInfo.ppEnabledExtensionNames = extension.data();					// 有効なロジカルデバイス拡張機能のリスト
-	deviceInfo.pEnabledFeatures = nullptr;
+	deviceInfo.pEnabledFeatures = extensionManager.GetUseDeviceFeatures();
 
 	//論理デバイスの作成
 	m_LogicalDevice = m_PhysicalDevice.createDevice(deviceInfo);

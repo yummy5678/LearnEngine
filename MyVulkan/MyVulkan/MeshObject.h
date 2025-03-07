@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Texture.h"
 
 // ※パイプラインにこれらの情報を渡すための定義は"PipelineInputUtility"に記載
 
@@ -18,15 +19,6 @@ struct SamplerInfo	// 各モードの詳細については未作成
 	uint32_t	wrapT = 0;		// テクスチャのT方向（V軸）の境界処理
 };			
 					
-
-
-struct Texture
-{
-	uint8_t* data = 0;			// RAM上の画像データのポインタ
-	uint32_t width = 0;			// 画像の幅
-	uint32_t height = 0;		// 画像の高さ
-	uint32_t channel = 0;		// 1画素に含まれるチャンネル数	
-};
 
 // マテリアル(色やテクスチャ)の情報を格納するための構造体
 struct Material
@@ -43,9 +35,9 @@ struct Material
 // 頂点情報を格納するための構造体
 struct Vertex
 {
-	glm::vec3 position = glm::vec3(0);		// 頂点座標 (x, y, z)
-	glm::vec3 normal   = glm::vec3(0);		// 法線ベクトル(面の向き)
-	glm::vec2 textureCoord = glm::vec2(0); // テクスチャ座標 (u, v)
+	glm::vec3 position		= glm::vec3(0);		// 頂点座標 (x, y, z)
+	glm::vec3 normal		= glm::vec3(0);		// 法線ベクトル(面の向き)
+	glm::vec2 textureCoord	= glm::vec2(0); // テクスチャ座標 (u, v)
 };
 
 // メッシュ(頂点とインデックス)の情報を格納するための構造体

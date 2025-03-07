@@ -2,7 +2,8 @@
 
 DeviceExtension::DeviceExtension() : 
 	m_ExtensionList(),
-	m_PhysicalDeviceFeatures()
+	m_DeviceFeatures(),
+	m_DeviceExtensions()
 {
 }
 
@@ -12,7 +13,12 @@ DeviceExtension::~DeviceExtension()
 
 vk::PhysicalDeviceVulkan13Features* DeviceExtension::GetCreateDevicePNext()
 {
-	return &m_PhysicalDeviceFeatures;
+	return &m_DeviceExtensions;
+}
+
+vk::PhysicalDeviceFeatures* DeviceExtension::GetUseDeviceFeatures()
+{
+	return &m_DeviceFeatures;
 }
 
 std::vector<const char*> DeviceExtension::GetEnabledExtensions(vk::PhysicalDevice physicalDevice)
@@ -22,6 +28,8 @@ std::vector<const char*> DeviceExtension::GetEnabledExtensions(vk::PhysicalDevic
 		// エラーメッセージ
 		std::cout << "GPUが登録された拡張機能に対応していません！" << std::endl;
 	}
+
+
 
 	//作成したリストを返す
 	return m_ExtensionList;
@@ -56,8 +64,13 @@ void DeviceExtension::UseDynamicRendering()
 	m_ExtensionList.push_back(extension);
 
 	//　vk::DeviceCreateInfoのpNext設定する用の値を作成
-	m_PhysicalDeviceFeatures.pNext = nullptr;
-	m_PhysicalDeviceFeatures.dynamicRendering = VK_TRUE;
+	m_DeviceExtensions.pNext = nullptr;
+	m_DeviceExtensions.dynamicRendering = VK_TRUE;
+}
+
+void DeviceExtension::UseRenderingModeNonSolid()
+{
+	m_DeviceFeatures.fillModeNonSolid = VK_TRUE;
 }
 
 bool DeviceExtension::CheckExtensionsSupport(std::vector<const char*> checkExtensionNames, vk::PhysicalDevice physicalDevice)

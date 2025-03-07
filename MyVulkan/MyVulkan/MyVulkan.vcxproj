@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="DrawCommand.cpp" />
     <ClCompile Include="GltfLoader.cpp" />
+    <ClCompile Include="ImageGenerator.cpp" />
     <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="SceneCamera.cpp" />
     <ClCompile Include="VDescriptorLayoutBase.cpp" />
@@ -184,6 +185,8 @@
   <ItemGroup>
     <ClInclude Include="DrawCommand.h" />
     <ClInclude Include="GltfLoader.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="ImageGenerator.h" />
     <ClInclude Include="ImageSet.h" />
     <ClInclude Include="RendererBase.h" />
     <ClInclude Include="RenderFunction.h" />

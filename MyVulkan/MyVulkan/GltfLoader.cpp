@@ -113,7 +113,7 @@ void FileLoader::ProcessMaterials(const tinygltf::Model& model, MeshObject& mesh
             material.texture.data = const_cast<uint8_t*>(image.image.data());
             material.texture.width = image.width;
             material.texture.height = image.height;
-            material.texture.channel = image.component;
+            material.texture.channel = static_cast<TextureChannel>(image.component);
         }
 
         meshObject.material = material;

@@ -14,6 +14,7 @@ RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initialize
 	if (initializer.IsInitialized() == true) 
 		printf("イニシャライザーをイニシャライズする前にパイプラインのコンストラクタを読んでください");
 	initializer.GetPDeviceExtension()->UseDynamicRendering();
+	initializer.GetPDeviceExtension()->UseRenderingModeNonSolid();
 	m_pLogicalDevice = initializer.GetPLogicalDevice();
 
 }
@@ -129,7 +130,9 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::R
 	rasterizationInfo.depthBiasSlopeFactor = 0.0f;				// 深度バイアスのスロープ係数
 	rasterizationInfo.depthClampEnable = VK_FALSE;				// 深度クランピングの有無
 	rasterizationInfo.lineWidth = 1.0f;							// 線の幅
-	rasterizationInfo.polygonMode = vk::PolygonMode::eFill;		// ポリゴンの描画モード
+	//rasterizationInfo.polygonMode = vk::PolygonMode::eFill;		// ポリゴンの描画モード
+	rasterizationInfo.polygonMode = vk::PolygonMode::ePoint;		// ポリゴンの描画モード
+	//rasterizationInfo.polygonMode = vk::PolygonMode::eLine;		// ポリゴンの描画モード
 	rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;		// ラスタライザーの処理の有無
 	rasterizationInfo.frontFace = vk::FrontFace::eCounterClockwise;	// ポリゴンの前面の定義
 #pragma endregion rasterizationInfo

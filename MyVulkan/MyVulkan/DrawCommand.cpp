@@ -10,7 +10,7 @@ DrawCommand::DrawCommand() :
     m_CommandBuffers(),
     m_CommandPool(VK_NULL_HANDLE),
     m_RenderFinishedSemaphores(),
-    m_Fences(),
+    //m_Fences(),
     m_QueueSelector()
 {
 
@@ -35,7 +35,7 @@ void DrawCommand::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDe
     // セマフォの作成
     CreateSemaphore(m_RenderFinishedSemaphores);
     //フェンスの作成
-    CreateFence(m_Fences);
+    //CreateFence(m_Fences);
 
 
 }
@@ -98,7 +98,7 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
     //// インデックスのカウントを進める
     //m_CurrentIndex = (m_CurrentIndex + 1) % m_ImageSet.size();   //  添え字がコマンド数の範囲内に収まるよう調整
 
-    WaitFence();
+    //WaitFence();
 
     /*m_NextIndex = AcquireSwapchainNextImage();*/
 
@@ -108,7 +108,7 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
     colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-    colorAttachment.clearValue = vk::ClearValue(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+    colorAttachment.clearValue = vk::ClearValue(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 1.0f, 1.0f}));
 
     // Depthバッファアタッチメント（3Dオブジェクト用に使用）
     vk::RenderingAttachmentInfo depthAttachment;
@@ -138,7 +138,7 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
     commandBuffer.beginRendering(renderingInfo);
 }
 
-void DrawCommand::EndRendering(vk::ImageLayout newImageLayout)
+void DrawCommand::EndRendering(vk::Fence fence, vk::ImageLayout newImageLayout)
 {
     // 描画コマンドの記録を終了する
     m_CommandBuffers.endRendering();
@@ -155,7 +155,7 @@ void DrawCommand::EndRendering(vk::ImageLayout newImageLayout)
 
     // キューにコマンドを送信
     vk::Queue queue = m_LogicalDevice.getQueue(m_QueueSelector.GetGraphicIndex(), 0);
-    queue.submit(submitInfo, m_Fences);
+    queue.submit(submitInfo, fence);
 }
 
 //vk::Semaphore DrawCommand::GetImageAvableSemaphore()
@@ -168,21 +168,21 @@ vk::Semaphore DrawCommand::GetSignalSemaphore()
     return m_RenderFinishedSemaphores;
 }
 
-vk::Fence DrawCommand::GetFence()
-{
-    return m_Fences;
-}
+//vk::Fence DrawCommand::GetFence()
+//{
+//    return m_Fences;
+//}
 
-void DrawCommand::WaitFence()
-{
-    std::vector<vk::Fence> usingFences = { m_Fences };
-    m_LogicalDevice.waitForFences(
-        usingFences,							// 利用するフェンス達
-        VK_TRUE,								// フェンスが全てシグナル状態になるまで待つ
-        UINT64_MAX);							// 最大待機時間
-
-    m_LogicalDevice.resetFences(usingFences);	// フェンスを非シグナル状態にする
-}
+//void DrawCommand::WaitFence()
+//{
+//    std::vector<vk::Fence> usingFences = { m_Fences };
+//    m_LogicalDevice.waitForFences(
+//        usingFences,							// 利用するフェンス達
+//        VK_TRUE,								// フェンスが全てシグナル状態になるまで待つ
+//        UINT64_MAX);							// 最大待機時間
+//
+//    m_LogicalDevice.resetFences(usingFences);	// フェンスを非シグナル状態にする
+//}
 
 
 void DrawCommand::CreateSemaphore(vk::Semaphore& semaphore)
@@ -227,13 +227,13 @@ void DrawCommand::CreateCommandBuffers(uint32_t commandSize, vk::CommandPool com
 
 
     // コマンドバッファをアロケート(割り当てる)ための情報を設定する
-    vk::CommandBufferAllocateInfo cbAllocInfo;
-    cbAllocInfo.commandPool = commandPool;                  // コマンドバッファを割り当てるコマンドプール
-    cbAllocInfo.level = vk::CommandBufferLevel::ePrimary;   // コマンドバッファの種類(PRIMARY: 直接キューに送信するバッファ)
-    cbAllocInfo.commandBufferCount = commandSize;           // 割り当てるコマンドバッファの数
+    vk::CommandBufferAllocateInfo allocateInfo;
+    allocateInfo.commandPool = commandPool;                  // コマンドバッファを割り当てるコマンドプール
+    allocateInfo.level = vk::CommandBufferLevel::ePrimary;   // コマンドバッファの種類(PRIMARY: 直接キューに送信するバッファ)
+    allocateInfo.commandBufferCount = commandSize;           // 割り当てるコマンドバッファの数
 
     // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
-    m_CommandBuffers = m_LogicalDevice.allocateCommandBuffers(cbAllocInfo).front(); //配列で情報をやり取りする
+    m_CommandBuffers = m_LogicalDevice.allocateCommandBuffers(allocateInfo).front(); //配列で情報をやり取りする
 
 
 

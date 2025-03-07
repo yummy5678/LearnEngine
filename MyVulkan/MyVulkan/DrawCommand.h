@@ -24,29 +24,15 @@ public:
 	vk::CommandBuffer GetBuffer();
 
 	void BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imageAvableSemaphore, vk::Rect2D renderArea);
-	void EndRendering(vk::ImageLayout newImageLayout);
+	void EndRendering(vk::Fence fence, vk::ImageLayout newImageLayout);
 
 	vk::Semaphore GetSignalSemaphore();
-	vk::Fence GetFence();
+	//vk::Fence GetFence();
 
 	//uint32_t GetCurrentIndex();
-	void WaitFence();
-
-	// GPU内で画像を描画
-	//void DrawFrame(		
-	//	vk::PipelineLayout pipelineLayout,
-	//	std::vector<vk::DescriptorSet>* descriptorSets,
-	//	RenderObject* object,
-	//	SceneCamera* camera);
+	//void WaitFence();
 
 
-	// メッシュオブジェクトから情報を仕分けて描画コマンドを発行するまでの流れを纏めたもの
-	//void RenderMesh(
-	//	vk::Pipeline pipeline, 
-	//	vk::PipelineLayout pipelineLayout,
-	//	std::vector<vk::DescriptorSet>* descriptorSets,
-	//	VMeshObject* drawMeshes,
-	//	Transform* ObjectTransform);
 private:
 	vk::Device						m_LogicalDevice;
 	vk::PhysicalDevice				m_PhysicalDevice;
@@ -72,10 +58,7 @@ private:
 
 	// 描画処理の完了を知らせるためのセマフォ
 	vk::Semaphore					m_ImageAvailableSemaphores;
-	vk::Fence						m_Fences;
-
-	//SemaphoreGenerator				m_SemaphoreGenerator;
-	//FenceGenerator					m_FenceGenerator;
+	//vk::Fence						m_Fences;
 
 	void CreateSemaphore(vk::Semaphore& semaphore);
 	void CreateFence(vk::Fence& fence);

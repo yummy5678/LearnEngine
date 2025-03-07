@@ -55,7 +55,7 @@ int main()
 
 	// カメラクラスを作成
 	SceneCamera camera(allocator);
-	
+	camera.UpdateBuffer(ViewProjection(-1));
 
 	
 	renderConfig.Initialize(mainWindow.GetRenderer());
@@ -77,10 +77,6 @@ int main()
 		testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		m_Object.SetTransform(testMat);
 
-
-		//  ToDo :	描画はRenderConfigに、
-		//			表示はRendererが担当するように機能を分割したい
-		// renderConfig.DrawImage(&objContainer, &camera);
 		mainWindow.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
 		mainWindow.ExecuteDrawTask();
 	}

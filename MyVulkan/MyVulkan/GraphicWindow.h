@@ -51,8 +51,8 @@ private:
     SurfaceGenerator            m_Surface;
     SwapchainRenderer           m_Swapchain;
 
-
-    std::vector<DrawCommand>        m_DrawCommands;
+    std::vector<vk::Fence>      m_Fences;
+    std::vector<DrawCommand>    m_DrawCommands;
 
     // 画像の組が複数枚あるとき(主にスワップチェイン)の描画用インデックス
     std::vector<RenderingImageSet>  m_RenderingImage;

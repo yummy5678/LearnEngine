@@ -12,7 +12,7 @@ SwapchainRenderer::SwapchainRenderer(VulkanInitializer& initializer) :
     m_ImageAvailableSemaphores(),
     m_PresentCommandPool(VK_NULL_HANDLE),
     m_PresentCommandBuffers(),
-    //m_Fence(VK_NULL_HANDLE),
+    //m_Fences(),
     //m_PresentationCommand(), 
     m_ImageIndex(0)
 {    
@@ -36,7 +36,7 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
     m_QueueFamily.Initialize(physicalDevice);
     m_Surface = surface;
 
-    CreatePresentationCommands();
+
     
     // スワップチェインの作成
     m_SwapchainInfo = CreateSwapchainInfo(physicalDevice, surface);
@@ -44,6 +44,21 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
 
     // スワップチェイン用のフレームバッファの作成
     m_SwapChainImages.Create(allocator, m_Swapchain, m_SwapchainInfo);
+
+    // スワップチェインの描画コマンドを作成
+    CreatePresentationCommands();
+
+    //// フェンスを画像の数だけ作成
+    //vk::FenceCreateInfo fenceInfo;
+    //fenceInfo.pNext;
+    //fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+    //m_Fences.resize(m_SwapchainInfo.minImageCount);
+    //for (uint32_t i = 0; i < m_SwapchainInfo.minImageCount; i++)
+    //{
+    //    m_Fences[i] = m_LogicalDevice.createFence(fenceInfo);
+    //}
+
+
 
     // セマフォを画像の数だけ作成
     vk::SemaphoreCreateInfo semaphoreInfo;
@@ -108,7 +123,7 @@ vk::Semaphore SwapchainRenderer::GetImageAvailableSemaphore()
 
 //vk::Fence SwapchainRenderer::GetFence()
 //{
-//    return m_Fence;
+//    return m_Fences[m_ImageIndex];
 //}
 
 const uint32_t SwapchainRenderer::GetUseImageIndex()
@@ -118,6 +133,15 @@ const uint32_t SwapchainRenderer::GetUseImageIndex()
 
 void SwapchainRenderer::AcquireSwapchainNextImage(vk::Semaphore imageAvailableSemaphore)
 {
+    //// 次のインデックス
+    //m_LogicalDevice.waitForFences(
+    //    { m_Fences[m_ImageIndex] },							// 利用するフェンス達
+    //    VK_TRUE,								// フェンスが全てシグナル状態になるまで待つ
+    //    UINT64_MAX);							// 最大待機時間
+
+    //m_LogicalDevice.resetFences(m_Fences[m_ImageIndex]);	// フェンスを非シグナル状態にする
+
+
     // スワップチェーンから次に描画するイメージ（フレームバッファのようなもの）のインデックスを取得します。
     vk::Result result = m_LogicalDevice.acquireNextImageKHR(
         m_Swapchain,                            // スワップチェーン
@@ -152,13 +176,13 @@ void SwapchainRenderer::CreatePresentationCommands()
 
 #pragma region コマンドの作成
     // コマンドバッファをアロケート(割り当てる)ための情報を設定する
-    vk::CommandBufferAllocateInfo cbAllocInfo;
-    cbAllocInfo.commandPool = m_PresentCommandPool;                  // コマンドバッファを割り当てるコマンドプール
-    cbAllocInfo.level = vk::CommandBufferLevel::ePrimary;   // コマンドバッファの種類(PRIMARY: 直接キューに送信するバッファ)
-    cbAllocInfo.commandBufferCount = m_SwapchainInfo.minImageCount;           // 割り当てるコマンドバッファの数
+    vk::CommandBufferAllocateInfo allocateInfo;
+    allocateInfo.commandPool = m_PresentCommandPool;                  // コマンドバッファを割り当てるコマンドプール
+    allocateInfo.level = vk::CommandBufferLevel::ePrimary;   // コマンドバッファの種類(PRIMARY: 直接キューに送信するバッファ)
+    allocateInfo.commandBufferCount = m_SwapchainInfo.minImageCount;           // 割り当てるコマンドバッファの数
 
     // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
-    m_PresentCommandBuffers = m_LogicalDevice.allocateCommandBuffers(cbAllocInfo); //配列で情報をやり取りする
+    m_PresentCommandBuffers = m_LogicalDevice.allocateCommandBuffers(allocateInfo); //配列で情報をやり取りする
 #pragma endregion
 }
 
@@ -194,7 +218,7 @@ void SwapchainRenderer::Presentation(vk::SurfaceKHR surface, vk::Semaphore image
 void SwapchainRenderer::UpdateFrame()
 {
     //vk::ResultValue acquire = m_LogicalDevice.acquireNextImageKHR(
-    //    m_Swapchain, std::numeric_limits<uint64_t>::max(), m_ImageAvailableSemaphores, m_Fence);
+    //    m_Swapchain, std::numeric_limits<uint64_t>::max(), m_ImageAvailableSemaphores, m_Fences);
     //if (acquire.result != vk::Result::eSuccess) std::cerr << "次フレームの取得に失敗しました。" << std::endl;
 
     /*m_PresentationCommand.PresentFrame(m_Swapchain, acquire.value);*/
@@ -202,7 +226,11 @@ void SwapchainRenderer::UpdateFrame()
     //m_PresentationCommand.RunningCommand(index, m_Surface, m_ImageAvailableSemaphores[index]);
     Presentation(m_Surface, m_ImageAvailableSemaphores[index]);
 
+    // 次のインデックスに切り替え
     index = (index + 1) % m_SwapchainInfo.minImageCount;
+
+
+
     AcquireSwapchainNextImage(m_ImageAvailableSemaphores[index]);
 
     printf("%d :番号を更新\n", index);

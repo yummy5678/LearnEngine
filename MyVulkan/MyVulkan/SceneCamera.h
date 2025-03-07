@@ -1,7 +1,6 @@
 #pragma once
 #include "ViewProjection.h"
 #include "ViewProjectionBuffer.h"
-//#include "CameraDescriptor.h"
 #include "SingleBufferDescriptor.h"
 
 

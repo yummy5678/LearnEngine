@@ -7,6 +7,7 @@ GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_pInitializer(&initializer),
 	m_Surface(initializer),
 	m_Swapchain(initializer),
+	m_Fences(),
 	m_DrawCommands(),
 	m_RenderingImage(),
 	m_CurrentIndex(0),
@@ -50,6 +51,16 @@ void GraphicWindow::init(const std::string wName, const int width, const int hei
 			*m_pInitializer->GetPLogicalDevice(),
 			*m_pInitializer->GetPPhysicalDevice());
 	}
+
+	// フェンスを画像の数だけ作成
+	vk::FenceCreateInfo fenceInfo;
+	fenceInfo.pNext;
+	fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+	m_Fences.resize(m_RenderingImage.size());
+	for (uint32_t i = 0; i < m_RenderingImage.size(); i++)
+	{
+		m_Fences[i] = m_pInitializer->GetPLogicalDevice()->createFence(fenceInfo);
+	}
 }
 
 void GraphicWindow::kill()
@@ -68,6 +79,17 @@ void GraphicWindow::ExecuteDrawTask()
 {
 	vk::Device* logicalDevice = m_pInitializer->GetPLogicalDevice();
 
+	//vk::Fence fence = m_Fences[m_CurrentIndex];
+	vk::Fence fence = m_Fences[0];
+
+	// 次のインデックス
+	logicalDevice->waitForFences(
+	    //{ m_Fences[m_CurrentIndex] },	// 利用するフェンス達
+	    { fence },	// 利用するフェンス達
+	    VK_TRUE,						// フェンスが全てシグナル状態になるまで待つ
+	    UINT64_MAX);					// 最大待機時間
+	logicalDevice->resetFences(fence);	// フェンスを非シグナル状態にする
+
 	m_NextIndex = m_Swapchain.GetUseImageIndex();
 
 	// 描画コマンドの記録開始
@@ -79,13 +101,12 @@ void GraphicWindow::ExecuteDrawTask()
 	// オブジェクトをパイプラインを通して描画
 	for (auto& function : m_RenderFunctions)
 	{
-		//task.config->BindRenderingCommand(m_DrawCommand.GetBuffer(), task.objects, task.camera);
 		(*function)(m_DrawCommands[m_CurrentIndex].GetBuffer(), &(*function));
 	}
 
 
 	// コマンドの記録の終了とキューへの送信
-	m_DrawCommands[m_CurrentIndex].EndRendering(vk::ImageLayout::ePresentSrcKHR);
+	m_DrawCommands[m_CurrentIndex].EndRendering(fence, vk::ImageLayout::ePresentSrcKHR);
 	printf("%d :スワップチェーンの描画が完了\n", m_NextIndex);
 	printf("%d\n", m_Swapchain.GetImageAvailableSemaphore());
 
