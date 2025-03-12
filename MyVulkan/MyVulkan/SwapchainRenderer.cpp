@@ -1,13 +1,15 @@
 #include "SwapChainRenderer.h"
 
 
+
 SwapchainRenderer::SwapchainRenderer(VulkanInitializer& initializer) : 
     m_pAllocator(nullptr),
     m_LogicalDevice(VK_NULL_HANDLE),
     m_Surface(VK_NULL_HANDLE),
     m_SwapchainInfo(),
     m_Swapchain(VK_NULL_HANDLE),
-    m_SwapChainImages(),
+    m_ColorFormat(vk::Format::eUndefined),
+    m_DepthFormat(vk::Format::eUndefined),
     m_QueueFamily(),
     m_ImageAvailableSemaphores(),
     m_PresentCommandPool(VK_NULL_HANDLE),
@@ -43,22 +45,10 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
     m_Swapchain = m_LogicalDevice.createSwapchainKHR(m_SwapchainInfo);
 
     // スワップチェイン用のフレームバッファの作成
-    m_SwapChainImages.Create(allocator, m_Swapchain, m_SwapchainInfo);
+    CreateSwapchainImage();
 
     // スワップチェインの描画コマンドを作成
     CreatePresentationCommands();
-
-    //// フェンスを画像の数だけ作成
-    //vk::FenceCreateInfo fenceInfo;
-    //fenceInfo.pNext;
-    //fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
-    //m_Fences.resize(m_SwapchainInfo.minImageCount);
-    //for (uint32_t i = 0; i < m_SwapchainInfo.minImageCount; i++)
-    //{
-    //    m_Fences[i] = m_LogicalDevice.createFence(fenceInfo);
-    //}
-
-
 
     // セマフォを画像の数だけ作成
     vk::SemaphoreCreateInfo semaphoreInfo;
@@ -91,29 +81,29 @@ vk::SwapchainCreateInfoKHR SwapchainRenderer::GetSwapchainInfo()
     return m_SwapchainInfo;
 }
 
-SwapChainImage SwapchainRenderer::GetImages()
-{
-    return m_SwapChainImages;
-}
-
 vk::Extent2D SwapchainRenderer::GetExtent()
 {
     return m_SwapchainInfo.imageExtent;
 }
 
-std::vector<RenderingImageSet> SwapchainRenderer::GetImageSets()
+uint32_t SwapchainRenderer::GetFrameCount()
 {
-    return m_SwapChainImages.GetImageSets();
+    return m_SwapchainInfo.minImageCount;
+}
+
+RenderingImageSet SwapchainRenderer::GetRenderingImageSet()
+{
+    return m_ImageSets[m_ImageIndex];
 }
 
 vk::Format SwapchainRenderer::GetColorFormat()
 {
-    return m_SwapChainImages.GetColorFormat();
+    return m_ColorFormat;
 }
 
 vk::Format SwapchainRenderer::GetDepthFormat()
 {
-    return m_SwapChainImages.GetDepthFormat();
+    return m_DepthFormat;
 }
 
 vk::Semaphore SwapchainRenderer::GetImageAvailableSemaphore()
@@ -159,6 +149,81 @@ void SwapchainRenderer::AcquireSwapchainNextImage(vk::Semaphore imageAvailableSe
 
 }
 
+vk::ImageCreateInfo SwapchainRenderer::CreateImageInfo(vk::Extent2D extent, vk::Format fomat, vk::ImageUsageFlags usage)
+{
+    vk::ImageCreateInfo imageCreateInfo;
+    imageCreateInfo.pNext;
+    imageCreateInfo.flags;
+    imageCreateInfo.imageType = vk::ImageType::e2D;
+    imageCreateInfo.format = fomat;                                 // 画像のフォーマット
+    imageCreateInfo.extent.width = extent.width;                    // 画像の幅
+    imageCreateInfo.extent.height = extent.height;                  // 画像の高さ
+    imageCreateInfo.extent.depth = 1;                               // 画像の奥行き
+    imageCreateInfo.mipLevels = 1;                                  // ミップマップレベル
+    imageCreateInfo.arrayLayers = 1;                                // レイヤー数
+    imageCreateInfo.samples = vk::SampleCountFlagBits::e1;          // サンプル数
+    imageCreateInfo.tiling = vk::ImageTiling::eOptimal;             // タイリング方式
+    imageCreateInfo.usage = usage;                                  // 使用方法
+    imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;      // 共有モード
+    imageCreateInfo.initialLayout = vk::ImageLayout::eUndefined;    // 初期レイアウト
+    // imageCreateInfo.queueFamilyIndexCount = 0;                     // キューファミリーインデックスの数
+    // imageCreateInfo.pQueueFamilyIndices;                           // キューファミリーインデックスの配列
+    return imageCreateInfo;
+
+}
+
+vk::ImageViewCreateInfo SwapchainRenderer::CreateImageViewInfo(vk::Image image, vk::Format fomat, vk::ImageAspectFlags aspectFlag)
+{
+    // 画像ビュー作成情報の初期化
+    vk::ImageViewCreateInfo imageViewCreateInfo;
+    imageViewCreateInfo.pNext;
+    imageViewCreateInfo.flags;
+    imageViewCreateInfo.image = image;                                  // View を作成するための Image
+    imageViewCreateInfo.viewType = vk::ImageViewType::e2D;              // Image の種類 (1D, 2D, 3D, Cube など)
+    imageViewCreateInfo.format = fomat;                                 // Image データのフォーマット(imageと同じものでなければならない)
+    imageViewCreateInfo.components.r = vk::ComponentSwizzle::eIdentity; // RGBA コンポーネントを他の RGBA 値にリマップすることができます
+    imageViewCreateInfo.components.g = vk::ComponentSwizzle::eIdentity;
+    imageViewCreateInfo.components.b = vk::ComponentSwizzle::eIdentity;
+    imageViewCreateInfo.components.a = vk::ComponentSwizzle::eIdentity;
+
+    // Subresource は Image の一部だけを表示するための設定です
+    //VK_IMAGE_ASPECT_COLOR_BIT
+    imageViewCreateInfo.subresourceRange.aspectMask = aspectFlag;   // Image のどの面を表示するか (例: COLOR_BIT は色を表示するため)
+    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;          // 表示を開始する Mipmap レベル
+    imageViewCreateInfo.subresourceRange.levelCount = 1;            // 表示する Mipmap レベルの数
+    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;        // 表示を開始する配列レベル
+    imageViewCreateInfo.subresourceRange.layerCount = 1;            // 表示する配列レベルの数
+
+    return imageViewCreateInfo;
+
+}
+
+void SwapchainRenderer::CreateDepthImage(vk::Image& setImage, VmaAllocation& allocation, VmaAllocator* allocator, vk::ImageCreateInfo createInfo)
+{
+    VmaAllocationCreateInfo allocInfo;
+    allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT;
+    allocInfo.usage = VMA_MEMORY_USAGE_AUTO;  // 自動で最適なメモリを選択
+    allocInfo.pool = VK_NULL_HANDLE;
+    allocInfo.memoryTypeBits = 0;
+    allocInfo.preferredFlags = 0;
+    allocInfo.priority = 1;
+    allocInfo.requiredFlags = 0;
+    allocInfo.pUserData = nullptr;
+    VkImage image = nullptr;
+    auto imageInfo = (VkImageCreateInfo)createInfo;
+
+
+    VkResult result = vmaCreateImage(*allocator, &imageInfo, &allocInfo, &image, &allocation, nullptr);
+
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("VMAによるイメージの作成に失敗しました!");
+    }
+
+    setImage = vk::Image(image);  // VkImageをvk::Imageにキャスト
+
+}
+
 void SwapchainRenderer::CreatePresentationCommands()
 {
 
@@ -186,15 +251,46 @@ void SwapchainRenderer::CreatePresentationCommands()
 #pragma endregion
 }
 
+void SwapchainRenderer::CreateSwapchainImage()
+{
+    if (m_pAllocator == nullptr) throw std::runtime_error("スワップチェイン画像の作成時にVMAがNULLでした!");
+
+    uint32_t        imageCount  = m_SwapchainInfo.minImageCount;    // スワップチェーンのフレーム数を取得
+    vk::Extent2D    imageExtent = m_SwapchainInfo.imageExtent;      // 画像サイズを取得
+
+
+
+    // 深度イメージはスワップチェーンオブジェクトのほうでサポートされていないので自前で用意
+    m_DepthImageAllocation.resize(imageCount);  
+
+    // カラーイメージだけはスワップチェイン作成時に一緒に作成されるので、それを使う
+    std::vector<vk::Image> colorImage = m_LogicalDevice.getSwapchainImagesKHR(m_Swapchain);
+
+    // 管理する画像の数をセット
+    m_ImageSets.resize(imageCount);
+    for (uint32_t i = 0; i < imageCount; i++)
+    {
+        // カラーイメージの作成
+        m_ImageSets[i].color.buffer = colorImage[i];
+        //イメージビュー、画像を扱う際の情報を設定
+        m_ColorFormat = m_SwapchainInfo.imageFormat;
+        vk::ImageViewCreateInfo colorImageViewInfo = CreateImageViewInfo(m_ImageSets[i].color.buffer, m_ColorFormat, vk::ImageAspectFlagBits::eColor);
+        m_ImageSets[i].color.view = m_LogicalDevice.createImageView(colorImageViewInfo);
+
+
+        // 深度イメージの作成
+        m_DepthFormat = vk::Format::eD24UnormS8Uint;    //深度イメージのフォーマット
+        vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+        auto imageInfo = CreateImageInfo(imageExtent, m_DepthFormat, usage);
+        CreateDepthImage(m_ImageSets[i].depth.buffer, m_DepthImageAllocation[i], m_pAllocator, imageInfo);
+        //イメージビュー、画像を扱う際の情報を設定
+        vk::ImageViewCreateInfo depthImageViewInfo = CreateImageViewInfo(m_ImageSets[i].depth.buffer, m_DepthFormat, vk::ImageAspectFlagBits::eDepth);
+        m_ImageSets[i].depth.view = m_LogicalDevice.createImageView(depthImageViewInfo);
+    }
+}
+
 void SwapchainRenderer::Presentation(vk::SurfaceKHR surface, vk::Semaphore imageAvailableSemaphore)
 {
-    //vk::SemaphoreCreateInfo semaphoreInfo;
-    //semaphoreInfo.pNext;
-    //m_Semaphores.push_back(m_LogicalDevice.createSemaphore(semaphoreInfo));
-    //m_SwapChainIndex = AcquiredSwapChainIndex;
-    //m_SwapChainIndex = 0;
-    //m_SwapChainIndex = 0;
-
     vk::Result result;
 
     vk::PresentInfoKHR presentInfo;
@@ -217,11 +313,6 @@ void SwapchainRenderer::Presentation(vk::SurfaceKHR surface, vk::Semaphore image
 
 void SwapchainRenderer::UpdateFrame()
 {
-    //vk::ResultValue acquire = m_LogicalDevice.acquireNextImageKHR(
-    //    m_Swapchain, std::numeric_limits<uint64_t>::max(), m_ImageAvailableSemaphores, m_Fences);
-    //if (acquire.result != vk::Result::eSuccess) std::cerr << "次フレームの取得に失敗しました。" << std::endl;
-
-    /*m_PresentationCommand.PresentFrame(m_Swapchain, acquire.value);*/
     uint32_t index = m_ImageIndex;
     //m_PresentationCommand.RunningCommand(index, m_Surface, m_ImageAvailableSemaphores[index]);
     Presentation(m_Surface, m_ImageAvailableSemaphores[index]);
@@ -229,12 +320,7 @@ void SwapchainRenderer::UpdateFrame()
     // 次のインデックスに切り替え
     index = (index + 1) % m_SwapchainInfo.minImageCount;
 
-
-
     AcquireSwapchainNextImage(m_ImageAvailableSemaphores[index]);
-
-    printf("%d :番号を更新\n", index);
-    printf("%d\n", m_ImageAvailableSemaphores[index]);
 }
 
 /// <summary>

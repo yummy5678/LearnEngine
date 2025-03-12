@@ -5,20 +5,13 @@
 #include <string>
 #include "Surface.h"
 #include "VulkanInitializer.h" 
+#include "RenderTargetBase.h"
 #include "SwapchainRenderer.h"
 #include "DrawCommand.h"
 #include "RenderFunction.h"
 
-//struct RenderTask
-//{
-//    RenderConfig* config;
-//    std::vector<RenderObject*>* objects;
-//    SceneCamera* camera;
-//};
-
-
 //ウィンドウ作成用のクラス
-class GraphicWindow
+class GraphicWindow : public RenderTarget
 {
 public:
     //コンストラクタとデストラクタ
@@ -34,10 +27,13 @@ public:
 	void ExecuteDrawTask();
     void Presentation();
 
+    RenderingImageSet   GetImageSet() override;
+    vk::Format			GetColorFormat() override;
+    vk::Format			GetDepthFormat() override;
+    vk::Extent2D		GetExtent()	override;
+
     //ウィンドウのポインターを渡す
     GLFWwindow*     GetPointer();
-    RenderTarget*   GetRenderer();
-
 
     //ウィンドウの終了フラグが立っているか確認
     int checkCloseWindow();
@@ -54,12 +50,18 @@ private:
     std::vector<vk::Fence>      m_Fences;
     std::vector<DrawCommand>    m_DrawCommands;
 
+    // スワップチェーンのフレーム数
+    uint32_t                    m_SwapcheinFrameCount;
+
     // 画像の組が複数枚あるとき(主にスワップチェイン)の描画用インデックス
-    std::vector<RenderingImageSet>  m_RenderingImage;
+    RenderingImageSet           m_CurrentImageSet;
+
     // 今から描画するイメージインデックス
-    uint32_t					    m_CurrentIndex;	// 用途 : フェンス、セマフォ
+    uint32_t				    m_CurrentIndex;	// 用途 : フェンス、セマフォ
     // 次フレームで描画するイメージインデックス
-    uint32_t					    m_NextIndex;	// 用途 : コマンド、画像
+    //uint32_t					m_NextIndex;	// 用途 : コマンド、画像
+
+
     //std::vector<RenderTask> m_DrawTasks;
     std::vector<std::shared_ptr<RenderFunction>> m_RenderFunctions;
    

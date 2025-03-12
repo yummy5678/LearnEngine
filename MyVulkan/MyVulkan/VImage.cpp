@@ -1,11 +1,11 @@
 #include "VImage.h"
 
 VImage::VImage() :
-	m_Allocator(nullptr),
+	m_pAllocator(nullptr),
 	m_ImageAllocation(nullptr),
-	m_Image(),
-	m_ImageCreateInfo(),
-	m_ImageView()
+	m_Image({ VK_NULL_HANDLE, VK_NULL_HANDLE })
+	//m_ImageCreateInfo()
+	//m_ImageView()
 {
 }
 
@@ -19,7 +19,9 @@ void VImage::Create(VmaAllocator* allocator, vk::ImageCreateInfo createInfo, vk:
 	// 初期化
 	Cleanup();
 
-	m_Allocator = allocator;
+	m_pAllocator = allocator;
+
+	//m_ImageCreateInfo = createInfo;
 
 	// イメージとアロケーションの作成
 	CreateBuffer(allocator, createInfo);
@@ -29,24 +31,32 @@ void VImage::Create(VmaAllocator* allocator, vk::ImageCreateInfo createInfo, vk:
 	VmaAllocatorInfo allocatorInfo;
 	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
 	// イメージビューの作成
-	CreateImageView(allocatorInfo.device, m_Image, createInfo.format, aspectFlag);
+	CreateImageView(allocatorInfo.device, m_Image.buffer, createInfo.format, aspectFlag);
 
 }
 
 void VImage::Cleanup()
 {
-	if (m_ImageAllocation != nullptr) vmaDestroyImage(*m_Allocator, m_Image, m_ImageAllocation);
-	m_Allocator = nullptr;
+	if (m_ImageAllocation == nullptr) return;
+
+	vmaDestroyImage(*m_pAllocator, m_Image.buffer, m_ImageAllocation);
+
+	m_pAllocator = nullptr;
 }
 
-vk::Image VImage::GetImage()
+vk::Image VImage::GetImageBuffer()
 {
-	return m_Image;
+	return m_Image.buffer;
 }
 
 vk::ImageView VImage::GetImageView()
 {
-	return m_ImageView;
+	return m_Image.view;
+}
+
+ImageSet VImage::GetImageSet()
+{
+	return m_Image;
 }
 
 void VImage::CreateBuffer(VmaAllocator* allocator, vk::ImageCreateInfo createInfo)
@@ -71,7 +81,7 @@ void VImage::CreateBuffer(VmaAllocator* allocator, vk::ImageCreateInfo createInf
 		throw std::runtime_error("VMAによるイメージの作成に失敗しました!");
 	}
 
-	m_Image = vk::Image(image);  // VkImageをvk::Imageにキャスト
+	m_Image.buffer = vk::Image(image);  // VkImageをvk::Imageにキャスト
 }
 
 void VImage::CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk::Format format, vk::ImageAspectFlags aspectFlag)
@@ -91,5 +101,5 @@ void VImage::CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk
 	imageViewCreateInfo.subresourceRange.levelCount = 1;            // 表示する Mipmap レベルの数
 	imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;        // 表示を開始する配列レベル
 	imageViewCreateInfo.subresourceRange.layerCount = 1;            // 表示する配列レベルの数
-	m_ImageView = logicalDevice.createImageView(imageViewCreateInfo);
+	m_Image.view = logicalDevice.createImageView(imageViewCreateInfo);
 }

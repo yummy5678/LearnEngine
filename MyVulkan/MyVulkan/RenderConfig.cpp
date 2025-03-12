@@ -2,13 +2,11 @@
 
 
 RenderConfig::RenderConfig(VulkanInitializer& initializer):
-    m_pLogicalDevice(nullptr),
-    m_pPhygicalDevice(nullptr),
-    m_GraphicsPipeline(initializer),
+    RendererBase(initializer),
     m_Shader(), 
-    m_RenderArea(), 
-    m_Offset(), 
-    m_Extent()
+    m_RenderFunction(),
+    m_pObjects(),
+    m_pCamera()
 {
     m_pLogicalDevice = initializer.GetPLogicalDevice();
     m_pPhygicalDevice = initializer.GetPPhysicalDevice();
@@ -72,10 +70,10 @@ vk::PipelineLayout RenderConfig::GetPipelineLayout()
     return m_GraphicsPipeline.GetPipelineLayout();
 }
 
-VModelShaderConfiguer* RenderConfig::GetPShaderConfiguer()
-{
-    return &m_Shader;
-}
+//VShaderConfigureBase* RenderConfig::GetPShaderConfiguer()
+//{
+//    return &m_Shader;
+//}
 
 std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects* pObjects, SceneCamera* pCamera)
 {

@@ -1,14 +1,11 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
-#include "RendererBase.h"
 #include "GraphicsDefine.h"
 #include "QueueUtility.h"
 #include "VulkanInitializer.h"
-#include "SwapchainImage.h"
-//#include "RenderConfig.h"
-//#include "CommandGenerator.h"
+#include "ImageSet.h"
 
-class SwapchainRenderer : public RenderTarget
+class SwapchainRenderer
 {
 public:
 	SwapchainRenderer(VulkanInitializer& initializer);
@@ -19,13 +16,12 @@ public:
 
 	vk::SwapchainKHR			GetSwapchain();
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
-	SwapChainImage				GetImages();
-	vk::Extent2D				GetExtent()	override;
-	std::vector<RenderingImageSet>	GetImageSets() override;
-	vk::Format					GetColorFormat() override;
-	vk::Format					GetDepthFormat() override;
+	vk::Extent2D				GetExtent();
+	uint32_t					GetFrameCount();
+	RenderingImageSet			GetRenderingImageSet();
+	vk::Format					GetColorFormat();
+	vk::Format					GetDepthFormat();
 	vk::Semaphore				GetImageAvailableSemaphore();
-	vk::Fence					GetFence();
 
 	const uint32_t				GetUseImageIndex();
 
@@ -40,18 +36,25 @@ private:
 
 	vk::SurfaceKHR				m_Surface;
 
-	SwapChainImage				m_SwapChainImages;
-	QueueFamilySelector			m_QueueFamily;
-	std::vector<vk::Semaphore>	m_ImageAvailableSemaphores;
-	//std::vector<vk::Fence>		m_Fences;
+	//SwapChainImage				m_SwapChainImages;
 
-	//SwapChainCommandGenerator	m_PresentationCommand;
-	//VPresentationCommand		m_PresentationCommand;
+
+#pragma region スワップチェインの画像データ関連
+	std::vector<RenderingImageSet>	m_ImageSets;
+	std::vector<VmaAllocation>		m_DepthImageAllocation;
+	vk::Format						m_ColorFormat;
+	vk::Format						m_DepthFormat;
+#pragma endregion
+
+#pragma region スワップチェインの描画コマンド関連
 	// コマンドバッファ
-	vk::CommandPool					m_PresentCommandPool;		//コマンドプール
-	std::vector<vk::CommandBuffer>	m_PresentCommandBuffers;	//コマンドバッファ
+	vk::CommandPool					m_PresentCommandPool;		// 表示コマンドプール
+	std::vector<vk::CommandBuffer>	m_PresentCommandBuffers;	// 表示コマンドバッファ
+	QueueFamilySelector			m_QueueFamily;					// キューの選択用オブジェクト
+	std::vector<vk::Semaphore>	m_ImageAvailableSemaphores;		// 表示コマンド用セマフォ
+	uint32_t					m_ImageIndex;					// 表示するフレームを示すためのインデックス
+#pragma endregion
 
-	uint32_t					m_ImageIndex;
 
 	// スワップチェーンの作成関数
 	vk::SwapchainCreateInfoKHR CreateSwapchainInfo(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
@@ -61,12 +64,21 @@ private:
 	// スワップチェーンのプレゼントモードを選択する関数
 	vk::PresentModeKHR SelectPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
 
+	// スワップチェーンを回すインデックスを更新する関数
 	void AcquireSwapchainNextImage(vk::Semaphore imageAvailableSemaphore);
-	void AcquireSwapchainNextImage(vk::Fence fence);
+	//void AcquireSwapchainNextImage(vk::Fence fence);
 
+	// スワップチェーンのイメージを作成する関数
+	vk::ImageCreateInfo CreateImageInfo(vk::Extent2D extent, vk::Format fomat, vk::ImageUsageFlags usage);
+	vk::ImageViewCreateInfo CreateImageViewInfo(vk::Image image, vk::Format fomat, vk::ImageAspectFlags aspectFlag);
+	void CreateDepthImage(vk::Image& setImage, VmaAllocation& allocation, VmaAllocator* allocator, vk::ImageCreateInfo createInfo);
+	void CreateSwapchainImage();
+
+	// フレームの描画関連の関数
 	void CreatePresentationCommands();
-
 	void Presentation(vk::SurfaceKHR surface, vk::Semaphore imageAvailableSemaphore);
+
+
 
 };
 

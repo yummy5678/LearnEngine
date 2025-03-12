@@ -124,12 +124,12 @@ void VMaterial::CreateSampler(vk::Device logicalDevice)
 //	}
 //}
 //
-//void VMaterial::UpdateDescriptorSets(vk::ImageView imageView, vk::Sampler sampler)
+//void VMaterial::UpdateDescriptorSets(vk::ImageView view, vk::Sampler sampler)
 //{
 //	// 登録されているすべてのディスクリプタセットを更新
 //	for (auto& pair : m_DescriptorSets)
 //	{
-//		pair.second.Update(imageView, sampler);
+//		pair.second.Update(view, sampler);
 //	}
 //}
 //

@@ -119,21 +119,26 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../Include;../Include/assimp/;../Lib</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>../Lib/vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DrawCommand.cpp" />
     <ClCompile Include="GltfLoader.cpp" />
+    <ClCompile Include="HelloTriangleRenderer.cpp" />
     <ClCompile Include="ImageGenerator.cpp" />
     <ClCompile Include="RendererBase.cpp" />
+    <ClCompile Include="RenderImage.cpp" />
     <ClCompile Include="SceneCamera.cpp" />
     <ClCompile Include="VDescriptorLayoutBase.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
@@ -145,7 +150,6 @@
     <ClCompile Include="DescriptorBase.cpp" />
     <ClCompile Include="SingleBufferDescriptor.cpp" />
     <ClCompile Include="VTextureBuffer.cpp" />
-    <ClCompile Include="SwapchainImage.cpp" />
     <ClCompile Include="DeviceExtensionManager.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="GraphicWindow.cpp" />
@@ -172,6 +176,7 @@
     <ClCompile Include="VTextureDescriptorLayout.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueUtility.cpp" />
+    <ClCompile Include="VTriangleShader.cpp" />
     <ClCompile Include="VulkanInitializer.cpp" />
     <ClCompile Include="ShaderUtility.cpp" />
     <ClCompile Include="Surface.cpp" />
@@ -185,10 +190,13 @@
   <ItemGroup>
     <ClInclude Include="DrawCommand.h" />
     <ClInclude Include="GltfLoader.h" />
+    <ClInclude Include="HelloTriangleRenderer.h" />
+    <ClInclude Include="RendererBase.h" />
+    <ClInclude Include="RenderImage.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ImageGenerator.h" />
     <ClInclude Include="ImageSet.h" />
-    <ClInclude Include="RendererBase.h" />
+    <ClInclude Include="RenderTargetBase.h" />
     <ClInclude Include="RenderFunction.h" />
     <ClInclude Include="SceneCamera.h" />
     <ClInclude Include="VDescriptorLayoutBase.h" />
@@ -201,7 +209,6 @@
     <ClInclude Include="DescriptorBase.h" />
     <ClInclude Include="SingleBufferDescriptor.h" />
     <ClInclude Include="VTextureBuffer.h" />
-    <ClInclude Include="SwapchainImage.h" />
     <ClInclude Include="DeviceExtensionManager.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="GraphicWindow.h" />
@@ -232,6 +239,7 @@
     <ClInclude Include="VmaUsage.h" />
     <ClInclude Include="VTextureDescriptorLayout.h" />
     <ClInclude Include="QueueUtility.h" />
+    <ClInclude Include="VTriangleShader.h" />
     <ClInclude Include="VulkanInitializer.h" />
     <ClInclude Include="ShaderUtility.h" />
     <ClInclude Include="Surface.h" />

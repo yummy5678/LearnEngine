@@ -4,10 +4,11 @@
 #include "PipelineShaderCreator.h"
 #include "RenderingPipelineCreator.h"
 #include "VulkanInitializer.h"
-#include "RendererBase.h"
+#include "RenderTargetBase.h"
 #include "SceneCamera.h"
 #include "GraphicWindow.h"
 #include "RenderFunction.h"
+
 
 // シーンクラスからVulkanのグラフィックパイプラインへの
 // 描画モデルの情報の橋渡しを行うクラス
@@ -18,7 +19,7 @@
 using RenderingObjects = std::vector<RenderObject*>;
 
 // まだ仮クラス
-class RenderConfig
+class RenderConfig : RendererBase
 {
 public:
 	RenderConfig(VulkanInitializer& initializer);
@@ -40,9 +41,9 @@ public:
 
 	vk::Rect2D			GetSissorRect();
 	vk::Rect2D			GetRenderRect();
-	vk::Pipeline		GetPipeline();
-	vk::PipelineLayout	GetPipelineLayout();
-	VModelShaderConfiguer* GetPShaderConfiguer();
+	vk::Pipeline		GetPipeline()			override;
+	vk::PipelineLayout	GetPipelineLayout()		override;
+	//VShaderConfigureBase* GetPShaderConfiguer() override;
 
 	//std::vector<vk::DescriptorSet>			GetDescriptorSets();
 	//std::vector<vk::DescriptorSetLayout>	GetDescriptorSetLayouts();
@@ -53,16 +54,16 @@ public:
 	//oid BindRenderingCommand(vk::CommandBuffer command, std::vector<RenderObject*>* pObjects, SceneCamera* pCamera);
 
 private:
-	vk::Device* m_pLogicalDevice;
-	vk::PhysicalDevice* m_pPhygicalDevice;
+	//vk::Device* m_pLogicalDevice;
+	//vk::PhysicalDevice* m_pPhygicalDevice;
 
-	// 画面サイズ
-	vk::Offset2D			m_Offset;	//描画範囲の始点
-	vk::Extent2D			m_Extent;	//描画範囲の終点
+	//// 画面サイズ
+	//vk::Offset2D			m_Offset;	//描画範囲の始点
+	//vk::Extent2D			m_Extent;	//描画範囲の終点
 
-	vk::Rect2D				m_RenderArea;	// フレーム内の描画位置の矩形
+	//vk::Rect2D				m_RenderArea;	// フレーム内の描画位置の矩形
 
-	RenderingPipelineCreator m_GraphicsPipeline;
+	//RenderingPipelineCreator m_GraphicsPipeline;
 
 	//パイプラインに渡すシェーダー情報の作成クラス
 	VModelShaderConfiguer	m_Shader;
@@ -88,8 +89,8 @@ private:
 
 	//vk::PushConstantRange	GetPushConstantModelRange();
 	//vk::PipelineVertexInputStateCreateInfo GetVertexInputState();
-	void CreateTextureDescriptor(VTextureBuffer* pMaterial);
-	void UpdateTextureDescriptor();
+	//void CreateTextureDescriptor(VTextureBuffer* pMaterial);
+	//void UpdateTextureDescriptor();
 
 
 };

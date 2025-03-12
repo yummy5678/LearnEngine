@@ -89,21 +89,21 @@ vk::ImageView VTextureBuffer::GetImageView()
 //
 //	VmaAllocationCreateInfo allocInfo;
 //	allocInfo.usage = VMA_MEMORY_USAGE_AUTO;  // 自動で最適なメモリを選択
-//	VkImage image;
-//	VkResult result = vmaCreateImage(*allocator, &imageInfo, &allocInfo, &image, &m_ImageAllocation, nullptr);
+//	VkImage buffer;
+//	VkResult result = vmaCreateImage(*allocator, &imageInfo, &allocInfo, &buffer, &m_ImageAllocation, nullptr);
 //
 //	if (result != VK_SUCCESS) 
 //	{
 //		throw std::runtime_error("VMAによるイメージの作成に失敗しました!");
 //	}           
 //
-//	m_Buffer = vk::Image(image);  // VkImageをvk::Imageにキャスト
+//	m_Buffer = vk::Image(buffer);  // VkImageをvk::Imageにキャスト
 //}
 //
 //void VTextureBuffer::CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk::Format format, vk::ImageAspectFlags aspectFlag)
 //{
 //	vk::ImageViewCreateInfo imageViewInfo;
-//	imageViewInfo.image = imageBuffer;
+//	imageViewInfo.buffer = imageBuffer;
 //	imageViewInfo.viewType = vk::ImageViewType::e2D;
 //	imageViewInfo.format = format;
 //	imageViewInfo.components.r = vk::ComponentSwizzle::eIdentity;

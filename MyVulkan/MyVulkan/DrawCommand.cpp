@@ -104,7 +104,7 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
 
     // カラーバッファアタッチメント
     vk::RenderingAttachmentInfo colorAttachment;
-    colorAttachment.imageView = m_ImageSet->color.imageView;
+    colorAttachment.imageView = m_ImageSet->color.view;
     colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
@@ -112,7 +112,7 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
 
     // Depthバッファアタッチメント（3Dオブジェクト用に使用）
     vk::RenderingAttachmentInfo depthAttachment;
-    depthAttachment.imageView = m_ImageSet->depth.imageView;
+    depthAttachment.imageView = m_ImageSet->depth.view;
     depthAttachment.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
     depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
@@ -144,7 +144,7 @@ void DrawCommand::EndRendering(vk::Fence fence, vk::ImageLayout newImageLayout)
     m_CommandBuffers.endRendering();
 
     // コマンドの終了前にイメージの状態を使用目的に合わせて変更する
-    ImageMemoryBarrier(m_ImageSet->color.image, vk::ImageLayout::eUndefined, newImageLayout);
+    ImageMemoryBarrier(m_ImageSet->color.buffer, vk::ImageLayout::eUndefined, newImageLayout);
 
     // コマンドの記録を閉じる
     m_CommandBuffers.end();

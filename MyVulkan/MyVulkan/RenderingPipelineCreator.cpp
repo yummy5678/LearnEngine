@@ -11,8 +11,8 @@ RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initialize
 {
 	m_ClassName = "PipelineGenerator";
 
-	if (initializer.IsInitialized() == true) 
-		printf("イニシャライザーをイニシャライズする前にパイプラインのコンストラクタを読んでください");
+	//if (initializer.IsInitialized() == true) 
+	//	printf("イニシャライザーをイニシャライズする前にパイプラインのコンストラクタを読んでください");
 	initializer.GetPDeviceExtension()->UseDynamicRendering();
 	initializer.GetPDeviceExtension()->UseRenderingModeNonSolid();
 	m_pLogicalDevice = initializer.GetPLogicalDevice();

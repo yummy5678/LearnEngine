@@ -8,7 +8,7 @@
 #define JSON_NOEXCEPTION
 
 //#define SPDLOG_WCHAR_TO_UTF8_SUPPORT
-
+#pragma comment(linker, "/ENTRY:mainCRTStartup")
 #include <stdexcept>
 #include <vector>
 #include <iostream>
@@ -21,13 +21,15 @@
 #include "RenderConfig.h"
 #include "SwapchainRenderer.h"
 
-
+#include "HelloTriangleRenderer.h"
 
 int main()
 {
 	VulkanInitializer	vulkanInitializer;
 	GraphicWindow		mainWindow(vulkanInitializer);		//レンダラー
 	RenderConfig		renderConfig(vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
+	HelloTriangleRenderer triangleRenderer(vulkanInitializer);
+
 
 	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
 	if (vulkanInitializer.init() == EXIT_FAILURE)
@@ -58,7 +60,10 @@ int main()
 	camera.UpdateBuffer(ViewProjection(-1));
 
 	
-	renderConfig.Initialize(mainWindow.GetRenderer());
+	renderConfig.Initialize(&mainWindow);
+
+	
+	triangleRenderer.Initialize(&mainWindow);
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!mainWindow.checkCloseWindow())
@@ -78,6 +83,7 @@ int main()
 		m_Object.SetTransform(testMat);
 
 		mainWindow.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
+		mainWindow.AddDrawTask(triangleRenderer.GetRenderFunction());
 		mainWindow.ExecuteDrawTask();
 	}
 

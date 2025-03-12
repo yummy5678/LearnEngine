@@ -168,7 +168,7 @@ static std::vector<char> readFile(const std::string& filename)
 //}
 //
 //static void copyImageBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool,
-//	VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height)
+//	VkBuffer srcBuffer, VkImage buffer, uint32_t width, uint32_t height)
 //{
 //	// Create buffer
 //	VkCommandBuffer transferCommandBuffer = beginCommandBuffer(device, transferCommandPool);
@@ -177,20 +177,20 @@ static std::vector<char> readFile(const std::string& filename)
 //	imageRegion.bufferOffset = 0;											// Offset into data
 //	imageRegion.bufferRowLength = 0;										// Row length of data to calculate data spacing
 //	imageRegion.bufferImageHeight = 0;										// Image height to calculate data spacing
-//	imageRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;	// Which aspect of image to copy
+//	imageRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;	// Which aspect of buffer to copy
 //	imageRegion.imageSubresource.mipLevel = 0;								// Mipmap level to copy
 //	imageRegion.imageSubresource.baseArrayLayer = 0;						// Starting array layer (if array)
 //	imageRegion.imageSubresource.layerCount = 1;							// Number of layers to copy starting at baseArrayLayer
-//	imageRegion.imageOffset = { 0, 0, 0 };									// Offset into image (as opposed to raw data in bufferOffset)
+//	imageRegion.imageOffset = { 0, 0, 0 };									// Offset into buffer (as opposed to raw data in bufferOffset)
 //	imageRegion.imageExtent = { width, height, 1 };							// Size of region to copy as (x, y, z) values
 //
-//	// Copy buffer to given image
-//	vkCmdCopyBufferToImage(transferCommandBuffer, srcBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageRegion);
+//	// Copy buffer to given buffer
+//	vkCmdCopyBufferToImage(transferCommandBuffer, srcBuffer, buffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageRegion);
 //
 //	endAndSubmitCommandBuffer(device, transferCommandPool, transferQueue, transferCommandBuffer);
 //}
 //
-//static void transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout)
+//static void transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage buffer, VkImageLayout oldLayout, VkImageLayout newLayout)
 //{
 //	// Create buffer
 //	VkCommandBuffer commandBuffer = beginCommandBuffer(device, commandPool);
@@ -201,8 +201,8 @@ static std::vector<char> readFile(const std::string& filename)
 //	imageMemoryBarrier.newLayout = newLayout;									// Layout to transition to
 //	imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;			// Queue family to transition from
 //	imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;			// Queue family to transition to
-//	imageMemoryBarrier.image = image;											// Image being accessed and modified as part of barrier
-//	imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;	// Aspect of image being altered
+//	imageMemoryBarrier.buffer = buffer;											// Image being accessed and modified as part of barrier
+//	imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;	// Aspect of buffer being altered
 //	imageMemoryBarrier.subresourceRange.baseMipLevel = 0;						// First mip level to start alterations on
 //	imageMemoryBarrier.subresourceRange.levelCount = 1;							// Number of mip levels to alter starting from baseMipLevel
 //	imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;						// First layer to start alterations on
@@ -211,7 +211,7 @@ static std::vector<char> readFile(const std::string& filename)
 //	VkPipelineStageFlags srcStage;
 //	VkPipelineStageFlags dstStage;
 //
-//	// If transitioning from new image to image ready to receive data...
+//	// If transitioning from new buffer to buffer ready to receive data...
 //	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
 //	{
 //		imageMemoryBarrier.srcAccessMask = 0;								// Memory access stage transition must after...

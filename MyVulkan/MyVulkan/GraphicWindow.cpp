@@ -2,6 +2,7 @@
 
 
 
+
 GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_pWindow(nullptr),
 	m_pInitializer(&initializer),
@@ -9,9 +10,9 @@ GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_Swapchain(initializer),
 	m_Fences(),
 	m_DrawCommands(),
-	m_RenderingImage(),
+	m_CurrentImageSet(),
+	m_SwapcheinFrameCount(0),
 	m_CurrentIndex(0),
-	m_NextIndex(0),
 	m_RenderFunctions()
 {
 
@@ -42,10 +43,12 @@ void GraphicWindow::init(const std::string wName, const int width, const int hei
 
 	m_Swapchain.Create(m_pInitializer->GetPVmaAllocator(), m_Surface.GetSurface());
 
+	m_SwapcheinFrameCount = m_Swapchain.GetFrameCount();
+
 	// スワップチェインで使用する画像の枚数
-	m_RenderingImage = m_Swapchain.GetImageSets();
-	m_DrawCommands.resize(m_RenderingImage.size());
-	for (uint32_t i = 0; i < m_RenderingImage.size(); i++)
+	auto renderingImage = m_Swapchain.GetRenderingImageSet();
+	m_DrawCommands.resize(m_SwapcheinFrameCount);
+	for (uint32_t i = 0; i < m_SwapcheinFrameCount; i++)
 	{
 		m_DrawCommands[i].Create(
 			*m_pInitializer->GetPLogicalDevice(),
@@ -56,8 +59,8 @@ void GraphicWindow::init(const std::string wName, const int width, const int hei
 	vk::FenceCreateInfo fenceInfo;
 	fenceInfo.pNext;
 	fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
-	m_Fences.resize(m_RenderingImage.size());
-	for (uint32_t i = 0; i < m_RenderingImage.size(); i++)
+	m_Fences.resize(m_SwapcheinFrameCount);
+	for (uint32_t i = 0; i < m_SwapcheinFrameCount; i++)
 	{
 		m_Fences[i] = m_pInitializer->GetPLogicalDevice()->createFence(fenceInfo);
 	}
@@ -90,11 +93,11 @@ void GraphicWindow::ExecuteDrawTask()
 	    UINT64_MAX);					// 最大待機時間
 	logicalDevice->resetFences(fence);	// フェンスを非シグナル状態にする
 
-	m_NextIndex = m_Swapchain.GetUseImageIndex();
+	auto imageSet = m_Swapchain.GetRenderingImageSet();
 
 	// 描画コマンドの記録開始
 	m_DrawCommands[m_CurrentIndex].BeginRendering(
-		&m_RenderingImage[m_NextIndex],
+		&imageSet,
 		m_Swapchain.GetImageAvailableSemaphore(),
 		{{0, 0}, m_Swapchain.GetExtent()});
 
@@ -103,19 +106,16 @@ void GraphicWindow::ExecuteDrawTask()
 	{
 		(*function)(m_DrawCommands[m_CurrentIndex].GetBuffer(), &(*function));
 	}
-
-
+	m_RenderFunctions.clear();
+	
 	// コマンドの記録の終了とキューへの送信
 	m_DrawCommands[m_CurrentIndex].EndRendering(fence, vk::ImageLayout::ePresentSrcKHR);
-	printf("%d :スワップチェーンの描画が完了\n", m_NextIndex);
-	printf("%d\n", m_Swapchain.GetImageAvailableSemaphore());
-
 
 	// 描画した画像をウィンドウに表示
 	Presentation();
 
 	// カウントを進める
-	m_CurrentIndex = (m_CurrentIndex + 1) % m_RenderingImage.size();
+	m_CurrentIndex = (m_CurrentIndex + 1) % m_SwapcheinFrameCount;
 }
 
 void GraphicWindow::Presentation()
@@ -123,17 +123,30 @@ void GraphicWindow::Presentation()
 	m_Swapchain.UpdateFrame();
 }
 
+RenderingImageSet GraphicWindow::GetImageSet()
+{
+	return m_Swapchain.GetRenderingImageSet();
+}
+
+vk::Format GraphicWindow::GetColorFormat()
+{
+	return m_Swapchain.GetColorFormat();
+}
+
+vk::Format GraphicWindow::GetDepthFormat()
+{
+	return m_Swapchain.GetDepthFormat();
+}
+
+vk::Extent2D GraphicWindow::GetExtent()
+{
+	return m_Swapchain.GetExtent();
+}
+
 GLFWwindow* GraphicWindow::GetPointer()
 {
 	return m_pWindow;
 }
-
-RenderTarget* GraphicWindow::GetRenderer()
-{
-	return &m_Swapchain;
-}
-
-
 
 int GraphicWindow::checkCloseWindow()
 {

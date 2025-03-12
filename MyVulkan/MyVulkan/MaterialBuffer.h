@@ -43,6 +43,6 @@ private:
 	//void SetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout);// デスクリプタセットを登録
 	//void DeleteDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout);// 所有者が存在するか確認
 	//void CleanupDescriptorSets();// 無効になったオーナーを削除
-	//void UpdateDescriptorSets(vk::ImageView imageView, vk::Sampler sampler);
+	//void UpdateDescriptorSets(vk::ImageView view, vk::Sampler sampler);
 };
 
