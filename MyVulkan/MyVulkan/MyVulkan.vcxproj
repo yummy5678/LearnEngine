@@ -106,6 +106,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../Include;../Include/assimp/;../Lib</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,6 +137,7 @@
     <ClCompile Include="DrawCommand.cpp" />
     <ClCompile Include="GltfLoader.cpp" />
     <ClCompile Include="HelloTriangleRenderer.cpp" />
+    <ClCompile Include="HostImage.cpp" />
     <ClCompile Include="ImageGenerator.cpp" />
     <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="RenderImage.cpp" />
@@ -191,6 +193,7 @@
     <ClInclude Include="DrawCommand.h" />
     <ClInclude Include="GltfLoader.h" />
     <ClInclude Include="HelloTriangleRenderer.h" />
+    <ClInclude Include="HostImage.h" />
     <ClInclude Include="RendererBase.h" />
     <ClInclude Include="RenderImage.h" />
     <ClInclude Include="Texture.h" />

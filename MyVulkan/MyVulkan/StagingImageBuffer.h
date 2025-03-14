@@ -10,7 +10,12 @@ public:
     ~VStagingImageBuffer();
 
     void Initialize(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight, uint32_t imageChannel);
-    void TransferDataToImageBuffer(void* transfarData, vk::Image toBuffer);
+
+    // メモリ(RAM)側のデータをGPU用のメモリ(VRAM)側に移動させるための関数
+    void TransferHostDataToImageBuffer(void* transferData, vk::Image toBuffer, vk::Fence fence = VK_NULL_HANDLE);
+
+    // GPU用のメモリ(VRAM)側のデータをメモリ(RAM)側に移動させるための関数
+    void TransferImageBufferToHostData(vk::Image transferBuffer, void* toData, vk::Fence fence = VK_NULL_HANDLE);
 
 private:
     vk::Device          m_LogicalDevice;
@@ -28,6 +33,7 @@ private:
     vk::CommandBuffer CreateCommandBuffer(vk::Device logicalDevice, vk::CommandPool commandPool);
 
     void SetCopyToImageCommand(vk::CommandBuffer commandBuffer, vk::Buffer srcBuffer, vk::Image dstImage, uint32_t imageWidth, uint32_t imageHeight);
+    void SetCopyToImageCommand(vk::CommandBuffer commandBuffer, vk::Image srcImage, vk::Buffer dstBuffer,  uint32_t imageWidth, uint32_t imageHeight);
 
     // データをステージングバッファにコピー
     //void MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize);

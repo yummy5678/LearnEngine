@@ -66,7 +66,7 @@ void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffe
 	if(!m_Allocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
 
 	// データをステージングバッファにコピー
-	MapData(transfarData, m_DataSize);
+	MapData(transfarData);
 
 	// トランスファーバッファのデータを宛先のバッファにコピー
 	SetCopyBufferCommand(m_CommandBuffer, m_Buffer, toBuffer, m_DataSize);	// 転送コマンドを作成

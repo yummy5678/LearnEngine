@@ -29,7 +29,7 @@ void VTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
 
 	VStagingImageBuffer stagingBuffer;
 	stagingBuffer.Initialize(allocator, texture.width, texture.height, texture.channel);
-	stagingBuffer.TransferDataToImageBuffer((void*)texture.data, m_ImageBuffer);
+	stagingBuffer.TransferHostDataToImageBuffer((void*)texture.data, m_ImageBuffer);
 
 
 	VmaAllocatorInfo allocatorInfo;
@@ -52,7 +52,7 @@ vk::ImageView VTextureBuffer::GetImageView()
 }
 
 
-//VkImageCreateInfo VTextureBuffer::CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode)
+//VkImageCreateInfo VTextureBuffer::GetImageCreateInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode)
 //{
 //	vk::ImageCreateInfo imageCreateInfo;
 //	imageCreateInfo.imageType = vk::ImageType::e2D;			// 2Dイメージ
@@ -73,7 +73,7 @@ vk::ImageView VTextureBuffer::GetImageView()
 //
 //void VTextureBuffer::CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight)
 //{
-//	auto imageInfo = CreateImageInfo(imageWidth, imageHeight, m_Format, m_Usage, m_SharingMode);
+//	auto imageInfo = GetImageCreateInfo(imageWidth, imageHeight, m_Format, m_Usage, m_SharingMode);
 //
 //	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
 //	VmaAllocationCreateInfo dataAllocateInfo;

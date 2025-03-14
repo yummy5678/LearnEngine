@@ -4,8 +4,7 @@
 #include "RenderTargetBase.h"
 #include "RenderFunction.h"
 
-class HelloTriangleRenderer :
-    public RendererBase
+class HelloTriangleRenderer : public RendererBase
 {
 public:
     HelloTriangleRenderer(VulkanInitializer& initializer);

@@ -108,28 +108,25 @@ uint32_t VBufferBase::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevic
 	throw std::runtime_error("適切なメモリタイプを見つけられませんでした!");
 }
 
-void VBufferBase::MapData(void* setData, vk::DeviceSize dataSize)
+void VBufferBase::MapData(void* setData)
 {
+	VkResult mappingResult;
+
 	// 確保したバッファの領域のポインタを取得
+	// VMAで確保したメモリをCPUからアクセス可能にマップする
 	void* mapData = nullptr;
-	vmaMapMemory(*m_Allocator, m_Allocation, &mapData);
+	mappingResult = vmaMapMemory(*m_Allocator, m_Allocation, &mapData);
 
-
-	if (VulkanDefine.LogMessageEnabled)
+	// マッピングに失敗した場合のエラーチェック
+	if (mappingResult != VK_SUCCESS) 
 	{
-		errno_t err = memcpy_s(mapData, dataSize, mapData, dataSize);
-		if (err != 0) {
-			std::cerr << "Error copying data to staging buffer. Error code: " << err << std::endl;
-			return;  // エラー処理
-		}
-	}
-	else
-	{
-		// 頂点データの情報を取得したバッファにコピー
-		std::memcpy(mapData, setData, dataSize);
+		std::cerr << "メモリーマッピングに失敗しました!" << std::endl;
+		return;
 	}
 
-
+	// マップされたメモリ領域に、setDataからm_DataSizeバイト分のデータをコピーする
+	std::memcpy(mapData, setData, m_DataSize);
+	//std::memmove(mapData, setData, m_DataSize);
 
 	// メモリのアクセス制限を解除
 	vmaUnmapMemory(*m_Allocator, m_Allocation);

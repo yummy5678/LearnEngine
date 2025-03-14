@@ -65,7 +65,7 @@ void VImageBufferBase::CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth
 	allocationInfo.pool = VK_NULL_HANDLE;
 	allocationInfo.memoryTypeBits = NULL;
 	allocationInfo.pUserData = nullptr;
-	allocationInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;	// 自動で最適なメモリを選択(通常はGPUローカルメモリ)
+	allocationInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
 
 	VkImage image;
 	VkResult result = vmaCreateImage(*allocator, &imageInfo, &allocationInfo, &image, &m_ImageAllocation, nullptr);
@@ -94,12 +94,6 @@ void VImageBufferBase::CreateImageView(vk::Device logicalDevice, vk::Image image
 	imageViewInfo.subresourceRange.baseArrayLayer = 0;
 	imageViewInfo.subresourceRange.layerCount = 1;
 
-	try
-	{
-		m_ImageView = logicalDevice.createImageView(imageViewInfo);
-	}
-	catch (const std::exception&)
-	{
-		throw std::runtime_error("イメージビューの作成に失敗しました!");
-	}
+	m_ImageView = logicalDevice.createImageView(imageViewInfo);
+
 }

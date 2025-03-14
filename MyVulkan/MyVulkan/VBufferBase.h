@@ -52,7 +52,7 @@ protected:
 	uint32_t	FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, vk::Buffer buffer, vk::MemoryPropertyFlags findType);
 
 	// データをバッファに書き込む
-	void MapData(void* setData, vk::DeviceSize dataSize);
+	void MapData(void* setData);
 
 };
 
