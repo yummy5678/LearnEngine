@@ -44,7 +44,7 @@ static void FreeFunction(
 	void* pUserData,
 	void* pMemory) 
 {
-	std::cout << "Freeing memory: " << pMemory << std::endl;
+	std::cout << "ƒƒ‚ƒŠ‚ð‰ð•ú : " << pMemory << std::endl;
 	std::free(pMemory);
 }
 

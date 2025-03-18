@@ -52,10 +52,10 @@ void RenderImage::Initialize(VmaAllocator* allocator, vk::Extent2D extent)
 
 	m_ImageExtent = extent;
 
-	m_ColorImage.Create(allocator, GetImageCreateInfo(m_ImageExtent, m_ImageFormat, m_ColorImageUsage), vk::ImageAspectFlagBits::eColor);
-	m_DepthImage.Create(allocator, GetImageCreateInfo(m_ImageExtent, m_ImageFormat, m_DepthImageUsage), vk::ImageAspectFlagBits::eDepth);
+	//m_ColorImage.Create(allocator, GetImageCreateInfo(m_ImageExtent, m_ImageFormat, m_ColorImageUsage), vk::ImageAspectFlagBits::eColor);
+	//m_DepthImage.Create(allocator, GetImageCreateInfo(m_ImageExtent, m_ImageFormat, m_DepthImageUsage), vk::ImageAspectFlagBits::eDepth);
 
-	m_ImageSet = { m_ColorImage.GetImageSet(), m_DepthImage.GetImageSet() };
+	//m_ImageSet = { m_ColorImage.GetImageSet(), m_DepthImage.GetImageSet() };
 	
 	m_DrawCommand.Create(allocatorInfo.device, allocatorInfo.physicalDevice);
 

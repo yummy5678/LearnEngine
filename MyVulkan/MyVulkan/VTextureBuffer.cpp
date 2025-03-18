@@ -29,7 +29,7 @@ void VTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
 
 	VStagingImageBuffer stagingBuffer;
 	stagingBuffer.Initialize(allocator, texture.width, texture.height, texture.channel);
-	stagingBuffer.TransferHostDataToImageBuffer((void*)texture.data, m_ImageBuffer);
+	stagingBuffer.TransferHostDataToImageBuffer(texture.pixelData.data(), m_ImageBuffer);
 
 
 	VmaAllocatorInfo allocatorInfo;

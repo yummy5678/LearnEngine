@@ -26,7 +26,7 @@ public:
 
 protected:
 	// 結びつける先のデバイス
-	VmaAllocator*				m_Allocator;
+	VmaAllocator*				m_pAllocator;
 
 	// バッファの使用用途
 	vk::BufferUsageFlags		m_BufferUsage;

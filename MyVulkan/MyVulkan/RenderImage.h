@@ -1,6 +1,5 @@
 #pragma once
 #include "RenderTargetBase.h"
-#include "VImage.h"
 #include "DrawCommand.h"
 #include "RenderFunction.h"
 
@@ -28,8 +27,8 @@ private:
     vk::PhysicalDevice  m_PhysicalDevice;
     vk::Fence           m_Fence;
 
-    VImage              m_ColorImage;
-    VImage              m_DepthImage;
+    VTextureBuffer      m_ColorImage;
+    VTextureBuffer      m_DepthImage;
     vk::Extent2D        m_ImageExtent;
     const vk::Format          m_ImageFormat;
     const vk::ImageAspectFlags m_ImageAspectFlag;

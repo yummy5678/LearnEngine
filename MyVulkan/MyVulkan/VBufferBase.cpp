@@ -6,12 +6,11 @@ VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage,
 	VkMemoryPropertyFlags requiredFlag,
 	VkMemoryPropertyFlags preferredFlag,
 	VmaAllocationCreateFlags allocationFlag) :
-	m_Allocator(VK_NULL_HANDLE),
+	m_pAllocator(VK_NULL_HANDLE),
 	m_Buffer(VK_NULL_HANDLE),
 	m_Allocation(VK_NULL_HANDLE),
 	m_RequiredFlag(requiredFlag),
 	m_PreferredFlag(preferredFlag),
-	//m_MemoryUsage(VMA_MEMORY_USAGE_UNKNOWN),
 	m_DataSize(0),
 	m_AllocationFlag(allocationFlag)
 {
@@ -37,15 +36,15 @@ vk::DeviceSize VBufferBase::GetDataSize()
 
 void VBufferBase::Cleanup()
 {
-	if (!m_Allocator || !m_Buffer) return;
+	if (!m_pAllocator || !m_Buffer) return;
 
-	vmaDestroyBuffer(*m_Allocator, m_Buffer, m_Allocation);
-	m_Allocator = nullptr;
+	vmaDestroyBuffer(*m_pAllocator, m_Buffer, m_Allocation);
+	m_pAllocator = nullptr;
 }
 
 void VBufferBase::CreateBuffer(VmaAllocator* allocator, vk::DeviceSize dataSize)
 {
-	m_Allocator = allocator;
+	//m_pAllocator = allocator;
 	m_DataSize = dataSize;
 
 	auto dataBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
@@ -115,7 +114,7 @@ void VBufferBase::MapData(void* setData)
 	// 確保したバッファの領域のポインタを取得
 	// VMAで確保したメモリをCPUからアクセス可能にマップする
 	void* mapData = nullptr;
-	mappingResult = vmaMapMemory(*m_Allocator, m_Allocation, &mapData);
+	mappingResult = vmaMapMemory(*m_pAllocator, m_Allocation, &mapData);
 
 	// マッピングに失敗した場合のエラーチェック
 	if (mappingResult != VK_SUCCESS) 
@@ -126,10 +125,10 @@ void VBufferBase::MapData(void* setData)
 
 	// マップされたメモリ領域に、setDataからm_DataSizeバイト分のデータをコピーする
 	std::memcpy(mapData, setData, m_DataSize);
-	//std::memmove(mapData, setData, m_DataSize);
+
 
 	// メモリのアクセス制限を解除
-	vmaUnmapMemory(*m_Allocator, m_Allocation);
+	vmaUnmapMemory(*m_pAllocator, m_Allocation);
 }
 
 

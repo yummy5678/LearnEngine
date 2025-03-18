@@ -5,8 +5,9 @@ VStagingImageBuffer::VStagingImageBuffer() :
 		vk::BufferUsageFlagBits::eTransferSrc | // このバッファはコピー元として利用する
 		vk::BufferUsageFlagBits::eTransferDst , // このバッファはメモリ転送先として利用できる
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |	//CPUからアクセス可能
-		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT|
 		VK_MEMORY_PROPERTY_HOST_CACHED_BIT,
+		NULL,
 		VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
 		VMA_ALLOCATION_CREATE_MAPPED_BIT),
 	m_LogicalDevice(VK_NULL_HANDLE),
@@ -30,11 +31,11 @@ VStagingImageBuffer::~VStagingImageBuffer()
 
 void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight, uint32_t imageChannel)
 {
-	m_Allocator = allocator;
+	m_pAllocator = allocator;
 
 	// アロケーターに登録されている情報を取得
 	VmaAllocatorInfo allocatorInfo;
-	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
+	vmaGetAllocatorInfo(*m_pAllocator, &allocatorInfo);
 
 	m_LogicalDevice = vk::Device(allocatorInfo.device);
 	m_PhysicalDevice = vk::PhysicalDevice(allocatorInfo.physicalDevice);
@@ -67,17 +68,17 @@ void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidt
 	stagingAllocateInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
 
 	// ステージングバッファの作成
-	vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
+	vmaCreateBuffer(*m_pAllocator, &stagingBufferInfo, &stagingAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
 
 
 }
 
 void VStagingImageBuffer::TransferHostDataToImageBuffer(void* transferData, vk::Image toBuffer, vk::Fence fence)
 {
-	if (m_Allocator == nullptr) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
+	if (m_pAllocator == nullptr) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
 
 	//VmaAllocationInfo allocInfo;
-	//vmaGetAllocationInfo(*m_Allocator, m_Allocation, &allocInfo);
+	//vmaGetAllocationInfo(*m_pAllocator, m_Allocation, &allocInfo);
 
 	// データを転送用バッファにコピー
 	VBufferBase::MapData(transferData);
@@ -95,11 +96,11 @@ void VStagingImageBuffer::TransferHostDataToImageBuffer(void* transferData, vk::
 
 void VStagingImageBuffer::TransferImageBufferToHostData(vk::Image transferBuffer, void* toData, vk::Fence fence)
 {
-	if (m_Allocator == nullptr) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
+	if (m_pAllocator == nullptr) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
 	if(toData != nullptr) throw std::runtime_error("コピー先のデータポインタはnullptrのものを用意してください!");
 
 	//VmaAllocationInfo allocInfo;
-	//vmaGetAllocationInfo(*m_Allocator, m_Allocation, &allocInfo);
+	//vmaGetAllocationInfo(*m_pAllocator, m_Allocation, &allocInfo);
 
 	// 転送元の画像データを転送用バッファにコピー
 
@@ -271,17 +272,3 @@ void VStagingImageBuffer::SetCopyToImageCommand(vk::CommandBuffer commandBuffer,
 
 }
 
-//void VStagingImageBuffer::MapData(VmaAllocator* allocator, void* setData, vk::DeviceSize dataSize)
-//{
-//	// 確保したバッファの領域のポインタを取得
-//	void* mapData = nullptr;
-//
-//	vmaMapMemory(*allocator, m_Allocation, &mapData);
-//
-//	// 頂点データの情報を取得したバッファにコピー
-//	std::memcpy(mapData, setData, dataSize);
-//
-//	// メモリのアクセス制限を解除
-//	vmaUnmapMemory(*allocator, m_Allocation);
-//
-//}

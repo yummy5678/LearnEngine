@@ -23,7 +23,7 @@ VStagingBuffer::~VStagingBuffer()
 
 void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize)
 {
-	m_Allocator = allocator;
+	m_pAllocator = allocator;
 
 	VmaAllocatorInfo allocatorInfo;
 	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
@@ -32,7 +32,7 @@ void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize
 
 	m_DataSize = dataSize;
 
-	
+
 	QueueFamilySelector queueFamily;
 	queueFamily.Initialize(m_PhysicalDevice);
 	m_CommandPool		= CreateCommandPool(m_LogicalDevice, queueFamily.GetTransferIndex());
@@ -63,7 +63,7 @@ void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize
 
 void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer)
 {
-	if(!m_Allocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
+	if(!m_pAllocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
 
 	// データをステージングバッファにコピー
 	MapData(transfarData);

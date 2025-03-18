@@ -145,7 +145,6 @@
     <ClCompile Include="VDescriptorLayoutBase.cpp" />
     <ClCompile Include="FenceGenerator.cpp" />
     <ClCompile Include="VCameraDescriptorSetLayout.cpp" />
-    <ClCompile Include="VImage.cpp" />
     <ClCompile Include="VImageBufferBase.cpp" />
     <ClCompile Include="VShaderConfigureBase.cpp" />
     <ClCompile Include="SingleTextureDescriptor.cpp" />
@@ -205,7 +204,6 @@
     <ClInclude Include="VDescriptorLayoutBase.h" />
     <ClInclude Include="FenceGenerator.h" />
     <ClInclude Include="VCameraDescriptorSetLayout.h" />
-    <ClInclude Include="VImage.h" />
     <ClInclude Include="VImageBufferBase.h" />
     <ClInclude Include="VShaderConfigureBase.h" />
     <ClInclude Include="SingleTextureDescriptor.h" />

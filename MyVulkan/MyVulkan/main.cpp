@@ -82,7 +82,7 @@ int main()
 		testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		m_Object.SetTransform(testMat);
 
-		mainWindow.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
+		//mainWindow.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
 		mainWindow.AddDrawTask(triangleRenderer.GetRenderFunction());
 		mainWindow.ExecuteDrawTask();
 	}

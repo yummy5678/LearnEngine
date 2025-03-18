@@ -54,6 +54,7 @@ VkImageCreateInfo VImageBufferBase::CreateImageInfo(uint32_t imageWidth, uint32_
 
 void VImageBufferBase::CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight)
 {
+	m_pAllocator = allocator;
 	auto imageInfo = CreateImageInfo(imageWidth, imageHeight);
 
 	// CPU‚©‚çGPU‚Öî•ñ‚ğ‘—‚é‚Ì‚É“K‚µ‚½ƒƒ‚ƒŠ—Ìˆæ‚ğì¬‚µ‚½‚¢
