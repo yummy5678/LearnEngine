@@ -2,11 +2,11 @@
 #include <vulkan/vulkan.hpp>
 #include "ImageSet.h"
 
-class RenderTarget
+class RenderingTarget
 {
 public:
-	RenderTarget() = default;
-	~RenderTarget() = default;
+	RenderingTarget() = default;
+	~RenderingTarget() = default;
 
 
 	virtual vk::Extent2D	GetExtent()		= 0;

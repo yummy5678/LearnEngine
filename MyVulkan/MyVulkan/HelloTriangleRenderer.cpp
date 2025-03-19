@@ -23,7 +23,7 @@ vk::PipelineLayout HelloTriangleRenderer::GetPipelineLayout()
     return m_GraphicsPipeline.GetPipelineLayout();
 }
 
-void HelloTriangleRenderer::Initialize(RenderTarget* renderere)
+void HelloTriangleRenderer::Initialize(RenderingTarget* renderere)
 {
     vk::Format colorFomat = renderere->GetColorFormat();
     vk::Format depthFomat = renderere->GetDepthFormat();

@@ -1,7 +1,7 @@
 #include "VTextureBuffer.h"
 
 
-VTextureBuffer::VTextureBuffer() : 
+VMeshTextureBuffer::VMeshTextureBuffer() : 
 	VImageBufferBase(
 		vk::ImageUsageFlagBits::eSampled | 
 		vk::ImageUsageFlagBits::eTransferDst,
@@ -14,11 +14,11 @@ VTextureBuffer::VTextureBuffer() :
 	
 }
 
-VTextureBuffer::~VTextureBuffer()
+VMeshTextureBuffer::~VMeshTextureBuffer()
 {
 }
 
-void VTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
+void VMeshTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
 {
 	m_Extent.width = texture.width;
 	m_Extent.height = texture.height;
@@ -29,7 +29,7 @@ void VTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
 
 	VStagingImageBuffer stagingBuffer;
 	stagingBuffer.Initialize(allocator, texture.width, texture.height, texture.channel);
-	stagingBuffer.TransferHostDataToImageBuffer(texture.pixelData.data(), m_ImageBuffer);
+	stagingBuffer.TransferHostDataToImageBuffer(texture.pixelData.data(), m_ImageSet.buffer);
 
 
 	VmaAllocatorInfo allocatorInfo;
@@ -37,22 +37,13 @@ void VTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
 
 
 	// イメージビューの作成
-	VImageBufferBase::CreateImageView(allocatorInfo.device, m_ImageBuffer, m_Format, m_AspectFlag);
+	VImageBufferBase::CreateImageView(allocatorInfo.device, m_ImageSet.buffer, m_Format, m_AspectFlag);
 
 }
 
-vk::Image VTextureBuffer::GetImageBuffer()
-{
-	return m_ImageBuffer;
-}
-
-vk::ImageView VTextureBuffer::GetImageView()
-{
-	return m_ImageView;
-}
 
 
-//VkImageCreateInfo VTextureBuffer::GetImageCreateInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode)
+//VkImageCreateInfo VMeshTextureBuffer::GetImageCreateInfo(uint32_t imageWidth, uint32_t imageHeight, vk::Format format, vk::ImageUsageFlags usage, vk::SharingMode mode)
 //{
 //	vk::ImageCreateInfo imageCreateInfo;
 //	imageCreateInfo.imageType = vk::ImageType::e2D;			// 2Dイメージ
@@ -71,7 +62,7 @@ vk::ImageView VTextureBuffer::GetImageView()
 //	return imageCreateInfo;
 //}
 //
-//void VTextureBuffer::CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight)
+//void VMeshTextureBuffer::CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight)
 //{
 //	auto imageInfo = GetImageCreateInfo(imageWidth, imageHeight, m_Format, m_Usage, m_SharingMode);
 //
@@ -100,7 +91,7 @@ vk::ImageView VTextureBuffer::GetImageView()
 //	m_Buffer = vk::Image(buffer);  // VkImageをvk::Imageにキャスト
 //}
 //
-//void VTextureBuffer::CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk::Format format, vk::ImageAspectFlags aspectFlag)
+//void VMeshTextureBuffer::CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk::Format format, vk::ImageAspectFlags aspectFlag)
 //{
 //	vk::ImageViewCreateInfo imageViewInfo;
 //	imageViewInfo.buffer = imageBuffer;

@@ -1,22 +1,23 @@
 #include "VImageBufferBase.h"
 
-VImageBufferBase::VImageBufferBase(vk::ImageUsageFlags bufferusage,
-	VkMemoryPropertyFlags requiredFlag,			// 使用するバッファの必須要件
-	VkMemoryPropertyFlags preferredFlag,		// 使用するバッファの優先要件
-	VmaAllocationCreateFlags allocationFlag) :
+VImageBufferBase::VImageBufferBase(
+	vk::ImageUsageFlags bufferusage,
+	vk::SharingMode	sharingMode,
+	vk::ImageAspectFlags aspectFlag,
+	vk::Format format,
+	VkMemoryPropertyFlags requiredFlag,			// 使用するメモリの必須要件
+	VkMemoryPropertyFlags preferredFlag,		// 使用するメモリの優先要件
+	VmaAllocationCreateFlags allocationFlag):
 	m_pAllocator(nullptr),
-	m_AllocationFlag(),
-	m_AspectFlag(vk::ImageAspectFlagBits::eColor),
-	m_ImageBuffer(VK_NULL_HANDLE),
-	m_Format(vk::Format::eR8G8B8A8Unorm),
+	m_Usage(bufferusage),
+	m_SharingMode(sharingMode),
+	m_AspectFlag(aspectFlag),
+	m_Format(format),
 	m_ImageAllocation(VK_NULL_HANDLE),
-	m_ImageView(VK_NULL_HANDLE),
 	m_RequiredFlag(requiredFlag),
 	m_PreferredFlag(preferredFlag),
-	m_SharingMode(vk::SharingMode::eExclusive),
-	m_Usage(vk::ImageUsageFlagBits::eTransferDst)
+	m_AllocationFlag(allocationFlag)
 {
-	m_Usage = m_Usage | bufferusage;
 }
 
 VImageBufferBase::~VImageBufferBase()
@@ -25,12 +26,17 @@ VImageBufferBase::~VImageBufferBase()
 
 vk::Image VImageBufferBase::GetImageBuffer()
 {
-	return m_ImageBuffer;
+	return m_ImageSet.buffer;
 }
 
 vk::ImageView VImageBufferBase::GetImageView()
 {
-	return m_ImageView;
+	return m_ImageSet.view;
+}
+
+ImageSet VImageBufferBase::GetImageSet()
+{
+	return m_ImageSet;
 }
 
 VkImageCreateInfo VImageBufferBase::CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight)
@@ -40,6 +46,23 @@ VkImageCreateInfo VImageBufferBase::CreateImageInfo(uint32_t imageWidth, uint32_
 	imageCreateInfo.extent.width = imageWidth;				// イメージの幅
 	imageCreateInfo.extent.height = imageHeight;			// イメージの高さ
 	imageCreateInfo.extent.depth = 1;						// 2Dイメージなので深さは1
+	imageCreateInfo.mipLevels = 1;							// ミップマップのレベル
+	imageCreateInfo.arrayLayers = 1;						// レイヤー数
+	imageCreateInfo.format = m_Format;						// イメージフォーマット（RGBA8）
+	imageCreateInfo.tiling = vk::ImageTiling::eOptimal;		// GPU最適なタイル形式
+	imageCreateInfo.initialLayout = vk::ImageLayout::eUndefined;  // 初期レイアウト
+	imageCreateInfo.usage = m_Usage;						// データの使用用途
+	imageCreateInfo.samples = vk::SampleCountFlagBits::e1;  // マルチサンプリングの数
+	imageCreateInfo.sharingMode = m_SharingMode;			// キュー間でのデータ共用の有無
+
+	return imageCreateInfo;
+}
+
+VkImageCreateInfo VImageBufferBase::CreateImageInfo(vk::Extent3D extent)
+{
+	vk::ImageCreateInfo imageCreateInfo;
+	imageCreateInfo.imageType = vk::ImageType::e2D;			// 2Dイメージ
+	imageCreateInfo.extent = extent;						// イメージのサイズ
 	imageCreateInfo.mipLevels = 1;							// ミップマップのレベル
 	imageCreateInfo.arrayLayers = 1;						// レイヤー数
 	imageCreateInfo.format = m_Format;						// イメージフォーマット（RGBA8）
@@ -76,7 +99,34 @@ void VImageBufferBase::CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth
 		throw std::runtime_error("VMAによるイメージの作成に失敗しました!");
 	}
 
-	m_ImageBuffer = vk::Image(image);  // VkImageをvk::Imageにキャスト
+	m_ImageSet.buffer = vk::Image(image);  // VkImageをvk::Imageにキャスト
+}
+
+void VImageBufferBase::CreateBuffer(VmaAllocator* allocator, vk::Extent2D extent)
+{
+	m_pAllocator = allocator;
+	auto imageInfo = CreateImageInfo(vk::Extent3D{extent, 1});
+
+	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
+	VmaAllocationCreateInfo allocationInfo;
+	allocationInfo.priority = 1.0f;
+	allocationInfo.flags = m_AllocationFlag;
+	allocationInfo.preferredFlags = m_PreferredFlag;
+	allocationInfo.requiredFlags = m_RequiredFlag;
+	allocationInfo.pool = VK_NULL_HANDLE;
+	allocationInfo.memoryTypeBits = NULL;
+	allocationInfo.pUserData = nullptr;
+	allocationInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
+
+	VkImage image;
+	VkResult result = vmaCreateImage(*allocator, &imageInfo, &allocationInfo, &image, &m_ImageAllocation, nullptr);
+
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("VMAによるイメージの作成に失敗しました!");
+	}
+
+	m_ImageSet.buffer = vk::Image(image);  // VkImageをvk::Imageにキャスト
 }
 
 void VImageBufferBase::CreateImageView(vk::Device logicalDevice, vk::Image imageBuffer, vk::Format format, vk::ImageAspectFlags aspectFlag)
@@ -95,6 +145,6 @@ void VImageBufferBase::CreateImageView(vk::Device logicalDevice, vk::Image image
 	imageViewInfo.subresourceRange.baseArrayLayer = 0;
 	imageViewInfo.subresourceRange.layerCount = 1;
 
-	m_ImageView = logicalDevice.createImageView(imageViewInfo);
+	m_ImageSet.view = logicalDevice.createImageView(imageViewInfo);
 
 }

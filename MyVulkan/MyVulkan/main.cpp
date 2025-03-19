@@ -22,6 +22,7 @@
 #include "SwapchainRenderer.h"
 
 #include "HelloTriangleRenderer.h"
+#include "RenderImage.h"
 
 int main()
 {
@@ -29,6 +30,7 @@ int main()
 	GraphicWindow		mainWindow(vulkanInitializer);		//レンダラー
 	RenderConfig		renderConfig(vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
 	HelloTriangleRenderer triangleRenderer(vulkanInitializer);
+	RenderImage			renderTarget;
 
 
 	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
@@ -39,7 +41,7 @@ int main()
 
 	// ウィンドウを作成
 	mainWindow.init("Vulkan Window", windowWidth, windowHeight);
-
+	renderTarget.Initialize(vulkanInitializer.GetPVmaAllocator(), { windowWidth, windowHeight });
 	auto allocator = vulkanInitializer.GetPVmaAllocator();
 
 	float angle = 0.0f;
@@ -82,10 +84,15 @@ int main()
 		testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		m_Object.SetTransform(testMat);
 
-		//mainWindow.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
+		mainWindow.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
 		mainWindow.AddDrawTask(triangleRenderer.GetRenderFunction());
 		mainWindow.ExecuteDrawTask();
+
+
 	}
+
+	renderTarget.AddDrawTask(triangleRenderer.GetRenderFunction());
+	renderTarget.ExecuteDrawTask();
 
 	vulkanInitializer.cleanup();
 

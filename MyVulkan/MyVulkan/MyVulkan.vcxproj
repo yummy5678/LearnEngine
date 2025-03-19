@@ -138,6 +138,7 @@
     <ClCompile Include="GltfLoader.cpp" />
     <ClCompile Include="HelloTriangleRenderer.cpp" />
     <ClCompile Include="HostImage.cpp" />
+    <ClCompile Include="ImageBuffer.cpp" />
     <ClCompile Include="ImageGenerator.cpp" />
     <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="RenderImage.cpp" />
@@ -193,6 +194,7 @@
     <ClInclude Include="GltfLoader.h" />
     <ClInclude Include="HelloTriangleRenderer.h" />
     <ClInclude Include="HostImage.h" />
+    <ClInclude Include="ImageBuffer.h" />
     <ClInclude Include="RendererBase.h" />
     <ClInclude Include="RenderImage.h" />
     <ClInclude Include="Texture.h" />

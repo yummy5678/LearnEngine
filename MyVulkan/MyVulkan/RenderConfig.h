@@ -31,7 +31,7 @@ public:
 	//	vk::Extent2D extent,
 	//	vk::Format colorFomat,
 	//	vk::Format depthFomat);
-	void Initialize(RenderTarget* renderere);
+	void Initialize(RenderingTarget* renderere);
 
 	// ディスクリプタなどを更新したい
 	void Update();
@@ -89,7 +89,7 @@ private:
 
 	//vk::PushConstantRange	GetPushConstantModelRange();
 	//vk::PipelineVertexInputStateCreateInfo GetVertexInputState();
-	//void CreateTextureDescriptor(VTextureBuffer* pMaterial);
+	//void CreateTextureDescriptor(VMeshTextureBuffer* pMaterial);
 	//void UpdateTextureDescriptor();
 
 

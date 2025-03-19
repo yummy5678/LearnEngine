@@ -14,7 +14,7 @@ public:
     virtual vk::PipelineLayout		GetPipelineLayout() override;
 
 
-    void Initialize(RenderTarget* renderere);
+    void Initialize(RenderingTarget* renderere);
     std::shared_ptr<RenderFunction> GetRenderFunction();
 
 

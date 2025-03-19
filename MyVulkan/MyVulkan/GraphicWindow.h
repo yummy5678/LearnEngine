@@ -11,7 +11,7 @@
 #include "RenderFunction.h"
 
 //ウィンドウ作成用のクラス
-class GraphicWindow : public RenderTarget
+class GraphicWindow : public RenderingTarget
 {
 public:
     //コンストラクタとデストラクタ

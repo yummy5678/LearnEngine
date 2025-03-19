@@ -2,10 +2,11 @@
 #include "RenderTargetBase.h"
 #include "DrawCommand.h"
 #include "RenderFunction.h"
+#include "ImageBuffer.h"
 
 
 class RenderImage :
-    public RenderTarget
+    public RenderingTarget
 {
 public:
     RenderImage();
@@ -27,8 +28,8 @@ private:
     vk::PhysicalDevice  m_PhysicalDevice;
     vk::Fence           m_Fence;
 
-    VTextureBuffer      m_ColorImage;
-    VTextureBuffer      m_DepthImage;
+    VImageBuffer        m_ColorImage;
+    VImageBuffer        m_DepthImage;
     vk::Extent2D        m_ImageExtent;
     const vk::Format          m_ImageFormat;
     const vk::ImageAspectFlags m_ImageAspectFlag;

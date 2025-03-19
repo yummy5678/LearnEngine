@@ -17,7 +17,7 @@ RenderConfig::~RenderConfig()
 {
 }
 
-void RenderConfig::Initialize(RenderTarget* renderere)
+void RenderConfig::Initialize(RenderingTarget* renderere)
 {
     vk::Format colorFomat = renderere->GetColorFormat();
     vk::Format depthFomat = renderere->GetDepthFormat();

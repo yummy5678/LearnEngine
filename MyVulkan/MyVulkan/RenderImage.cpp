@@ -3,8 +3,8 @@
 RenderImage::RenderImage() :
 	m_LogicalDevice(),
 	m_PhysicalDevice(),
-	m_ColorImage(),
-	m_DepthImage(),
+	m_ColorImage(vk::ImageAspectFlagBits::eColor),
+	m_DepthImage(vk::ImageAspectFlagBits::eDepth),
 	m_ImageExtent(),
 	m_ImageFormat(vk::Format::eR8G8B8A8Unorm),
 	m_ImageAspectFlag(),
@@ -52,8 +52,9 @@ void RenderImage::Initialize(VmaAllocator* allocator, vk::Extent2D extent)
 
 	m_ImageExtent = extent;
 
-	//m_ColorImage.Create(allocator, GetImageCreateInfo(m_ImageExtent, m_ImageFormat, m_ColorImageUsage), vk::ImageAspectFlagBits::eColor);
-	//m_DepthImage.Create(allocator, GetImageCreateInfo(m_ImageExtent, m_ImageFormat, m_DepthImageUsage), vk::ImageAspectFlagBits::eDepth);
+
+	m_ColorImage.Initialize(allocator, extent);
+	m_DepthImage.Initialize(allocator, extent);
 
 	//m_ImageSet = { m_ColorImage.GetImageSet(), m_DepthImage.GetImageSet() };
 	
@@ -77,9 +78,9 @@ void RenderImage::ExecuteDrawTask()
 {
 	// 次のインデックス
 	m_LogicalDevice.waitForFences(
-		{ m_Fence },	// 利用するフェンス達
-		VK_TRUE,						// フェンスが全てシグナル状態になるまで待つ
-		UINT64_MAX);					// 最大待機時間
+		{ m_Fence },						// 利用するフェンス達
+		VK_TRUE,							// フェンスが全てシグナル状態になるまで待つ
+		UINT64_MAX);						// 最大待機時間
 	m_LogicalDevice.resetFences(m_Fence);	// フェンスを非シグナル状態にする
 
 	
