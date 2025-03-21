@@ -5,8 +5,11 @@ VMeshTextureBuffer::VMeshTextureBuffer() :
 	VImageBufferBase(
 		vk::ImageUsageFlagBits::eSampled | 
 		vk::ImageUsageFlagBits::eTransferDst,
-		NULL,
-		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		vk::SharingMode::eExclusive,
+		vk::ImageAspectFlagBits::eColor,
+		vk::Format::eR8G8B8A8Unorm,
+		vk::MemoryPropertyFlags(NULL),
+		vk::MemoryPropertyFlagBits::eDeviceLocal,
 		VMA_ALLOCATION_CREATE_STRATEGY_BEST_FIT_BIT | 
 		VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT),
 	m_Extent(0,0)

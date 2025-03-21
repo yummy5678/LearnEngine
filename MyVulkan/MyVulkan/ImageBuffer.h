@@ -5,19 +5,18 @@ class VImageBuffer :
 {
 public:
     VImageBuffer(
-		vk::ImageUsageFlags bufferusage,
-		vk::SharingMode	sharingMode,
-		vk::ImageAspectFlags aspectFlag,
-		vk::Format format,
-		VkMemoryPropertyFlags requiredFlag);
+		vk::ImageUsageFlags		bufferusage,
+		vk::ImageAspectFlags	aspectFlag,
+		vk::Format				format,
+		vk::MemoryPropertyFlags	MemoryPrppertyFlag);
 
     VImageBuffer(
 		vk::ImageUsageFlags bufferusage,
 		vk::SharingMode	sharingMode,
 		vk::ImageAspectFlags aspectFlag,
 		vk::Format format,
-		VkMemoryPropertyFlags requiredFlag,		
-		VkMemoryPropertyFlags preferredFlag,		
+		vk::MemoryPropertyFlags requiredMemoryPrppertyFlag,
+		vk::MemoryPropertyFlags preferredMemoryPrppertyFlag,
 		VmaAllocationCreateFlags allocationFlag);
 
     ~VImageBuffer();
@@ -27,7 +26,7 @@ public:
 
 private:
 
-    vk::Extent2D m_Extent;
+    
 
 
 

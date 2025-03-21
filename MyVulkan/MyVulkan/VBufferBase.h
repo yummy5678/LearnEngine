@@ -21,6 +21,9 @@ public:
 
 	vk::Buffer		GetBuffer();
 	vk::DeviceSize	GetDataSize();
+
+	// 作成時に登録したアロケーターを返す
+	const VmaAllocator* GetUsingAllocator();
 	
 	void Cleanup();
 

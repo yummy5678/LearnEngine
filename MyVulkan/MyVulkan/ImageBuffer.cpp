@@ -2,20 +2,18 @@
 
 VImageBuffer::VImageBuffer(
 	vk::ImageUsageFlags bufferusage,
-	vk::SharingMode	sharingMode,
 	vk::ImageAspectFlags aspectFlag,
 	vk::Format format,
-	VkMemoryPropertyFlags requiredFlag) :
+	vk::MemoryPropertyFlags requiredFlag) :
 VImageBufferBase(
 	bufferusage,
-	vk::SharingMode::eExclusive
-	vk::ImageAspectFlags
-	vk::Format::
+	vk::SharingMode::eExclusive,
+	aspectFlag,
+	format,
 	requiredFlag,
-	NULL,
+	vk::MemoryPropertyFlags(NULL),
 	VMA_ALLOCATION_CREATE_STRATEGY_FIRST_FIT_BIT |
-	VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT),
-	m_Extent(0, 0)
+	VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT)
 {
 }
 
@@ -24,19 +22,18 @@ VImageBuffer::VImageBuffer(
 	vk::SharingMode	sharingMode,
 	vk::ImageAspectFlags aspectFlag,
 	vk::Format format,
-	VkMemoryPropertyFlags requiredFlag,
-	VkMemoryPropertyFlags preferredFlag,
+	vk::MemoryPropertyFlags requiredFlag,
+	vk::MemoryPropertyFlags preferredFlag,
 	VmaAllocationCreateFlags allocationFlag) :
 	VImageBufferBase(
 		bufferusage,
-
-
-
+		sharingMode,
+		aspectFlag,
+		format,
 		requiredFlag,
 		preferredFlag,
 		VMA_ALLOCATION_CREATE_STRATEGY_FIRST_FIT_BIT |
-		VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT),
-	m_Extent(0, 0)
+		VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT)
 {
 }
 
@@ -46,8 +43,6 @@ VImageBuffer::~VImageBuffer()
 
 void VImageBuffer::Initialize(VmaAllocator* allocator, vk::Extent2D extent)
 {
-	m_Extent = extent;
-
 	VmaAllocatorInfo allocatorInfo;
 	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "VBufferBase.h"
 #include "QueueUtility.h"
+#include "Texture.h"
 
 class VStagingImageBuffer :
     public VBufferBase
@@ -15,7 +16,7 @@ public:
     void TransferHostDataToImageBuffer(void* transferData, vk::Image toBuffer, vk::Fence fence = VK_NULL_HANDLE);
 
     // GPU用のメモリ(VRAM)側のデータをメモリ(RAM)側に移動させるための関数
-    void TransferImageBufferToHostData(vk::Image transferBuffer, void* toData, vk::Fence fence = VK_NULL_HANDLE);
+    void TransferImageBufferToHostData(vk::Image transferBuffer, Texture* toData, vk::Fence fence = VK_NULL_HANDLE);
 
 private:
     vk::Device          m_LogicalDevice;

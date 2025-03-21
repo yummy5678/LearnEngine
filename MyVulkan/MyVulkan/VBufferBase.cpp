@@ -34,6 +34,11 @@ vk::DeviceSize VBufferBase::GetDataSize()
 	return m_DataSize;
 }
 
+const VmaAllocator* VBufferBase::GetUsingAllocator()
+{
+	return m_pAllocator;
+}
+
 void VBufferBase::Cleanup()
 {
 	if (!m_pAllocator || !m_Buffer) return;

@@ -94,10 +94,10 @@ void VStagingImageBuffer::TransferHostDataToImageBuffer(void* transferData, vk::
 	m_Queue.submit(1, &submitInfo, fence);		// コマンドをGPUのキューに送信
 }
 
-void VStagingImageBuffer::TransferImageBufferToHostData(vk::Image transferBuffer, void* toData, vk::Fence fence)
+void VStagingImageBuffer::TransferImageBufferToHostData(vk::Image transferBuffer, Texture* toData, vk::Fence fence)
 {
 	if (m_pAllocator == nullptr) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
-	if(toData != nullptr) throw std::runtime_error("コピー先のデータポインタはnullptrのものを用意してください!");
+	if(toData->pixelData.empty() != false) throw std::runtime_error("転送先は中身が空のTextureを用意してください!");
 
 	//VmaAllocationInfo allocInfo;
 	//vmaGetAllocationInfo(*m_pAllocator, m_Allocation, &allocInfo);

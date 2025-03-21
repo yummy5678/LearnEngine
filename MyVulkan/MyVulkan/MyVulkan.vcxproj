@@ -252,6 +252,7 @@
     <ClInclude Include="VulkanInstance.h" />
     <ClInclude Include="VulkanUtility.h" />
     <ClInclude Include="VulkanValidation.h" />
+    <ClInclude Include="WriteImage.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

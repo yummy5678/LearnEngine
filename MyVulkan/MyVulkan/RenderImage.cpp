@@ -3,8 +3,18 @@
 RenderImage::RenderImage() :
 	m_LogicalDevice(),
 	m_PhysicalDevice(),
-	m_ColorImage(vk::ImageAspectFlagBits::eColor),
-	m_DepthImage(vk::ImageAspectFlagBits::eDepth),
+	m_ColorImage(
+		vk::ImageUsageFlagBits::eColorAttachment,
+		vk::ImageAspectFlagBits::eColor,
+		vk::Format::eR8G8B8A8Unorm,
+		vk::MemoryPropertyFlagBits::eDeviceLocal
+	),
+	m_DepthImage(
+		vk::ImageUsageFlagBits::eDepthStencilAttachment,
+		vk::ImageAspectFlagBits::eDepth,
+		vk::Format::eD32SfloatS8Uint,
+		vk::MemoryPropertyFlagBits::eDeviceLocal
+	),
 	m_ImageExtent(),
 	m_ImageFormat(vk::Format::eR8G8B8A8Unorm),
 	m_ImageAspectFlag(),
@@ -19,11 +29,6 @@ RenderImage::RenderImage() :
 
 RenderImage::~RenderImage()
 {
-}
-
-vk::Extent2D RenderImage::GetExtent()
-{
-	return vk::Extent2D();
 }
 
 RenderingImageSet RenderImage::GetImageSet()

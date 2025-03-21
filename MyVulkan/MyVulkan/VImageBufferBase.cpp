@@ -5,8 +5,8 @@ VImageBufferBase::VImageBufferBase(
 	vk::SharingMode	sharingMode,
 	vk::ImageAspectFlags aspectFlag,
 	vk::Format format,
-	VkMemoryPropertyFlags requiredFlag,			// 使用するメモリの必須要件
-	VkMemoryPropertyFlags preferredFlag,		// 使用するメモリの優先要件
+	vk::MemoryPropertyFlags requiredMemoryFlag,			// 使用するメモリの必須要件
+	vk::MemoryPropertyFlags preferredMemoryFlag,		// 使用するメモリの優先要件
 	VmaAllocationCreateFlags allocationFlag):
 	m_pAllocator(nullptr),
 	m_Usage(bufferusage),
@@ -14,9 +14,10 @@ VImageBufferBase::VImageBufferBase(
 	m_AspectFlag(aspectFlag),
 	m_Format(format),
 	m_ImageAllocation(VK_NULL_HANDLE),
-	m_RequiredFlag(requiredFlag),
-	m_PreferredFlag(preferredFlag),
-	m_AllocationFlag(allocationFlag)
+	m_RequiredFlag(requiredMemoryFlag),
+	m_PreferredFlag(preferredMemoryFlag),
+	m_AllocationFlag(allocationFlag),
+	m_Extent(0,0,0)
 {
 }
 
@@ -39,13 +40,23 @@ ImageSet VImageBufferBase::GetImageSet()
 	return m_ImageSet;
 }
 
+vk::Extent3D VImageBufferBase::GetExtent()
+{
+	return m_Extent;
+}
+
+VmaAllocator* VImageBufferBase::GetUsingAllocator()
+{
+	return m_pAllocator;
+}
+
 VkImageCreateInfo VImageBufferBase::CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight)
 {
+	m_Extent = vk::Extent3D{ imageWidth, imageHeight, 1};
+
 	vk::ImageCreateInfo imageCreateInfo;
 	imageCreateInfo.imageType = vk::ImageType::e2D;			// 2Dイメージ
-	imageCreateInfo.extent.width = imageWidth;				// イメージの幅
-	imageCreateInfo.extent.height = imageHeight;			// イメージの高さ
-	imageCreateInfo.extent.depth = 1;						// 2Dイメージなので深さは1
+	imageCreateInfo.extent = m_Extent;	// 画像サイズ
 	imageCreateInfo.mipLevels = 1;							// ミップマップのレベル
 	imageCreateInfo.arrayLayers = 1;						// レイヤー数
 	imageCreateInfo.format = m_Format;						// イメージフォーマット（RGBA8）
@@ -60,9 +71,11 @@ VkImageCreateInfo VImageBufferBase::CreateImageInfo(uint32_t imageWidth, uint32_
 
 VkImageCreateInfo VImageBufferBase::CreateImageInfo(vk::Extent3D extent)
 {
+	m_Extent = extent;
+
 	vk::ImageCreateInfo imageCreateInfo;
 	imageCreateInfo.imageType = vk::ImageType::e2D;			// 2Dイメージ
-	imageCreateInfo.extent = extent;						// イメージのサイズ
+	imageCreateInfo.extent = m_Extent;						// イメージのサイズ
 	imageCreateInfo.mipLevels = 1;							// ミップマップのレベル
 	imageCreateInfo.arrayLayers = 1;						// レイヤー数
 	imageCreateInfo.format = m_Format;						// イメージフォーマット（RGBA8）
@@ -84,8 +97,8 @@ void VImageBufferBase::CreateBuffer(VmaAllocator* allocator, uint32_t imageWidth
 	VmaAllocationCreateInfo allocationInfo;
 	allocationInfo.priority = 1.0f;
 	allocationInfo.flags = m_AllocationFlag;
-	allocationInfo.preferredFlags = m_PreferredFlag;
-	allocationInfo.requiredFlags = m_RequiredFlag;
+	allocationInfo.preferredFlags = (VkMemoryAllocateFlags)m_PreferredFlag;
+	allocationInfo.requiredFlags = (VkMemoryAllocateFlags)m_RequiredFlag;
 	allocationInfo.pool = VK_NULL_HANDLE;
 	allocationInfo.memoryTypeBits = NULL;
 	allocationInfo.pUserData = nullptr;
@@ -111,8 +124,8 @@ void VImageBufferBase::CreateBuffer(VmaAllocator* allocator, vk::Extent2D extent
 	VmaAllocationCreateInfo allocationInfo;
 	allocationInfo.priority = 1.0f;
 	allocationInfo.flags = m_AllocationFlag;
-	allocationInfo.preferredFlags = m_PreferredFlag;
-	allocationInfo.requiredFlags = m_RequiredFlag;
+	allocationInfo.preferredFlags = (VkMemoryAllocateFlags)m_PreferredFlag;
+	allocationInfo.requiredFlags = (VkMemoryAllocateFlags)m_RequiredFlag;
 	allocationInfo.pool = VK_NULL_HANDLE;
 	allocationInfo.memoryTypeBits = NULL;
 	allocationInfo.pUserData = nullptr;
