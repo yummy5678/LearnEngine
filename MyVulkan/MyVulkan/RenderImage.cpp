@@ -31,6 +31,11 @@ RenderImage::~RenderImage()
 {
 }
 
+vk::Extent2D RenderImage::GetExtent()
+{
+	return { m_ColorImage.GetExtent().width, m_ColorImage.GetExtent().height };
+}
+
 RenderingImageSet RenderImage::GetImageSet()
 {
 	return m_ImageSet;

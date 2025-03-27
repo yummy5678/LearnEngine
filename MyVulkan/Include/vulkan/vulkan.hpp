@@ -1831,8 +1831,8 @@ namespace VULKAN_HPP_NAMESPACE
                             VkImage                dstImage,
                             VkImageLayout          dstImageLayout,
                             uint32_t               regionCount,
-                            const VkImageResolve * pRegions ) const VULKAN_HPP_NOEXCEPT
-    {
+                           const VkImageResolve * pRegions ) const VULKAN_HPP_NOEXCEPT
+  {
       return ::vkCmdResolveImage( commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions );
     }
 
@@ -1867,7 +1867,7 @@ namespace VULKAN_HPP_NAMESPACE
                                 pMemoryBarriers,
                                 bufferMemoryBarrierCount,
                                 pBufferMemoryBarriers,
-                                imageMemoryBarrierCount,
+                               imageMemoryBarrierCount,
                                 pImageMemoryBarriers );
     }
 

@@ -11,7 +11,7 @@ public:
 	~VVertexBuffer();
 
 	void		SetData(VmaAllocator* allocator, std::vector<Vertex>* vertices);
-	uint32_t	GetVertexCount();
+	size_t	GetVertexCount();
 
 	// 頂点入力デスクリプションを返す
 	vk::PipelineVertexInputStateCreateInfo GetInputStateInfo();

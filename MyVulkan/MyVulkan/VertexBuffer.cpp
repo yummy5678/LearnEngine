@@ -32,7 +32,7 @@ void VVertexBuffer::SetData(VmaAllocator* allocator, std::vector<Vertex>* vertic
 
 }
 
-uint32_t VVertexBuffer::GetVertexCount()
+size_t VVertexBuffer::GetVertexCount()
 {
 	return m_VertexCount;
 }

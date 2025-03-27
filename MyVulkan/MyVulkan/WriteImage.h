@@ -1,7 +1,9 @@
 #pragma once
+#include "stb/stb_image.h"
+#include "stb/stb_image_write.h" 
 #include "StagingImageBuffer.h"
 #include "VImageBufferBase.h"
-#include "stb/stb_image_write.h" 
+
 
 static void WriteImage(VImageBufferBase* vImageBuffer, std::string writeFileName)
 {
@@ -16,7 +18,10 @@ static void WriteImage(VImageBufferBase* vImageBuffer, std::string writeFileName
 	Texture imageData;
 	stagingBuffer.TransferImageBufferToHostData(image, &imageData);
 
-	
+	stbi_write_bmp(writeFileName.c_str(), 
+		imageData.width, imageData.height, 
+		imageData.channel, 
+		imageData.pixelData.data())
 
 }
 

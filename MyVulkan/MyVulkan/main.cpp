@@ -1,10 +1,14 @@
 #pragma once
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-#define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#define TINYGLTF_USE_CPP14
+#define TINYGLTF_NO_INCLUDE_STB_IMAGE
+#define TINYGLTF_NO_INCLUDE_STB_IMAGE_WRITE
 #define TINYGLTF_NOEXCEPTION
+#define TINYGLTF_IMPLEMENTATION
 #define JSON_NOEXCEPTION
 
 //#define SPDLOG_WCHAR_TO_UTF8_SUPPORT
@@ -23,6 +27,8 @@
 
 #include "HelloTriangleRenderer.h"
 #include "RenderImage.h"
+
+#include "WriteImage.h"
 
 int main()
 {
@@ -59,7 +65,7 @@ int main()
 
 	// ÉJÉÅÉâÉNÉâÉXÇçÏê¨
 	SceneCamera camera(allocator);
-	camera.UpdateBuffer(ViewProjection(-1));
+	camera.UpdateBuffer(ViewProjection(1.0));
 
 	
 	renderConfig.Initialize(&mainWindow);
@@ -88,11 +94,12 @@ int main()
 		mainWindow.AddDrawTask(triangleRenderer.GetRenderFunction());
 		mainWindow.ExecuteDrawTask();
 
-
 	}
 
 	renderTarget.AddDrawTask(triangleRenderer.GetRenderFunction());
 	renderTarget.ExecuteDrawTask();
+	auto image = renderTarget.GetImageSet().color;
+	WriteImage(&,"");
 
 	vulkanInitializer.cleanup();
 
