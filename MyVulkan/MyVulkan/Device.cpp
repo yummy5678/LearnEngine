@@ -12,8 +12,6 @@ DeviceGenerator::~DeviceGenerator()
 
 void DeviceGenerator::Create(DeviceExtension extensionManager, vk::Instance instance)
 {
-	m_bCreated = true;
-
 	// 使用可能な物理デバイス(GPU)を探してくる
 	PhysicalDeviceSelector physicalSelector(instance);
 
@@ -61,13 +59,11 @@ void DeviceGenerator::Destroy()
 
 vk::PhysicalDevice DeviceGenerator::GetPhysicalDevice()
 {
-	CheckCreated();
 	return m_PhysicalDevice;
 }
 
 vk::Device DeviceGenerator::GetLogicalDevice()
 {
-	CheckCreated();
 	return m_LogicalDevice;
 }
 

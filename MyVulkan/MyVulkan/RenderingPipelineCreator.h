@@ -1,13 +1,13 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
-#include "GeneratorBase.h"
+#include "NonCopyable.h"
 #include "Utilities.h"
 #include "ShaderUtility.h"
 #include "PipelineShaderCreator.h"
 #include "VertexBuffer.h"
 #include "VulkanInitializer.h"
 
-class RenderingPipelineCreator : public GeneratorBase
+class RenderingPipelineCreator : public NonCopyable
 {
 public:
 	RenderingPipelineCreator(VulkanInitializer& initializer);

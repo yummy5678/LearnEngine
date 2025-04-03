@@ -45,6 +45,26 @@ vk::Extent3D VImageBufferBase::GetExtent()
 	return m_Extent;
 }
 
+vk::ImageUsageFlags VImageBufferBase::GetUsage()
+{
+	return m_Usage;
+}
+
+vk::SharingMode VImageBufferBase::GetSharingMode()
+{
+	return m_SharingMode;
+}
+
+vk::Format VImageBufferBase::GetFormat()
+{
+	return m_Format;
+}
+
+vk::ImageAspectFlags VImageBufferBase::GetAspectFlag()
+{
+	return m_AspectFlag;
+}
+
 VmaAllocator* VImageBufferBase::GetUsingAllocator()
 {
 	return m_pAllocator;

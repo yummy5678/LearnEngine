@@ -20,15 +20,15 @@ void VViewProjectionBuffer::Initialize(VmaAllocator* allocator)
 		return;
 	}
 
-	m_DataSize = sizeof(ViewProjection);
+	vk::DeviceSize dataSize = sizeof(ViewProjection);
 
 	// 頂点用のバッファ及びメモリの作成
-	CreateBuffer(allocator, m_DataSize);
+	CreateBuffer(allocator, dataSize);
 }
 
 void VViewProjectionBuffer::SetData(VmaAllocator* allocator, ViewProjection& projection)
 {
-	if (m_Buffer == VK_NULL_HANDLE || m_DataSize == 0)
+	if (m_Buffer == VK_NULL_HANDLE)
 	{
 		// エラーメッセージ
 		return;
@@ -36,7 +36,8 @@ void VViewProjectionBuffer::SetData(VmaAllocator* allocator, ViewProjection& pro
 
 	// ステージングバッファを踏んでデータを入れてもらう
 	VStagingBuffer StagingBuffer;
-	StagingBuffer.Initialize(allocator, m_DataSize);				//一度ステージングバッファにデータを入れてから
+	//StagingBuffer.Initialize(allocator, m_DataSize);				//一度ステージングバッファにデータを入れてから
+	StagingBuffer.Initialize(allocator, m_AllocationInfo.size);				//一度ステージングバッファにデータを入れてから
 	StagingBuffer.TransferDataToBuffer(&projection, m_Buffer);	//indicesBuffer(VRAMに作られたバッファ)にコピーする
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい

@@ -3,7 +3,6 @@
 
 SurfaceGenerator::SurfaceGenerator(VulkanInitializer& initializer)
 {
-	m_ClassName = "SurfaceGenerator";
 	glfwInit();
 	// 拡張機能マネージャーにサーフェスの使用する拡張機能を追加
 	initializer.GetPInstanceExtension()->UseGLFW();
@@ -11,7 +10,6 @@ SurfaceGenerator::SurfaceGenerator(VulkanInitializer& initializer)
 
 SurfaceGenerator::SurfaceGenerator()
 {
-	m_ClassName = "SurfaceGenerator";
 }
 
 SurfaceGenerator::~SurfaceGenerator()
@@ -21,7 +19,6 @@ SurfaceGenerator::~SurfaceGenerator()
 
 void SurfaceGenerator::CreateWindowSurface(vk::Instance instance, GLFWwindow* m_pWindow)
 {
-	m_bCreated = true;
 	m_Instance = instance;
 
 	VkSurfaceKHR c_Surface;
@@ -38,19 +35,16 @@ void SurfaceGenerator::CreateWindowSurface(vk::Instance instance, GLFWwindow* m_
 
 VkSurfaceKHR SurfaceGenerator::GetSurface()
 {
-	CheckCreated();
 	return m_Surface;
 }
 
 vk::SurfaceCapabilitiesKHR SurfaceGenerator::GetCapabilities(vk::PhysicalDevice physicalDevice)
 {
-	CheckCreated();
 	return physicalDevice.getSurfaceCapabilitiesKHR(m_Surface);
 }
 
 std::vector<vk::SurfaceFormatKHR> SurfaceGenerator::GetFomats(vk::PhysicalDevice physicalDevice)
 {
-	CheckCreated();
 	return physicalDevice.getSurfaceFormatsKHR(m_Surface);
 }
 

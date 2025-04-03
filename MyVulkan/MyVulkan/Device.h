@@ -1,13 +1,13 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include <set>
-#include "GeneratorBase.h"
+#include "NonCopyable.h"
 #include "PhysicalDeviceSelector.h"
 #include "DeviceExtensionManager.h"
 #include "QueueUtility.h"
 
 
-class DeviceGenerator : GeneratorBase
+class DeviceGenerator : NonCopyable
 {
 public:
 	DeviceGenerator();

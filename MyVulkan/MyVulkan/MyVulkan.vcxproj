@@ -100,7 +100,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -156,7 +156,6 @@
     <ClCompile Include="DeviceExtensionManager.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="GraphicWindow.cpp" />
-    <ClCompile Include="GeneratorBase.cpp" />
     <ClCompile Include="RenderingPipelineCreator.cpp" />
     <ClCompile Include="InstanceExtensionManager.cpp" />
     <ClCompile Include="MaterialBuffer.cpp" />
@@ -216,7 +215,7 @@
     <ClInclude Include="DeviceExtensionManager.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="GraphicWindow.h" />
-    <ClInclude Include="GeneratorBase.h" />
+    <ClInclude Include="NonCopyable.h" />
     <ClInclude Include="GraphicsDefine.h" />
     <ClInclude Include="RenderingPipelineCreator.h" />
     <ClInclude Include="InstanceExtensionManager.h" />

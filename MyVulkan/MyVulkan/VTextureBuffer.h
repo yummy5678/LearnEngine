@@ -11,7 +11,7 @@ public:
 	~VMeshTextureBuffer();
 	void Cleanup();
 
-	void SetImage(VmaAllocator* allocator, Texture& texture);
+	void SetImage(VmaAllocator* allocator, Texture& texture, vk::Fence fence);
 
 protected:
 	vk::Extent2D m_Extent;

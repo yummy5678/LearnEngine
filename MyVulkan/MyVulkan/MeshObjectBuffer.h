@@ -1,11 +1,12 @@
 #pragma once
+#include "NonCopyable.h"
 #include "MeshBuffer.h"
 #include "MaterialBuffer.h"
 #include "MeshObject.h" 
 //#include "Observer.h"
 
 
-class VMeshObject
+class VMeshObject : public NonCopyable
 {
 public:
 	VMeshObject();
@@ -29,7 +30,7 @@ private:
 	std::shared_ptr<VMesh>		m_Mesh;
 	std::shared_ptr<VMaterial>	m_Material;
 
-	std::unordered_map<std::shared_ptr<vk::DescriptorSetLayout>, VSingleTextureDescriptor>	m_DescriptorSets;
+	std::unordered_map<std::shared_ptr<vk::DescriptorSetLayout>, VSingleTextureDescriptor*>	m_DescriptorSets;
 
 	//Subject			m_MeshUpdateSubject;
 	//Subject			m_BufferUpdateSubject;

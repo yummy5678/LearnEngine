@@ -21,7 +21,7 @@ VMeshTextureBuffer::~VMeshTextureBuffer()
 {
 }
 
-void VMeshTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
+void VMeshTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture, vk::Fence fence)
 {
 	m_Extent.width = texture.width;
 	m_Extent.height = texture.height;
@@ -32,7 +32,7 @@ void VMeshTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture)
 
 	VStagingImageBuffer stagingBuffer;
 	stagingBuffer.Initialize(allocator, texture.width, texture.height, texture.channel);
-	stagingBuffer.TransferHostDataToImageBuffer(texture.pixelData.data(), m_ImageSet.buffer);
+	stagingBuffer.TransferHostDataToImageBuffer(texture.pixelData.data(), m_ImageSet.buffer, fence);
 
 
 	VmaAllocatorInfo allocatorInfo;

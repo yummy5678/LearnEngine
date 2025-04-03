@@ -1,8 +1,9 @@
 #pragma once
 #include "VulkanInitializer.h"
+#include "NonCopyable.h"
 #include "RenderingPipelineCreator.h"
 
-class RendererBase
+class RendererBase : public NonCopyable
 {
 public:
 	RendererBase(VulkanInitializer& initializer);

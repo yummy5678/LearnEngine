@@ -28,7 +28,7 @@
 #include "HelloTriangleRenderer.h"
 #include "RenderImage.h"
 
-#include "WriteImage.h"
+
 
 int main()
 {
@@ -71,7 +71,11 @@ int main()
 	renderConfig.Initialize(&mainWindow);
 
 	
-	triangleRenderer.Initialize(&mainWindow);
+	triangleRenderer.Initialize(&renderTarget);
+
+	renderTarget.AddDrawTask(triangleRenderer.GetRenderFunction());
+	renderTarget.ExecuteDrawTask();
+	renderTarget.WriteImage("writeImage.bmp");
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!mainWindow.checkCloseWindow())
@@ -91,15 +95,14 @@ int main()
 		m_Object.SetTransform(testMat);
 
 		mainWindow.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
-		mainWindow.AddDrawTask(triangleRenderer.GetRenderFunction());
+		//mainWindow.AddDrawTask(triangleRenderer.GetRenderFunction());
 		mainWindow.ExecuteDrawTask();
 
 	}
 
-	renderTarget.AddDrawTask(triangleRenderer.GetRenderFunction());
+	renderTarget.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
 	renderTarget.ExecuteDrawTask();
-	auto image = renderTarget.GetImageSet().color;
-	WriteImage(&,"");
+	renderTarget.WriteImage("endImage.bmp");
 
 	vulkanInitializer.cleanup();
 

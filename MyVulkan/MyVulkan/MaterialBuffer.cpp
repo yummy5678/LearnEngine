@@ -66,7 +66,7 @@ vk::Sampler VMaterial::GetSampler()
 
 void VMaterial::SetTexture(VmaAllocator* allocator, Texture& texture)
 {
-	m_Texture.SetImage(allocator, texture);
+	m_Texture.SetImage(allocator, texture, VK_NULL_HANDLE);
 	//m_BufferUpdateSubject.notifyObservers();
 }
 

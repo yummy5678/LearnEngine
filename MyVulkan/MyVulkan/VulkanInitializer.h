@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include <vector>
+#include "NonCopyable.h"
 #include "DeviceExtensionManager.h"
 #include "InstanceExtensionManager.h"
 #include "Utilities.h"
@@ -9,7 +10,7 @@
 #include "Device.h"
 #include "VmaCallbackFunction.h"
 
-class VulkanInitializer
+class VulkanInitializer : public NonCopyable
 {
 public:
 	VulkanInitializer();

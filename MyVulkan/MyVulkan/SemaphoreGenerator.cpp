@@ -5,7 +5,6 @@ SemaphoreGenerator::SemaphoreGenerator():
 	m_Semaphores(),
 	m_RenderWaits()
 {
-	m_ClassName = "SemaphoreGenerator";
 }
 
 SemaphoreGenerator::~SemaphoreGenerator()
@@ -14,8 +13,6 @@ SemaphoreGenerator::~SemaphoreGenerator()
 
 void SemaphoreGenerator::Create(vk::Device logicalDevice, uint32_t semaphoreCount)
 {
-	m_bCreated = true;
-
 	m_LogicalDevice = logicalDevice;
 
 	// セマフォの作成
@@ -26,10 +23,6 @@ void SemaphoreGenerator::Create(vk::Device logicalDevice, uint32_t semaphoreCoun
 
 void SemaphoreGenerator::Destroy()
 {
-	//中身が作成されていないなら破棄も行わない
-	if (m_bCreated == false) return;
-	m_bCreated = false;
-
 	//セマフォの破棄
 	for (auto& semaphore : m_Semaphores)
 	{
@@ -39,13 +32,11 @@ void SemaphoreGenerator::Destroy()
 
 std::vector<vk::Semaphore> SemaphoreGenerator::GetSignalSemaphores()
 {
-	CheckCreated();
 	return m_Semaphores;
 }
 
 std::vector<vk::Semaphore> SemaphoreGenerator::GetWaitSemaphores()
 {
-	CheckCreated();
 	return m_RenderWaits;
 }
 

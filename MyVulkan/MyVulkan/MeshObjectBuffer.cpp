@@ -10,8 +10,8 @@ VMeshObject::VMeshObject() :
     m_MeshUpdateSubject(),
     m_MaterialUpdateSubject()*/
 {
-    m_Mesh = std::make_shared<VMesh>(VMesh());
-    m_Material = std::make_shared<VMaterial>(VMaterial());
+    m_Mesh = std::make_shared<VMesh>();
+    m_Material = std::make_shared<VMaterial>();
 
 }
 
@@ -73,7 +73,7 @@ vk::DescriptorSet VMeshObject::GetDescriptorSet(std::shared_ptr<vk::DescriptorSe
 	if (m_DescriptorSets.find(sDescriptorSetLayout) == m_DescriptorSets.end())
 		SetDescriptorSet(sDescriptorSetLayout);
 
-	return m_DescriptorSets[sDescriptorSetLayout].GetDescriptorSet();
+	return m_DescriptorSets[sDescriptorSetLayout]->GetDescriptorSet();
 }
 
 
@@ -104,9 +104,9 @@ void VMeshObject::SetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layo
 	}
 
 	// 必要に応じた VDescriptorBase 派生クラスのインスタンスを生成
-	VSingleTextureDescriptor descriptor;
-	descriptor.Initialize(m_LogicalDevice, *layout.get());
-	descriptor.Update(m_Material.get()->GetTextureImageView(), m_Material.get()->GetSampler());
+	VSingleTextureDescriptor* descriptor = new VSingleTextureDescriptor;
+	descriptor->Initialize(m_LogicalDevice, *layout.get());
+	descriptor->Update(m_Material.get()->GetTextureImageView(), m_Material.get()->GetSampler());
 	m_DescriptorSets.insert({ layout, descriptor });
 }
 
@@ -122,6 +122,7 @@ void VMeshObject::CleanupDescriptorSets()
 		// shared_ptrの中身が初期化されていたら削除
 		if (*pair.first.get() == VK_NULL_HANDLE)
 		{
+			free(pair.second);
 			m_DescriptorSets.erase(pair.first);
 		}
 	}
@@ -132,7 +133,7 @@ void VMeshObject::UpdateDescriptorSets(vk::ImageView imageView, vk::Sampler samp
 	// 登録されているすべてのディスクリプタセットを更新
 	for (auto& pair : m_DescriptorSets)
 	{
-		pair.second.Update(imageView, sampler);
+		pair.second->Update(imageView, sampler);
 	}
 }
 

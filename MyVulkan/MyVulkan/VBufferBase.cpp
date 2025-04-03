@@ -12,7 +12,8 @@ VBufferBase::VBufferBase(vk::BufferUsageFlags bufferusage,
 	m_RequiredFlag(requiredFlag),
 	m_PreferredFlag(preferredFlag),
 	m_DataSize(0),
-	m_AllocationFlag(allocationFlag)
+	m_AllocationFlag(allocationFlag),
+	m_AllocationInfo()
 {
 	// m_DataUsageはステージングバッファからデータを設定するつもりなので転送先フラグを追加
 	m_BufferUsage = bufferusage | vk::BufferUsageFlagBits::eTransferDst;
@@ -52,7 +53,7 @@ void VBufferBase::CreateBuffer(VmaAllocator* allocator, vk::DeviceSize dataSize)
 	//m_pAllocator = allocator;
 	m_DataSize = dataSize;
 
-	auto dataBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
+	auto dataBufferInfo = CreateBufferInfo(m_DataSize, m_BufferUsage, m_SharingMode);
 
 	VmaAllocationCreateInfo dataAllocateInfo;
 	dataAllocateInfo.priority = 1.0f;					// 優先度
@@ -66,7 +67,7 @@ void VBufferBase::CreateBuffer(VmaAllocator* allocator, vk::DeviceSize dataSize)
 
 
 	// GPU内で使う頂点バッファの作成
-	bool result = vmaCreateBuffer(*allocator, &dataBufferInfo, &dataAllocateInfo, &m_Buffer, &m_Allocation, nullptr);
+	VkResult result = vmaCreateBuffer(*allocator, &dataBufferInfo, &dataAllocateInfo, &m_Buffer, &m_Allocation, &m_AllocationInfo);
 }
 
 // 物理デバイス用のバッファの作成
@@ -112,7 +113,7 @@ uint32_t VBufferBase::FindMemoryType(vk::Device logicalDevice, vk::PhysicalDevic
 	throw std::runtime_error("適切なメモリタイプを見つけられませんでした!");
 }
 
-void VBufferBase::MapData(void* setData)
+void VBufferBase::MapData(void* dstData, void* setData)
 {
 	VkResult mappingResult;
 

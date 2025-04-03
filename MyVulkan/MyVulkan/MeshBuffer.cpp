@@ -15,14 +15,14 @@ void VMesh::SetMesh(VmaAllocator* allocator, Mesh* mesh)
 	SetIndex(allocator, &mesh->indices);
 }
 
-VVertexBuffer VMesh::GetVertex()
+VVertexBuffer* VMesh::GetPVertex()
 {
-	return m_Vertex;
+	return &m_Vertex;
 }
 
-VIndexBuffer VMesh::GetIndex()
+VIndexBuffer* VMesh::GetPIndex()
 {
-	return m_Index;
+	return &m_Index;
 }
 
 void VMesh::Cleanup()

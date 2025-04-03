@@ -1,11 +1,12 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include <VMA/vk_mem_alloc.h>
+#include "NonCopyable.h"
 #include "MeshObject.h"
 #include "StagingImageBuffer.h"
 #include "ImageSet.h"
 
-class VImageBufferBase
+class VImageBufferBase : public NonCopyable
 {
 public:
 	VImageBufferBase(
@@ -23,6 +24,11 @@ public:
 	vk::ImageView GetImageView();
 	ImageSet GetImageSet();
 	vk::Extent3D GetExtent();
+
+	vk::ImageUsageFlags GetUsage();
+	vk::SharingMode			GetSharingMode();
+	vk::Format GetFormat();
+	vk::ImageAspectFlags GetAspectFlag();
 
 	void Cleanup();
 
@@ -58,6 +64,6 @@ protected:
 
 
 	// データをバッファに書き込む
-	void MapData(void* setData, vk::DeviceSize dataSize);
+	/*void MapData(void* setData, vk::DeviceSize dataSize);*/
 };
 

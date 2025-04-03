@@ -1,4 +1,5 @@
 #include "StagingImageBuffer.h"
+#include "VImageBufferBase.h"
 
 VStagingImageBuffer::VStagingImageBuffer() :
 	VBufferBase(
@@ -16,20 +17,17 @@ VStagingImageBuffer::VStagingImageBuffer() :
 	m_CommandPool(VK_NULL_HANDLE),
 	m_ImageWidth(0),
 	m_ImageHeight(0),
-	m_ImageChannel(0),
+	m_ImageChannel(TEXTURE_CHANNEL_UNKNOWN),
 	m_Queue(VK_NULL_HANDLE)
 
 {
-	//m_BufferUsage = stagingImageUsage;
-	//m_MemoryUsage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
-	
 }
 
 VStagingImageBuffer::~VStagingImageBuffer()
 {
 }
 
-void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight, uint32_t imageChannel)
+void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight, TextureChannel imageChannel)
 {
 	m_pAllocator = allocator;
 
@@ -44,7 +42,7 @@ void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidt
 	m_ImageChannel = imageChannel;
 
 	// 画像のデータサイズ
-	m_DataSize = imageWidth * imageHeight * imageChannel;
+	vk::DeviceSize dataSize = imageWidth * imageHeight * imageChannel;
 
 	// 転送用キューの取得
 	QueueFamilySelector queueFamily;
@@ -53,7 +51,7 @@ void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidt
 	m_CommandBuffer = CreateCommandBuffer(m_LogicalDevice, m_CommandPool);
 	m_Queue = m_LogicalDevice.getQueue(queueFamily.GetTransferIndex(), 0);
 
-	auto stagingBufferInfo = CreateBufferInfo(m_DataSize, m_BufferUsage, m_SharingMode);
+	auto stagingBufferInfo = CreateBufferInfo(dataSize, m_BufferUsage, m_SharingMode);
 
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
@@ -81,7 +79,7 @@ void VStagingImageBuffer::TransferHostDataToImageBuffer(void* transferData, vk::
 	//vmaGetAllocationInfo(*m_pAllocator, m_Allocation, &allocInfo);
 
 	// データを転送用バッファにコピー
-	VBufferBase::MapData(transferData);
+	VBufferBase::MapData(m_AllocationInfo.pMappedData, transferData);
 
 	// 転送用バッファのデータを宛先のイメージバッファにコピー
 	SetCopyToImageCommand(m_CommandBuffer, m_Buffer, toBuffer, m_ImageWidth, m_ImageHeight);	// 転送コマンドを作成
@@ -94,32 +92,42 @@ void VStagingImageBuffer::TransferHostDataToImageBuffer(void* transferData, vk::
 	m_Queue.submit(1, &submitInfo, fence);		// コマンドをGPUのキューに送信
 }
 
-void VStagingImageBuffer::TransferImageBufferToHostData(vk::Image transferBuffer, Texture* toData, vk::Fence fence)
+void VStagingImageBuffer::TransferImageBufferToHostData(VImageBufferBase* transferBuffer, Texture* toData, vk::Fence fence)
 {
 	if (m_pAllocator == nullptr) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
-	if(toData->pixelData.empty() != false) throw std::runtime_error("転送先は中身が空のTextureを用意してください!");
+	if(toData->pixelData.empty() == false) throw std::runtime_error("転送先は中身が空のTextureを用意してください!");
 
 	//VmaAllocationInfo allocInfo;
 	//vmaGetAllocationInfo(*m_pAllocator, m_Allocation, &allocInfo);
 
 	// 転送元の画像データを転送用バッファにコピー
+	SetCopyImageToBufferCommand(m_CommandBuffer, transferBuffer, m_Buffer, m_ImageWidth, m_ImageHeight);	// 転送コマンドを作成
+	vk::SubmitInfo submitInfo;// コマンドを実行
+	submitInfo.commandBufferCount = 1;				// 使うコマンドは1つだけで充分
+	submitInfo.pCommandBuffers = &m_CommandBuffer;	// 作成したコマンドバッファをセット
+	m_Queue.submit(1, &submitInfo, fence);		// コマンドをGPUのキューに送信
 
 	// 転送用バッファから転送先ポインタにデータをコピー
 
 
 
-	//// 転送用バッファのデータを宛先のイメージバッファにコピー
-	//SetCopyToImageCommand(m_CommandBuffer, transferBuffer, m_Buffer, m_ImageWidth, m_ImageHeight);	// 転送コマンドを作成
+	// 転送用バッファのデータを宛先のイメージバッファにコピー
 
-	//// コマンドバッファを実行
-	//vk::SubmitInfo submitInfo;
-	//submitInfo.commandBufferCount = 1;				// 使うコマンドは1つだけで充分
-	//submitInfo.pCommandBuffers = &m_CommandBuffer;	// 作成したコマンドバッファをセット
 
-	//m_Queue.submit(1, &submitInfo, fence);		// コマンドをGPUのキューに送信
-	////m_Queue.waitIdle();								// 送ったコマンドキューの完了を待つ
 
+
+
+	//m_Queue.waitIdle();								// 送ったコマンドキューの完了を待つ
+	toData->channel = m_ImageChannel;
+	toData->width = m_ImageWidth;
+	toData->height = m_ImageHeight;
 	//toData = m_LogicalDevice.mapMemory(toData, imgMem.get(), 0, imgMemReq.size);
+	toData->pixelData.resize(m_ImageWidth * m_ImageHeight * m_ImageChannel);
+	VBufferBase::MapData(toData->pixelData.data(), m_AllocationInfo.pMappedData);
+	//void* data = toData->pixelData.data();
+	//vmaMapMemory(*m_pAllocator, m_Allocation, &data);
+
+
 
 	//// ステージングバッファにイメージバッファの内容をコピー
 	//VBufferBase::MapData(&m_Buffer, m_DataSize);
@@ -217,7 +225,12 @@ void VStagingImageBuffer::SetCopyToImageCommand(vk::CommandBuffer commandBuffer,
 	commandBuffer.end();
 }
 
-void VStagingImageBuffer::SetCopyToImageCommand(vk::CommandBuffer commandBuffer, vk::Image srcImage, vk::Buffer dstBuffer, uint32_t imageWidth, uint32_t imageHeight)
+void VStagingImageBuffer::SetCopyImageToBufferCommand(
+	vk::CommandBuffer commandBuffer, 
+	VImageBufferBase* srcImage, 
+	vk::Buffer dstBuffer, 
+	uint32_t imageWidth, 
+	uint32_t imageHeight)
 {
 	// コマンドバッファの開始
 	vk::CommandBufferBeginInfo beginInfo;
@@ -226,10 +239,10 @@ void VStagingImageBuffer::SetCopyToImageCommand(vk::CommandBuffer commandBuffer,
 
 	// イメージのレイアウトをTRANSFER_SRC_OPTIMALに変換
 	vk::ImageMemoryBarrier barrier;
-	barrier.oldLayout = vk::ImageLayout::eGeneral;
+	barrier.oldLayout = vk::ImageLayout::eUndefined;
 	barrier.newLayout = vk::ImageLayout::eTransferSrcOptimal;
-	barrier.image = srcImage;
-	barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+	barrier.image = srcImage->GetImageBuffer();
+	barrier.subresourceRange.aspectMask = srcImage->GetAspectFlag();
 	barrier.subresourceRange.baseMipLevel = 0;
 	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
@@ -254,11 +267,15 @@ void VStagingImageBuffer::SetCopyToImageCommand(vk::CommandBuffer commandBuffer,
 	copyRegion.imageOffset = vk::Offset3D{ 0, 0, 0 };
 	copyRegion.imageExtent = vk::Extent3D{ imageWidth, imageHeight, 1 };
 
-	commandBuffer.copyImageToBuffer(srcImage, vk::ImageLayout::eTransferSrcOptimal, dstBuffer, copyRegion);
+	commandBuffer.copyImageToBuffer(
+		srcImage->GetImageBuffer(), vk::ImageLayout::eTransferSrcOptimal,
+		dstBuffer,
+		{ copyRegion });
+
 
 	// レイアウトを元に戻す
-	barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
-	barrier.newLayout = vk::ImageLayout::eGeneral;
+	barrier.oldLayout = vk::ImageLayout::eTransferSrcOptimal;
+	barrier.newLayout = vk::ImageLayout::eColorAttachmentOptimal;
 	barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
 	barrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
 

@@ -1,11 +1,12 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include "NonCopyable.h"
 #include "Utilities.h"
 
 
 // シェーダー管理の基底クラス
 
-class VShaderConfigureBase
+class VShaderConfigureBase : public NonCopyable
 {
 public:
 	//コンストラクタ(テッセーションシェーダーは未対応)

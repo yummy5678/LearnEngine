@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include "NonCopyable.h"
 
 /*
 1. ディスクリプタセットとは？
@@ -15,7 +16,7 @@ Vulkanは非常に低レベルなグラフィックスAPIで、
 プログラムが どのデータをシェーダーに渡すか を簡単に管理・変更できるようになります。
 */
 
-class VDescriptorSetLayoutBase
+class VDescriptorSetLayoutBase : public NonCopyable
 {
 public:
 	VDescriptorSetLayoutBase(vk::DescriptorType type, vk::ShaderStageFlags stageFlag);

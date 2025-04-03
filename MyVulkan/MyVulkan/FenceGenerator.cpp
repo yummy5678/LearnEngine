@@ -4,7 +4,6 @@ FenceGenerator::FenceGenerator():
 	m_LogicalDevice(VK_NULL_HANDLE),
 	m_Fences()
 {
-	m_ClassName = "FenceGenerator";
 }
 
 FenceGenerator::~FenceGenerator()
@@ -13,8 +12,6 @@ FenceGenerator::~FenceGenerator()
 
 void FenceGenerator::Create(vk::Device logicalDevice, size_t fenceCount)
 {
-	m_bCreated = true;
-
 	m_LogicalDevice = logicalDevice;
 
 	m_Fences = CreateFences(logicalDevice, fenceCount);
@@ -22,10 +19,6 @@ void FenceGenerator::Create(vk::Device logicalDevice, size_t fenceCount)
 
 void FenceGenerator::Destroy()
 {
-	//中身が作成されていないなら破棄も行わない
-	if (m_bCreated == false) return;
-	m_bCreated = false;
-
 	//フェンスの破棄
 	for (auto& fence : m_Fences)
 	{
@@ -35,7 +28,6 @@ void FenceGenerator::Destroy()
 
 std::vector<vk::Fence> FenceGenerator::GetFence()
 {
-	CheckCreated();
 	return m_Fences;
 }
 

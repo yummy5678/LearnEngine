@@ -3,7 +3,7 @@
 #include "DrawCommand.h"
 #include "RenderFunction.h"
 #include "ImageBuffer.h"
-
+#include "WriteImage.h"
 
 class RenderImage :
     public RenderingTarget
@@ -21,6 +21,8 @@ public:
     void AddDrawTask(std::shared_ptr<RenderFunction> function);
     void ExecuteDrawTask();
 
+    void WriteImage(std::string fileName);
+
     void Cleanup();
 
 private:
@@ -31,10 +33,11 @@ private:
     VImageBuffer        m_ColorImage;
     VImageBuffer        m_DepthImage;
     vk::Extent2D        m_ImageExtent;
-    const vk::Format          m_ImageFormat;
+    //const vk::Format    m_ColorImageFormat;
+    //const vk::Format    m_DepthImageFormat;
     const vk::ImageAspectFlags m_ImageAspectFlag;
-    const vk::ImageUsageFlags m_ColorImageUsage;
-    const vk::ImageUsageFlags m_DepthImageUsage;
+    //const vk::ImageUsageFlags m_ColorImageUsage;
+    //const vk::ImageUsageFlags m_DepthImageUsage;
 
     RenderingImageSet   m_ImageSet;
     DrawCommand         m_DrawCommand;

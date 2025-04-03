@@ -1,8 +1,9 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include "NonCopyable.h"
 #include "ImageSet.h"
 
-class RenderingTarget
+class RenderingTarget : public NonCopyable
 {
 public:
 	RenderingTarget() = default;

@@ -30,7 +30,7 @@ void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize
 	m_LogicalDevice		= vk::Device(allocatorInfo.device);
 	m_PhysicalDevice	= vk::PhysicalDevice(allocatorInfo.physicalDevice);
 
-	m_DataSize = dataSize;
+	//m_DataSize = dataSize;
 
 
 	QueueFamilySelector queueFamily;
@@ -66,7 +66,9 @@ void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffe
 	if(!m_pAllocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
 
 	// データをステージングバッファにコピー
-	MapData(transfarData);
+	//VmaAllocationInfo allocationInfo;
+	//vmaCreateBuffer(allocator, &bufferCreateInfo, &allocCreateInfo, &m_Buffer, &m_Allocation, &allocationInfo);
+	MapData(m_AllocationInfo.pMappedData , transfarData);
 
 	// トランスファーバッファのデータを宛先のバッファにコピー
 	SetCopyBufferCommand(m_CommandBuffer, m_Buffer, toBuffer, m_DataSize);	// 転送コマンドを作成
@@ -122,6 +124,7 @@ void VStagingBuffer::SetCopyBufferCommand(vk::CommandBuffer commandBuffer, vk::B
 {
 	// コマンドバッファの開始
 	vk::CommandBufferBeginInfo beginInfo;
+	beginInfo.pNext;
 	beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 	commandBuffer.begin(beginInfo);
 
@@ -130,7 +133,7 @@ void VStagingBuffer::SetCopyBufferCommand(vk::CommandBuffer commandBuffer, vk::B
 	copyRegion.srcOffset = 0; // 送信元オフセット
 	copyRegion.dstOffset = 0; // 受信先オフセット
 	copyRegion.size = size;    // 転送サイズ
-	commandBuffer.copyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
+	commandBuffer.copyBuffer(srcBuffer, dstBuffer, { copyRegion });
 
 	// コマンドバッファの終了
 	commandBuffer.end();

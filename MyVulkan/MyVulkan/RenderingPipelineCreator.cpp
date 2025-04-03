@@ -9,8 +9,6 @@ RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initialize
 	m_PipelineLayoutInfo(),
 	m_TextureDescriptor()
 {
-	m_ClassName = "PipelineGenerator";
-
 	//if (initializer.IsInitialized() == true) 
 	//	printf("イニシャライザーをイニシャライズする前にパイプラインのコンストラクタを読んでください");
 	initializer.GetPDeviceExtension()->UseDynamicRendering();
@@ -33,8 +31,6 @@ void RenderingPipelineCreator::Create(
 	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts,
 	std::vector<vk::PushConstantRange> pushConstantRanges)
 {
-	m_bCreated = true;
-
 	//m_TextureDescriptors.CreateSingleDescriptorSet();
 	//パイプラインレイアウトの作成	//今は作らなくていいかも
 	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptors.GetDescriptorSetLayout() };
@@ -58,13 +54,11 @@ void RenderingPipelineCreator::Destroy()
 
 vk::Pipeline RenderingPipelineCreator::GetPipeline()
 {
-	CheckCreated();
 	return m_Pipeline;
 }
 
 vk::PipelineLayout RenderingPipelineCreator::GetPipelineLayout()
 {
-	CheckCreated();
 	return m_PipelineLayout;
 }
 

@@ -3,8 +3,11 @@
 RenderImage::RenderImage() :
 	m_LogicalDevice(),
 	m_PhysicalDevice(),
+	m_ImageExtent(),
 	m_ColorImage(
-		vk::ImageUsageFlagBits::eColorAttachment,
+		vk::ImageUsageFlagBits::eColorAttachment | 
+		vk::ImageUsageFlagBits::eTransferDst |
+		vk::ImageUsageFlagBits::eTransferSrc,
 		vk::ImageAspectFlagBits::eColor,
 		vk::Format::eR8G8B8A8Unorm,
 		vk::MemoryPropertyFlagBits::eDeviceLocal
@@ -15,11 +18,7 @@ RenderImage::RenderImage() :
 		vk::Format::eD32SfloatS8Uint,
 		vk::MemoryPropertyFlagBits::eDeviceLocal
 	),
-	m_ImageExtent(),
-	m_ImageFormat(vk::Format::eR8G8B8A8Unorm),
 	m_ImageAspectFlag(),
-	m_ColorImageUsage(vk::ImageUsageFlagBits::eColorAttachment),
-	m_DepthImageUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment),
 	m_DrawCommand(),
 	m_Fence(),
 	m_ImageSet(),
@@ -43,12 +42,12 @@ RenderingImageSet RenderImage::GetImageSet()
 
 vk::Format RenderImage::GetColorFormat()
 {
-	return vk::Format();
+	return m_ColorImage.GetFormat();
 }
 
 vk::Format RenderImage::GetDepthFormat()
 {
-	return vk::Format();
+	return m_DepthImage.GetFormat();
 }
 
 void RenderImage::Initialize(VmaAllocator* allocator, vk::Extent2D extent)
@@ -66,7 +65,7 @@ void RenderImage::Initialize(VmaAllocator* allocator, vk::Extent2D extent)
 	m_ColorImage.Initialize(allocator, extent);
 	m_DepthImage.Initialize(allocator, extent);
 
-	//m_ImageSet = { m_ColorImage.GetImageSet(), m_DepthImage.GetImageSet() };
+	m_ImageSet = { m_ColorImage.GetImageSet(), m_DepthImage.GetImageSet() };
 	
 	m_DrawCommand.Create(allocatorInfo.device, allocatorInfo.physicalDevice);
 
@@ -86,7 +85,7 @@ void RenderImage::AddDrawTask(std::shared_ptr<RenderFunction> function)
 
 void RenderImage::ExecuteDrawTask()
 {
-	// 次のインデックス
+	// フェンスのシグナル待ち
 	m_LogicalDevice.waitForFences(
 		{ m_Fence },						// 利用するフェンス達
 		VK_TRUE,							// フェンスが全てシグナル状態になるまで待つ
@@ -112,6 +111,11 @@ void RenderImage::ExecuteDrawTask()
 	m_DrawCommand.EndRendering(m_Fence, vk::ImageLayout::eGeneral);
 
 
+}
+
+void RenderImage::WriteImage(std::string fileName)
+{
+	GraphicsUtility::WriteImage(&m_ColorImage, fileName, m_Fence);
 }
 
 vk::ImageCreateInfo RenderImage::GetImageCreateInfo(vk::Extent2D extent, vk::Format format, vk::ImageUsageFlags usage)
