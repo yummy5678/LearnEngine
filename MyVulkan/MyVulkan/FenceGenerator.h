@@ -1,10 +1,10 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
-#include "GeneratorBase.h"
+#include "NonCopyable.h"
 
 
 class FenceGenerator :
-    public GeneratorBase
+    public NonCopyable
 {
 public:
     FenceGenerator();

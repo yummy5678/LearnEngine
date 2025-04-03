@@ -1,8 +1,8 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include "NonCopyable.h"
 
-
-class VDescriptorBase
+class VDescriptorBase : public NonCopyable
 {
 public:
 	VDescriptorBase(vk::DescriptorType type);

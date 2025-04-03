@@ -15,6 +15,8 @@ public:
 	void SetData(VmaAllocator* allocator, ViewProjection& projection);
 	//void UpdateDescriptorSets(VmaAllocator* allocator, ViewProjection& projection);
 
+	void Cleanup() override;
+
 private:
 
 };

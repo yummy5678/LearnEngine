@@ -14,6 +14,7 @@ VVertexBuffer::VVertexBuffer():
 
 VVertexBuffer::~VVertexBuffer()
 {
+	Cleanup();
 }
 
 void VVertexBuffer::SetData(VmaAllocator* allocator, std::vector<Vertex>* vertices)
@@ -35,6 +36,12 @@ void VVertexBuffer::SetData(VmaAllocator* allocator, std::vector<Vertex>* vertic
 size_t VVertexBuffer::GetVertexCount()
 {
 	return m_VertexCount;
+}
+
+void VVertexBuffer::Cleanup()
+{
+	printf("頂点バッファを解放します");
+	VBufferBase::Cleanup();
 }
 
 vk::PipelineVertexInputStateCreateInfo VVertexBuffer::GetInputStateInfo()

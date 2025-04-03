@@ -1,29 +1,45 @@
 #pragma once
-#include "stb/stb_image.h"
-#include "stb/stb_image_write.h" 
+//#include "stb/stb_image.h"
+//#include "stb/stb_image_write.h"
+#include "GltfLoader.h"
 #include "StagingImageBuffer.h"
 #include "VImageBufferBase.h"
 
-
-static void WriteImage(VImageBufferBase* vImageBuffer, std::string writeFileName)
+namespace GraphicsUtility
 {
-	VStagingImageBuffer stagingBuffer;
+	static void WriteImage(VImageBufferBase* vImageBuffer, std::string writeFileName, vk::Fence fence)
+	{
+		VStagingImageBuffer stagingBuffer;
 
-	auto allocator = vImageBuffer->GetUsingAllocator();
-	auto imageSize = vImageBuffer->GetExtent();
-	vk::Image image = vImageBuffer->GetImageBuffer();
+		auto allocator = vImageBuffer->GetUsingAllocator();
+		auto imageSize = vImageBuffer->GetExtent();
 
-	stagingBuffer.Initialize(allocator, imageSize.width, imageSize.height, 4);
+		VmaAllocatorInfo allocatorInfo;
+		vmaGetAllocatorInfo(*allocator, &allocatorInfo);
+		vk::Device logicalDevice = allocatorInfo.device;
+		logicalDevice.waitForFences(
+			{ fence },						// 利用するフェンス達
+			VK_TRUE,							// フェンスが全てシグナル状態になるまで待つ
+			UINT64_MAX);						// 最大待機時間
+		logicalDevice.resetFences(fence);	// フェンスを非シグナル状態にする
 
-	Texture imageData;
-	stagingBuffer.TransferImageBufferToHostData(image, &imageData);
+		stagingBuffer.Initialize(allocator, imageSize.width, imageSize.height, TEXTURE_CHANNEL_RGB_ALPHA);
 
-	stbi_write_bmp(writeFileName.c_str(), 
-		imageData.width, imageData.height, 
-		imageData.channel, 
-		imageData.pixelData.data())
+		Texture imageData;
+		stagingBuffer.TransferImageBufferToHostData(vImageBuffer, &imageData, fence);
+
+		//std::fill(imageData.pixelData.begin(), imageData.pixelData.end(), (uint8_t)255);
+
+
+		stbi_write_bmp(writeFileName.c_str(), 
+			imageData.width, imageData.height, 
+			imageData.channel, 
+			imageData.pixelData.data());
+
+	}
 
 }
+
 
 
 

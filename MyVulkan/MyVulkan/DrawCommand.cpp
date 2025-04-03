@@ -95,28 +95,33 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
     m_ImageSet = imageSet;
     m_ImageAvailableSemaphores = imageAvableSemaphore;
 
-    //// インデックスのカウントを進める
-    //m_CurrentIndex = (m_CurrentIndex + 1) % m_ImageSet.size();   //  添え字がコマンド数の範囲内に収まるよう調整
-
-    //WaitFence();
-
-    /*m_NextIndex = AcquireSwapchainNextImage();*/
-
     // カラーバッファアタッチメント
     vk::RenderingAttachmentInfo colorAttachment;
+    colorAttachment.pNext;
     colorAttachment.imageView = m_ImageSet->color.view;
     colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachment.clearValue = vk::ClearValue(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 1.0f, 1.0f}));
+    colorAttachment.resolveImageView = VK_NULL_HANDLE;
+    colorAttachment.resolveImageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    colorAttachment.resolveMode = vk::ResolveModeFlagBits::eNone;
 
-    // Depthバッファアタッチメント（3Dオブジェクト用に使用）
+
+
+    // 深度バッファアタッチメント（3Dオブジェクト用に使用）
     vk::RenderingAttachmentInfo depthAttachment;
     depthAttachment.imageView = m_ImageSet->depth.view;
     depthAttachment.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
     depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
     depthAttachment.clearValue = vk::ClearValue(vk::ClearDepthStencilValue(1.0f, 0));
+    depthAttachment.resolveImageView = VK_NULL_HANDLE;
+    depthAttachment.resolveImageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
+    depthAttachment.resolveMode = vk::ResolveModeFlagBits::eNone;
+
+    // 深度画像にステンシルも含めるので必要ない
+    //vk::RenderingAttachmentInfo stencilAttachment;
 
     vk::CommandBufferBeginInfo beginInfo;
     beginInfo.flags;
@@ -126,11 +131,14 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
 
     // ダイナミックレンダリングの設定
     vk::RenderingInfo renderingInfo;
+    renderingInfo.pNext;
+    renderingInfo.flags;
     renderingInfo.renderArea = renderArea;
     renderingInfo.layerCount = 1;
     renderingInfo.colorAttachmentCount = 1;
     renderingInfo.pColorAttachments = &colorAttachment;
     renderingInfo.pDepthAttachment = &depthAttachment;
+    renderingInfo.pStencilAttachment = VK_NULL_HANDLE;
 
     // Dynamic Renderingを開始
     auto commandBuffer = m_CommandBuffers;

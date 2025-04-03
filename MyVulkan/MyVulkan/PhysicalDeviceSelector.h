@@ -39,6 +39,7 @@ public:
 private:
     std::vector<vk::PhysicalDevice> m_PhysicalDevices;
     vk::Instance                    m_instance;
+    float                           m_QueuePriority;
     QueueFamilySelector             m_QueueFamilySelector;
 
     std::vector<vk::DeviceQueueCreateInfo> CreateQueueInfos(std::set<uint32_t> queues);

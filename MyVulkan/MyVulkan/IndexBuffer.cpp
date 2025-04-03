@@ -10,13 +10,14 @@ VIndexBuffer::VIndexBuffer() :
 
 VIndexBuffer::~VIndexBuffer()
 {
+	Cleanup();
 }
 
 void VIndexBuffer::SetData(VmaAllocator* allocator, std::vector<uint32_t>* indices)
 {
 
-	m_Size = (uint32_t)indices->size();
-	vk::DeviceSize dataSize = sizeof(uint32_t) * m_Size;
+	m_VertexCount = (uint32_t)indices->size();
+	vk::DeviceSize dataSize = sizeof(uint32_t) * m_VertexCount;
 
 	// 頂点用のバッファ及びメモリの作成
 	CreateBuffer(allocator, dataSize);
@@ -27,7 +28,13 @@ void VIndexBuffer::SetData(VmaAllocator* allocator, std::vector<uint32_t>* indic
 	StagingBuffer.TransferDataToBuffer(indices->data(), m_Buffer);	//indicesBuffer(VRAMに作られたバッファ)にコピーする
 }
 
-uint32_t VIndexBuffer::GetSize()
+uint32_t VIndexBuffer::GetVertexCount()
 {
-	return m_Size;
+	return m_VertexCount;
+}
+
+void VIndexBuffer::Cleanup()
+{
+	printf("インデックスバッファを解放しました");
+	VBufferBase::Cleanup();
 }

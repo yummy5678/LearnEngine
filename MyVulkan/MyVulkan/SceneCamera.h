@@ -1,10 +1,11 @@
 #pragma once
+#include "NonCopyable.h"
 #include "ViewProjection.h"
 #include "ViewProjectionBuffer.h"
 #include "SingleBufferDescriptor.h"
 
 
-class SceneCamera
+class SceneCamera : public NonCopyable
 {
 public:
 	SceneCamera(VmaAllocator* allocator);
@@ -22,7 +23,7 @@ private:
 	vk::Device		m_LogicalDevice;
 	VViewProjectionBuffer	m_ProjectionBuffer;
 
-	std::unordered_map<std::shared_ptr<vk::DescriptorSetLayout>, VSingleBufferDescriptor>	m_Descriptors;
+	std::unordered_map<std::shared_ptr<vk::DescriptorSetLayout>, VSingleBufferDescriptor*>	m_Descriptors;
 
 	void Initialize();
 

@@ -1,9 +1,9 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
-#include "GeneratorBase.h"
+#include "NonCopyable.h"
 
 class SemaphoreGenerator :
-    public GeneratorBase
+    public NonCopyable
 {
 public:
     SemaphoreGenerator();

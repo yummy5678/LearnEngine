@@ -4,8 +4,6 @@
 
 InstanceGenerator::InstanceGenerator()
 {
-	m_ClassName = "InstanceGenerator";
-	std::cout << m_ClassName << "のコンストラクタが呼ばれました" << std::endl;
 }
 
 InstanceGenerator::~InstanceGenerator()
@@ -15,9 +13,6 @@ InstanceGenerator::~InstanceGenerator()
 
 void InstanceGenerator::Create(InstanceExtension extensionManager)
 {
-	std::cout << m_ClassName << "作成関数が呼ばれました" << std::endl;
-	m_bCreated = true;	//作成フラグをオンにする(デバッグ用)
-
 	/*/////////////////////
 	* レイヤーリストの作成
 	*//////////////////////
@@ -32,11 +27,10 @@ void InstanceGenerator::Create(InstanceExtension extensionManager)
 	{
 
 		m_Instance = vk::createInstance(instanceInfo);
-		std::cout << m_ClassName << "インスタンスの作成に成功しました。" << std::endl;
+
 		if (VulkanDefine.ValidationEnabled == true) // デバッグ機能を有効にする
 		{
 			createDebugCallback();
-			std::cout << m_ClassName << "コールバックの作成に成功しました。" << std::endl;
 		}
 	}
 	catch (const std::runtime_error& e)
@@ -48,10 +42,6 @@ void InstanceGenerator::Create(InstanceExtension extensionManager)
 
 void InstanceGenerator::Destroy()
 {
-	//作成フラグが立っていない場合は解放処理も行わない
-	if (m_bCreated == false) return;
-	m_bCreated = false;
-
 	// コールバックの廃棄が未作成
 
 	// インスタンスの解放
@@ -61,7 +51,6 @@ void InstanceGenerator::Destroy()
 
 vk::Instance InstanceGenerator::GetInstanse()
 {
-	CheckCreated();
 	return m_Instance;
 }
 
@@ -77,7 +66,10 @@ void InstanceGenerator::createDebugCallback()
 	| vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo
 	| vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose
 	,
-	vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation,
+	vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | 
+	vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
+	vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding |
+	vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance,
 	debugCallback, // コールバック関数
 	nullptr        // pUserData
 	};

@@ -31,7 +31,7 @@ vk::DescriptorSet SceneCamera::GetDescriptorSet(std::shared_ptr<vk::DescriptorSe
     if (m_Descriptors.find(layout) == m_Descriptors.end())
         SetDescriptorSet(layout);
 
-    return m_Descriptors[layout].GetDescriptorSet();
+    return m_Descriptors[layout]->GetDescriptorSet();
 }
 
 void SceneCamera::Initialize()
@@ -54,9 +54,9 @@ void SceneCamera::SetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layo
     }
 
     // 必要に応じた VDescriptorBase 派生クラスのインスタンスを生成
-    VSingleBufferDescriptor descriptor;
-    descriptor.Initialize(m_LogicalDevice, *layout.get());
-    descriptor.Update(m_ProjectionBuffer.GetBuffer(), m_ProjectionBuffer.GetDataSize());
+    VSingleBufferDescriptor* descriptor = new VSingleBufferDescriptor;
+    descriptor->Initialize(m_LogicalDevice, *layout.get());
+    descriptor->Update(m_ProjectionBuffer.GetBuffer(), m_ProjectionBuffer.GetDataSize());
     m_Descriptors.insert({ layout, descriptor });
 }
 
@@ -72,6 +72,7 @@ void SceneCamera::CleanupDeathOwner()
         // shared_ptrの中身が初期化されていたら削除
         if (*pair.first.get() == VK_NULL_HANDLE) 
         { 
+            free(pair.second);
             m_Descriptors.erase(pair.first);
         }
     }
@@ -85,7 +86,7 @@ void SceneCamera::UpdateAll(vk::Buffer buffer, vk::DeviceSize bufferSize)
     // 登録されているすべてのディスクリプタセットを更新
     for (auto& pair : m_Descriptors)
     {
-        pair.second.Update(buffer, bufferSize);
+        pair.second->Update(buffer, bufferSize);
     }
 }
 

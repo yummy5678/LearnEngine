@@ -1,8 +1,9 @@
 #pragma once
+#include "NonCopyable.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
-class VMesh
+class VMesh : public NonCopyable
 {
 public:
 	VMesh();
@@ -10,8 +11,8 @@ public:
 
 	void SetMesh(VmaAllocator* allocator, Mesh* mesh);
 
-	VVertexBuffer	GetVertex();
-	VIndexBuffer	GetIndex();
+	VVertexBuffer*	GetPVertex();
+	VIndexBuffer*	GetPIndex();
 
 	void Cleanup();
 

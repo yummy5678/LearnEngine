@@ -9,8 +9,6 @@ RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initialize
 	m_PipelineLayoutInfo(),
 	m_TextureDescriptor()
 {
-	m_ClassName = "PipelineGenerator";
-
 	//if (initializer.IsInitialized() == true) 
 	//	printf("イニシャライザーをイニシャライズする前にパイプラインのコンストラクタを読んでください");
 	initializer.GetPDeviceExtension()->UseDynamicRendering();
@@ -33,8 +31,6 @@ void RenderingPipelineCreator::Create(
 	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts,
 	std::vector<vk::PushConstantRange> pushConstantRanges)
 {
-	m_bCreated = true;
-
 	//m_TextureDescriptors.CreateSingleDescriptorSet();
 	//パイプラインレイアウトの作成	//今は作らなくていいかも
 	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptors.GetDescriptorSetLayout() };
@@ -58,13 +54,11 @@ void RenderingPipelineCreator::Destroy()
 
 vk::Pipeline RenderingPipelineCreator::GetPipeline()
 {
-	CheckCreated();
 	return m_Pipeline;
 }
 
 vk::PipelineLayout RenderingPipelineCreator::GetPipelineLayout()
 {
-	CheckCreated();
 	return m_PipelineLayout;
 }
 
@@ -129,10 +123,8 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::R
 	rasterizationInfo.depthBiasEnable = VK_FALSE;				// 深度バイアスの有無
 	rasterizationInfo.depthBiasSlopeFactor = 0.0f;				// 深度バイアスのスロープ係数
 	rasterizationInfo.depthClampEnable = VK_FALSE;				// 深度クランピングの有無
-	rasterizationInfo.lineWidth = 1.0f;							// 線の幅
-	//rasterizationInfo.polygonMode = vk::PolygonMode::eFill;		// ポリゴンの描画モード
-	rasterizationInfo.polygonMode = vk::PolygonMode::ePoint;		// ポリゴンの描画モード
-	//rasterizationInfo.polygonMode = vk::PolygonMode::eLine;		// ポリゴンの描画モード
+	rasterizationInfo.lineWidth = 3.0f;						// 線の幅
+	rasterizationInfo.polygonMode = vk::PolygonMode::eFill;	// ポリゴンの描画モード
 	rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;		// ラスタライザーの処理の有無
 	rasterizationInfo.frontFace = vk::FrontFace::eCounterClockwise;	// ポリゴンの前面の定義
 #pragma endregion rasterizationInfo
@@ -165,8 +157,8 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::R
 
 	// ブレンディングの計算に使用する要素を設定
 	// 新しい色と古い色をどのように合成するかを定義
-	colorState.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha; // 新しい色のアルファ値を使用
-	colorState.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha; // 古い色のアルファ値を反転
+	colorState.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;			// 新しい色のアルファ値を使用
+	colorState.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;	// 古い色のアルファ値を反転
 
 	// ブレンド演算を加算に設定
 	colorState.colorBlendOp = vk::BlendOp::eAdd; // 新しい色と古い色を足し合わせる

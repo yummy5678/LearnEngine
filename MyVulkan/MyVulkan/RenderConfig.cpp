@@ -113,12 +113,12 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
                         object->GetPTransform()              // 実際のデータ
                     );
 
-                    auto vertexBuffer = mesh.GetSPMesh()->GetVertex();
-                    auto indexBuffer = mesh.GetSPMesh()->GetIndex();
+                    auto vertexBuffer = mesh.GetSPMesh()->GetPVertex();
+                    auto indexBuffer = mesh.GetSPMesh()->GetPIndex();
 
 
                     // 頂点バッファをバインド
-                    commandBuffer.bindVertexBuffers(0, vertexBuffer.GetBuffer(), { 0 });
+                    commandBuffer.bindVertexBuffers(0, vertexBuffer->GetBuffer(), { 0 });
 
                     commandBuffer.bindDescriptorSets(
                         vk::PipelineBindPoint::eGraphics,
@@ -131,8 +131,8 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
                         nullptr);
 
                     // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
-                    commandBuffer.bindIndexBuffer(indexBuffer.GetBuffer(), 0, vk::IndexType::eUint32);
-                    commandBuffer.drawIndexed(indexBuffer.GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
+                    commandBuffer.bindIndexBuffer(indexBuffer->GetBuffer(), 0, vk::IndexType::eUint32);
+                    commandBuffer.drawIndexed(indexBuffer->GetVertexCount(), 1, 0, 0, 0);   // インデックスに従って描画
 
                 }
             }
@@ -173,8 +173,8 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
 //                object->GetPTransform()              // 実際のデータ
 //            );
 //
-//            auto vertexBuffer = mesh.GetSPMesh()->GetVertex();
-//            auto indexBuffer = mesh.GetSPMesh()->GetIndex();
+//            auto vertexBuffer = mesh.GetSPMesh()->GetPVertex();
+//            auto indexBuffer = mesh.GetSPMesh()->GetPIndex();
 //
 //
 //             頂点バッファをバインド
@@ -189,7 +189,7 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
 //
 //             インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
 //            command.bindIndexBuffer(indexBuffer.GetBuffer(), 0, vk::IndexType::eUint32);
-//            command.drawIndexed(indexBuffer.GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
+//            command.drawIndexed(indexBuffer.GetVertexCount(), 1, 0, 0, 0);   // インデックスに従って描画
 //
 //        }
 //    }

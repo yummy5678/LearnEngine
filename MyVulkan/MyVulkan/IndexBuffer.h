@@ -11,12 +11,13 @@ public:
 	~VIndexBuffer();
 
 	void SetData(VmaAllocator* allocator, std::vector<uint32_t>* indices);
-	uint32_t GetSize();
+	uint32_t GetVertexCount();
 
+	void Cleanup() override;
 
 private:
 	
-	uint32_t m_Size;
+	uint32_t m_VertexCount;
 
 
 

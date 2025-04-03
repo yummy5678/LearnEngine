@@ -1,7 +1,7 @@
 #pragma once
 //#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp> 
-#include "GeneratorBase.h"
+#include "NonCopyable.h"
 #include "GraphicsDefine.h"
 //#include "VulkanLayerManager.h"
 #include "InstanceExtensionManager.h"
@@ -10,7 +10,7 @@
 
 
 // インスタンス拡張機能のリストを作成する
-class InstanceGenerator : public GeneratorBase
+class InstanceGenerator : public NonCopyable
 {
 public:
 	InstanceGenerator();

@@ -3,13 +3,13 @@
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
-#include "GeneratorBase.h"
+#include "NonCopyable.h"
 #include "GraphicsDefine.h"
 #include "Utilities.h"
 #include "VulkanInitializer.h"
 
 
-class SurfaceGenerator : public GeneratorBase
+class SurfaceGenerator : public NonCopyable
 {
 public:
 	SurfaceGenerator(VulkanInitializer& initializer);

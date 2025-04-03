@@ -12,6 +12,8 @@ public:
     void Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize);
     void TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer);
 
+    void Cleanup() override;
+
 private:
     vk::Device          m_LogicalDevice;
     vk::PhysicalDevice  m_PhysicalDevice;

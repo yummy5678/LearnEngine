@@ -1,7 +1,11 @@
 #include "PhysicalDeviceSelector.h"
 
 
-PhysicalDeviceSelector::PhysicalDeviceSelector(vk::Instance instance)
+PhysicalDeviceSelector::PhysicalDeviceSelector(vk::Instance instance) :
+    m_PhysicalDevices(),
+    m_instance(VK_NULL_HANDLE),
+    m_QueuePriority(1.0f),
+    m_QueueFamilySelector()
 {
     //インスタンスから接続されている物理デバイスを全て取得
     m_PhysicalDevices = instance.enumeratePhysicalDevices();
@@ -106,8 +110,7 @@ std::vector<vk::DeviceQueueCreateInfo> PhysicalDeviceSelector::CreateQueueInfos(
     		queueCreateInfo.flags;
     		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;	// キューを作成するファミリーのインデックス
     		queueCreateInfo.queueCount = 1;							// 作成するキューの数(1つだけでいい)
-    		float priority = 1.0f;									// 優先度
-    		queueCreateInfo.pQueuePriorities = &priority;			// Vulkanは複数のキューをどのように扱うかを知る必要があるため、優先度を指定する (1が最高優先度)
+    		queueCreateInfo.pQueuePriorities = &m_QueuePriority;	// 優先度
     
     		queueCreateInfos.push_back(queueCreateInfo);
     	}
