@@ -14,7 +14,7 @@ SurfaceGenerator::SurfaceGenerator()
 
 SurfaceGenerator::~SurfaceGenerator()
 {
-	Destroy(m_Instance);
+	Cleanup();
 }
 
 void SurfaceGenerator::CreateWindowSurface(vk::Instance instance, GLFWwindow* m_pWindow)
@@ -48,9 +48,12 @@ std::vector<vk::SurfaceFormatKHR> SurfaceGenerator::GetFomats(vk::PhysicalDevice
 	return physicalDevice.getSurfaceFormatsKHR(m_Surface);
 }
 
-void SurfaceGenerator::Destroy(vk::Instance instance)
+void SurfaceGenerator::Cleanup()
 {
-	vkDestroySurfaceKHR(instance, m_Surface, nullptr);
+	if (m_Instance == VK_NULL_HANDLE) return;
+
+	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+	m_Instance = VK_NULL_HANDLE;
 }
 
 //std::vector<const char*> SurfaceGenerator::GetGLFWSurfaceExtensions()

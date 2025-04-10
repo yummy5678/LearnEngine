@@ -12,7 +12,7 @@ public:
 	~SwapchainRenderer();
 
 	void Create(VmaAllocator* allocator, vk::SurfaceKHR surface);
-	void Destroy();
+	void Cleanup();
 
 	vk::SwapchainKHR			GetSwapchain();
 	vk::SwapchainCreateInfoKHR	GetSwapchainInfo();
@@ -29,7 +29,7 @@ public:
 
 private:
 	VmaAllocator*				m_pAllocator;
-	vk::Device					m_LogicalDevice;
+	VmaAllocatorInfo			m_AllocatorInfo;
 
 	vk::SwapchainCreateInfoKHR	m_SwapchainInfo;
 	vk::SwapchainKHR			m_Swapchain;

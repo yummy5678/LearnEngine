@@ -4,7 +4,7 @@
 
 SwapchainRenderer::SwapchainRenderer(VulkanInitializer& initializer) : 
     m_pAllocator(nullptr),
-    m_LogicalDevice(VK_NULL_HANDLE),
+    m_AllocatorInfo(),
     m_Surface(VK_NULL_HANDLE),
     m_SwapchainInfo(),
     m_Swapchain(VK_NULL_HANDLE),
@@ -19,6 +19,11 @@ SwapchainRenderer::SwapchainRenderer(VulkanInitializer& initializer) :
     m_ImageIndex(0)
 {    
     initializer.GetPDeviceExtension()->UseSwapchain();
+
+    // アロケータの内容の構造体を初期化しておく
+    m_AllocatorInfo.instance = VK_NULL_HANDLE;
+    m_AllocatorInfo.physicalDevice = VK_NULL_HANDLE;
+    m_AllocatorInfo.device = VK_NULL_HANDLE;
 }
 
 SwapchainRenderer::~SwapchainRenderer()
@@ -31,10 +36,9 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
     m_pAllocator = allocator;
 
     // VMAに紐づけられているオブジェクトの情報を取得
-    VmaAllocatorInfo allocatorInfo;
-    vmaGetAllocatorInfo(*allocator, &allocatorInfo);
-    m_LogicalDevice = allocatorInfo.device;
-	vk::PhysicalDevice physicalDevice = allocatorInfo.physicalDevice;
+    vmaGetAllocatorInfo(*allocator, &m_AllocatorInfo);
+	vk::PhysicalDevice physicalDevice = m_AllocatorInfo.physicalDevice;
+	vk::Device logicalDevice = m_AllocatorInfo.device;
     m_QueueFamily.Initialize(physicalDevice);
     m_Surface = surface;
 
@@ -42,7 +46,7 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
     
     // スワップチェインの作成
     m_SwapchainInfo = CreateSwapchainInfo(physicalDevice, surface);
-    m_Swapchain = m_LogicalDevice.createSwapchainKHR(m_SwapchainInfo);
+    m_Swapchain = logicalDevice.createSwapchainKHR(m_SwapchainInfo);
 
     // スワップチェイン用のフレームバッファの作成
     CreateSwapchainImage();
@@ -57,7 +61,7 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
     m_ImageAvailableSemaphores.resize(m_SwapchainInfo.minImageCount);
     for (uint32_t i = 0; i < m_SwapchainInfo.minImageCount; i++)
     {
-        m_ImageAvailableSemaphores[i] = m_LogicalDevice.createSemaphore(semaphoreInfo);
+        m_ImageAvailableSemaphores[i] = logicalDevice.createSemaphore(semaphoreInfo);
     }
 
     // イメージインデックスを初期化
@@ -65,10 +69,50 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
     AcquireSwapchainNextImage(m_ImageAvailableSemaphores[m_ImageIndex]);
 }
 
-void SwapchainRenderer::Destroy()
+void SwapchainRenderer::Cleanup()
 {
+    // NULLチェック
+    vk::Device logicalDevice = m_AllocatorInfo.device;
+    vk::Instance instance = m_AllocatorInfo.instance;
+    if (logicalDevice == VK_NULL_HANDLE ||
+        instance == VK_NULL_HANDLE) return;
+
+    // セマフォの解放
+    for (auto& semaphore : m_ImageAvailableSemaphores)
+    {
+        logicalDevice.destroySemaphore(semaphore);
+    }
+
+    // 
+    m_QueueFamily.Cleanup();
+    
+    // コマンドの解放
+    logicalDevice.destroyCommandPool(m_PresentCommandPool);
+    m_PresentCommandBuffers.clear();
+
+    // フレームバッファの解放
+    for (auto& allocation : m_DepthImageAllocation)
+    {
+        allocation->Destroy(*m_pAllocator);
+    }
+    m_DepthFormat = vk::Format::eUndefined;
+    m_ColorFormat = vk::Format::eUndefined;
+    m_ImageSets.clear();
+
+    // サーフェスの解放
+    instance.destroySurfaceKHR(m_Surface);
+
     //スワップチェーンの解放
-    m_LogicalDevice.destroySwapchainKHR(m_Swapchain);
+    logicalDevice.destroySwapchainKHR(m_Swapchain);
+
+    // フレームバッファのカウントを初期化
+    m_ImageIndex = 0;
+
+    // アロケータの内容の構造体を初期化
+    m_AllocatorInfo.instance = VK_NULL_HANDLE;
+    m_AllocatorInfo.physicalDevice = VK_NULL_HANDLE;
+    m_AllocatorInfo.device = VK_NULL_HANDLE;
+
 }
 
 vk::SwapchainKHR SwapchainRenderer::GetSwapchain()
@@ -130,10 +174,10 @@ void SwapchainRenderer::AcquireSwapchainNextImage(vk::Semaphore imageAvailableSe
     //    UINT64_MAX);							// 最大待機時間
 
     //m_LogicalDevice.resetFences(m_Fences[m_ImageIndex]);	// フェンスを非シグナル状態にする
-
+    vk::Device logicalDevice = m_AllocatorInfo.device;
 
     // スワップチェーンから次に描画するイメージ（フレームバッファのようなもの）のインデックスを取得します。
-    vk::Result result = m_LogicalDevice.acquireNextImageKHR(
+    vk::Result result = logicalDevice.acquireNextImageKHR(
         m_Swapchain,                            // スワップチェーン
         std::numeric_limits<uint64_t>::max(),   // タイムアウトの設定(ここでは無限待機)
         imageAvailableSemaphore,                // イメージが使用可能になるのを通知するセマフォ
@@ -236,7 +280,8 @@ void SwapchainRenderer::CreatePresentationCommands()
     poolInfo.queueFamilyIndex = m_QueueFamily.GetPresentationIndex(m_Surface);
 
     // グラフィックスキューファミリー用のコマンドプールを作成する
-    m_PresentCommandPool = m_LogicalDevice.createCommandPool(poolInfo);
+    vk::Device logicalDevice = m_AllocatorInfo.device;
+    m_PresentCommandPool = logicalDevice.createCommandPool(poolInfo);
 #pragma endregion
 
 #pragma region コマンドの作成
@@ -247,7 +292,8 @@ void SwapchainRenderer::CreatePresentationCommands()
     allocateInfo.commandBufferCount = m_SwapchainInfo.minImageCount;           // 割り当てるコマンドバッファの数
 
     // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
-    m_PresentCommandBuffers = m_LogicalDevice.allocateCommandBuffers(allocateInfo); //配列で情報をやり取りする
+    vk::Device logicalDevice = m_AllocatorInfo.device;
+    m_PresentCommandBuffers = logicalDevice.allocateCommandBuffers(allocateInfo); //配列で情報をやり取りする
 #pragma endregion
 }
 
@@ -264,7 +310,8 @@ void SwapchainRenderer::CreateSwapchainImage()
     m_DepthImageAllocation.resize(imageCount);  
 
     // カラーイメージだけはスワップチェイン作成時に一緒に作成されるので、それを使う
-    std::vector<vk::Image> colorImage = m_LogicalDevice.getSwapchainImagesKHR(m_Swapchain);
+    vk::Device logicalDevice = m_AllocatorInfo.device;
+    std::vector<vk::Image> colorImage = logicalDevice.getSwapchainImagesKHR(m_Swapchain);
 
     // 管理する画像の数をセット
     m_ImageSets.resize(imageCount);
@@ -275,7 +322,7 @@ void SwapchainRenderer::CreateSwapchainImage()
         //イメージビュー、画像を扱う際の情報を設定
         m_ColorFormat = m_SwapchainInfo.imageFormat;
         vk::ImageViewCreateInfo colorImageViewInfo = CreateImageViewInfo(m_ImageSets[i].color.buffer, m_ColorFormat, vk::ImageAspectFlagBits::eColor);
-        m_ImageSets[i].color.view = m_LogicalDevice.createImageView(colorImageViewInfo);
+        m_ImageSets[i].color.view = logicalDevice.createImageView(colorImageViewInfo);
 
 
         // 深度イメージの作成
@@ -285,7 +332,7 @@ void SwapchainRenderer::CreateSwapchainImage()
         CreateDepthImage(m_ImageSets[i].depth.buffer, m_DepthImageAllocation[i], m_pAllocator, imageInfo);
         //イメージビュー、画像を扱う際の情報を設定
         vk::ImageViewCreateInfo depthImageViewInfo = CreateImageViewInfo(m_ImageSets[i].depth.buffer, m_DepthFormat, vk::ImageAspectFlagBits::eDepth);
-        m_ImageSets[i].depth.view = m_LogicalDevice.createImageView(depthImageViewInfo);
+        m_ImageSets[i].depth.view = logicalDevice.createImageView(depthImageViewInfo);
     }
 }
 
@@ -303,7 +350,8 @@ void SwapchainRenderer::Presentation(vk::SurfaceKHR surface, vk::Semaphore image
     presentInfo.waitSemaphoreCount = 1;
 
     // 使用するキュー(グラフィックキューやプレゼントキューなど)のインデックスを取得
-    auto presentQueue = m_LogicalDevice.getQueue(m_QueueFamily.GetPresentationIndex(surface), 0);
+    vk::Device logicalDevice = m_AllocatorInfo.device;
+    auto presentQueue = logicalDevice.getQueue(m_QueueFamily.GetPresentationIndex(surface), 0);
     presentQueue.presentKHR(presentInfo);
     if (result != vk::Result::eSuccess)
     {

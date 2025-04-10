@@ -19,7 +19,7 @@ VStagingBuffer::VStagingBuffer() :
 
 VStagingBuffer::~VStagingBuffer()
 {
-	Cleanup();
+	VStagingBuffer::Cleanup();
 }
 
 void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize)
@@ -85,7 +85,21 @@ void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffe
 
 void VStagingBuffer::Cleanup()
 {
+	if (m_LogicalDevice == VK_NULL_HANDLE) return;
+
 	printf("ステージングバッファを解放します");
+
+	if (m_CommandPool != VK_NULL_HANDLE)
+	{
+		m_LogicalDevice.destroyCommandPool(m_CommandPool);
+		m_CommandPool = VK_NULL_HANDLE;
+		m_CommandBuffer = VK_NULL_HANDLE;
+	}
+
+	m_Queue = VK_NULL_HANDLE;
+	m_PhysicalDevice = VK_NULL_HANDLE;
+	m_LogicalDevice = VK_NULL_HANDLE;
+
 	VBufferBase::Cleanup();
 }
 

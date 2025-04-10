@@ -22,7 +22,7 @@ public:
 	vk::SurfaceCapabilitiesKHR GetCapabilities(vk::PhysicalDevice physicalDevice);
 	std::vector<vk::SurfaceFormatKHR> GetFomats(vk::PhysicalDevice physicalDevice);
 
-	void Destroy(vk::Instance instance);
+	void Cleanup();
 
 
 private:

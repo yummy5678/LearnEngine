@@ -68,6 +68,10 @@ void GraphicWindow::init(const std::string wName, const int width, const int hei
 
 void GraphicWindow::kill()
 {
+	m_Swapchain.Cleanup();
+	m_Surface.Cleanup();
+
+
 	glfwDestroyWindow(m_pWindow);
 	glfwTerminate();
 }

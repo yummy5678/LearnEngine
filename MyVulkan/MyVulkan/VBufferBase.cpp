@@ -51,6 +51,7 @@ void VBufferBase::Cleanup()
 		m_Allocation = VK_NULL_HANDLE;
 	}
 
+	m_pAllocator = nullptr;
 	m_DataSize = 0;
 }
 

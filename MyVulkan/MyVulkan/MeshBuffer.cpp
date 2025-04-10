@@ -6,7 +6,8 @@ VMesh::VMesh()
 
 VMesh::~VMesh()
 {
-	/*Cleanup();*/
+	printf("メッシュのバッファをを解放します");
+	Cleanup();
 }
 
 void VMesh::SetMesh(VmaAllocator* allocator, Mesh* mesh)

@@ -14,6 +14,7 @@ VulkanInitializer::VulkanInitializer() :
 
 VulkanInitializer::~VulkanInitializer()
 {
+	cleanup();
 }
 
 

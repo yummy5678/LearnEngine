@@ -10,8 +10,7 @@ static void* AllocationFunction(
 	size_t alignment,
 	VkSystemAllocationScope allocationScope)
 {
-	// アライメントに対応するメモリ確保
-	void* ptr = _aligned_malloc(size, alignment);
+	void* ptr = _aligned_malloc(size, alignment); // アライメント対応確保
 	if (ptr == nullptr) {
 		std::cerr << "Allocation failed. Size: " << size << ", Alignment: " << alignment << std::endl;
 	}
@@ -25,15 +24,17 @@ static void* ReallocationFunction(
 	size_t alignment,
 	VkSystemAllocationScope allocationScope)
 {
-	// メモリの再割り当て時に呼び出される関数
-
 	if (size == 0) {
-		std::free(pOriginal);
+		_aligned_free(pOriginal);
 		return nullptr;
 	}
 
-	// アライメントに対応する再確保（厳密には realloc はアライメント保証なし）
-	void* ptr = std::realloc(pOriginal, size);
+	void* ptr = _aligned_malloc(size, alignment); // 新規確保
+	if (ptr && pOriginal) {
+		std::memcpy(ptr, pOriginal, size); // 必要に応じてコピー（安全のためコピー量制限を追加してもよい）
+		_aligned_free(pOriginal);
+	}
+
 	if (ptr == nullptr) {
 		std::cerr << "Reallocation failed. Size: " << size << ", Alignment: " << alignment << std::endl;
 	}
@@ -45,7 +46,7 @@ static void FreeFunction(
 	void* pMemory) 
 {
 	std::cout << "メモリを解放 : " << pMemory << std::endl;
-	std::free(pMemory);
+	_aligned_free(pMemory);
 }
 
 static void InternalAllocationFunction(
