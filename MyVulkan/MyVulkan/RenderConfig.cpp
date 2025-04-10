@@ -132,7 +132,11 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
 
                     // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
                     commandBuffer.bindIndexBuffer(indexBuffer->GetBuffer(), 0, vk::IndexType::eUint32);
+<<<<<<< HEAD
                     commandBuffer.drawIndexed(indexBuffer->GetVertexCount(), 1, 0, 0, 0);   // インデックスに従って描画
+=======
+                    commandBuffer.drawIndexed(indexBuffer->GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
+>>>>>>> 1d2a3a2674b710f309535b133769602b31061e00
 
                 }
             }

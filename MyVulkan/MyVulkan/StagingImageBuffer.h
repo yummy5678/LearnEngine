@@ -13,8 +13,11 @@ public:
     ~VStagingImageBuffer();
 
     void Initialize(VmaAllocator* allocator, uint32_t imageWidth, uint32_t imageHeight, TextureChannel imageChannel);
+<<<<<<< HEAD
 
     void Cleanup() override;
+=======
+>>>>>>> 1d2a3a2674b710f309535b133769602b31061e00
 
     // メモリ(RAM)側のデータをGPU用のメモリ(VRAM)側に移動させるための関数
     void TransferHostDataToImageBuffer(void* transferData, vk::Image toBuffer, vk::Fence fence);

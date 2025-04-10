@@ -6,7 +6,11 @@
 //#include "Observer.h"
 
 
+<<<<<<< HEAD
 class VMeshObject //: public NonCopyable
+=======
+class VMeshObject : public NonCopyable
+>>>>>>> 1d2a3a2674b710f309535b133769602b31061e00
 {
 public:
 	VMeshObject();
