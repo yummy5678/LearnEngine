@@ -14,7 +14,7 @@ VulkanInitializer::VulkanInitializer() :
 
 VulkanInitializer::~VulkanInitializer()
 {
-	cleanup();
+	Cleanup();
 }
 
 
@@ -68,14 +68,14 @@ vk::Instance VulkanInitializer::GetInstance()
 	return m_Instance;
 }
 
-vk::Device* VulkanInitializer::GetPLogicalDevice()
+vk::Device VulkanInitializer::GetLogicalDevice()
 {
-	return &m_LogicalDevice;
+	return m_LogicalDevice;
 }
 
-vk::PhysicalDevice* VulkanInitializer::GetPPhysicalDevice()
+vk::PhysicalDevice VulkanInitializer::GetPhysicalDevice()
 {
-	return &m_PhysicalDevice;
+	return m_PhysicalDevice;
 }
 
 VmaAllocator* VulkanInitializer::GetPVmaAllocator()
@@ -93,15 +93,15 @@ DeviceExtension* VulkanInitializer::GetPDeviceExtension()
 	return &m_DeviceExtension;
 }
 
-void VulkanInitializer::cleanup()
+void VulkanInitializer::Cleanup()
 {
+	printf("VulkanInitializerを解放します\n");
+	// アロケーターの破棄
+	vmaDestroyAllocator(m_VmaAllocator);
 	// デバイスの破棄
 	vkDestroyDevice(m_LogicalDevice, nullptr);
 	// インスタンスの破棄
-	vkDestroyInstance(m_Instance, nullptr);
-	// アロケーターの破棄
-	vmaDestroyAllocator(m_VmaAllocator);
-			
+	vkDestroyInstance(m_Instance, nullptr);			
 }
 
 bool VulkanInitializer::CheckSupportSurface(VkSurfaceKHR surface)

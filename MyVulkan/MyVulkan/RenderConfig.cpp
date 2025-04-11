@@ -8,22 +8,25 @@ RenderConfig::RenderConfig(VulkanInitializer& initializer):
     m_pObjects(),
     m_pCamera()
 {
-    m_pLogicalDevice = initializer.GetPLogicalDevice();
-    m_pPhygicalDevice = initializer.GetPPhysicalDevice();
-
 }
 
 RenderConfig::~RenderConfig()
 {
+    Cleanup();
 }
 
-void RenderConfig::Initialize(RenderingTarget* renderere)
+void RenderConfig::Initialize(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, RenderingTarget* renderere)
 {
+    m_LogicalDevice = logicalDevice;
+    m_PhygicalDevice = physicalDevice;
+
     vk::Format colorFomat = renderere->GetColorFormat();
     vk::Format depthFomat = renderere->GetDepthFormat();
     vk::Extent2D extent = renderere->GetExtent();
 
-    m_Shader.Create(m_pLogicalDevice);
+
+
+    m_Shader.Create(m_LogicalDevice);
     m_RenderArea.setOffset({ 0, 0 });
     m_RenderArea.setExtent(extent);
 
@@ -49,6 +52,16 @@ void RenderConfig::Initialize(RenderingTarget* renderere)
     m_Shader.DestroyModule();
 }
 
+
+void RenderConfig::Cleanup()
+{
+    printf("RenderConfigを解放します\n");
+    m_pCamera.clear();
+    m_pObjects.clear();
+    m_RenderFunction.clear();
+    m_Shader.Cleanup();
+    RendererBase::Cleanup();
+}
 
 vk::Rect2D RenderConfig::GetSissorRect()
 {
@@ -132,11 +145,7 @@ std::shared_ptr<RenderFunction> RenderConfig::GetRenderFunction(RenderingObjects
 
                     // インデックスバッファ(頂点を結ぶ順番の値)を結び付けます。
                     commandBuffer.bindIndexBuffer(indexBuffer->GetBuffer(), 0, vk::IndexType::eUint32);
-<<<<<<< HEAD
                     commandBuffer.drawIndexed(indexBuffer->GetVertexCount(), 1, 0, 0, 0);   // インデックスに従って描画
-=======
-                    commandBuffer.drawIndexed(indexBuffer->GetSize(), 1, 0, 0, 0);   // インデックスに従って描画
->>>>>>> 1d2a3a2674b710f309535b133769602b31061e00
 
                 }
             }

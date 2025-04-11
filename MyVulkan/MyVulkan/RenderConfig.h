@@ -26,71 +26,31 @@ public:
 	~RenderConfig();
 
 	// 初期化
-	//void Initialize(
-	//	vk::Device logicalDevice,
-	//	vk::Extent2D extent,
-	//	vk::Format colorFomat,
-	//	vk::Format depthFomat);
-	void Initialize(RenderingTarget* renderere);
+	void Initialize(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, RenderingTarget* renderere);
 
 	// ディスクリプタなどを更新したい
 	void Update();
 
-	// 破棄
-	void Destroy();
+	// メンバ変数の初期化
+	void Cleanup();
 
 	vk::Rect2D			GetSissorRect();
 	vk::Rect2D			GetRenderRect();
 	vk::Pipeline		GetPipeline()			override;
 	vk::PipelineLayout	GetPipelineLayout()		override;
-	//VShaderConfigureBase* GetPShaderConfiguer() override;
 
-	//std::vector<vk::DescriptorSet>			GetDescriptorSets();
-	//std::vector<vk::DescriptorSetLayout>	GetDescriptorSetLayouts();
-	//std::vector<vk::PushConstantRange>		GetPushConstantRanges();
-
-	//void DrawImage(std::vector<RenderObject>* objects, SceneCamera* camera);
+	
 	std::shared_ptr<RenderFunction> GetRenderFunction(RenderingObjects* pObjects, SceneCamera* pCamera);
-	//oid BindRenderingCommand(vk::CommandBuffer command, std::vector<RenderObject*>* pObjects, SceneCamera* pCamera);
 
 private:
-	//vk::Device* m_pLogicalDevice;
-	//vk::PhysicalDevice* m_pPhygicalDevice;
+	//vk::Device* m_LogicalDevice;
+	//vk::PhysicalDevice* m_PhygicalDevice;
 
-	//// 画面サイズ
-	//vk::Offset2D			m_Offset;	//描画範囲の始点
-	//vk::Extent2D			m_Extent;	//描画範囲の終点
-
-	//vk::Rect2D				m_RenderArea;	// フレーム内の描画位置の矩形
-
-	//RenderingPipelineCreator m_GraphicsPipeline;
-
-	//パイプラインに渡すシェーダー情報の作成クラス
 	VModelShaderConfiguer	m_Shader;
 
 	std::vector<std::weak_ptr<RenderFunction>>		m_RenderFunction;
 	std::unordered_map<void*, RenderingObjects*>	m_pObjects;
 	std::unordered_map<void*, SceneCamera*>			m_pCamera;
-
-	//DescriptorHandleManeger<VMaterial> m_DescriptorHandleManeger;
-	//std::vector<std::pair<std::weak_ptr<VMaterial*>, VSingleTextureDescriptor>>	m_RenderObjects;
-
-	//std::pair<std::weak_ptr<VMaterial*>, VSingleTextureDescriptor>* SearchTextureDeskriptor(VMaterial* target);
-
-	//// デスクリプタ
-	//VTextureDescriptorSetLayout		m_TextureDescriptors;
-	//VCameraDescriptorSetLayout		m_CameraDescriptor;
-
-	//// 頂点入力情報	//ToDo:後で専用のクラスに分ける
-	//std::vector<vk::VertexInputBindingDescription>		m_BindingDescriptions;
-	//std::vector<vk::VertexInputAttributeDescription>	m_AttributeDescriptions;
-	//vk::PipelineVertexInputStateCreateInfo				m_InputStateInfo;
-
-
-	//vk::PushConstantRange	GetPushConstantModelRange();
-	//vk::PipelineVertexInputStateCreateInfo GetVertexInputState();
-	//void CreateTextureDescriptor(VMeshTextureBuffer* pMaterial);
-	//void UpdateTextureDescriptor();
 
 
 };

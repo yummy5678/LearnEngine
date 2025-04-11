@@ -19,9 +19,9 @@ public:
     ~GraphicWindow();
 
     //ウィンドウの初期化と作成
-    void init(const std::string wName, const int width, const int height);
+    void init(VulkanInitializer* initializer, const std::string wName, const int width, const int height);
     //ウィンドウの終了処理
-    void kill();
+    void Cleanup();
 
     void AddDrawTask(std::shared_ptr<RenderFunction> function);
 	void ExecuteDrawTask();
@@ -39,10 +39,12 @@ public:
     int checkCloseWindow();
 
 private:
+
+    VmaAllocatorInfo			m_AllocatorInfo;
     //GLFWウィンドウのポインター
     GLFWwindow*                 m_pWindow;
 
-    VulkanInitializer*          m_pInitializer;
+    //VulkanInitializer*          m_pInitializer;
 
     SurfaceGenerator            m_Surface;
     SwapchainRenderer           m_Swapchain;

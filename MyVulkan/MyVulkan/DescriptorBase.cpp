@@ -2,7 +2,7 @@
 #include <iostream>
 
 VDescriptorBase::VDescriptorBase(vk::DescriptorType type) :
-    m_LogicalDevice(nullptr),
+    m_LogicalDevice(VK_NULL_HANDLE),
     m_DescriptorType(type),
     m_SetCount(0),
     m_DescriptorSet(),
@@ -31,8 +31,12 @@ void VDescriptorBase::Cleanup()
     //デスクリプタプールを解放
     if(m_DescriptorPool != VK_NULL_HANDLE)
     m_LogicalDevice.destroyDescriptorPool(m_DescriptorPool, nullptr);
+    m_DescriptorPool = VK_NULL_HANDLE;
+    m_DescriptorSet.clear();
 
+    m_SetCount = 0;
 
+    m_LogicalDevice == VK_NULL_HANDLE;
 }
 
 void VDescriptorBase::CreateDescriptorPool(uint32_t setCount)

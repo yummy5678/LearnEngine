@@ -9,13 +9,13 @@ VTriangleShader::~VTriangleShader()
 {
 }
 
-void VTriangleShader::Create(vk::Device* pLogicalDevice)
+void VTriangleShader::Create(vk::Device logicalDevice)
 {
-	m_pLogicalDevice = pLogicalDevice;
+	m_LogicalDevice = logicalDevice;
 
 	// シェーダーの読込とモジュールの作成
 	VShaderConfigureBase::CreateShaderModules(
-		pLogicalDevice,
+		logicalDevice,
 		"Shaders/triangle.vert.spv",
 		"Shaders/triangle.frag.spv",
 		DefaultShaderDefine.EntryName,

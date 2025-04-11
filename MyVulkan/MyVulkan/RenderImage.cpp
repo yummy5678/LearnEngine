@@ -1,9 +1,9 @@
 #include "RenderImage.h"
 
 RenderImage::RenderImage() :
-	m_LogicalDevice(),
-	m_PhysicalDevice(),
-	m_ImageExtent(),
+	m_LogicalDevice(VK_NULL_HANDLE),
+	m_PhysicalDevice(VK_NULL_HANDLE),
+	m_ImageExtent(0),
 	m_ColorImage(
 		vk::ImageUsageFlagBits::eColorAttachment | 
 		vk::ImageUsageFlagBits::eTransferDst |
@@ -18,9 +18,9 @@ RenderImage::RenderImage() :
 		vk::Format::eD32SfloatS8Uint,
 		vk::MemoryPropertyFlagBits::eDeviceLocal
 	),
-	m_ImageAspectFlag(),
+	//m_ImageAspectFlag(),
 	m_DrawCommand(),
-	m_Fence(),
+	m_Fence(VK_NULL_HANDLE),
 	m_ImageSet(),
 	m_RenderFunctions()
 {
@@ -28,6 +28,7 @@ RenderImage::RenderImage() :
 
 RenderImage::~RenderImage()
 {
+	Cleanup();
 }
 
 vk::Extent2D RenderImage::GetExtent()
@@ -116,6 +117,33 @@ void RenderImage::ExecuteDrawTask()
 void RenderImage::WriteImage(std::string fileName)
 {
 	GraphicsUtility::WriteImage(&m_ColorImage, fileName, m_Fence);
+}
+
+void RenderImage::Cleanup()
+{
+	// NULLチェック
+	if (m_LogicalDevice == VK_NULL_HANDLE) return; 
+	if (m_PhysicalDevice == VK_NULL_HANDLE) return;
+
+	printf("RendererBaseを解放します\n");
+
+	// コマンドの解放
+	m_DrawCommand.Destroy();
+
+	// イメージバッファの解放
+	m_DepthImage.Cleanup();
+	m_ColorImage.Cleanup();
+
+	// 同期オブジェクトの解放
+	if (m_Fence != VK_NULL_HANDLE)
+		m_LogicalDevice.destroyFence(m_Fence);
+
+	// メンバ変数の初期化
+	m_RenderFunctions.clear();
+	m_ImageSet = {};
+	m_ImageExtent = 0;
+	m_PhysicalDevice = VK_NULL_HANDLE;
+	m_LogicalDevice = VK_NULL_HANDLE;
 }
 
 vk::ImageCreateInfo RenderImage::GetImageCreateInfo(vk::Extent2D extent, vk::Format format, vk::ImageUsageFlags usage)

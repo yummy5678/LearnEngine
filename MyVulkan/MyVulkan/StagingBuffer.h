@@ -10,7 +10,7 @@ public:
     ~VStagingBuffer();
 
     void Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize);
-    void TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer);
+    void TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer, vk::Fence fence);
 
     void Cleanup() override;
 

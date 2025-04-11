@@ -16,16 +16,16 @@ VModelShaderConfiguer::~VModelShaderConfiguer()
 {
 }
 
-void VModelShaderConfiguer::Create(vk::Device* pLogicalDevice)
+void VModelShaderConfiguer::Create(vk::Device logicalDevice)
 {
-	m_pLogicalDevice = pLogicalDevice;
+	m_LogicalDevice = logicalDevice;
 
-	m_CameraDescriptor.Initialize(m_pLogicalDevice, 0);
-	m_TextureLayout.Initialize(m_pLogicalDevice, 0);
+	m_CameraDescriptor.Initialize(m_LogicalDevice, 0);
+	m_TextureLayout.Initialize(m_LogicalDevice, 0);
 
 	// シェーダーの読込とモジュールの作成
 	VShaderConfigureBase::CreateShaderModules(
-		pLogicalDevice, 
+		logicalDevice, 
 		DefaultShaderDefine.VertexShaderPath,
 		DefaultShaderDefine.FragmentShaderPath,
 		DefaultShaderDefine.EntryName,

@@ -22,8 +22,6 @@ void QueueFamilySelector::Initialize(vk::PhysicalDevice physicalDevice)
 	if(m_PhysicalDevice != VK_NULL_HANDLE) std::runtime_error("キューセレクタはすでに初期化されています");
 	if (physicalDevice == VK_NULL_HANDLE) std::runtime_error("キューセレクタの引数の物理デバイスがNULLです！");
 	m_PhysicalDevice = physicalDevice;
-
-
 }
 
 void QueueFamilySelector::Cleanup()

@@ -5,7 +5,8 @@
 
 GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_pWindow(nullptr),
-	m_pInitializer(&initializer),
+	//m_pInitializer(&initializer),
+	m_AllocatorInfo(),
 	m_Surface(initializer),
 	m_Swapchain(initializer),
 	m_Fences(),
@@ -15,33 +16,45 @@ GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_CurrentIndex(0),
 	m_RenderFunctions()
 {
+	//if (m_pInitializer == nullptr)
+	//throw std::runtime_error("コンストラクタには中身のあるポインタを指定してください！");
 
+	m_AllocatorInfo.instance = VK_NULL_HANDLE;
+	m_AllocatorInfo.physicalDevice = VK_NULL_HANDLE;
+	m_AllocatorInfo.device = VK_NULL_HANDLE;
 }
 
 GraphicWindow::~GraphicWindow()
 {
 }
 
-void GraphicWindow::init(const std::string wName, const int width, const int height)
+void GraphicWindow::init(VulkanInitializer* initializer, const std::string wName, const int width, const int height)
 {
+
+	//if (m_pInitializer != initializer) 
+	//	throw std::runtime_error("コンストラクタに入れたイニシャライザと同じものを指定してください！");
+
+	//m_pInitializer = initializer;
+	auto pAllocator = initializer->GetPVmaAllocator();
+	vmaGetAllocatorInfo(*pAllocator, &m_AllocatorInfo);
+
 	// Set GLFW to NOT work with OpenGL
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-	vk::Instance instance = m_pInitializer->GetInstance();
 
 	m_pWindow = glfwCreateWindow(width, height, wName.c_str(), nullptr, nullptr);
 
-	m_Surface.CreateWindowSurface(instance, m_pWindow);
+	m_Surface.CreateWindowSurface(m_AllocatorInfo.instance, m_pWindow);
 
-	if (m_pInitializer->CheckSupportSurface(m_Surface.GetSurface()) == false)
+	if (initializer->CheckSupportSurface(m_Surface.GetSurface()) == false)
 	{
 		// スワップチェイン出来ないエラーメッセージ
 		throw std::runtime_error("サーフェスがスワップチェインに対応していません！");
 		return;
 	}
 
-	m_Swapchain.Create(m_pInitializer->GetPVmaAllocator(), m_Surface.GetSurface());
+	m_Swapchain.Create(pAllocator, m_Surface.GetSurface());
 
 	m_SwapcheinFrameCount = m_Swapchain.GetFrameCount();
 
@@ -51,8 +64,8 @@ void GraphicWindow::init(const std::string wName, const int width, const int hei
 	for (uint32_t i = 0; i < m_SwapcheinFrameCount; i++)
 	{
 		m_DrawCommands[i].Create(
-			*m_pInitializer->GetPLogicalDevice(),
-			*m_pInitializer->GetPPhysicalDevice());
+			m_AllocatorInfo.device,
+			m_AllocatorInfo.physicalDevice);
 	}
 
 	// フェンスを画像の数だけ作成
@@ -60,20 +73,54 @@ void GraphicWindow::init(const std::string wName, const int width, const int hei
 	fenceInfo.pNext;
 	fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
 	m_Fences.resize(m_SwapcheinFrameCount);
+
+	vk::Device logicalDevice = m_AllocatorInfo.device;
 	for (uint32_t i = 0; i < m_SwapcheinFrameCount; i++)
 	{
-		m_Fences[i] = m_pInitializer->GetPLogicalDevice()->createFence(fenceInfo);
+		m_Fences[i] = logicalDevice.createFence(fenceInfo);
 	}
 }
 
-void GraphicWindow::kill()
+void GraphicWindow::Cleanup()
 {
+	if (m_AllocatorInfo.device == nullptr) return;
+	vk::Device logicalDevice = m_AllocatorInfo.device;
+
+	// 描画コマンドの解放
+	for (auto& command: m_DrawCommands)
+	{
+		command.Destroy();
+	}
+
+	// フェンスの解放
+	for (auto& fence : m_Fences)
+	{
+		logicalDevice.destroyFence(fence);
+	}
+
+	// スワップチェインの解放
 	m_Swapchain.Cleanup();
+
+	//サーフェスの解放
 	m_Surface.Cleanup();
 
+	// ウィンドウの後始末
+	if (m_pWindow != nullptr)
+	{
+		glfwDestroyWindow(m_pWindow);
+		glfwTerminate();
+	}
 
-	glfwDestroyWindow(m_pWindow);
-	glfwTerminate();
+	// その他各値の初期化
+	m_RenderFunctions.clear();
+	m_CurrentIndex = 0;
+	m_SwapcheinFrameCount = 0;
+	//m_pInitializer = nullptr;
+	m_pWindow = nullptr;
+	m_AllocatorInfo.instance = VK_NULL_HANDLE;
+	m_AllocatorInfo.physicalDevice = VK_NULL_HANDLE;
+	m_AllocatorInfo.device = VK_NULL_HANDLE;
+
 }
 
 void GraphicWindow::AddDrawTask(std::shared_ptr<RenderFunction> function)
@@ -84,18 +131,18 @@ void GraphicWindow::AddDrawTask(std::shared_ptr<RenderFunction> function)
 
 void GraphicWindow::ExecuteDrawTask()
 {
-	vk::Device* logicalDevice = m_pInitializer->GetPLogicalDevice();
+	vk::Device logicalDevice = m_AllocatorInfo.device;
 
 	//vk::Fence fence = m_Fences[m_CurrentIndex];
 	vk::Fence fence = m_Fences[0];
 
 	// 次のインデックス
-	logicalDevice->waitForFences(
+	logicalDevice.waitForFences(
 	    //{ m_Fences[m_CurrentIndex] },	// 利用するフェンス達
 	    { fence },	// 利用するフェンス達
 	    VK_TRUE,						// フェンスが全てシグナル状態になるまで待つ
 	    UINT64_MAX);					// 最大待機時間
-	logicalDevice->resetFences(fence);	// フェンスを非シグナル状態にする
+	logicalDevice.resetFences(fence);	// フェンスを非シグナル状態にする
 
 	auto imageSet = m_Swapchain.GetRenderingImageSet();
 

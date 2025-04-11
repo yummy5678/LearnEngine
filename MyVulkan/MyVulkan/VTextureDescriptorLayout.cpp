@@ -9,9 +9,9 @@ VTextureDescriptorSetLayout::~VTextureDescriptorSetLayout()
 {
 }
 
-void VTextureDescriptorSetLayout::Initialize(vk::Device* pLogicalDevice, uint32_t bindNumber)
+void VTextureDescriptorSetLayout::Initialize(vk::Device logicalDevice, uint32_t bindNumber)
 {
-    m_pLogicalDevice = pLogicalDevice;
+    m_LogicalDevice = logicalDevice;
 
     CreateDescriptorSetLayout(bindNumber);
 }
@@ -29,5 +29,5 @@ void VTextureDescriptorSetLayout::CreateDescriptorSetLayout(uint32_t bindNumber)
     layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = &layoutBinding;
 
-    m_DescriptorSetLayout = std::make_shared<vk::DescriptorSetLayout>(m_pLogicalDevice->createDescriptorSetLayout(layoutInfo));
+    m_DescriptorSetLayout = std::make_shared<vk::DescriptorSetLayout>(m_LogicalDevice.createDescriptorSetLayout(layoutInfo));
 }

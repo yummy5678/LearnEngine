@@ -2,7 +2,7 @@
 
 
 VDescriptorSetLayoutBase::VDescriptorSetLayoutBase(vk::DescriptorType type, vk::ShaderStageFlags stageFlag) :
-    m_pLogicalDevice(nullptr),
+    m_LogicalDevice(nullptr),
     m_DescriptorType(type),
     m_StageFlags(stageFlag),
     m_DescriptorSetLayout(VK_NULL_HANDLE)
@@ -11,14 +11,21 @@ VDescriptorSetLayoutBase::VDescriptorSetLayoutBase(vk::DescriptorType type, vk::
 
 VDescriptorSetLayoutBase::~VDescriptorSetLayoutBase()
 {
-    if (*m_pLogicalDevice == VK_NULL_HANDLE) return;
+    Cleanup();
+}
+
+void VDescriptorSetLayoutBase::Cleanup()
+{
+    if (m_LogicalDevice == VK_NULL_HANDLE) return;
 
     vk::DescriptorSetLayout layout = *m_DescriptorSetLayout.get();
     if (layout != VK_NULL_HANDLE)
     {
-        m_pLogicalDevice->destroyDescriptorSetLayout(layout);
+        m_LogicalDevice.destroyDescriptorSetLayout(layout);
+        m_DescriptorSetLayout.reset();
     }
 
+    m_LogicalDevice = VK_NULL_HANDLE;
 }
 
 std::shared_ptr<vk::DescriptorSetLayout> VDescriptorSetLayoutBase::GetDescriptorSetLayout()

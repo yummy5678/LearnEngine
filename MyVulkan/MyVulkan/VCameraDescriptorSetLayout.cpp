@@ -11,9 +11,9 @@ VCameraDescriptorSetLayout::~VCameraDescriptorSetLayout()
 {
 }
 
-void VCameraDescriptorSetLayout::Initialize(vk::Device* pLogicalDevice, uint32_t bindNumber)
+void VCameraDescriptorSetLayout::Initialize(vk::Device logicalDevice, uint32_t bindNumber)
 {
-    m_pLogicalDevice = pLogicalDevice;
+    m_LogicalDevice = logicalDevice;
 
 
     CreateDescriptorSetLayout(bindNumber);
@@ -30,8 +30,9 @@ void VCameraDescriptorSetLayout::Initialize(vk::Device* pLogicalDevice, uint32_t
 
 void VCameraDescriptorSetLayout::CreateDescriptorSetLayout(uint32_t bindNumber)
 {
-    if (m_pLogicalDevice == nullptr ||
-        *m_pLogicalDevice == nullptr) throw std::runtime_error("CreateDescriptorSet : 論理デバイスがnullptrです!");
+    if (m_LogicalDevice == nullptr) 
+        throw std::runtime_error("CreateDescriptorSet : 論理デバイスがnullptrです!");
+
     vk::DescriptorSetLayoutBinding descSetLayoutBinding;
     descSetLayoutBinding.binding = bindNumber;              // シェーダー側の位置
     descSetLayoutBinding.descriptorType = m_DescriptorType; // ユニフォームバッファの情報
@@ -42,7 +43,7 @@ void VCameraDescriptorSetLayout::CreateDescriptorSetLayout(uint32_t bindNumber)
     descSetLayoutCreateInfo.bindingCount = 1;
     descSetLayoutCreateInfo.pBindings = &descSetLayoutBinding;
 
-    m_DescriptorSetLayout = std::make_shared<vk::DescriptorSetLayout>(m_pLogicalDevice->createDescriptorSetLayout(descSetLayoutCreateInfo));
+    m_DescriptorSetLayout = std::make_shared<vk::DescriptorSetLayout>(m_LogicalDevice.createDescriptorSetLayout(descSetLayoutCreateInfo));
 }
 
 //void VCameraDescriptorSetLayout::CreateDescriptorSet()

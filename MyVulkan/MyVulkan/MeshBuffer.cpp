@@ -10,10 +10,10 @@ VMesh::~VMesh()
 	Cleanup();
 }
 
-void VMesh::SetMesh(VmaAllocator* allocator, Mesh* mesh)
+void VMesh::SetMesh(VmaAllocator* allocator, Mesh* mesh, vk::Fence fence)
 {
-	SetVertex(allocator, &mesh->vertices);
-	SetIndex(allocator, &mesh->indices);
+	SetVertex(allocator, &mesh->vertices, fence);
+	SetIndex(allocator, &mesh->indices, fence);
 }
 
 VVertexBuffer* VMesh::GetPVertex()
@@ -32,14 +32,14 @@ void VMesh::Cleanup()
 	m_Index.Cleanup();
 }
 
-void VMesh::SetVertex(VmaAllocator *allocator, std::vector<Vertex>* vertex)
+void VMesh::SetVertex(VmaAllocator *allocator, std::vector<Vertex>* vertex, vk::Fence fence)
 {
-	m_Vertex.SetData(allocator, vertex);
+	m_Vertex.SetData(allocator, vertex, fence);
 }
 
-void VMesh::SetIndex(VmaAllocator* allocator, std::vector<uint32_t>* index)
+void VMesh::SetIndex(VmaAllocator* allocator, std::vector<uint32_t>* index, vk::Fence fence)
 {
-	m_Index.SetData(allocator, index);
+	m_Index.SetData(allocator, index, fence);
 
 }
 

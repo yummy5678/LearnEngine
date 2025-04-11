@@ -39,6 +39,7 @@ VImageBuffer::VImageBuffer(
 
 VImageBuffer::~VImageBuffer()
 {
+	Cleanup();
 }
 
 void VImageBuffer::Initialize(VmaAllocator* allocator, vk::Extent2D extent)
@@ -51,4 +52,10 @@ void VImageBuffer::Initialize(VmaAllocator* allocator, vk::Extent2D extent)
 
 	// イメージビューの作成
 	VImageBufferBase::CreateImageView(allocatorInfo.device, m_ImageSet.buffer, m_Format, m_AspectFlag);
+}
+
+void VImageBuffer::Cleanup()
+{
+	printf("イメージバッファを解放");
+	VImageBufferBase::Cleanup();
 }

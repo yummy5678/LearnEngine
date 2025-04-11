@@ -23,6 +23,7 @@ VImageBufferBase::VImageBufferBase(
 
 VImageBufferBase::~VImageBufferBase()
 {
+	Cleanup();
 }
 
 vk::Image VImageBufferBase::GetImageBuffer()
@@ -64,6 +65,19 @@ vk::ImageAspectFlags VImageBufferBase::GetAspectFlag()
 {
 	return m_AspectFlag;
 }
+
+void VImageBufferBase::Cleanup()
+{
+	if (m_pAllocator == nullptr) return;
+
+	vmaDestroyImage(*m_pAllocator, m_ImageSet.buffer, m_ImageAllocation);
+	m_ImageAllocation = VK_NULL_HANDLE;
+	m_ImageSet = {};
+	m_Extent = vk::Extent3D{};
+	m_pAllocator = nullptr;
+}
+
+
 
 VmaAllocator* VImageBufferBase::GetUsingAllocator()
 {

@@ -35,7 +35,7 @@ private:
     vk::Extent2D        m_ImageExtent;
     //const vk::Format    m_ColorImageFormat;
     //const vk::Format    m_DepthImageFormat;
-    const vk::ImageAspectFlags m_ImageAspectFlag;
+    //const vk::ImageAspectFlags m_ImageAspectFlag;
     //const vk::ImageUsageFlags m_ColorImageUsage;
     //const vk::ImageUsageFlags m_DepthImageUsage;
 

@@ -13,7 +13,7 @@ VIndexBuffer::~VIndexBuffer()
 	Cleanup();
 }
 
-void VIndexBuffer::SetData(VmaAllocator* allocator, std::vector<uint32_t>* indices)
+void VIndexBuffer::SetData(VmaAllocator* allocator, std::vector<uint32_t>* indices, vk::Fence fence)
 {
 
 	m_VertexCount = (uint32_t)indices->size();
@@ -25,7 +25,7 @@ void VIndexBuffer::SetData(VmaAllocator* allocator, std::vector<uint32_t>* indic
 	// ステージングバッファを踏んでデータを入れてもらう
 	VStagingBuffer StagingBuffer;
 	StagingBuffer.Initialize(allocator, dataSize);					//一度ステージングバッファにデータを入れてから
-	StagingBuffer.TransferDataToBuffer(indices->data(), m_Buffer);	//indicesBuffer(VRAMに作られたバッファ)にコピーする
+	StagingBuffer.TransferDataToBuffer(indices->data(), m_Buffer, fence);	//indicesBuffer(VRAMに作られたバッファ)にコピーする
 }
 
 uint32_t VIndexBuffer::GetVertexCount()

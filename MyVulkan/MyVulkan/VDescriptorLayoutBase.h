@@ -22,12 +22,14 @@ public:
 	VDescriptorSetLayoutBase(vk::DescriptorType type, vk::ShaderStageFlags stageFlag);
 	~VDescriptorSetLayoutBase();
 
+	void Cleanup();
+
 	virtual std::shared_ptr<vk::DescriptorSetLayout>	GetDescriptorSetLayout();
 	virtual vk::DescriptorType							GetDescriptorType();
 	const vk::ShaderStageFlags							GetStageFlag();
 
 protected:
-	vk::Device*									m_pLogicalDevice;	// 作成＆破棄用のデバイス情報
+	vk::Device									m_LogicalDevice;	// 作成＆破棄用のデバイス情報
 	const vk::DescriptorType					m_DescriptorType;
 	const vk::ShaderStageFlags					m_StageFlags;
 	std::shared_ptr<vk::DescriptorSetLayout>	m_DescriptorSetLayout;

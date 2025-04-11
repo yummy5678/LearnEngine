@@ -39,7 +39,7 @@ void VViewProjectionBuffer::SetData(VmaAllocator* allocator, ViewProjection& pro
 	VStagingBuffer StagingBuffer;
 	//StagingBuffer.Initialize(allocator, m_DataSize);				//一度ステージングバッファにデータを入れてから
 	StagingBuffer.Initialize(allocator, m_AllocationInfo.size);				//一度ステージングバッファにデータを入れてから
-	StagingBuffer.TransferDataToBuffer(&projection, m_Buffer);	//indicesBuffer(VRAMに作られたバッファ)にコピーする
+	StagingBuffer.TransferDataToBuffer(&projection, m_Buffer, VK_NULL_HANDLE);	//indicesBuffer(VRAMに作られたバッファ)にコピーする
 
 	// CPUからGPUへ情報を送るのに適したメモリ領域を作成したい
 	//VmaAllocationCreateInfo stagingAllocateInfo;

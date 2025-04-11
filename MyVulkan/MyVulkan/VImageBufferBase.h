@@ -30,7 +30,7 @@ public:
 	vk::Format GetFormat();
 	vk::ImageAspectFlags GetAspectFlag();
 
-	void Cleanup();
+	virtual void Cleanup();
 
 	// 作成時に登録したアロケーターを返す
 	VmaAllocator* GetUsingAllocator();
@@ -41,20 +41,20 @@ protected:
 
 
 	// バッファのタイプ
-	vk::ImageUsageFlags		m_Usage;
+	const vk::ImageUsageFlags		m_Usage;
 	// キュー間の読み取り設定
-	vk::SharingMode			m_SharingMode;
-	vk::Format				m_Format;
-	vk::ImageAspectFlags	m_AspectFlag;
-	vk::Extent3D			m_Extent;
+	const vk::SharingMode			m_SharingMode;
+	const vk::Format				m_Format;
+	const vk::ImageAspectFlags		m_AspectFlag;
+	vk::Extent3D				m_Extent;
 
 	ImageSet m_ImageSet;	// イメージとイメージ情報のセット
 
-	VmaAllocation			m_ImageAllocation;	// データバッファの領域	
+	VmaAllocation					m_ImageAllocation;	// データバッファの領域	
 
-	VmaAllocationCreateFlags	m_AllocationFlag;	// メモリの割り当て方式
-	vk::MemoryPropertyFlags		m_RequiredFlag;		// メモリの必須条件
-	vk::MemoryPropertyFlags		m_PreferredFlag;	// メモリの優先条件
+	const VmaAllocationCreateFlags	m_AllocationFlag;	// メモリの割り当て方式
+	const vk::MemoryPropertyFlags	m_RequiredFlag;		// メモリの必須条件
+	const vk::MemoryPropertyFlags	m_PreferredFlag;	// メモリの優先条件
 
 	VkImageCreateInfo CreateImageInfo(uint32_t imageWidth, uint32_t imageHeight);
 	VkImageCreateInfo CreateImageInfo(vk::Extent3D extent);

@@ -10,7 +10,7 @@ public:
 	VVertexBuffer();
 	~VVertexBuffer();
 
-	void	SetData(VmaAllocator* allocator, std::vector<Vertex>* vertices);
+	void	SetData(VmaAllocator* allocator, std::vector<Vertex>* vertices, vk::Fence fence);
 	size_t	GetVertexCount();
 
 	void Cleanup() override;

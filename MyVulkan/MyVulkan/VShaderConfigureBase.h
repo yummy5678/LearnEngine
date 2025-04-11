@@ -19,10 +19,11 @@ public:
 	virtual std::vector<vk::PushConstantRange>				GetPushConstantRanges() = 0;
 	virtual vk::PipelineVertexInputStateCreateInfo			GetVertexInputState() = 0;
 
+	virtual void Cleanup();
 	virtual void DestroyModule();
 
 protected:
-	vk::Device* m_pLogicalDevice;
+	vk::Device m_LogicalDevice;
 
 	// シェーダーパス
 	std::string m_VertexShaderPath;	// 頂点シェーダーのパス
@@ -39,7 +40,7 @@ protected:
 	vk::PipelineShaderStageCreateInfo m_FragmentStageInfo;
 
 	void CreateShaderModules(
-		vk::Device* pLogicalDevice, 
+		vk::Device pLogicalDevice, 
 		const char* vertexPath, 
 		const char* flagmentPath, 
 		const char* vertexEntry, 

@@ -6,19 +6,20 @@ VMaterial::VMaterial() :
 	m_Sampler(VK_NULL_HANDLE)/*,
 	m_DescriptorSets()*/
 {
+
 }
 
 VMaterial::~VMaterial()
 {
 }
 
-void VMaterial::SetMaterial(VmaAllocator* allocator, Material* material)
+void VMaterial::SetMaterial(VmaAllocator* allocator, Material* material, vk::Fence fence)
 {
 	VmaAllocatorInfo allocatorInfo;
 	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
 
 	m_LogicalDevice = allocatorInfo.device;
-	SetTexture(allocator, material->texture);
+	SetTexture(allocator, material->texture, fence);
 
 	if (m_Sampler == VK_NULL_HANDLE)
 	{
@@ -27,6 +28,24 @@ void VMaterial::SetMaterial(VmaAllocator* allocator, Material* material)
 
 
 	/*UpdateDescriptorSets(m_Texture.GetImageView(), m_Sampler);*/
+}
+
+void VMaterial::Cleanup()
+{
+	// NULLチェック
+	if (m_LogicalDevice == VK_NULL_HANDLE) return;
+	printf("マテリアルを解放します");
+
+	/// サンプラーの解放
+	if(m_Sampler != VK_NULL_HANDLE)
+	m_LogicalDevice.destroySampler(m_Sampler);
+	m_Sampler = VK_NULL_HANDLE;
+
+	// テクスチャ画像の解放
+	m_Texture.Cleanup();
+
+	// メンバ変数の初期化
+	m_LogicalDevice = VK_NULL_HANDLE;
 }
 
 vk::Image VMaterial::GetTextureBuffer()
@@ -64,9 +83,9 @@ vk::Sampler VMaterial::GetSampler()
 //	return m_DescriptorSets[sDescriptorSetLayout].GetDescriptorSet();
 //}
 
-void VMaterial::SetTexture(VmaAllocator* allocator, Texture& texture)
+void VMaterial::SetTexture(VmaAllocator* allocator, Texture& texture, vk::Fence fence)
 {
-	m_Texture.SetImage(allocator, texture, VK_NULL_HANDLE);
+	m_Texture.SetImage(allocator, texture, fence);
 	//m_BufferUpdateSubject.notifyObservers();
 }
 

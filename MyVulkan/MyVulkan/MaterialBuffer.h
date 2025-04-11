@@ -1,17 +1,19 @@
 #pragma once
+#include "NonCopyable.h"
 #include "MeshObject.h"
 #include "VTextureBuffer.h"
 #include "SingleTextureDescriptor.h"
 //#include "DescriptorHandleManeger.h"
 
 
-class VMaterial
+class VMaterial : NonCopyable
 {
 public:
 	VMaterial();
 	~VMaterial();
 
-	void SetMaterial(VmaAllocator* allocator, Material* material);
+	void SetMaterial(VmaAllocator* allocator, Material* material, vk::Fence fence);
+	void Cleanup();
 
 	vk::Image			GetTextureBuffer();
 	vk::ImageView		GetTextureImageView();
@@ -36,7 +38,7 @@ private:
 	/*std::unordered_map<std::shared_ptr<vk::DescriptorSetLayout>, VSingleTextureDescriptor>	m_DescriptorSets;*/
 	//Subject			m_BufferUpdateSubject;
 
-	void SetTexture(VmaAllocator* allocator, Texture& texture);
+	void SetTexture(VmaAllocator* allocator, Texture& texture, vk::Fence fence);
 	void CreateSampler(vk::Device logicalDevice);
 
 	//// ディスクリプタセットのリスト作成用関数達

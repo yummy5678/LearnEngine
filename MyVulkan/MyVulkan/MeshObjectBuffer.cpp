@@ -3,6 +3,7 @@
 VMeshObject::VMeshObject() :
     m_Name(""),
 	m_LogicalDevice(VK_NULL_HANDLE),
+	m_Fence(VK_NULL_HANDLE),
     m_Transform(0),
     m_Mesh(),
     m_Material(),
@@ -30,11 +31,44 @@ void VMeshObject::SetMeshObject(VmaAllocator* allocator, MeshObject* meshObject)
 	vmaGetAllocatorInfo(*allocator, &allocatorInfo);
 	m_LogicalDevice = allocatorInfo.device;
 
+	if (m_Fence == VK_NULL_HANDLE)
+	{
+		vk::FenceCreateInfo fenceInfo;
+		fenceInfo.pNext;
+		fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+		m_Fence = m_LogicalDevice.createFence(fenceInfo);
+	}
 
-    SetMesh(allocator, &meshObject->mesh);
-    SetMaterial(allocator, &meshObject->material);
+
+    SetMesh(allocator, &meshObject->mesh, m_Fence);
+    SetMaterial(allocator, &meshObject->material, m_Fence);
 
 	UpdateDescriptorSets(m_Material.get()->GetTextureImageView(), m_Material.get()->GetSampler());
+}
+
+void VMeshObject::Cleanup()
+{
+	if (m_LogicalDevice == VK_NULL_HANDLE) return;
+	printf("メッシュを解放します");
+
+	// マテリアルの解放処理
+	m_Material.get()->Cleanup();
+
+	// メッシュの解放処理
+	m_Mesh.get()->Cleanup();
+
+	// フェンスの解放処理
+	if (m_Fence == VK_NULL_HANDLE)
+	{
+		m_LogicalDevice.destroyFence(m_Fence);
+		m_Fence = VK_NULL_HANDLE;
+	}
+
+	// メンバ変数の初期化
+	m_DescriptorSets.clear();
+	m_Transform = {};
+	m_Name.clear();
+	m_LogicalDevice = VK_NULL_HANDLE;
 }
 
 //void VMeshObject::SetMeshUpdateObserver(Observer function)
@@ -78,17 +112,17 @@ vk::DescriptorSet VMeshObject::GetDescriptorSet(std::shared_ptr<vk::DescriptorSe
 
 
 
-void VMeshObject::SetMesh(VmaAllocator* allocator, Mesh* mesh)
+void VMeshObject::SetMesh(VmaAllocator* allocator, Mesh* mesh, vk::Fence fence)
 {
-    m_Mesh->SetMesh(allocator, mesh);
+    m_Mesh->SetMesh(allocator, mesh, fence);
 
     // メッシュの内容を更新したら登録している各オブザーバーに通知
     //m_MeshUpdateSubject.notifyObservers();
 }
 
-void VMeshObject::SetMaterial(VmaAllocator* allocator, Material* material)
+void VMeshObject::SetMaterial(VmaAllocator* allocator, Material* material, vk::Fence fence)
 {
-    m_Material->SetMaterial(allocator, material);
+    m_Material->SetMaterial(allocator, material, fence);
 
     // マテリアルの内容を更新したら登録している各オブザーバーに通知
     //m_MaterialUpdateSubject.notifyObservers();

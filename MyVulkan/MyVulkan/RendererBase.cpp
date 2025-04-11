@@ -2,8 +2,8 @@
 
 
 RendererBase::RendererBase(VulkanInitializer& initializer) :
-	m_pLogicalDevice(nullptr),
-	m_pPhygicalDevice(nullptr),
+	m_LogicalDevice(VK_NULL_HANDLE),
+	m_PhygicalDevice(VK_NULL_HANDLE),
 	m_RenderArea(0),
 	m_Offset(0),
 	m_Extent(0),
@@ -13,6 +13,18 @@ RendererBase::RendererBase(VulkanInitializer& initializer) :
 
 RendererBase::~RendererBase()
 {
+}
+
+void RendererBase::Cleanup()
+{
+	printf("RendererBase‚ð‰ð•ú‚µ‚Ü‚·\n");
+	m_GraphicsPipeline.Cleanup();
+	m_Extent = 0;
+	m_Offset = 0;
+	m_RenderArea = { 0,0,0,0 };
+	m_PhygicalDevice = VK_NULL_HANDLE;
+	m_LogicalDevice = VK_NULL_HANDLE;
+
 }
 
 vk::Rect2D RendererBase::GetSissorRect()

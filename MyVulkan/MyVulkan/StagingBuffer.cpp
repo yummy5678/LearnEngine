@@ -62,9 +62,9 @@ void VStagingBuffer::Initialize(VmaAllocator* allocator, vk::DeviceSize dataSize
 	//}
 }
 
-void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer)
+void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffer, vk::Fence fence)
 {
-	if(!m_pAllocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
+	if(!m_pAllocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!\n");
 
 	// データをステージングバッファにコピー
 	//VmaAllocationInfo allocationInfo;
@@ -79,15 +79,30 @@ void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffe
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &m_CommandBuffer;
 
-	m_Queue.submit(1, &submitInfo, nullptr);
-	m_Queue.waitIdle(); // 完了を待つ
+	if(fence != VK_NULL_HANDLE)
+	{
+		m_LogicalDevice.waitForFences(fence, true, UINT64_MAX);
+		m_LogicalDevice.resetFences(fence);
+	}
+
+	vk::Result result = m_Queue.submit(1, &submitInfo, fence);
+	if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("メモリ間のデータの移動に失敗しました\n");
+	}
+
+	if (fence == nullptr)
+	{
+		m_Queue.waitIdle(); // 完了を待つ
+	}
+
 }
 
 void VStagingBuffer::Cleanup()
 {
 	if (m_LogicalDevice == VK_NULL_HANDLE) return;
 
-	printf("ステージングバッファを解放します");
+	printf("ステージングバッファを解放します\n");
 
 	if (m_CommandPool != VK_NULL_HANDLE)
 	{
@@ -119,7 +134,7 @@ vk::CommandPool VStagingBuffer::CreateCommandPool(vk::Device logicalDevice, uint
 	}
 	catch (const std::exception&)
 	{
-		throw std::runtime_error("転送用コマンドプールの作成に失敗しました！");
+		throw std::runtime_error("転送用コマンドプールの作成に失敗しました！\n");
 	}
 }
 
@@ -136,7 +151,7 @@ vk::CommandBuffer VStagingBuffer::CreateCommandBuffer(vk::Device logicalDevice, 
 	}
 	catch (const std::exception&)
 	{
-		throw std::runtime_error("転送用コマンドバッファの作成に失敗しました！");
+		throw std::runtime_error("転送用コマンドバッファの作成に失敗しました！\n");
 	}
 	
 }

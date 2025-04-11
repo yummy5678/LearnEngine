@@ -12,7 +12,7 @@ public:
 	VCameraDescriptorSetLayout();
 	~VCameraDescriptorSetLayout();
 
-	void Initialize(vk::Device* pLogicalDevice, uint32_t bindNumber);
+	void Initialize(vk::Device logicalDevice, uint32_t bindNumber);
 	/*void Update(vk::Buffer buffer);*/
 
 private:

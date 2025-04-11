@@ -1,7 +1,7 @@
 #include "VShaderConfigureBase.h"
 
 VShaderConfigureBase::VShaderConfigureBase() :
-	m_pLogicalDevice(nullptr),
+	m_LogicalDevice(VK_NULL_HANDLE),
 	m_VertexShaderPath(""),
 	m_FragmentShaderPath(""),
 	m_VertexEntryName(""),
@@ -15,6 +15,7 @@ VShaderConfigureBase::VShaderConfigureBase() :
 
 VShaderConfigureBase::~VShaderConfigureBase()
 {
+	Cleanup();
 }
 
 std::vector<vk::PipelineShaderStageCreateInfo> VShaderConfigureBase::GetShaderStages()
@@ -27,24 +28,43 @@ std::vector<vk::PipelineShaderStageCreateInfo> VShaderConfigureBase::GetShaderSt
 	return results;
 }
 
+void VShaderConfigureBase::Cleanup()
+{
+	// NULLチェック
+	if (m_LogicalDevice == VK_NULL_HANDLE) return;
+	printf("ShaderConfigureを解放します\n");
+
+	// シェーダーモジュールの削除
+	DestroyModule();
+
+	// メンバー変数の初期化
+	m_FragmentStageInfo = vk::PipelineShaderStageCreateInfo{};
+	m_VertexStageInfo = vk::PipelineShaderStageCreateInfo{};
+	m_FragmentEntryName.clear();
+	m_VertexEntryName.clear();
+	m_FragmentShaderPath.clear();
+	m_VertexShaderPath.clear();
+	m_LogicalDevice = VK_NULL_HANDLE;
+}
+
 void VShaderConfigureBase::DestroyModule()
 {
-	//if (m_LogicalDevice == nullptr || *m_LogicalDevice == VK_NULL_HANDLE) return;
+	if (m_LogicalDevice == VK_NULL_HANDLE) return;
 
 	// モジュール削除関数
-	if (m_FragmentShaderModule != VK_NULL_HANDLE)	m_pLogicalDevice->destroyShaderModule(m_FragmentShaderModule);
-	if (m_FragmentShaderModule != VK_NULL_HANDLE)	m_pLogicalDevice->destroyShaderModule(m_VertexShaderModule);
+	if (m_FragmentShaderModule != VK_NULL_HANDLE)	m_LogicalDevice.destroyShaderModule(m_FragmentShaderModule);
+	if (m_FragmentShaderModule != VK_NULL_HANDLE)	m_LogicalDevice.destroyShaderModule(m_VertexShaderModule);
 }
 
 void VShaderConfigureBase::CreateShaderModules(
-	vk::Device* pLogicalDevice,
+	vk::Device pLogicalDevice,
 	const char* vertexPath,
 	const char* flagmentPath,
 	const char* vertexEntry,
 	const char* fragmentEntry)
 {
-	m_pLogicalDevice = pLogicalDevice;
-	if (*m_pLogicalDevice == VK_NULL_HANDLE) return;
+	m_LogicalDevice = pLogicalDevice;
+	if (m_LogicalDevice == VK_NULL_HANDLE) return;
 
 	m_VertexShaderPath		= vertexPath;
 	m_FragmentShaderPath	= flagmentPath;
@@ -68,7 +88,7 @@ vk::ShaderModule VShaderConfigureBase::CreateShaderModule(const std::vector<char
 	shaderModuleCreateInfo.codeSize = code.size();
 	shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-	return m_pLogicalDevice->createShaderModule(shaderModuleCreateInfo);
+	return m_LogicalDevice.createShaderModule(shaderModuleCreateInfo);
 }
 
 vk::PipelineShaderStageCreateInfo VShaderConfigureBase::CreateShaderStage(vk::ShaderModule module, vk::ShaderStageFlagBits stageType, const char* entryName)

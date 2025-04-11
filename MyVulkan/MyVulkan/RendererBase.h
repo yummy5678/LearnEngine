@@ -9,8 +9,8 @@ public:
 	RendererBase(VulkanInitializer& initializer);
 	~RendererBase();
 
-	// 破棄
-	void Destroy();
+	// 内部変数の初期化
+	void Cleanup();
 
 	virtual vk::Rect2D				GetSissorRect();
 	virtual vk::Rect2D				GetRenderRect();
@@ -21,8 +21,8 @@ public:
 
 
 protected:
-	vk::Device*			m_pLogicalDevice;
-	vk::PhysicalDevice* m_pPhygicalDevice;
+	vk::Device			m_LogicalDevice;
+	vk::PhysicalDevice  m_PhygicalDevice;
 
 	// 画面サイズ
 	vk::Offset2D			m_Offset;	//描画範囲の始点

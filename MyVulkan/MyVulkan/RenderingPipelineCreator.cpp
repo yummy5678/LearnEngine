@@ -2,7 +2,7 @@
 
 
 RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initializer) :
-	m_pLogicalDevice(nullptr),
+	m_LogicalDevice(VK_NULL_HANDLE),
 	m_Pipeline(VK_NULL_HANDLE),
 	m_PipelineInfo(),
 	m_PipelineLayout(VK_NULL_HANDLE),
@@ -13,7 +13,7 @@ RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initialize
 	//	printf("イニシャライザーをイニシャライズする前にパイプラインのコンストラクタを読んでください");
 	initializer.GetPDeviceExtension()->UseDynamicRendering();
 	initializer.GetPDeviceExtension()->UseRenderingModeNonSolid();
-	m_pLogicalDevice = initializer.GetPLogicalDevice();
+	m_LogicalDevice = initializer.GetLogicalDevice();
 
 }
 
@@ -40,16 +40,27 @@ void RenderingPipelineCreator::Create(
 	CreateGraphicsPipeline(extent, scissor, colorFormat, depthFormat, shaderStageInfos, pVertexInputState);
 }
 
-void RenderingPipelineCreator::Destroy()
+void RenderingPipelineCreator::Cleanup()
 {
-	if (*m_pLogicalDevice == VK_NULL_HANDLE) return;
+	if (m_LogicalDevice == VK_NULL_HANDLE) return;
+	printf("RenderingPipelineを解放します\n");
 
-	m_pLogicalDevice->destroyPipelineLayout(m_PipelineLayout);
-	m_pLogicalDevice->destroyPipeline(m_Pipeline);
+	m_TextureDescriptor.Cleanup();
+
+	if(m_PipelineLayout != VK_NULL_HANDLE)
+	m_LogicalDevice.destroyPipelineLayout(m_PipelineLayout);
+
+	if (m_Pipeline != VK_NULL_HANDLE)
+	m_LogicalDevice.destroyPipeline(m_Pipeline);
 
 	//パイプラインの作成後に不要になったシェーダーモジュールを破棄
 	//vkDestroyShaderModule(logicalDevice, fragmentShaderModule, nullptr);
 	//vkDestroyShaderModule(logicalDevice, vertexShaderModule, nullptr);
+
+	m_PipelineLayoutInfo = vk::PipelineLayoutCreateInfo{};
+	m_PipelineInfo = vk::GraphicsPipelineCreateInfo{};
+	m_LogicalDevice = VK_NULL_HANDLE;
+
 }
 
 vk::Pipeline RenderingPipelineCreator::GetPipeline()
@@ -64,18 +75,18 @@ vk::PipelineLayout RenderingPipelineCreator::GetPipelineLayout()
 
 void RenderingPipelineCreator::CreatePipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges)
 {
-	if (*m_pLogicalDevice == VK_NULL_HANDLE) throw std::runtime_error("パイプラインレイアウトの作成前に論理デバイスを作成してください!");
+	if (m_LogicalDevice == VK_NULL_HANDLE) throw std::runtime_error("パイプラインレイアウトの作成前に論理デバイスを作成してください!");
 
 	vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 	pipelineLayoutCreateInfo.setSetLayouts(descriptorSetLayouts);
 	pipelineLayoutCreateInfo.setPushConstantRanges(pushConstantRanges);
 
-	m_PipelineLayout = m_pLogicalDevice->createPipelineLayout(pipelineLayoutCreateInfo); 
+	m_PipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo); 
 }
 
 void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::Rect2D scissor, vk::Format colorFormat, vk::Format depthFormat, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos, vk::PipelineVertexInputStateCreateInfo* pVertexInputState)
 {
-	if (*m_pLogicalDevice == VK_NULL_HANDLE)throw std::runtime_error("グラフィクスパイプラインの作成前に論理デバイスを作成してください!");
+	if (m_LogicalDevice == VK_NULL_HANDLE)throw std::runtime_error("グラフィクスパイプラインの作成前に論理デバイスを作成してください!");
 	if (m_PipelineLayout == VK_NULL_HANDLE)	throw std::runtime_error("グラフィクスパイプラインの作成前にパイプラインレイアウトを作成してください!");
 
 	// ダイナミックレンダリングの設定
@@ -213,7 +224,7 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::R
 
 
 	// Create Graphics Pipeline
-	auto result = m_pLogicalDevice->createGraphicsPipeline(nullptr, m_PipelineInfo);
+	auto result = m_LogicalDevice.createGraphicsPipeline(nullptr, m_PipelineInfo);
 
 	m_Pipeline = result.value;
 }

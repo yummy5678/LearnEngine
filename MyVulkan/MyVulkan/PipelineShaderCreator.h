@@ -19,7 +19,7 @@ public:
 
 
 	// 作成関数(テッセーションシェーダーは未対応)
-	void Create(vk::Device* pLogicalDevice);
+	void Create(vk::Device pLogicalDevice);
 
 	
 	//std::vector<vk::PipelineShaderStageCreateInfo> GetShaderStages();

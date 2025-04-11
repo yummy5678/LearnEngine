@@ -6,17 +6,15 @@
 //#include "Observer.h"
 
 
-<<<<<<< HEAD
 class VMeshObject //: public NonCopyable
-=======
-class VMeshObject : public NonCopyable
->>>>>>> 1d2a3a2674b710f309535b133769602b31061e00
 {
 public:
 	VMeshObject();
 	~VMeshObject();
 
 	void SetMeshObject(VmaAllocator* allocator, MeshObject* meshObject);
+
+	void Cleanup();
 
 	//// オブザーバーの管理関数
 	//void SetMMaterialUpdateObserver(Observer function);
@@ -30,6 +28,7 @@ public:
 private:
 	std::string					m_Name;
 	vk::Device					m_LogicalDevice;
+	vk::Fence					m_Fence;
 	Transform					m_Transform;	// トランスフォーム
 	std::shared_ptr<VMesh>		m_Mesh;
 	std::shared_ptr<VMaterial>	m_Material;
@@ -41,8 +40,8 @@ private:
 
 
 
-	void SetMesh(VmaAllocator* allocator, Mesh* mesh);
-	void SetMaterial(VmaAllocator* allocator, Material* material);
+	void SetMesh(VmaAllocator* allocator, Mesh* mesh, vk::Fence fence);
+	void SetMaterial(VmaAllocator* allocator, Material* material, vk::Fence fence);
 
 	// ディスクリプタセットのリスト作成用関数達
 	void SetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout);// デスクリプタセットを登録

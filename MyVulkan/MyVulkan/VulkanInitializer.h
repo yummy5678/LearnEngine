@@ -19,15 +19,15 @@ public:
 	int init();
 
 	vk::Instance		GetInstance();
-	vk::Device*			GetPLogicalDevice();
-	vk::PhysicalDevice*	GetPPhysicalDevice();
+	vk::Device			GetLogicalDevice();
+	vk::PhysicalDevice  GetPhysicalDevice();
 	VmaAllocator*		GetPVmaAllocator();
 
 	InstanceExtension*	GetPInstanceExtension();
 	DeviceExtension*	GetPDeviceExtension();
 
 
-	void cleanup();
+	void Cleanup();
 
 	// サーフェスが表示に対応しているか確認
 	bool CheckSupportSurface(VkSurfaceKHR surface);

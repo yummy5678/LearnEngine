@@ -74,13 +74,13 @@ void VStagingImageBuffer::Initialize(VmaAllocator* allocator, uint32_t imageWidt
 
 void VStagingImageBuffer::Cleanup()
 {
-	printf("イメージ用ステージングバッファを解放します");
+	printf("イメージ用ステージングバッファを解放します\n");
 	VBufferBase::Cleanup();
 }
 
 void VStagingImageBuffer::TransferHostDataToImageBuffer(void* transferData, vk::Image toBuffer, vk::Fence fence)
 {
-	if (m_pAllocator == nullptr) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
+	if (m_pAllocator == nullptr) throw std::runtime_error("先にステージングバッファの初期化を行ってください!\n");
 
 	//VmaAllocationInfo allocInfo;
 	//vmaGetAllocationInfo(*m_pAllocator, m_Allocation, &allocInfo);
@@ -91,12 +91,28 @@ void VStagingImageBuffer::TransferHostDataToImageBuffer(void* transferData, vk::
 	// 転送用バッファのデータを宛先のイメージバッファにコピー
 	SetCopyToImageCommand(m_CommandBuffer, m_Buffer, toBuffer, m_ImageWidth, m_ImageHeight);	// 転送コマンドを作成
 
+	if(fence != VK_NULL_HANDLE)
+	{
+		m_LogicalDevice.waitForFences(fence, true, UINT64_MAX);
+		m_LogicalDevice.resetFences(fence);
+	}
+
 	// コマンドバッファを実行
 	vk::SubmitInfo submitInfo;
 	submitInfo.commandBufferCount = 1;				// 使うコマンドは1つだけで充分
 	submitInfo.pCommandBuffers = &m_CommandBuffer;	// 作成したコマンドバッファをセット
 
-	m_Queue.submit(1, &submitInfo, fence);		// コマンドをGPUのキューに送信
+	vk::Result result = m_Queue.submit(1, &submitInfo, fence); // コマンドをGPUのキューに送信
+	if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("画像のメモリ間の移動に失敗しました\n");
+	}
+
+	if (fence == VK_NULL_HANDLE)
+	{
+		vkQueueWaitIdle(m_Queue);
+	}
+
 }
 
 void VStagingImageBuffer::TransferImageBufferToHostData(VImageBufferBase* transferBuffer, Texture* toData, vk::Fence fence)

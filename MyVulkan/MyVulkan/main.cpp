@@ -45,10 +45,14 @@ int main()
 		return EXIT_FAILURE;
 	}
 
+	vk::Device logicalDevice = vulkanInitializer.GetLogicalDevice();
+	vk::PhysicalDevice physicalDevice = vulkanInitializer.GetPhysicalDevice();
+	VmaAllocator* pAllocator = vulkanInitializer.GetPVmaAllocator();
+
+
 	// ウィンドウを作成
-	mainWindow.init("Vulkan Window", windowWidth, windowHeight);
-	renderTarget.Initialize(vulkanInitializer.GetPVmaAllocator(), { windowWidth, windowHeight });
-	auto allocator = vulkanInitializer.GetPVmaAllocator();
+	mainWindow.init(&vulkanInitializer, "Vulkan Window", windowWidth, windowHeight);
+	renderTarget.Initialize(pAllocator, { windowWidth, windowHeight });
 
 	float angle = 0.0f;
 	float deltaTime = 0.0f;
@@ -64,11 +68,11 @@ int main()
 	std::vector<RenderObject*> objContainer = { &m_Object };
 
 	// カメラクラスを作成
-	SceneCamera camera(allocator);
+	SceneCamera camera(pAllocator);
 	camera.UpdateBuffer(ViewProjection(1.0));
 
 	
-	renderConfig.Initialize(&mainWindow);
+	renderConfig.Initialize(logicalDevice, physicalDevice, &mainWindow);
 
 	
 	triangleRenderer.Initialize(&renderTarget);
@@ -104,10 +108,13 @@ int main()
 	renderTarget.ExecuteDrawTask();
 	renderTarget.WriteImage("endImage.bmp");
 
-	vulkanInitializer.cleanup();
 
-	// 作成したウィンドウを片づける
-	mainWindow.kill();
+	// 作成したオブジェクトは作成したのと逆の順番で解放する
+	renderTarget.Cleanup();
+	triangleRenderer.Cleanup();
+	renderConfig.Cleanup();
+	mainWindow.Cleanup();
+	vulkanInitializer.Cleanup();
 
 	return EXIT_SUCCESS;
 }

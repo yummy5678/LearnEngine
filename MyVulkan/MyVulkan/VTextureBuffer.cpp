@@ -21,6 +21,12 @@ VMeshTextureBuffer::~VMeshTextureBuffer()
 {
 }
 
+void VMeshTextureBuffer::Cleanup()
+{
+
+	VImageBufferBase::Cleanup();
+}
+
 void VMeshTextureBuffer::SetImage(VmaAllocator* allocator, Texture& texture, vk::Fence fence)
 {
 	m_Extent.width = texture.width;

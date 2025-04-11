@@ -9,7 +9,7 @@ public:
 	VMesh();
 	~VMesh();
 
-	void SetMesh(VmaAllocator* allocator, Mesh* mesh);
+	void SetMesh(VmaAllocator* allocator, Mesh* mesh, vk::Fence fence);
 
 	VVertexBuffer*	GetPVertex();
 	VIndexBuffer*	GetPIndex();
@@ -20,8 +20,8 @@ private:
 	VVertexBuffer	m_Vertex;
 	VIndexBuffer	m_Index;	
 
-	void SetVertex(VmaAllocator* allocator, std::vector<Vertex>*  vertex);
-	void SetIndex(VmaAllocator* allocator, std::vector<uint32_t>* index);
+	void SetVertex(VmaAllocator* allocator, std::vector<Vertex>*  vertex, vk::Fence fence);
+	void SetIndex(VmaAllocator* allocator, std::vector<uint32_t>* index, vk::Fence fence);
 
 };
 

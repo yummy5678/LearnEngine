@@ -23,7 +23,7 @@ public:
 		std::vector<vk::DescriptorSetLayout> descriptorSetLayouts,
 		std::vector<vk::PushConstantRange> pushConstantRanges);
 
-	void Destroy();
+	void Cleanup();
 
 	vk::Pipeline		GetPipeline();
 	vk::PipelineLayout	GetPipelineLayout();
@@ -31,14 +31,14 @@ public:
 	// int createTextureDescriptor(vk::Device logicalDevice, VkImageView textureImage);
 
 private:
-	vk::Device*						m_pLogicalDevice;
+	vk::Device						m_LogicalDevice;
 
 	vk::Pipeline					m_Pipeline;
 
 	vk::PipelineLayout				m_PipelineLayout;
 
 	// デスクリプタ
-	VTextureDescriptorSetLayout				m_TextureDescriptor;
+	VTextureDescriptorSetLayout		m_TextureDescriptor;
 
 
 	vk::GraphicsPipelineCreateInfo	m_PipelineInfo;

@@ -9,7 +9,7 @@ public:
     VTextureDescriptorSetLayout();
     ~VTextureDescriptorSetLayout();
 
-    void Initialize(vk::Device* pLogicalDevice, uint32_t bindNumber);
+    void Initialize(vk::Device pLogicalDevice, uint32_t bindNumber);
     
 
 

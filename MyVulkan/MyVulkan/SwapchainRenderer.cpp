@@ -91,9 +91,9 @@ void SwapchainRenderer::Cleanup()
     m_PresentCommandBuffers.clear();
 
     // フレームバッファの解放
-    for (auto& allocation : m_DepthImageAllocation)
+    for (uint32_t i = 0;i < m_DepthImageAllocation.size();i++)
     {
-        allocation->Destroy(*m_pAllocator);
+        vmaDestroyImage(*m_pAllocator, m_ImageSets[i].depth.buffer, m_DepthImageAllocation[i]);
     }
     m_DepthFormat = vk::Format::eUndefined;
     m_ColorFormat = vk::Format::eUndefined;
@@ -270,7 +270,7 @@ void SwapchainRenderer::CreateDepthImage(vk::Image& setImage, VmaAllocation& all
 
 void SwapchainRenderer::CreatePresentationCommands()
 {
-
+    vk::Device logicalDevice = m_AllocatorInfo.device;
 
 #pragma region コマンドプールの作成
     // コマンドプールの作成に必要な情報を設定する
@@ -280,7 +280,6 @@ void SwapchainRenderer::CreatePresentationCommands()
     poolInfo.queueFamilyIndex = m_QueueFamily.GetPresentationIndex(m_Surface);
 
     // グラフィックスキューファミリー用のコマンドプールを作成する
-    vk::Device logicalDevice = m_AllocatorInfo.device;
     m_PresentCommandPool = logicalDevice.createCommandPool(poolInfo);
 #pragma endregion
 
@@ -292,7 +291,6 @@ void SwapchainRenderer::CreatePresentationCommands()
     allocateInfo.commandBufferCount = m_SwapchainInfo.minImageCount;           // 割り当てるコマンドバッファの数
 
     // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
-    vk::Device logicalDevice = m_AllocatorInfo.device;
     m_PresentCommandBuffers = logicalDevice.allocateCommandBuffers(allocateInfo); //配列で情報をやり取りする
 #pragma endregion
 }
