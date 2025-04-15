@@ -141,7 +141,7 @@ void GraphicWindow::ExecuteDrawTask()
 	    //{ m_Fences[m_CurrentIndex] },	// 利用するフェンス達
 	    { fence },	// 利用するフェンス達
 	    VK_TRUE,						// フェンスが全てシグナル状態になるまで待つ
-	    UINT64_MAX);					// 最大待機時間
+		MAX_WAIT_TIME);					// 最大待機時間
 	logicalDevice.resetFences(fence);	// フェンスを非シグナル状態にする
 
 	auto imageSet = m_Swapchain.GetRenderingImageSet();
@@ -172,6 +172,11 @@ void GraphicWindow::ExecuteDrawTask()
 void GraphicWindow::Presentation()
 {
 	m_Swapchain.UpdateFrame();
+}
+
+vk::Device GraphicWindow::GetLogicalDevice()
+{
+	return m_AllocatorInfo.device;
 }
 
 RenderingImageSet GraphicWindow::GetImageSet()

@@ -27,6 +27,7 @@ public:
 	void ExecuteDrawTask();
     void Presentation();
 
+    vk::Device		GetLogicalDevice() override;
     RenderingImageSet   GetImageSet() override;
     vk::Format			GetColorFormat() override;
     vk::Format			GetDepthFormat() override;

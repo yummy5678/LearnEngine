@@ -17,11 +17,6 @@ namespace GraphicsUtility
 		VmaAllocatorInfo allocatorInfo;
 		vmaGetAllocatorInfo(*allocator, &allocatorInfo);
 		vk::Device logicalDevice = allocatorInfo.device;
-		logicalDevice.waitForFences(
-			{ fence },						// 利用するフェンス達
-			VK_TRUE,							// フェンスが全てシグナル状態になるまで待つ
-			UINT64_MAX);						// 最大待機時間
-		logicalDevice.resetFences(fence);	// フェンスを非シグナル状態にする
 
 		stagingBuffer.Initialize(allocator, imageSize.width, imageSize.height, TEXTURE_CHANNEL_RGB_ALPHA);
 

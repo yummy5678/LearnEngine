@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 #include "NonCopyable.h"
 #include "GraphicsDefine.h"
-#include "Utilities.h"
+//#include "Utilities.h"
 #include "VulkanInitializer.h"
 
 

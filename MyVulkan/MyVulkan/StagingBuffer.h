@@ -1,6 +1,7 @@
 #pragma once
 #include "VBufferBase.h"
 #include "QueueUtility.h"
+#include "GraphicsDefine.h"
 
 class VStagingBuffer :
     public VBufferBase

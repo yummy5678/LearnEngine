@@ -1,5 +1,6 @@
 #include "StagingImageBuffer.h"
-#include "VImageBufferBase.h"
+
+
 
 VStagingImageBuffer::VStagingImageBuffer() :
 	VBufferBase(
@@ -93,7 +94,7 @@ void VStagingImageBuffer::TransferHostDataToImageBuffer(void* transferData, vk::
 
 	if(fence != VK_NULL_HANDLE)
 	{
-		m_LogicalDevice.waitForFences(fence, true, UINT64_MAX);
+		m_LogicalDevice.waitForFences(fence, true, MAX_WAIT_TIME);
 		m_LogicalDevice.resetFences(fence);
 	}
 
@@ -112,48 +113,55 @@ void VStagingImageBuffer::TransferHostDataToImageBuffer(void* transferData, vk::
 	{
 		vkQueueWaitIdle(m_Queue);
 	}
+	else
+	{
+		m_LogicalDevice.waitForFences(fence, true, MAX_WAIT_TIME); // 完了を待つ
+	}
 
 }
 
 void VStagingImageBuffer::TransferImageBufferToHostData(VImageBufferBase* transferBuffer, Texture* toData, vk::Fence fence)
 {
+	// NULLチェック
 	if (m_pAllocator == nullptr) throw std::runtime_error("先にステージングバッファの初期化を行ってください!");
 	if(toData->pixelData.empty() == false) throw std::runtime_error("転送先は中身が空のTextureを用意してください!");
 
-	//VmaAllocationInfo allocInfo;
-	//vmaGetAllocationInfo(*m_pAllocator, m_Allocation, &allocInfo);
+	// フェンスが設定されている場合はフェンスの処理が終わるまで待つ
+	if (fence != VK_NULL_HANDLE)
+	{
+		m_LogicalDevice.waitForFences(fence, true, MAX_WAIT_TIME);
+		m_LogicalDevice.resetFences(fence);
+	}
 
 	// 転送元の画像データを転送用バッファにコピー
-	SetCopyImageToBufferCommand(m_CommandBuffer, transferBuffer, m_Buffer, m_ImageWidth, m_ImageHeight);	// 転送コマンドを作成
-	vk::SubmitInfo submitInfo;// コマンドを実行
+	SetCopyImageToBufferCommand(					// 転送コマンドを作成
+		m_CommandBuffer, 
+		transferBuffer, 
+		m_Buffer,
+		m_ImageWidth, m_ImageHeight);
+	vk::SubmitInfo submitInfo;						// コマンドを実行
 	submitInfo.commandBufferCount = 1;				// 使うコマンドは1つだけで充分
 	submitInfo.pCommandBuffers = &m_CommandBuffer;	// 作成したコマンドバッファをセット
-	m_Queue.submit(1, &submitInfo, fence);		// コマンドをGPUのキューに送信
-
-	// 転送用バッファから転送先ポインタにデータをコピー
-
+	m_Queue.submit(1, &submitInfo, fence);			// コマンドをGPUのキューに送信
+	
+	if (fence == VK_NULL_HANDLE)
+	{
+		// 全てのキューの処理が完了するまで待つ
+		vkQueueWaitIdle(m_Queue);
+	}
+	else
+	{
+		m_LogicalDevice.waitForFences(fence, true, MAX_WAIT_TIME); // フェンスの完了を待つ
+	}
 
 
 	// 転送用バッファのデータを宛先のイメージバッファにコピー
-
-
-
-
-
-	//m_Queue.waitIdle();								// 送ったコマンドキューの完了を待つ
 	toData->channel = m_ImageChannel;
 	toData->width = m_ImageWidth;
 	toData->height = m_ImageHeight;
 	//toData = m_LogicalDevice.mapMemory(toData, imgMem.get(), 0, imgMemReq.size);
 	toData->pixelData.resize(m_ImageWidth * m_ImageHeight * m_ImageChannel);
 	VBufferBase::MapData(toData->pixelData.data(), m_AllocationInfo.pMappedData);
-	//void* data = toData->pixelData.data();
-	//vmaMapMemory(*m_pAllocator, m_Allocation, &data);
-
-
-
-	//// ステージングバッファにイメージバッファの内容をコピー
-	//VBufferBase::MapData(&m_Buffer, m_DataSize);
 
 }
 

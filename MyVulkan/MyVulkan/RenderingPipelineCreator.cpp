@@ -13,7 +13,6 @@ RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initialize
 	//	printf("イニシャライザーをイニシャライズする前にパイプラインのコンストラクタを読んでください");
 	initializer.GetPDeviceExtension()->UseDynamicRendering();
 	initializer.GetPDeviceExtension()->UseRenderingModeNonSolid();
-	m_LogicalDevice = initializer.GetLogicalDevice();
 
 }
 
@@ -22,6 +21,7 @@ RenderingPipelineCreator::~RenderingPipelineCreator()
 }
 
 void RenderingPipelineCreator::Create(
+	vk::Device logicalDevice,
 	vk::Extent2D extent,
 	vk::Rect2D scissor,
 	vk::Format colorFormat,
@@ -31,8 +31,10 @@ void RenderingPipelineCreator::Create(
 	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts,
 	std::vector<vk::PushConstantRange> pushConstantRanges)
 {
+	m_LogicalDevice = logicalDevice;
+
 	//m_TextureDescriptors.CreateSingleDescriptorSet();
-	//パイプラインレイアウトの作成	//今は作らなくていいかも
+	//パイプラインレイアウトの作成
 	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { m_TextureDescriptors.GetDescriptorSetLayout() };
 	CreatePipelineLayout(descriptorSetLayouts, pushConstantRanges);
 
@@ -75,7 +77,8 @@ vk::PipelineLayout RenderingPipelineCreator::GetPipelineLayout()
 
 void RenderingPipelineCreator::CreatePipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges)
 {
-	if (m_LogicalDevice == VK_NULL_HANDLE) throw std::runtime_error("パイプラインレイアウトの作成前に論理デバイスを作成してください!");
+	if (m_LogicalDevice == VK_NULL_HANDLE) 
+		throw std::runtime_error("パイプラインレイアウトの作成前に論理デバイスを作成してください!");
 
 	vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 	pipelineLayoutCreateInfo.setSetLayouts(descriptorSetLayouts);
@@ -134,8 +137,8 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::R
 	rasterizationInfo.depthBiasEnable = VK_FALSE;				// 深度バイアスの有無
 	rasterizationInfo.depthBiasSlopeFactor = 0.0f;				// 深度バイアスのスロープ係数
 	rasterizationInfo.depthClampEnable = VK_FALSE;				// 深度クランピングの有無
-	rasterizationInfo.lineWidth = 3.0f;						// 線の幅
-	rasterizationInfo.polygonMode = vk::PolygonMode::eFill;	// ポリゴンの描画モード
+	rasterizationInfo.lineWidth = 1.0f;							// 線の幅
+	rasterizationInfo.polygonMode = vk::PolygonMode::eFill;		// ポリゴンの描画モード
 	rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;		// ラスタライザーの処理の有無
 	rasterizationInfo.frontFace = vk::FrontFace::eCounterClockwise;	// ポリゴンの前面の定義
 #pragma endregion rasterizationInfo
@@ -224,7 +227,12 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::R
 
 
 	// Create Graphics Pipeline
-	auto result = m_LogicalDevice.createGraphicsPipeline(nullptr, m_PipelineInfo);
+	vk::ResultValue result = m_LogicalDevice.createGraphicsPipeline(nullptr, m_PipelineInfo);
+
+	if (result.result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("グラフィクスパイプラインの作成に失敗しました！\n");
+	}
 
 	m_Pipeline = result.value;
 }

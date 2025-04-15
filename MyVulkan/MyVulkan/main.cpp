@@ -108,7 +108,7 @@ int main()
 	renderTarget.ExecuteDrawTask();
 	renderTarget.WriteImage("endImage.bmp");
 
-
+	//ToDo グラフィクスパイプラインの解放処理を作成する
 	// 作成したオブジェクトは作成したのと逆の順番で解放する
 	renderTarget.Cleanup();
 	triangleRenderer.Cleanup();

@@ -12,6 +12,7 @@ public:
     RenderImage();
     ~RenderImage();
 
+    vk::Device		GetLogicalDevice() override;
     vk::Extent2D	    GetExtent() override;
     RenderingImageSet   GetImageSet() override;
     vk::Format		    GetColorFormat() override;

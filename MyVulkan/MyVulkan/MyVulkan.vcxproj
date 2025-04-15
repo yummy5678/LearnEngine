@@ -191,6 +191,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DrawCommand.h" />
+    <ClInclude Include="FileLoader.h" />
     <ClInclude Include="GltfLoader.h" />
     <ClInclude Include="HelloTriangleRenderer.h" />
     <ClInclude Include="HostImage.h" />
@@ -247,10 +248,8 @@
     <ClInclude Include="ShaderUtility.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="SwapchainRenderer.h" />
-    <ClInclude Include="Utilities.h" />
     <ClInclude Include="VulkanExtensions.h" />
     <ClInclude Include="VulkanInstance.h" />
-    <ClInclude Include="VulkanUtility.h" />
     <ClInclude Include="VulkanValidation.h" />
     <ClInclude Include="WriteImage.h" />
   </ItemGroup>

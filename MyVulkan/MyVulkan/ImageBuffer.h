@@ -1,5 +1,6 @@
 #pragma once
 #include "VImageBufferBase.h"
+
 class VImageBuffer :
     public VImageBufferBase
 {

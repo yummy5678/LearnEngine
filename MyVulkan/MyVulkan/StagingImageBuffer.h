@@ -2,8 +2,8 @@
 #include "VBufferBase.h"
 #include "QueueUtility.h"
 #include "Texture.h"
-
-class VImageBufferBase;
+#include "GraphicsDefine.h"
+#include "ImageBuffer.h"
 
 class VStagingImageBuffer :
     public VBufferBase

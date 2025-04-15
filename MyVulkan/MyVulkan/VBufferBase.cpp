@@ -51,8 +51,8 @@ void VBufferBase::Cleanup()
 		m_Allocation = VK_NULL_HANDLE;
 	}
 
-	m_pAllocator = nullptr;
 	m_DataSize = 0;
+	m_pAllocator = nullptr;
 }
 
 void VBufferBase::CreateBuffer(VmaAllocator* allocator, vk::DeviceSize dataSize)

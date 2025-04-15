@@ -1,5 +1,6 @@
 #include "StagingBuffer.h"
 
+
 VStagingBuffer::VStagingBuffer() :
 	VBufferBase(
 		vk::BufferUsageFlagBits::eTransferSrc | 				// バッファの使用用途
@@ -67,8 +68,6 @@ void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffe
 	if(!m_pAllocator) throw std::runtime_error("先にステージングバッファの初期化を行ってください!\n");
 
 	// データをステージングバッファにコピー
-	//VmaAllocationInfo allocationInfo;
-	//vmaCreateBuffer(allocator, &bufferCreateInfo, &allocCreateInfo, &m_Buffer, &m_Allocation, &allocationInfo);
 	MapData(m_AllocationInfo.pMappedData , transfarData);
 
 	// トランスファーバッファのデータを宛先のバッファにコピー
@@ -81,8 +80,8 @@ void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffe
 
 	if(fence != VK_NULL_HANDLE)
 	{
-		m_LogicalDevice.waitForFences(fence, true, UINT64_MAX);
-		m_LogicalDevice.resetFences(fence);
+		m_LogicalDevice.waitForFences(fence, true, MAX_WAIT_TIME); // 前回の使用完了を待つ
+		m_LogicalDevice.resetFences(fence);                         // フェンスを未完了状態に戻す
 	}
 
 	vk::Result result = m_Queue.submit(1, &submitInfo, fence);
@@ -91,11 +90,15 @@ void VStagingBuffer::TransferDataToBuffer(void* transfarData, vk::Buffer toBuffe
 		throw std::runtime_error("メモリ間のデータの移動に失敗しました\n");
 	}
 
-	if (fence == nullptr)
+
+	if (fence == VK_NULL_HANDLE)
 	{
 		m_Queue.waitIdle(); // 完了を待つ
 	}
-
+	else
+	{
+		m_LogicalDevice.waitForFences(fence, true, MAX_WAIT_TIME);
+	}
 }
 
 void VStagingBuffer::Cleanup()

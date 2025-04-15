@@ -1,5 +1,6 @@
 #include "VShaderConfigureBase.h"
 
+
 VShaderConfigureBase::VShaderConfigureBase() :
 	m_LogicalDevice(VK_NULL_HANDLE),
 	m_VertexShaderPath(""),
@@ -70,8 +71,8 @@ void VShaderConfigureBase::CreateShaderModules(
 	m_FragmentShaderPath	= flagmentPath;
 
 	// SPIR-V シェーダーコードの読込
-	auto vertexShaderCode	= readFile(m_VertexShaderPath);
-	auto fragmentShaderCode = readFile(m_FragmentShaderPath);
+	auto vertexShaderCode	= GraphicsUtility::readFile(m_VertexShaderPath);
+	auto fragmentShaderCode = GraphicsUtility::readFile(m_FragmentShaderPath);
 
 	// シェーダーモジュールの作成
 	m_VertexShaderModule	= CreateShaderModule(vertexShaderCode);

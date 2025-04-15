@@ -31,6 +31,11 @@ RenderImage::~RenderImage()
 	Cleanup();
 }
 
+vk::Device RenderImage::GetLogicalDevice()
+{
+	return m_LogicalDevice;
+}
+
 vk::Extent2D RenderImage::GetExtent()
 {
 	return { m_ColorImage.GetExtent().width, m_ColorImage.GetExtent().height };
@@ -90,7 +95,7 @@ void RenderImage::ExecuteDrawTask()
 	m_LogicalDevice.waitForFences(
 		{ m_Fence },						// 利用するフェンス達
 		VK_TRUE,							// フェンスが全てシグナル状態になるまで待つ
-		UINT64_MAX);						// 最大待機時間
+		MAX_WAIT_TIME);						// 最大待機時間
 	m_LogicalDevice.resetFences(m_Fence);	// フェンスを非シグナル状態にする
 
 	

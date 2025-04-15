@@ -5,8 +5,8 @@ HelloTriangleRenderer::HelloTriangleRenderer(VulkanInitializer& initializer) :
     RendererBase(initializer),
     m_Shader()
 {
-    m_LogicalDevice = initializer.GetLogicalDevice();
-    m_PhygicalDevice = initializer.GetPhysicalDevice();
+    //m_LogicalDevice = initializer.GetLogicalDevice();
+    //m_PhygicalDevice = initializer.GetPhysicalDevice();
 }
 
 HelloTriangleRenderer::~HelloTriangleRenderer()
@@ -29,6 +29,8 @@ void HelloTriangleRenderer::Initialize(RenderingTarget* renderere)
     vk::Format depthFomat = renderere->GetDepthFormat();
     vk::Extent2D extent = renderere->GetExtent();
 
+    m_LogicalDevice = renderere->GetLogicalDevice();
+
     m_Shader.Create(m_LogicalDevice);
     m_RenderArea.setOffset({ 0, 0 });
     m_RenderArea.setExtent(extent);
@@ -38,6 +40,7 @@ void HelloTriangleRenderer::Initialize(RenderingTarget* renderere)
     auto vertexInputState = m_Shader.GetVertexInputState();
 
     m_GraphicsPipeline.Create(
+        m_LogicalDevice,
         extent,
         m_RenderArea,
         colorFomat,

@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include "NonCopyable.h"
-#include "Utilities.h"
+//#include "Utilities.h"
 #include "ShaderUtility.h"
 #include "PipelineShaderCreator.h"
 #include "VertexBuffer.h"
@@ -14,6 +14,7 @@ public:
 	~RenderingPipelineCreator();
 
 	void Create(
+		vk::Device logicalDevice,
 		vk::Extent2D extent,
 		vk::Rect2D scissor,
 		vk::Format colorFormat,

@@ -39,6 +39,7 @@ void RenderConfig::Initialize(vk::Device logicalDevice, vk::PhysicalDevice physi
     auto vertexInputState       = m_Shader.GetVertexInputState();
 
     m_GraphicsPipeline.Create(
+        m_LogicalDevice,
         extent,
         m_RenderArea,
         colorFomat,

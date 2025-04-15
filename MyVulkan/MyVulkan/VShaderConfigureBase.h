@@ -1,7 +1,8 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include "NonCopyable.h"
-#include "Utilities.h"
+#include "FileLoader.h"
+//#include "Utilities.h"
 
 
 // シェーダー管理の基底クラス

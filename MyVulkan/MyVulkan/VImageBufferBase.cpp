@@ -1,4 +1,5 @@
 #include "VImageBufferBase.h"
+#include "StagingImageBuffer.h"
 
 VImageBufferBase::VImageBufferBase(
 	vk::ImageUsageFlags bufferusage,

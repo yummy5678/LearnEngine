@@ -3,7 +3,7 @@
 #include <VMA/vk_mem_alloc.h>
 #include "NonCopyable.h"
 #include "MeshObject.h"
-#include "StagingImageBuffer.h"
+
 #include "ImageSet.h"
 
 class VImageBufferBase : public NonCopyable
@@ -46,7 +46,7 @@ protected:
 	const vk::SharingMode			m_SharingMode;
 	const vk::Format				m_Format;
 	const vk::ImageAspectFlags		m_AspectFlag;
-	vk::Extent3D				m_Extent;
+	vk::Extent3D					m_Extent;
 
 	ImageSet m_ImageSet;	// イメージとイメージ情報のセット
 
