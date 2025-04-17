@@ -52,7 +52,12 @@ void SurfaceGenerator::Cleanup()
 {
 	if (m_Instance == VK_NULL_HANDLE) return;
 
-	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+	if (m_Surface != VK_NULL_HANDLE)
+	{
+		vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+		m_Surface = VK_NULL_HANDLE;
+	}
+
 	m_Instance = VK_NULL_HANDLE;
 }
 

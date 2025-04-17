@@ -29,10 +29,12 @@ void VDescriptorBase::Cleanup()
     if (m_LogicalDevice == VK_NULL_HANDLE) return;
 
     //デスクリプタプールを解放
-    if(m_DescriptorPool != VK_NULL_HANDLE)
-    m_LogicalDevice.destroyDescriptorPool(m_DescriptorPool, nullptr);
-    m_DescriptorPool = VK_NULL_HANDLE;
-    m_DescriptorSet.clear();
+    if (m_DescriptorPool != VK_NULL_HANDLE)
+    {
+        m_LogicalDevice.destroyDescriptorPool(m_DescriptorPool, nullptr);
+        m_DescriptorPool = VK_NULL_HANDLE;
+        m_DescriptorSet.clear();
+    }
 
     m_SetCount = 0;
 

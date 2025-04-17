@@ -56,13 +56,16 @@ void GraphicWindow::init(VulkanInitializer* initializer, const std::string wName
 
 	m_Swapchain.Create(pAllocator, m_Surface.GetSurface());
 
+	// スワップチェインで使用するフレームの枚数
 	m_SwapcheinFrameCount = m_Swapchain.GetFrameCount();
 
 	// スワップチェインで使用する画像の枚数
-	auto renderingImage = m_Swapchain.GetRenderingImageSet();
-	m_DrawCommands.resize(m_SwapcheinFrameCount);
+	//auto renderingImage = m_Swapchain.GetRenderingImageSet();
+
+	m_DrawCommands.resize(m_SwapcheinFrameCount); // DrawCommandはコピー禁止なので領域だけ確保
 	for (uint32_t i = 0; i < m_SwapcheinFrameCount; i++)
 	{
+		//m_DrawCommands.emplace_back(); // ムーブもコピーも不要
 		m_DrawCommands[i].Create(
 			m_AllocatorInfo.device,
 			m_AllocatorInfo.physicalDevice);
@@ -83,6 +86,7 @@ void GraphicWindow::init(VulkanInitializer* initializer, const std::string wName
 
 void GraphicWindow::Cleanup()
 {
+	// NULLチェック
 	if (m_AllocatorInfo.device == nullptr) return;
 	vk::Device logicalDevice = m_AllocatorInfo.device;
 
@@ -91,12 +95,14 @@ void GraphicWindow::Cleanup()
 	{
 		command.Destroy();
 	}
+	m_DrawCommands.clear();
 
 	// フェンスの解放
 	for (auto& fence : m_Fences)
 	{
 		logicalDevice.destroyFence(fence);
 	}
+	m_Fences.clear();
 
 	// スワップチェインの解放
 	m_Swapchain.Cleanup();

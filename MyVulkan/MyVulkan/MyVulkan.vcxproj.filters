@@ -66,9 +66,6 @@
     <ClCompile Include="VDescriptorLayoutBase.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="ModelTexture.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="RenderObject.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -117,9 +114,6 @@
     <ClCompile Include="GltfLoader.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="VmaCreator.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="VCameraDescriptorSetLayout.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -156,9 +150,6 @@
     <ClCompile Include="RenderImage.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="HostImage.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="ImageBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -166,6 +157,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VulkanInitializer.h">
@@ -231,9 +223,6 @@
     <ClInclude Include="VDescriptorLayoutBase.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="ModelTexture.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="RenderObject.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -288,9 +277,6 @@
     <ClInclude Include="GltfLoader.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="VmaCreator.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="VmaCallbackFunction.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -340,9 +326,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="RenderImage.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="HostImage.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="ImageBuffer.h">

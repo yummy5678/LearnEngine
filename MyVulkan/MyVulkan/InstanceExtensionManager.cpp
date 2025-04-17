@@ -1,8 +1,6 @@
 #include "InstanceExtensionManager.h"
 
 
-
-
 InstanceExtension::InstanceExtension()
 {
 }
@@ -90,7 +88,7 @@ void InstanceExtension::CreateValidationExtension()
 
 bool InstanceExtension::CheckExtensionsSupport(std::vector<const char*> checkExtensionNames)
 {
-	std::cout << "インスタンスの指定された拡張機能が利用出来るか確認" << std::endl;
+	std::wcout << L"インスタンスの指定された拡張機能が利用出来るか確認" << std::endl;
 
 	// 拡張機能のリストを取得
 	auto extensions = vk::enumerateInstanceExtensionProperties();

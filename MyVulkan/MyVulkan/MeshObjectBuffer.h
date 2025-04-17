@@ -6,11 +6,14 @@
 //#include "Observer.h"
 
 
-class VMeshObject //: public NonCopyable
+class VMeshObject : public NonCopyable
 {
 public:
+	// コンストラクタ
 	VMeshObject();
 	~VMeshObject();
+	VMeshObject(VMeshObject&&) noexcept = default;     
+	VMeshObject& operator=(VMeshObject&&) noexcept = default; 
 
 	void SetMeshObject(VmaAllocator* allocator, MeshObject* meshObject);
 

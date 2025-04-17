@@ -82,6 +82,7 @@ void SwapchainRenderer::Cleanup()
     {
         logicalDevice.destroySemaphore(semaphore);
     }
+    m_ImageAvailableSemaphores.clear();
 
     // 
     m_QueueFamily.Cleanup();
@@ -97,13 +98,12 @@ void SwapchainRenderer::Cleanup()
     }
     m_DepthFormat = vk::Format::eUndefined;
     m_ColorFormat = vk::Format::eUndefined;
+    m_DepthImageAllocation.clear();
     m_ImageSets.clear();
-
-    // サーフェスの解放
-    instance.destroySurfaceKHR(m_Surface);
 
     //スワップチェーンの解放
     logicalDevice.destroySwapchainKHR(m_Swapchain);
+    m_Swapchain = VK_NULL_HANDLE;
 
     // フレームバッファのカウントを初期化
     m_ImageIndex = 0;
@@ -112,6 +112,8 @@ void SwapchainRenderer::Cleanup()
     m_AllocatorInfo.instance = VK_NULL_HANDLE;
     m_AllocatorInfo.physicalDevice = VK_NULL_HANDLE;
     m_AllocatorInfo.device = VK_NULL_HANDLE;
+
+    m_pAllocator = nullptr;
 
 }
 

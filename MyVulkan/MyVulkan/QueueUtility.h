@@ -2,15 +2,18 @@
 #include <vulkan/vulkan.hpp>
 #include <iostream>
 #include <set>
+#include "NonCopyable.h"
 
 //キューを作成するときの初期値
 constexpr uint32_t UndefinedQueueNumber = UINT32_MAX;   //キューが見つかったかの判定に使う値
 
-class QueueFamilySelector
+class QueueFamilySelector : public NonCopyable
 {
 public:
     QueueFamilySelector();
     ~QueueFamilySelector();
+    QueueFamilySelector(QueueFamilySelector&&) noexcept = default;
+    QueueFamilySelector& operator=(QueueFamilySelector&&) noexcept = default;
 
     void Initialize(vk::PhysicalDevice physicalDevice);
     void Cleanup();

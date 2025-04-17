@@ -11,6 +11,7 @@ public:
 	SceneCamera(VmaAllocator* allocator);
 	~SceneCamera();
 
+	void Cleanup();
 
 	void UpdateBuffer(ViewProjection viewProjection);
 	vk::Buffer GetProjectionBuffer();

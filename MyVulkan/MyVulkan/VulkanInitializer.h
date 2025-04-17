@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include <VMA/vk_mem_alloc.h>
 #include <vector>
 #include "NonCopyable.h"
 #include "DeviceExtensionManager.h"
@@ -9,6 +10,8 @@
 #include "VulkanInstance.h"
 #include "Device.h"
 #include "VmaCallbackFunction.h"
+
+#define VMA_DEBUG_LOG(...) printf(__VA_ARGS__)
 
 class VulkanInitializer : public NonCopyable
 {
@@ -35,7 +38,7 @@ public:
 	bool IsInitialized();
 
 private:
-	// Šg’£‹@”\
+	// Šg’£‹@”\//
 	InstanceExtension	m_InstanceExtension;
 	DeviceExtension		m_DeviceExtension;
 

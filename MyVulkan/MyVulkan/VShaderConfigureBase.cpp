@@ -53,8 +53,17 @@ void VShaderConfigureBase::DestroyModule()
 	if (m_LogicalDevice == VK_NULL_HANDLE) return;
 
 	// ÉÇÉWÉÖÅ[ÉãçÌèúä÷êî
-	if (m_FragmentShaderModule != VK_NULL_HANDLE)	m_LogicalDevice.destroyShaderModule(m_FragmentShaderModule);
-	if (m_FragmentShaderModule != VK_NULL_HANDLE)	m_LogicalDevice.destroyShaderModule(m_VertexShaderModule);
+	if (m_FragmentShaderModule != VK_NULL_HANDLE)
+	{
+		m_LogicalDevice.destroyShaderModule(m_FragmentShaderModule);
+		m_FragmentShaderModule = VK_NULL_HANDLE;
+	}
+
+	if (m_VertexShaderModule != VK_NULL_HANDLE)
+	{
+		m_LogicalDevice.destroyShaderModule(m_VertexShaderModule);
+		m_VertexShaderModule = VK_NULL_HANDLE;
+	}
 }
 
 void VShaderConfigureBase::CreateShaderModules(

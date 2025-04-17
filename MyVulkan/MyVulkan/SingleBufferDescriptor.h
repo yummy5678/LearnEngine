@@ -11,6 +11,8 @@ public:
 	void Initialize(vk::Device logicalDevice, vk::DescriptorSetLayout layout);
 	void Update(vk::Buffer buffer, vk::DeviceSize bufferSize);
 
+	void Cleanup() override;
+
 
 	vk::DescriptorSet		GetDescriptorSet();
 

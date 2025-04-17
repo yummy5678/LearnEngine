@@ -12,6 +12,17 @@ SceneCamera::SceneCamera(VmaAllocator* allocator) :
 
 SceneCamera::~SceneCamera()
 {
+    Cleanup();
+}
+
+void SceneCamera::Cleanup()
+{
+    // ビュープロジェクションを解放
+
+    m_ProjectionBuffer.Cleanup();
+    m_Descriptors.clear();
+    m_LogicalDevice = VK_NULL_HANDLE;
+    m_pAllocator = nullptr;
 }
 
 void SceneCamera::UpdateBuffer(ViewProjection viewProjection)

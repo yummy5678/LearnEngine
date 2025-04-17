@@ -16,7 +16,7 @@ public:
 	InstanceGenerator();
 	~InstanceGenerator();
 
-	void Create(InstanceExtension extensionManager);
+	void Create(InstanceExtension* extensionManager);
 	void Destroy();
 
 	vk::Instance GetInstanse();
@@ -40,7 +40,7 @@ private:
 	//インスタンスの作成情報の作成
 	const vk::InstanceCreateInfo	GetInstanceInfo(
 		const vk::ApplicationInfo* appInfo,
-		InstanceExtension& extensionManager);
+		InstanceExtension* extensionManager);
 
 };
 

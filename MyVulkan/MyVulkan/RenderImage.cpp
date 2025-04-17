@@ -141,7 +141,11 @@ void RenderImage::Cleanup()
 
 	// 同期オブジェクトの解放
 	if (m_Fence != VK_NULL_HANDLE)
+	{
 		m_LogicalDevice.destroyFence(m_Fence);
+		m_Fence = VK_NULL_HANDLE;
+	}
+
 
 	// メンバ変数の初期化
 	m_RenderFunctions.clear();

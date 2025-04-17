@@ -8,6 +8,7 @@ VSingleBufferDescriptor::VSingleBufferDescriptor() :
 
 VSingleBufferDescriptor::~VSingleBufferDescriptor()
 {
+    Cleanup();
 }
 
 void VSingleBufferDescriptor::Initialize(vk::Device logicalDevice, vk::DescriptorSetLayout layout)
@@ -20,6 +21,12 @@ void VSingleBufferDescriptor::Initialize(vk::Device logicalDevice, vk::Descripto
 void VSingleBufferDescriptor::Update(vk::Buffer buffer, vk::DeviceSize bufferSize)
 {
 	UpdateDescriptorSet(buffer, bufferSize);
+}
+
+void VSingleBufferDescriptor::Cleanup()
+{
+    printf("VSingleBufferDescriptor‚ð‰ð•ú‚µ‚Ü‚·");
+    VDescriptorBase::Cleanup();
 }
 
 vk::DescriptorSet VSingleBufferDescriptor::GetDescriptorSet()

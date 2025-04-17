@@ -3,9 +3,10 @@
 #include <vulkan/vulkan.hpp>
 #include <iostream>
 #include <set>
+#include "NonCopyable.h"
 
 
-class DeviceExtension
+class DeviceExtension : public NonCopyable
 {
 public:
 	DeviceExtension();	//コンストラクタ

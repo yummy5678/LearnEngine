@@ -1,11 +1,12 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include "NonCopyable.h"
 #include "GraphicsDefine.h"
 #include "QueueUtility.h"
 #include "VulkanInitializer.h"
 #include "ImageSet.h"
 
-class SwapchainRenderer
+class SwapchainRenderer : public NonCopyable
 {
 public:
 	SwapchainRenderer(VulkanInitializer& initializer);

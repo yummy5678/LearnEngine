@@ -13,7 +13,7 @@ public:
 	DeviceGenerator();
 	~DeviceGenerator();
 
-	void Create(DeviceExtension extensionManager,vk::Instance instance);
+	void Create(DeviceExtension* extensionManager,vk::Instance instance);
 	void Destroy();
 
 	vk::PhysicalDevice	GetPhysicalDevice();

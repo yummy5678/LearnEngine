@@ -11,14 +11,14 @@ InstanceGenerator::~InstanceGenerator()
 
 }
 
-void InstanceGenerator::Create(InstanceExtension extensionManager)
+void InstanceGenerator::Create(InstanceExtension* extensionManager)
 {
 	/*/////////////////////
 	* レイヤーリストの作成
 	*//////////////////////
 
 
-	extensionManager.GetExtensions();
+	extensionManager->GetExtensions();
 
 	m_ApplicationInfo = GetApplicationInfo();
 	auto instanceInfo = GetInstanceInfo(&m_ApplicationInfo, extensionManager);
@@ -102,16 +102,16 @@ vk::ApplicationInfo InstanceGenerator::GetApplicationInfo()
 
 const vk::InstanceCreateInfo InstanceGenerator::GetInstanceInfo(
 	const vk::ApplicationInfo* appInfo,
-	InstanceExtension& extensionManager)
+	InstanceExtension* extensionManager)
 {
 	std::cout << "インスタンス作成情報の作成" << std::endl;
 
 	if (VulkanDefine.ValidationEnabled)//検証レイヤーのフラグが立っていれば追加
 	{
-		extensionManager.UseValidation();
+		extensionManager->UseValidation();
 	}
-	auto extensions = extensionManager.GetExtensions();
-	auto layers = extensionManager.GetValidationLayers();
+	auto extensions = extensionManager->GetExtensions();
+	auto layers = extensionManager->GetValidationLayers();
 
 	/*/////////////////////
 	* インスタンスの作成

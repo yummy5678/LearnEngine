@@ -3,9 +3,10 @@
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "NonCopyable.h"
 #include "GraphicsDefine.h"
 
-class InstanceExtension
+class InstanceExtension : public NonCopyable
 {
 public:
 	InstanceExtension();

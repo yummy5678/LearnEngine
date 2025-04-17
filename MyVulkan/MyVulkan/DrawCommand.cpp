@@ -40,39 +40,6 @@ void DrawCommand::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDe
 
 }
 
-//void DrawCommand::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice, SwapchainRenderer* swapchainRenderer)
-//{
-//    m_Swapchain = swapchainRenderer->GetSwapchain();
-//
-//    m_LogicalDevice = logicalDevice;
-//    m_PhysicalDevice = physicalDevice;
-//    m_ImageSet = swapchainRenderer->GetImageSets();
-//    m_QueueSelector.Initialize(m_PhysicalDevice);
-//
-//    // 使用するフレームの枚数
-//    size_t imageSize = m_ImageSet.size();
-//
-//    // フレームの数だけセマフォとフェンスを作成
-//    m_RenderFinishedSemaphores.resize(imageSize);
-//    m_ImageAvailableSemaphores.resize(imageSize);
-//    m_Fences.resize(imageSize);
-//    for (size_t i = 0; i < imageSize; i++)
-//    {
-//        // セマフォの作成
-//        CreateSemaphore(m_RenderFinishedSemaphores[i]);
-//        CreateSemaphore(m_ImageAvailableSemaphores[i]);
-//
-//        //フェンスの作成
-//        CreateFence(m_Fences[i]);
-//    }
-//
-//    //コマンドプール(コマンドを置く領域)を作成
-//    CreateCommandPool();
-//
-//    //コマンドプールにコマンドバッファを割り当て
-//    CreateCommandBuffers(imageSize, m_CommandPool);
-//}
-
 void DrawCommand::Destroy()
 {
     //コマンドプールの解放
@@ -166,32 +133,10 @@ void DrawCommand::EndRendering(vk::Fence fence, vk::ImageLayout newImageLayout)
     queue.submit(submitInfo, fence);
 }
 
-//vk::Semaphore DrawCommand::GetImageAvableSemaphore()
-//{
-//    return m_ImageAvailableSemaphores;
-//}
-
 vk::Semaphore DrawCommand::GetSignalSemaphore()
 {
     return m_RenderFinishedSemaphores;
 }
-
-//vk::Fence DrawCommand::GetFence()
-//{
-//    return m_Fences;
-//}
-
-//void DrawCommand::WaitFence()
-//{
-//    std::vector<vk::Fence> usingFences = { m_Fences };
-//    m_LogicalDevice.waitForFences(
-//        usingFences,							// 利用するフェンス達
-//        VK_TRUE,								// フェンスが全てシグナル状態になるまで待つ
-//        UINT64_MAX);							// 最大待機時間
-//
-//    m_LogicalDevice.resetFences(usingFences);	// フェンスを非シグナル状態にする
-//}
-
 
 void DrawCommand::CreateSemaphore(vk::Semaphore& semaphore)
 {

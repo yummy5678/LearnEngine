@@ -1,0 +1,410 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="DrawCommand" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CCYgBBAAAAQAAIAAMAASBAEBAABAQUBAAACgAAQAAAA=</HashCode>
+      <FileName>DrawCommand.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FileLoader" Collapsed="true">
+    <Position X="72.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>GltfLoader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HelloTriangleRenderer" Collapsed="true">
+    <Position X="29.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAQAAAAAAAAYAAAAAAAgAAAAAAAAEAAAAAAABAAAA=</HashCode>
+      <FileName>HelloTriangleRenderer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VImageBuffer" Collapsed="true">
+    <Position X="2.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAEAIAAA=</HashCode>
+      <FileName>ImageBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RendererBase" Collapsed="true">
+    <Position X="28.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AUAgAAAACAAAAAAAIACAAgAAAAAAIAAAAAigAEAACAA=</HashCode>
+      <FileName>RendererBase.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RenderImage" Collapsed="true">
+    <Position X="18.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gCAgABAAAACKIVBAAAAAAQAAJQABABAAgACAAEAAAAA=</HashCode>
+      <FileName>RenderImage.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ImageGenerator" Collapsed="true">
+    <Position X="74.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAgEAAA=</HashCode>
+      <FileName>ImageGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RenderingTarget" Collapsed="true">
+    <Position X="17.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAACIIAAAAAAAAAAAIQAAAAAAAAAAAAAgAAA=</HashCode>
+      <FileName>RenderTargetBase.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SceneCamera" Collapsed="true">
+    <Position X="32" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABwAAAAAAAAAwAAAAIAIAAEAAAAgACAAAEAIEAAQgA=</HashCode>
+      <FileName>SceneCamera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VDescriptorSetLayoutBase" Collapsed="true">
+    <Position X="48.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAACBAAAAAAAAAAACAACEAAQAAAABAAECAAAA=</HashCode>
+      <FileName>VDescriptorLayoutBase.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FenceGenerator" Collapsed="true">
+    <Position X="56.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAggAIAAAAAAAAAAAAACCAAAAABAAEAAAAABAAAAAAA=</HashCode>
+      <FileName>FenceGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VCameraDescriptorSetLayout" Collapsed="true">
+    <Position X="50" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAQAAAAQAAAAAAAAAAAAAAAAAAAQAAAA=</HashCode>
+      <FileName>VCameraDescriptorSetLayout.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VImageBufferBase" Collapsed="true">
+    <Position X="3.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AYEQABAgCAAAAggEIEAIAIgAIwAAIAFAAAEABEQAAAA=</HashCode>
+      <FileName>VImageBufferBase.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VShaderConfigureBase" Collapsed="true">
+    <Position X="10.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAkFAQgAIEEAAABAAAQAAACAACAAKAACAABAEAAABA=</HashCode>
+      <FileName>VShaderConfigureBase.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VSingleTextureDescriptor" Collapsed="true">
+    <Position X="20.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAQAAAAQAAAAAAAABACAAAAAAIAAAAAA=</HashCode>
+      <FileName>SingleTextureDescriptor.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VDescriptorBase" Collapsed="true">
+    <Position X="21.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAEgAIAACAABAAAAAAAACEAAAAAAAIABEAAACA=</HashCode>
+      <FileName>DescriptorBase.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VSingleBufferDescriptor" Collapsed="true">
+    <Position X="23" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAEAAAAAQAAAACAAAAAAAAAACAAAAAAIEAAAAA=</HashCode>
+      <FileName>SingleBufferDescriptor.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VMeshTextureBuffer" Collapsed="true">
+    <Position X="5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQBAAAAAAAAAAAAAAAAAAAEAAAAAIAAAAAAAAEAAAAA=</HashCode>
+      <FileName>VTextureBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceExtension" Collapsed="true">
+    <Position X="59" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAQAAACEgAAAAAEIAAAAAQAAAMIABAAAAICAAEAAAA=</HashCode>
+      <FileName>DeviceExtensionManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceGenerator" Collapsed="true">
+    <Position X="65.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAIIAAIAAAAEAAAIABAAEAAAACAAAAAAAA=</HashCode>
+      <FileName>Device.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GraphicWindow" Collapsed="true">
+    <Position X="16.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAACASKKAAAEBAgAAAApQCRAAIAAEgAIMAAAAA=</HashCode>
+      <FileName>GraphicWindow.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NonCopyable" Collapsed="true">
+    <Position X="35.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>NonCopyable.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RenderingPipelineCreator" Collapsed="true">
+    <Position X="34.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAgAgAAAAAAAAiQABAEAiAAAAAAAMQAAQAAAEAAEAA=</HashCode>
+      <FileName>RenderingPipelineCreator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InstanceExtension" Collapsed="true">
+    <Position X="52.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAIAEAAAAEABAiAEEAAAAAAAAAEAABAAQAAAAAAAAAA=</HashCode>
+      <FileName>InstanceExtensionManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VMaterial" Collapsed="true">
+    <Position X="61.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABgBQAAAAAAEAAAAAQAAAAAACAAAgAEAAAAEEAAAIA=</HashCode>
+      <FileName>MaterialBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VMesh" Collapsed="true">
+    <Position X="68" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAEAAAEAAAAQEAAAAAAAAAQAAAAAAAQEAAAEA=</HashCode>
+      <FileName>MeshBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VMeshObject" Collapsed="true">
+    <Position X="54.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAEgBIAIAgAAEgAAAAIAIEgIAAAAABAEAAAgIEAAwAA=</HashCode>
+      <FileName>MeshObjectBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PhysicalDeviceSelector" Collapsed="true">
+    <Position X="76.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAEAAAAAAAAAAAAAAQwAAQAAAAAAAJkAAAAAIAAAI=</HashCode>
+      <FileName>PhysicalDeviceSelector.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VModelShaderConfiguer" Collapsed="true">
+    <Position X="9.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAACAAAAAgQCQAAAAAAAIAGAAAAAAgACIAEA=</HashCode>
+      <FileName>PipelineShaderCreator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RenderConfig" Collapsed="true">
+    <Position X="27.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AFQAACAACAAAAYAAMAAAAwAAAAAAAAAAAAAgAEBAAAA=</HashCode>
+      <FileName>RenderConfig.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RenderObject" Collapsed="true">
+    <Position X="72.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAMAAAAEAAAAAQAAAAAAAACAAAAgAAIAAQAAAA=</HashCode>
+      <FileName>RenderObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SemaphoreGenerator" Collapsed="true">
+    <Position X="25.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAgAAAAAAAAEAAAAAABABAAAABAQEAAAIAAAAAAAAg=</HashCode>
+      <FileName>SemaphoreGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VBufferBase" Collapsed="true">
+    <Position X="41" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQQAARAAAAABAAARAAAAIgAAQAAIAFCAAQAQERAAAA=</HashCode>
+      <FileName>VBufferBase.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VVertexBuffer" Collapsed="true">
+    <Position X="41" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAABAABAAAAAAAAQAAAAAAAIAAAAABAAAFAABAA=</HashCode>
+      <FileName>VertexBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VStagingBuffer" Collapsed="true">
+    <Position X="43.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIgEAAAAEAAIQAAAABAAAEBAABAAAAAAACAAECAAAA=</HashCode>
+      <FileName>StagingBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VIndexBuffer" Collapsed="true">
+    <Position X="45.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAAAARAAAAAAAAAAAAABAAAUAAAAA=</HashCode>
+      <FileName>IndexBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VStagingImageBuffer" Collapsed="true">
+    <Position X="36.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIgBAAAAAAQoQCAAgAAAAABABBAAAAQAACAAUCEAAA=</HashCode>
+      <FileName>StagingImageBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VViewProjectionBuffer" Collapsed="true">
+    <Position X="38.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAABAAAAAQAAAAAAAAAAAAACAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>ViewProjectionBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VTextureDescriptorSetLayout" Collapsed="true">
+    <Position X="47.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAQAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>VTextureDescriptorLayout.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QueueFamilySelector" Collapsed="true">
+    <Position X="78" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAEAAAEAYIAAAIAAAEACAhECAAAABCAgEAAAAA=</HashCode>
+      <FileName>QueueUtility.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VTriangleShader" Collapsed="true">
+    <Position X="11.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAAAAAAAAAAAQAAIAAAAAAGAAAAAAIAAAAAA=</HashCode>
+      <FileName>VTriangleShader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VulkanInitializer" Collapsed="true">
+    <Position X="63.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAgAAACAAAYAAAAAAAAkgABBAAAgAoIAACABEAQAAA=</HashCode>
+      <FileName>VulkanInitializer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SurfaceGenerator" Collapsed="true">
+    <Position X="70.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAACAIAAAAAAAAQAAAAIAAAAAAIAAQAIEAAAQA=</HashCode>
+      <FileName>Surface.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SwapchainRenderer" Collapsed="true">
+    <Position X="7.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QADRAACBGBSQIAIAMAAgCEUAgQDAAMAAACEAAMCFQEA=</HashCode>
+      <FileName>SwapchainRenderer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InstanceGenerator" Collapsed="true">
+    <Position X="14" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAIAAAAIAAAAAAAAAAAAAARUAEAJAAgAAABAAAA=</HashCode>
+      <FileName>VulkanInstance.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="Texture" Collapsed="true">
+    <Position X="74.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAQAQAAAAAAAIAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Texture.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="ImageSet" Collapsed="true">
+    <Position X="76.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQBAAAAAAAA=</HashCode>
+      <FileName>ImageSet.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="RenderingImageSet" Collapsed="true">
+    <Position X="78" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAIAAAAAA=</HashCode>
+      <FileName>ImageSet.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="_VulkanDefine" Collapsed="true">
+    <Position X="74.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAEhAAAAAAAAAAAAAAAAgAAAABCAAAAEAA=</HashCode>
+      <FileName>GraphicsDefine.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="_ShaderDefine" Collapsed="true">
+    <Position X="72.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAoAAAAAAA=</HashCode>
+      <FileName>GraphicsDefine.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="SamplerInfo" Collapsed="true">
+    <Position X="72.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAEAAAAAAQAAAAABAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MeshObject.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Material" Collapsed="true">
+    <Position X="78" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAIAAAAAAAAAAAAAAAAAAAAgAAAABAAAAAAAA=</HashCode>
+      <FileName>MeshObject.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Vertex" Collapsed="true">
+    <Position X="76.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAAIAgAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MeshObject.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Mesh" Collapsed="true">
+    <Position X="72.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MeshObject.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="MeshObject" Collapsed="true">
+    <Position X="74.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAABAAAA=</HashCode>
+      <FileName>MeshObject.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="PhysicalDeviceContainer" Collapsed="true">
+    <Position X="76.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAABAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>PhysicalDeviceSelector.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="ViewProjection" Collapsed="true">
+    <Position X="78" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>ViewProjection.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="TextureChannel" Collapsed="true">
+    <Position X="72.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAACAEAAAAAAAAAAAAAgACABAAAAAAAAA=</HashCode>
+      <FileName>Texture.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Yu Gothic UI" Size="9" />
+</ClassDiagram>

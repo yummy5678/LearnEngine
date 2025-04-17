@@ -33,11 +33,11 @@ int VulkanInitializer::init()
 
 	try {
 		//インスタンスの作成
-		instanceCreator.Create(m_InstanceExtension);
+		instanceCreator.Create(&m_InstanceExtension);
 		m_Instance = instanceCreator.GetInstanse();
 
 		//物理・論理デバイスの作成
-		deviceCreator.Create(m_DeviceExtension, m_Instance);
+		deviceCreator.Create(&m_DeviceExtension, m_Instance);
 
 		//物理デバイスを取得
 		m_PhysicalDevice = deviceCreator.GetPhysicalDevice();
@@ -97,6 +97,8 @@ void VulkanInitializer::Cleanup()
 {
 	printf("VulkanInitializerを解放します\n");
 	// アロケーターの破棄
+	VmaTotalStatistics stats;
+	vmaCalculateStatistics(m_VmaAllocator, &stats);
 	vmaDestroyAllocator(m_VmaAllocator);
 	// デバイスの破棄
 	vkDestroyDevice(m_LogicalDevice, nullptr);

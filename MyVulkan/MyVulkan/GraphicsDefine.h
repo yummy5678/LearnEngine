@@ -8,7 +8,7 @@ constexpr uint32_t windowHeight = 600;	//ウィンドウの縦幅
 // スワップチェーンで使用するイメージの数
 constexpr int MAX_FRAME_DRAWS = 2;
 
-constexpr uint64_t MAX_WAIT_TIME = 5 * 1'000'000'000;	// 最大5秒待つ
+constexpr uint64_t MAX_WAIT_TIME = 5000000;	
 
 
 

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -28,18 +28,15 @@
 #include "HelloTriangleRenderer.h"
 #include "RenderImage.h"
 
-
-
 int main()
 {
 	VulkanInitializer	vulkanInitializer;
-	GraphicWindow		mainWindow(vulkanInitializer);		//ƒŒƒ“ƒ_ƒ‰[
-	RenderConfig		renderConfig(vulkanInitializer);	// •`‰æ•û–@‚ÌŒ`®‚ğŒˆ‚ß‚éƒIƒuƒWƒFƒNƒg
+	GraphicWindow		mainWindow(vulkanInitializer);		//ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼
+	RenderConfig		renderConfig(vulkanInitializer);	// æç”»æ–¹æ³•ã®å½¢å¼ã‚’æ±ºã‚ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	HelloTriangleRenderer triangleRenderer(vulkanInitializer);
 	RenderImage			renderTarget;
 
-
-	// ‚à‚µƒŒƒ“ƒ_ƒ‰[‚Ì‰Šú‰»‚ªãè‚­‚¢‚©‚È‚©‚Á‚½‚çƒAƒvƒŠ‚ğI—¹
+	// ã‚‚ã—ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼ã®åˆæœŸåŒ–ãŒä¸Šæ‰‹ãã„ã‹ãªã‹ã£ãŸã‚‰ã‚¢ãƒ—ãƒªã‚’çµ‚äº†
 	if (vulkanInitializer.init() == EXIT_FAILURE)
 	{
 		return EXIT_FAILURE;
@@ -50,26 +47,26 @@ int main()
 	VmaAllocator* pAllocator = vulkanInitializer.GetPVmaAllocator();
 
 
-	// ƒEƒBƒ“ƒhƒE‚ğì¬
+	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ä½œæˆ
 	mainWindow.init(&vulkanInitializer, "Vulkan Window", windowWidth, windowHeight);
 	renderTarget.Initialize(pAllocator, { windowWidth, windowHeight });
 
 	float angle = 0.0f;
 	float deltaTime = 0.0f;
 	float lastTime = 0.0f;
-	RenderObject m_Object;		//•\¦‚·‚éƒ‚ƒfƒ‹ƒŠƒXƒg
+	RenderObject m_Object;		//è¡¨ç¤ºã™ã‚‹ãƒ¢ãƒ‡ãƒ«ãƒªã‚¹ãƒˆ
 
-	// ƒ‚ƒfƒ‹‚ğƒ[ƒh
+	// ãƒ¢ãƒ‡ãƒ«ã‚’ãƒ­ãƒ¼ãƒ‰
 	//std::vector<MeshObject> mesh = FileLoader::LoadGLTF("models/AliciaSolid.vrm");
 	std::vector<MeshObject> mesh = FileLoader::LoadGLTF("models/Cube/Cube.gltf");
 
-	// •`‰æ—p‚ÌƒNƒ‰ƒX‚Éƒ‚ƒfƒ‹‚ğƒZƒbƒg
+	// æç”»ç”¨ã®ã‚¯ãƒ©ã‚¹ã«ãƒ¢ãƒ‡ãƒ«ã‚’ã‚»ãƒƒãƒˆ
 	m_Object.SetMesh(vulkanInitializer.GetPVmaAllocator(), &mesh);
 	std::vector<RenderObject*> objContainer = { &m_Object };
 
-	// ƒJƒƒ‰ƒNƒ‰ƒX‚ğì¬
+	// ã‚«ãƒ¡ãƒ©ã‚¯ãƒ©ã‚¹ã‚’ä½œæˆ
 	SceneCamera camera(pAllocator);
-	camera.UpdateBuffer(ViewProjection(1.0));
+	camera.UpdateBuffer(ViewProjection{ 1.0f });
 
 	
 	renderConfig.Initialize(logicalDevice, physicalDevice, &mainWindow);
@@ -81,10 +78,10 @@ int main()
 	renderTarget.ExecuteDrawTask();
 	renderTarget.WriteImage("writeImage.bmp");
 
-	//–³ŒÀƒ‹[ƒv(ƒEƒBƒ“ƒhƒE‚ÌI—¹ƒtƒ‰ƒO‚ª—§‚Â‚Ü‚Å)
+	//ç„¡é™ãƒ«ãƒ¼ãƒ—(ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®çµ‚äº†ãƒ•ãƒ©ã‚°ãŒç«‹ã¤ã¾ã§)
 	while (!mainWindow.checkCloseWindow())
 	{
-		//‚±‚±‚Å–ˆƒtƒŒ[ƒ€XV‚ğs‚¤
+		//ã“ã“ã§æ¯ãƒ•ãƒ¬ãƒ¼ãƒ æ›´æ–°ã‚’è¡Œã†
 		glfwPollEvents();
 
 		float now = (float)glfwGetTime();
@@ -108,8 +105,8 @@ int main()
 	renderTarget.ExecuteDrawTask();
 	renderTarget.WriteImage("endImage.bmp");
 
-	//ToDo ƒOƒ‰ƒtƒBƒNƒXƒpƒCƒvƒ‰ƒCƒ“‚Ì‰ğ•úˆ—‚ğì¬‚·‚é
-	// ì¬‚µ‚½ƒIƒuƒWƒFƒNƒg‚Íì¬‚µ‚½‚Ì‚Æ‹t‚Ì‡”Ô‚Å‰ğ•ú‚·‚é
+	//ToDo ã‚°ãƒ©ãƒ•ã‚£ã‚¯ã‚¹ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã®è§£æ”¾å‡¦ç†ã‚’ä½œæˆã™ã‚‹
+	// ä½œæˆã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ä½œæˆã—ãŸã®ã¨é€†ã®é †ç•ªã§è§£æ”¾ã™ã‚‹
 	renderTarget.Cleanup();
 	triangleRenderer.Cleanup();
 	renderConfig.Cleanup();
@@ -120,37 +117,37 @@ int main()
 }
 
 /*/////////////////////////////////////////////
-*ƒoƒ‹ƒJƒ“(Vulkan)‚Æ‚ÍH
+*ãƒãƒ«ã‚«ãƒ³(Vulkan)ã¨ã¯ï¼Ÿ
 *//////////////////////////////////////////////
 /*
-//OpenGL‚ÌŒãŒp‚Åì‚ç‚ê‚½B
-//OpenGL‚æ‚è‚à“®ì‚ğ×‚©‚­ƒRƒ“ƒgƒ[ƒ‹‚Å‚«‚é‚æ‚¤‚É‚È‚Á‚Ä‚¢‚é
-//‚½‚¾‚µA‚»‚Ì•ªƒR[ƒh‚ª’·‚­‚È‚è‚ª‚¿
-//Vulkan‚Ì‚Ù‚¤‚ªˆ—‚ªÅ“K‰»‚³‚ê‚Ä‘‚­‚È‚é‚İ‚½‚¢‚È‚±‚Æ‚ğ•·‚­‚ªA„‚Í‚æ‚­’m‚ç‚È‚¢B
-//‚Ç‚Á‚¿‚à‘å·‚È‚¢‹C‚ª‚·‚é
+//OpenGLã®å¾Œç¶™ã§ä½œã‚‰ã‚ŒãŸã€‚
+//OpenGLã‚ˆã‚Šã‚‚å‹•ä½œã‚’ç´°ã‹ãã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã§ãã‚‹ã‚ˆã†ã«ãªã£ã¦ã„ã‚‹
+//ãŸã ã—ã€ãã®åˆ†ã‚³ãƒ¼ãƒ‰ãŒé•·ããªã‚ŠãŒã¡
+//Vulkanã®ã»ã†ãŒå‡¦ç†ãŒæœ€é©åŒ–ã•ã‚Œã¦æ—©ããªã‚‹ã¿ãŸã„ãªã“ã¨ã‚’èããŒã€ç§ã¯ã‚ˆãçŸ¥ã‚‰ãªã„ã€‚
+//ã©ã£ã¡ã‚‚å¤§å·®ãªã„æ°—ãŒã™ã‚‹
 */
 
 /*/////////////////////////////////////////////
-* GameWindow‚Æ‚ÍH
+* GameWindowã¨ã¯ï¼Ÿ
 *//////////////////////////////////////////////
-//OŠpŒ`‚ğ•\¦‚·‚éƒEƒBƒ“ƒhƒE‚ğì¬‚·‚éƒNƒ‰ƒXBGLSLƒ‰ƒCƒuƒ‰ƒŠ‚Ì—Í‚ğØ‚è‚Ä‚¢‚é
-//Renderer‚É‚ÍƒT[ƒtƒFƒX(ƒEƒBƒ“ƒhƒE‚Ì•\¦—Ìˆæ‚Ìî•ñ)‚ğ“Ç‚İæ‚é‚½‚ß‚É“n‚µ‚Ä‚¢‚é
+//ä¸‰è§’å½¢ã‚’è¡¨ç¤ºã™ã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ä½œæˆã™ã‚‹ã‚¯ãƒ©ã‚¹ã€‚GLSLãƒ©ã‚¤ãƒ–ãƒ©ãƒªã®åŠ›ã‚’å€Ÿã‚Šã¦ã„ã‚‹
+//Rendererã«ã¯ã‚µãƒ¼ãƒ•ã‚§ã‚¹(ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®è¡¨ç¤ºé ˜åŸŸã®æƒ…å ±)ã‚’èª­ã¿å–ã‚‹ãŸã‚ã«æ¸¡ã—ã¦ã„ã‚‹
 
 
 /*/////////////////////////////////////////////
-*ƒŒƒ“ƒ_ƒ‰[(Renderer)‚Æ‚ÍH
+*ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼(Renderer)ã¨ã¯ï¼Ÿ
 *//////////////////////////////////////////////
-//VulkanRenderer‚ÍVulkan‚ÌƒCƒ“ƒXƒ^ƒ“ƒXì¬‚©‚ç”jŠü‚Ü‚Å‚ğ’S‚Á‚Ä‚à‚ç‚¤ƒNƒ‰ƒX
-//Ú×‚ÍRenderer.h‚Ìƒtƒ@ƒCƒ‹‚É‘‚¢‚Ä‚ ‚é
+//VulkanRendererã¯Vulkanã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ä½œæˆã‹ã‚‰ç ´æ£„ã¾ã§ã‚’æ‹…ã£ã¦ã‚‚ã‚‰ã†ã‚¯ãƒ©ã‚¹
+//è©³ç´°ã¯Renderer.hã®ãƒ•ã‚¡ã‚¤ãƒ«ã«æ›¸ã„ã¦ã‚ã‚‹
 
 
 
 
 /*/////////////////////////////////////////////
-*‰æ–Ê•\¦‚Ü‚Å‚É•K—v‚È‚à‚ÌE—¬‚ê
+*ç”»é¢è¡¨ç¤ºã¾ã§ã«å¿…è¦ãªã‚‚ã®ãƒ»æµã‚Œ
 *//////////////////////////////////////////////
 
 
 /*/////////////////////////////////////////////
-* vulkan.hpp‚Ævulkan.h‚Ìˆá‚¢
+* vulkan.hppã¨vulkan.hã®é•ã„
 *//////////////////////////////////////////////

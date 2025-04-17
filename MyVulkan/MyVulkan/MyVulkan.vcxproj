@@ -138,7 +138,6 @@
     <ClCompile Include="DrawCommand.cpp" />
     <ClCompile Include="GltfLoader.cpp" />
     <ClCompile Include="HelloTriangleRenderer.cpp" />
-    <ClCompile Include="HostImage.cpp" />
     <ClCompile Include="ImageBuffer.cpp" />
     <ClCompile Include="ImageGenerator.cpp" />
     <ClCompile Include="RendererBase.cpp" />
@@ -166,14 +165,12 @@
     <ClCompile Include="RenderConfig.cpp" />
     <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="SemaphoreGenerator.cpp" />
-    <ClCompile Include="ModelTexture.cpp" />
     <ClCompile Include="VBufferBase.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="StagingBuffer.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="StagingImageBuffer.cpp" />
     <ClCompile Include="ViewProjectionBuffer.cpp" />
-    <ClCompile Include="VmaCreator.cpp" />
     <ClCompile Include="VmaUsage.cpp" />
     <ClCompile Include="VTextureDescriptorLayout.cpp" />
     <ClCompile Include="main.cpp" />
@@ -187,6 +184,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -194,7 +192,6 @@
     <ClInclude Include="FileLoader.h" />
     <ClInclude Include="GltfLoader.h" />
     <ClInclude Include="HelloTriangleRenderer.h" />
-    <ClInclude Include="HostImage.h" />
     <ClInclude Include="ImageBuffer.h" />
     <ClInclude Include="RendererBase.h" />
     <ClInclude Include="RenderImage.h" />
@@ -230,7 +227,6 @@
     <ClInclude Include="RenderConfig.h" />
     <ClInclude Include="RenderObject.h" />
     <ClInclude Include="SemaphoreGenerator.h" />
-    <ClInclude Include="ModelTexture.h" />
     <ClInclude Include="VBufferBase.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="StagingBuffer.h" />
@@ -239,7 +235,6 @@
     <ClInclude Include="ViewProjection.h" />
     <ClInclude Include="ViewProjectionBuffer.h" />
     <ClInclude Include="VmaCallbackFunction.h" />
-    <ClInclude Include="VmaCreator.h" />
     <ClInclude Include="VmaUsage.h" />
     <ClInclude Include="VTextureDescriptorLayout.h" />
     <ClInclude Include="QueueUtility.h" />
