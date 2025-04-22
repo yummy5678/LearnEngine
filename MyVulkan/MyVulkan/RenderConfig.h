@@ -2,7 +2,7 @@
 #include "MeshObject.h"
 #include "RenderObject.h"
 #include "PipelineShaderCreator.h"
-#include "RenderingPipelineCreator.h"
+#include "RenderingPipeline.h"
 #include "VulkanInitializer.h"
 #include "RenderTargetBase.h"
 #include "SceneCamera.h"

@@ -1,17 +1,16 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include "NonCopyable.h"
-//#include "Utilities.h"
 #include "ShaderUtility.h"
 #include "PipelineShaderCreator.h"
 #include "VertexBuffer.h"
 #include "VulkanInitializer.h"
 
-class RenderingPipelineCreator : public NonCopyable
+class RenderingPipeline : public NonCopyable
 {
 public:
-	RenderingPipelineCreator(VulkanInitializer& initializer);
-	~RenderingPipelineCreator();
+	RenderingPipeline(VulkanInitializer& initializer);
+	~RenderingPipeline();
 
 	void Create(
 		vk::Device logicalDevice,
@@ -21,13 +20,15 @@ public:
 		vk::Format depthFormat,
 		vk::PipelineVertexInputStateCreateInfo* pVertexInputState,
 		std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos,
-		std::vector<vk::DescriptorSetLayout> descriptorSetLayouts,
-		std::vector<vk::PushConstantRange> pushConstantRanges);
+		std::vector<vk::DescriptorSetLayout>	descriptorSetLayouts,
+		std::vector<vk::PushConstantRange>		pushConstantRanges);
 
 	void Cleanup();
 
 	vk::Pipeline		GetPipeline();
 	vk::PipelineLayout	GetPipelineLayout();
+
+	
 
 	// int createTextureDescriptor(vk::Device logicalDevice, VkImageView textureImage);
 
@@ -58,7 +59,7 @@ private:
 
 	// 内容は後で検証する
 	// 深度アタッチメントのフォーマットの選択関数
-	vk::Format FindSupportedDepthFormat(vk::PhysicalDevice physicalDevice);
+	//vk::Format FindSupportedDepthFormat(vk::PhysicalDevice physicalDevice);
 
 	vk::PipelineInputAssemblyStateCreateInfo& GetInputAssemblyInfo();
 

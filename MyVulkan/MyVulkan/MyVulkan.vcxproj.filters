@@ -36,7 +36,7 @@
     <ClCompile Include="SwapchainRenderer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="RenderingPipelineCreator.cpp">
+    <ClCompile Include="RenderingPipeline.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="ShaderUtility.cpp">
@@ -184,7 +184,7 @@
     <ClInclude Include="GraphicsDefine.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="RenderingPipelineCreator.h">
+    <ClInclude Include="RenderingPipeline.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="ShaderUtility.h">

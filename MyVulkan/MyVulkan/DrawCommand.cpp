@@ -188,8 +188,6 @@ void DrawCommand::CreateCommandBuffers(uint32_t commandSize, vk::CommandPool com
     // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
     m_CommandBuffers = m_LogicalDevice.allocateCommandBuffers(allocateInfo).front(); //配列で情報をやり取りする
 
-
-
 }
 
 vk::SubmitInfo DrawCommand::CreateSubmitInfo(

@@ -326,7 +326,7 @@ void SwapchainRenderer::CreateSwapchainImage()
 
 
         // 深度イメージの作成
-        m_DepthFormat = vk::Format::eD24UnormS8Uint;    //深度イメージのフォーマット
+        m_DepthFormat = (vk::Format)VulkanDefine.UseDepthFormat;    //深度イメージのフォーマット
         vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
         auto imageInfo = CreateImageInfo(imageExtent, m_DepthFormat, usage);
         CreateDepthImage(m_ImageSets[i].depth.buffer, m_DepthImageAllocation[i], m_pAllocator, imageInfo);
@@ -383,7 +383,10 @@ vk::SwapchainCreateInfoKHR SwapchainRenderer::CreateSwapchainInfo(vk::PhysicalDe
     std::vector<vk::PresentModeKHR> surfacePresentModes = physicalDevice.getSurfacePresentModesKHR(surface);
 
     // サーフェスから取得した情報の中から最適なものを選ぶ
-    vk::SurfaceFormatKHR format = SelectSurfaceFormat(surfaceFormats);
+    //vk::SurfaceFormatKHR format = SelectSurfaceFormat(surfaceFormats);
+    vk::SurfaceFormatKHR format;
+    format.format = (vk::Format)VulkanDefine.UseColorFormat;
+    format.colorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
     vk::PresentModeKHR presentMode = SelectPresentMode(surfacePresentModes);
 
     // スワップチェーンに必要なイメージの数を決定
@@ -430,19 +433,19 @@ vk::SwapchainCreateInfoKHR SwapchainRenderer::CreateSwapchainInfo(vk::PhysicalDe
     return swapchainInfo;
 }
 
-vk::SurfaceFormatKHR SwapchainRenderer::SelectSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
-{
-    for (const auto& availableFormat : availableFormats)
-    {
-        if (availableFormat.format == vk::Format::eB8G8R8A8Unorm &&             
-            availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)    
-        {
-            return availableFormat;
-        }
-    }
-
-    return availableFormats[0];
-}
+//vk::SurfaceFormatKHR SwapchainRenderer::SelectSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
+//{
+//    for (const auto& availableFormat : availableFormats)
+//    {
+//        if (availableFormat.format == vk::Format::eB8G8R8A8Unorm &&             
+//            availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)    
+//        {
+//            return availableFormat;
+//        }
+//    }
+//
+//    return availableFormats[0];
+//}
 
 vk::PresentModeKHR SwapchainRenderer::SelectPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
 {

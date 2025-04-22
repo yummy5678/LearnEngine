@@ -1,7 +1,7 @@
 #pragma once
 #include "VulkanInitializer.h"
 #include "NonCopyable.h"
-#include "RenderingPipelineCreator.h"
+#include "RenderingPipeline.h"
 
 class RendererBase : public NonCopyable
 {
@@ -31,7 +31,7 @@ protected:
 	vk::Rect2D				m_RenderArea;	// フレーム内の描画位置の矩形
 
 	// グラフィクスパイプラインの作成クラス
-	RenderingPipelineCreator m_GraphicsPipeline;
+	RenderingPipeline m_GraphicsPipeline;
 
 
 

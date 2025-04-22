@@ -155,7 +155,7 @@
     <ClCompile Include="DeviceExtensionManager.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="GraphicWindow.cpp" />
-    <ClCompile Include="RenderingPipelineCreator.cpp" />
+    <ClCompile Include="RenderingPipeline.cpp" />
     <ClCompile Include="InstanceExtensionManager.cpp" />
     <ClCompile Include="MaterialBuffer.cpp" />
     <ClCompile Include="MeshBuffer.cpp" />
@@ -215,7 +215,7 @@
     <ClInclude Include="GraphicWindow.h" />
     <ClInclude Include="NonCopyable.h" />
     <ClInclude Include="GraphicsDefine.h" />
-    <ClInclude Include="RenderingPipelineCreator.h" />
+    <ClInclude Include="RenderingPipeline.h" />
     <ClInclude Include="InstanceExtensionManager.h" />
     <ClInclude Include="MaterialBuffer.h" />
     <ClInclude Include="MeshBuffer.h" />

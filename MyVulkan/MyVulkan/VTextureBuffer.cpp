@@ -7,7 +7,7 @@ VMeshTextureBuffer::VMeshTextureBuffer() :
 		vk::ImageUsageFlagBits::eTransferDst,
 		vk::SharingMode::eExclusive,
 		vk::ImageAspectFlagBits::eColor,
-		vk::Format::eR8G8B8A8Unorm,
+		(vk::Format)VulkanDefine.UseColorFormat,
 		vk::MemoryPropertyFlags(NULL),
 		vk::MemoryPropertyFlagBits::eDeviceLocal,
 		VMA_ALLOCATION_CREATE_STRATEGY_BEST_FIT_BIT | 

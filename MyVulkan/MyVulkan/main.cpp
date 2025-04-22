@@ -30,11 +30,11 @@
 
 int main()
 {
-	VulkanInitializer	vulkanInitializer;
-	GraphicWindow		mainWindow(vulkanInitializer);		//レンダラー
-	RenderConfig		renderConfig(vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
-	HelloTriangleRenderer triangleRenderer(vulkanInitializer);
-	RenderImage			renderTarget;
+	VulkanInitializer		vulkanInitializer;
+	GraphicWindow			mainWindow(vulkanInitializer);		//レンダラー
+	RenderConfig			renderConfig(vulkanInitializer);	// 描画方法の形式を決めるオブジェクト
+	HelloTriangleRenderer	triangleRenderer(vulkanInitializer);
+	RenderImage				renderTarget;
 
 	// もしレンダラーの初期化が上手くいかなかったらアプリを終了
 	if (vulkanInitializer.init() == EXIT_FAILURE)
@@ -66,12 +66,10 @@ int main()
 
 	// カメラクラスを作成
 	SceneCamera camera(pAllocator);
-	camera.UpdateBuffer(ViewProjection{ 1.0f });
+	camera.UpdateBuffer(ViewProjection(1.0f));
 
 	
-	renderConfig.Initialize(logicalDevice, physicalDevice, &mainWindow);
-
-	
+	renderConfig.Initialize(logicalDevice, physicalDevice, &mainWindow);	
 	triangleRenderer.Initialize(&renderTarget);
 
 	renderTarget.AddDrawTask(triangleRenderer.GetRenderFunction());

@@ -62,7 +62,7 @@ vk::PipelineVertexInputStateCreateInfo VVertexBuffer::GetInputStateInfo()
 		vk::VertexInputAttributeDescription{ 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position) },
 		// 法線
 		vk::VertexInputAttributeDescription{ 0, 1, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal) },
-    // テクスチャ座標
+		// テクスチャ座標
 		vk::VertexInputAttributeDescription{ 0, 2, vk::Format::eR32G32Sfloat, offsetof(Vertex, textureCoord) }
 	};
 

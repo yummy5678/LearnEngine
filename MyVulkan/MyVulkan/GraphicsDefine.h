@@ -25,6 +25,10 @@ constexpr struct _VulkanDefine
 	const char* EngineName = "Vulkan Engine";					// エンジンの名前
 	uint32_t	EngineVersion = VK_MAKE_VERSION(1, 0, 0);		// エンジンのバージョン名
 	uint32_t	ApiVersion = VK_API_VERSION_1_3;                // Vulkan APIのバージョン
+
+	VkFormat UseColorFormat = VK_FORMAT_R8G8B8A8_UNORM;
+	VkFormat UseDepthFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
+
 } VulkanDefine;
 
 constexpr struct _ShaderDefine

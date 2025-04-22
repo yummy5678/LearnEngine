@@ -1,7 +1,7 @@
-#include "RenderingPipelineCreator.h"
+#include "RenderingPipeline.h"
 
 
-RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initializer) :
+RenderingPipeline::RenderingPipeline(VulkanInitializer& initializer) :
 	m_LogicalDevice(VK_NULL_HANDLE),
 	m_Pipeline(VK_NULL_HANDLE),
 	m_PipelineInfo(),
@@ -9,18 +9,16 @@ RenderingPipelineCreator::RenderingPipelineCreator(VulkanInitializer& initialize
 	m_PipelineLayoutInfo(),
 	m_TextureDescriptor()
 {
-	//if (initializer.IsInitialized() == true) 
-	//	printf("イニシャライザーをイニシャライズする前にパイプラインのコンストラクタを読んでください");
 	initializer.GetPDeviceExtension()->UseDynamicRendering();
 	initializer.GetPDeviceExtension()->UseRenderingModeNonSolid();
 
 }
 
-RenderingPipelineCreator::~RenderingPipelineCreator()
+RenderingPipeline::~RenderingPipeline()
 {
 }
 
-void RenderingPipelineCreator::Create(
+void RenderingPipeline::Create(
 	vk::Device logicalDevice,
 	vk::Extent2D extent,
 	vk::Rect2D scissor,
@@ -31,6 +29,8 @@ void RenderingPipelineCreator::Create(
 	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts,
 	std::vector<vk::PushConstantRange> pushConstantRanges)
 {
+	Cleanup();
+
 	m_LogicalDevice = logicalDevice;
 
 	//m_TextureDescriptors.CreateSingleDescriptorSet();
@@ -42,7 +42,7 @@ void RenderingPipelineCreator::Create(
 	CreateGraphicsPipeline(extent, scissor, colorFormat, depthFormat, shaderStageInfos, pVertexInputState);
 }
 
-void RenderingPipelineCreator::Cleanup()
+void RenderingPipeline::Cleanup()
 {
 	if (m_LogicalDevice == VK_NULL_HANDLE) return;
 	printf("RenderingPipelineを解放します\n");
@@ -65,17 +65,17 @@ void RenderingPipelineCreator::Cleanup()
 
 }
 
-vk::Pipeline RenderingPipelineCreator::GetPipeline()
+vk::Pipeline RenderingPipeline::GetPipeline()
 {
 	return m_Pipeline;
 }
 
-vk::PipelineLayout RenderingPipelineCreator::GetPipelineLayout()
+vk::PipelineLayout RenderingPipeline::GetPipelineLayout()
 {
 	return m_PipelineLayout;
 }
 
-void RenderingPipelineCreator::CreatePipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges)
+void RenderingPipeline::CreatePipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts, std::vector<vk::PushConstantRange> pushConstantRanges)
 {
 	if (m_LogicalDevice == VK_NULL_HANDLE) 
 		throw std::runtime_error("パイプラインレイアウトの作成前に論理デバイスを作成してください!");
@@ -87,7 +87,7 @@ void RenderingPipelineCreator::CreatePipelineLayout(std::vector<vk::DescriptorSe
 	m_PipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo); 
 }
 
-void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::Rect2D scissor, vk::Format colorFormat, vk::Format depthFormat, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos, vk::PipelineVertexInputStateCreateInfo* pVertexInputState)
+void RenderingPipeline::CreateGraphicsPipeline(vk::Extent2D extent, vk::Rect2D scissor, vk::Format colorFormat, vk::Format depthFormat, std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos, vk::PipelineVertexInputStateCreateInfo* pVertexInputState)
 {
 	if (m_LogicalDevice == VK_NULL_HANDLE)throw std::runtime_error("グラフィクスパイプラインの作成前に論理デバイスを作成してください!");
 	if (m_PipelineLayout == VK_NULL_HANDLE)	throw std::runtime_error("グラフィクスパイプラインの作成前にパイプラインレイアウトを作成してください!");
@@ -156,7 +156,7 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::R
 
 	// カラーブレンディングの設定
 #pragma region colorBlendingInfo
-// ブレンドアタッチメントステート (どのようにブレンディングを処理するかを設定)
+	// ブレンドアタッチメントステート (どのようにブレンディングを処理するかを設定)
 	vk::PipelineColorBlendAttachmentState colorState; // ブレンド状態を初期化
 
 	// 書き込みマスクを設定
@@ -237,7 +237,7 @@ void RenderingPipelineCreator::CreateGraphicsPipeline(vk::Extent2D extent, vk::R
 	m_Pipeline = result.value;
 }
 
-vk::PipelineDepthStencilStateCreateInfo RenderingPipelineCreator::CreateDepthStencilStateInfo(bool depth, bool stencil)
+vk::PipelineDepthStencilStateCreateInfo RenderingPipeline::CreateDepthStencilStateInfo(bool depth, bool stencil)
 {
 	// 深度およびステンシルステートの設定
 
@@ -273,19 +273,19 @@ vk::PipelineDepthStencilStateCreateInfo RenderingPipelineCreator::CreateDepthSte
 }
 
 // 内容は後で検証する
-vk::Format RenderingPipelineCreator::FindSupportedDepthFormat(vk::PhysicalDevice physicalDevice)
-{
-	vk::Format depthFormats[] = { vk::Format::eD32Sfloat, vk::Format::eD24UnormS8Uint, vk::Format::eD16Unorm };
-	for (auto format : depthFormats) {
-		vk::FormatProperties props = physicalDevice.getFormatProperties(format);
-		if (props.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment) {
-			return format;
-		}
-	}
-	throw std::runtime_error("Failed to find a supported depth format!");
-}
+//vk::Format RenderingPipeline::FindSupportedDepthFormat(vk::PhysicalDevice physicalDevice)
+//{
+//	vk::Format depthFormats[] = { vk::Format::eD32Sfloat, vk::Format::eD24UnormS8Uint, vk::Format::eD16Unorm };
+//	for (auto format : depthFormats) {
+//		vk::FormatProperties props = physicalDevice.getFormatProperties(format);
+//		if (props.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment) {
+//			return format;
+//		}
+//	}
+//	throw std::runtime_error("Failed to find a supported depth format!");
+//}
 
-vk::PipelineInputAssemblyStateCreateInfo& RenderingPipelineCreator::GetInputAssemblyInfo()
+vk::PipelineInputAssemblyStateCreateInfo& RenderingPipeline::GetInputAssemblyInfo()
 {
 	vk::PipelineInputAssemblyStateCreateInfo assemblyStateInfo;
 	assemblyStateInfo.setPNext(nullptr);
@@ -295,15 +295,6 @@ vk::PipelineInputAssemblyStateCreateInfo& RenderingPipelineCreator::GetInputAsse
 	return assemblyStateInfo;
 }
 
-//vk::PushConstantRange RenderingPipelineCreator::GetPushConstantModelRange()
-//{
-//	return vk::PushConstantRange
-//	{
-//		vk::ShaderStageFlagBits::eVertex,	// 渡したいシェーダーステージ
-//		0,								    // 渡したデータからどの位置のデータを見るか
-//		sizeof(Transform)					// 渡したいデータのサイズ
-//	};
-//}
 
 
 

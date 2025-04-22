@@ -9,13 +9,13 @@ RenderImage::RenderImage() :
 		vk::ImageUsageFlagBits::eTransferDst |
 		vk::ImageUsageFlagBits::eTransferSrc,
 		vk::ImageAspectFlagBits::eColor,
-		vk::Format::eR8G8B8A8Unorm,
+		(vk::Format)VulkanDefine.UseColorFormat,
 		vk::MemoryPropertyFlagBits::eDeviceLocal
 	),
 	m_DepthImage(
 		vk::ImageUsageFlagBits::eDepthStencilAttachment,
 		vk::ImageAspectFlagBits::eDepth,
-		vk::Format::eD32SfloatS8Uint,
+		(vk::Format)VulkanDefine.UseDepthFormat,
 		vk::MemoryPropertyFlagBits::eDeviceLocal
 	),
 	//m_ImageAspectFlag(),
