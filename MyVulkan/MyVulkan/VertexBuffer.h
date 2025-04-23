@@ -22,9 +22,10 @@ public:
 private:
 	size_t m_VertexCount;	// ƒf[ƒ^‚ÌŒÂ”
 	
-
-	static std::vector<vk::VertexInputBindingDescription>	m_BindingDescription;
-	static std::vector<vk::VertexInputAttributeDescription> m_AttributeDescription;
+	//static std::vector<vk::VertexInputBindingDescription>	m_BindingDescription;
+	//static std::vector<vk::VertexInputAttributeDescription> m_AttributeDescription;
+	std::vector<vk::VertexInputBindingDescription>	m_BindingDescription;
+	std::vector<vk::VertexInputAttributeDescription> m_AttributeDescription;
 
 };
 

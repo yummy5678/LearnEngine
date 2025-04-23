@@ -105,6 +105,8 @@ int main()
 
 	//ToDo グラフィクスパイプラインの解放処理を作成する
 	// 作成したオブジェクトは作成したのと逆の順番で解放する
+	camera.Cleanup();
+	m_Object.Cleanup();
 	renderTarget.Cleanup();
 	triangleRenderer.Cleanup();
 	renderConfig.Cleanup();

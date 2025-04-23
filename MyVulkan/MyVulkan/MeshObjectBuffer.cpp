@@ -18,9 +18,7 @@ VMeshObject::VMeshObject() :
 
 VMeshObject::~VMeshObject()
 {
-    // m_Mesh.Cleanup();
-
-    // m_Material.Cleanup();
+	Cleanup();
 
 }
 
@@ -51,6 +49,8 @@ void VMeshObject::Cleanup()
 	if (m_LogicalDevice == VK_NULL_HANDLE) return;
 	printf("メッシュを解放します");
 
+	CleanupDescriptorSets();
+
 	// マテリアルの解放処理
 	m_Material.get()->Cleanup();
 
@@ -65,7 +65,7 @@ void VMeshObject::Cleanup()
 	}
 
 	// メンバ変数の初期化
-	m_DescriptorSets.clear();
+	//m_DescriptorSets.clear();
 	m_Transform = {};
 	m_Name.clear();
 	m_LogicalDevice = VK_NULL_HANDLE;
@@ -156,6 +156,7 @@ void VMeshObject::CleanupDescriptorSets()
 		// shared_ptrの中身が初期化されていたら削除
 		if (*pair.first.get() == VK_NULL_HANDLE)
 		{
+			pair.second->Cleanup();
 			free(pair.second);
 			m_DescriptorSets.erase(pair.first);
 		}

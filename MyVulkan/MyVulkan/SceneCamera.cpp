@@ -17,12 +17,19 @@ SceneCamera::~SceneCamera()
 
 void SceneCamera::Cleanup()
 {
+    if (m_pAllocator == VK_NULL_HANDLE) return;
     // ビュープロジェクションを解放
+    for (auto& pair : m_Descriptors)
+    {
+        pair.second->Cleanup();
+        free(pair.second);
+        m_Descriptors.erase(pair.first);
+    }
 
     m_ProjectionBuffer.Cleanup();
     m_Descriptors.clear();
     m_LogicalDevice = VK_NULL_HANDLE;
-    m_pAllocator = nullptr;
+    m_pAllocator = VK_NULL_HANDLE;
 }
 
 void SceneCamera::UpdateBuffer(ViewProjection viewProjection)
@@ -71,10 +78,10 @@ void SceneCamera::SetDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layo
     m_Descriptors.insert({ layout, descriptor });
 }
 
-void SceneCamera::DeleteDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout)
-{
-    m_Descriptors.erase(layout);
-}
+//void SceneCamera::DeleteDescriptorSet(std::shared_ptr<vk::DescriptorSetLayout> layout)
+//{
+//    m_Descriptors.erase(layout);
+//}
 
 void SceneCamera::CleanupDeathOwner()
 {
@@ -83,6 +90,7 @@ void SceneCamera::CleanupDeathOwner()
         // shared_ptrの中身が初期化されていたら削除
         if (*pair.first.get() == VK_NULL_HANDLE) 
         { 
+            pair.second->Cleanup();
             free(pair.second);
             m_Descriptors.erase(pair.first);
         }

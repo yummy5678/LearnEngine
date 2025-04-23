@@ -109,9 +109,9 @@ void SwapchainRenderer::Cleanup()
     m_ImageIndex = 0;
 
     // アロケータの内容の構造体を初期化
-    m_AllocatorInfo.instance = VK_NULL_HANDLE;
-    m_AllocatorInfo.physicalDevice = VK_NULL_HANDLE;
-    m_AllocatorInfo.device = VK_NULL_HANDLE;
+    m_AllocatorInfo.instance        = VK_NULL_HANDLE;
+    m_AllocatorInfo.physicalDevice  = VK_NULL_HANDLE;
+    m_AllocatorInfo.device          = VK_NULL_HANDLE;
 
     m_pAllocator = nullptr;
 

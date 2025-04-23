@@ -41,6 +41,10 @@ size_t VVertexBuffer::GetVertexCount()
 void VVertexBuffer::Cleanup()
 {
 	printf("頂点バッファを解放します");
+
+	m_AttributeDescription.clear();
+	m_BindingDescription.clear();
+	m_VertexCount = 0;
 	VBufferBase::Cleanup();
 }
 

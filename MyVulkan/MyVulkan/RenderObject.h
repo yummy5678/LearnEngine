@@ -16,6 +16,8 @@ public:
 	void SetMesh(VmaAllocator* allocator, std::vector<MeshObject>* mesh);
 	std::vector<VMeshObject>* GetMeshes();
 
+	void Cleanup();
+
 
 	void		SetTransform(glm::mat4 transform);
 	Transform*  GetPTransform();

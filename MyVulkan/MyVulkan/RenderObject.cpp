@@ -35,6 +35,17 @@ std::vector<VMeshObject>* RenderObject::GetMeshes()
 	return &m_Meshes;
 }
 
+void RenderObject::Cleanup()
+{
+	for (auto& mesh: m_Meshes)
+	{
+		mesh.Cleanup();
+	}
+	m_Meshes.clear();
+
+	m_Transform = {};
+}
+
 void RenderObject::SetTransform(glm::mat4 transform)
 {
 	m_Transform = transform;
