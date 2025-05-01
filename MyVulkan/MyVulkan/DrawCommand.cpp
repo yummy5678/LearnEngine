@@ -7,7 +7,7 @@ DrawCommand::DrawCommand() :
     m_PhysicalDevice(VK_NULL_HANDLE),
     m_Swapchain(VK_NULL_HANDLE),
     m_ImageSet(nullptr),
-    m_CommandBuffers(),
+    m_CommandBuffer(),
     m_CommandPool(VK_NULL_HANDLE),
     m_RenderFinishedSemaphores(),
     //m_Fences(),
@@ -46,7 +46,7 @@ void DrawCommand::Destroy()
     m_LogicalDevice.freeCommandBuffers(
         m_CommandPool,
         1,
-        &m_CommandBuffers);
+        &m_CommandBuffer);
 
     //コマンドプールの破棄
     m_LogicalDevice.destroyCommandPool(m_CommandPool);
@@ -54,7 +54,7 @@ void DrawCommand::Destroy()
 
 vk::CommandBuffer DrawCommand::GetBuffer()
 {
-    return m_CommandBuffers;
+    return m_CommandBuffer;
 }
 
 void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imageAvableSemaphore, vk::Rect2D renderArea)
@@ -66,20 +66,20 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
     vk::RenderingAttachmentInfo colorAttachment;
     colorAttachment.pNext;
     colorAttachment.imageView = m_ImageSet->color.view;
-    colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    colorAttachment.imageLayout = vk::ImageLayout::eAttachmentOptimal;
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-    colorAttachment.clearValue = vk::ClearValue(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 1.0f, 1.0f}));
+    colorAttachment.clearValue = vk::ClearValue(vk::ClearColorValue(0.0f, 0.0f, 1.0f, 1.0f));
     colorAttachment.resolveImageView = VK_NULL_HANDLE;
     colorAttachment.resolveImageLayout = vk::ImageLayout::eColorAttachmentOptimal;
     colorAttachment.resolveMode = vk::ResolveModeFlagBits::eNone;
 
 
-
-    // 深度バッファアタッチメント（3Dオブジェクト用に使用）
+    // 深度バッファアタッチメント
     vk::RenderingAttachmentInfo depthAttachment;
+    depthAttachment.pNext;
     depthAttachment.imageView = m_ImageSet->depth.view;
-    depthAttachment.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
+    depthAttachment.imageLayout = vk::ImageLayout::eAttachmentOptimal;
     depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
     depthAttachment.clearValue = vk::ClearValue(vk::ClearDepthStencilValue(1.0f, 0));
@@ -88,7 +88,15 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
     depthAttachment.resolveMode = vk::ResolveModeFlagBits::eNone;
 
     // 深度画像にステンシルも含めるので必要ない
-    //vk::RenderingAttachmentInfo stencilAttachment;
+   //vk::RenderingAttachmentInfo stencilAttachment;
+   //stencilAttachment.pNext;
+   //stencilAttachment.clearValue;
+   //stencilAttachment.imageLayout;
+   //stencilAttachment.imageView;
+   //stencilAttachment.loadOp;
+   //stencilAttachment.resolveImageLayout;
+   //stencilAttachment.resolveImageView;
+   //stencilAttachment.resolveMode;
 
     vk::CommandBufferBeginInfo beginInfo;
     beginInfo.flags;
@@ -108,21 +116,25 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
     renderingInfo.pStencilAttachment = VK_NULL_HANDLE;
 
     // Dynamic Renderingを開始
-    auto commandBuffer = m_CommandBuffers;
+    auto commandBuffer = m_CommandBuffer;
     commandBuffer.begin(beginInfo);
+
+    // 描画コマンドの開始前にイメージの状態を描画用に変更する
+    ImageMemoryBarrier(m_ImageSet->color.buffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
+
     commandBuffer.beginRendering(renderingInfo);
 }
 
 void DrawCommand::EndRendering(vk::Fence fence, vk::ImageLayout newImageLayout)
 {
     // 描画コマンドの記録を終了する
-    m_CommandBuffers.endRendering();
+    m_CommandBuffer.endRendering();
 
     // コマンドの終了前にイメージの状態を使用目的に合わせて変更する
-    ImageMemoryBarrier(m_ImageSet->color.buffer, vk::ImageLayout::eUndefined, newImageLayout);
+    ImageMemoryBarrier(m_ImageSet->color.buffer, vk::ImageLayout::eColorAttachmentOptimal, newImageLayout);
 
     // コマンドの記録を閉じる
-    m_CommandBuffers.end();
+    m_CommandBuffer.end();
 
     // 送信情報の作成
     std::vector<vk::PipelineStageFlags> waitStages = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
@@ -186,7 +198,7 @@ void DrawCommand::CreateCommandBuffers(uint32_t commandSize, vk::CommandPool com
     allocateInfo.commandBufferCount = commandSize;           // 割り当てるコマンドバッファの数
 
     // コマンドバッファを割り当てて、そのハンドルをバッファの配列に格納する
-    m_CommandBuffers = m_LogicalDevice.allocateCommandBuffers(allocateInfo).front(); //配列で情報をやり取りする
+    m_CommandBuffer = m_LogicalDevice.allocateCommandBuffers(allocateInfo).front(); //配列で情報をやり取りする
 
 }
 
@@ -196,7 +208,7 @@ vk::SubmitInfo DrawCommand::CreateSubmitInfo(
     vk::SubmitInfo submitInfo;
     submitInfo.pNext;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &m_CommandBuffers;
+    submitInfo.pCommandBuffers = &m_CommandBuffer;
 
     // 画像の枚数が複数ある場合は同期処理を行う
     if (m_Swapchain != VK_NULL_HANDLE)
@@ -233,7 +245,7 @@ void DrawCommand::ImageMemoryBarrier(vk::Image& image, vk::ImageLayout oldLayout
     imageMemoryBarrier.subresourceRange = subresourceRange;
 
     // パイプラインバリア
-    m_CommandBuffers.pipelineBarrier
+    m_CommandBuffer.pipelineBarrier
     (
         vk::PipelineStageFlagBits::eColorAttachmentOutput, // sourceStage (レンダリングの最後)
         vk::PipelineStageFlagBits::eBottomOfPipe,         // destinationStage (次の処理)

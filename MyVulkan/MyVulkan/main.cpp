@@ -42,9 +42,9 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	vk::Device logicalDevice = vulkanInitializer.GetLogicalDevice();
-	vk::PhysicalDevice physicalDevice = vulkanInitializer.GetPhysicalDevice();
-	VmaAllocator* pAllocator = vulkanInitializer.GetPVmaAllocator();
+	vk::Device			logicalDevice	= vulkanInitializer.GetLogicalDevice();
+	vk::PhysicalDevice	physicalDevice	= vulkanInitializer.GetPhysicalDevice();
+	VmaAllocator*		pAllocator		= vulkanInitializer.GetPVmaAllocator();
 
 
 	// ウィンドウを作成
@@ -94,9 +94,8 @@ int main()
 		m_Object.SetTransform(testMat);
 
 		mainWindow.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
-		//mainWindow.AddDrawTask(triangleRenderer.GetRenderFunction());
+		mainWindow.AddDrawTask(triangleRenderer.GetRenderFunction());
 		mainWindow.ExecuteDrawTask();
-
 	}
 
 	renderTarget.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));

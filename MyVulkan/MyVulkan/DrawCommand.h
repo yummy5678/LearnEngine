@@ -42,7 +42,7 @@ private:
 	RenderingImageSet*				m_ImageSet;
 
 	vk::CommandPool					m_CommandPool;		//コマンドプール
-	vk::CommandBuffer				m_CommandBuffers;	//コマンドバッファ
+	vk::CommandBuffer				m_CommandBuffer;	//コマンドバッファ
 
 	// 同期オブジェクト
 	vk::Semaphore					m_RenderFinishedSemaphores;

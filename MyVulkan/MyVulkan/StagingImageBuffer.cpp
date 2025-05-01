@@ -270,7 +270,7 @@ void VStagingImageBuffer::SetCopyImageToBufferCommand(
 
 	// イメージのレイアウトをTRANSFER_SRC_OPTIMALに変換
 	vk::ImageMemoryBarrier barrier;
-	barrier.oldLayout = vk::ImageLayout::eUndefined;
+	barrier.oldLayout = vk::ImageLayout::eColorAttachmentOptimal;
 	barrier.newLayout = vk::ImageLayout::eTransferSrcOptimal;
 	barrier.image = srcImage->GetImageBuffer();
 	barrier.subresourceRange.aspectMask = srcImage->GetAspectFlag();

@@ -114,7 +114,7 @@ void RenderImage::ExecuteDrawTask()
 	m_RenderFunctions.clear();
 
 	// コマンドの記録の終了とキューへの送信
-	m_DrawCommand.EndRendering(m_Fence, vk::ImageLayout::eGeneral);
+	m_DrawCommand.EndRendering(m_Fence, vk::ImageLayout::eTransferSrcOptimal);
 
 
 }
