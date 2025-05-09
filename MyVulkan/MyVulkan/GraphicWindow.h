@@ -25,9 +25,8 @@ public:
 
     void AddDrawTask(std::shared_ptr<RenderFunction> function);
 	void ExecuteDrawTask();
-    void Presentation();
 
-    vk::Device		GetLogicalDevice() override;
+    vk::Device		    GetLogicalDevice() override;
     RenderingImageSet   GetImageSet() override;
     vk::Format			GetColorFormat() override;
     vk::Format			GetDepthFormat() override;
@@ -51,6 +50,7 @@ private:
     SwapchainRenderer           m_Swapchain;
 
     std::vector<vk::Fence>      m_Fences;
+    std::vector<vk::Semaphore>	m_ImageAvailableSemaphores;		// 表示コマンド用セマフォ
     std::vector<DrawCommand>    m_DrawCommands;
 
     // スワップチェーンのフレーム数

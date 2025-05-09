@@ -11,7 +11,7 @@ SwapchainRenderer::SwapchainRenderer(VulkanInitializer& initializer) :
     m_ColorFormat(vk::Format::eUndefined),
     m_DepthFormat(vk::Format::eUndefined),
     m_QueueFamily(),
-    m_ImageAvailableSemaphores(),
+    //m_ImageAvailableSemaphores(),
     m_PresentCommandPool(VK_NULL_HANDLE),
     m_PresentCommandBuffers(),
     //m_Fences(),
@@ -54,19 +54,19 @@ void SwapchainRenderer::Create(VmaAllocator* allocator, vk::SurfaceKHR surface)
     // スワップチェインの描画コマンドを作成
     CreatePresentationCommands();
 
-    // セマフォを画像の数だけ作成
-    vk::SemaphoreCreateInfo semaphoreInfo;
-    semaphoreInfo.pNext;
-    semaphoreInfo.flags;
-    m_ImageAvailableSemaphores.resize(m_SwapchainInfo.minImageCount);
-    for (uint32_t i = 0; i < m_SwapchainInfo.minImageCount; i++)
-    {
-        m_ImageAvailableSemaphores[i] = logicalDevice.createSemaphore(semaphoreInfo);
-    }
+    //// セマフォを画像の数だけ作成
+    //vk::SemaphoreCreateInfo semaphoreInfo;
+    //semaphoreInfo.pNext;
+    //semaphoreInfo.flags;
+    //m_ImageAvailableSemaphores.resize(m_SwapchainInfo.minImageCount);
+    //for (uint32_t i = 0; i < m_SwapchainInfo.minImageCount; i++)
+    //{
+    //    m_ImageAvailableSemaphores[i] = logicalDevice.createSemaphore(semaphoreInfo);
+    //}
 
     // イメージインデックスを初期化
     m_ImageIndex = 0;
-    AcquireSwapchainNextImage(m_ImageAvailableSemaphores[m_ImageIndex]);
+    //AcquireSwapchainNextImage(m_ImageAvailableSemaphores[m_ImageIndex]);
 }
 
 void SwapchainRenderer::Cleanup()
@@ -77,12 +77,12 @@ void SwapchainRenderer::Cleanup()
     if (logicalDevice == VK_NULL_HANDLE ||
         instance == VK_NULL_HANDLE) return;
 
-    // セマフォの解放
-    for (auto& semaphore : m_ImageAvailableSemaphores)
-    {
-        logicalDevice.destroySemaphore(semaphore);
-    }
-    m_ImageAvailableSemaphores.clear();
+    //// セマフォの解放
+    //for (auto& semaphore : m_ImageAvailableSemaphores)
+    //{
+    //    logicalDevice.destroySemaphore(semaphore);
+    //}
+    //m_ImageAvailableSemaphores.clear();
 
     // 
     m_QueueFamily.Cleanup();
@@ -152,10 +152,10 @@ vk::Format SwapchainRenderer::GetDepthFormat()
     return m_DepthFormat;
 }
 
-vk::Semaphore SwapchainRenderer::GetImageAvailableSemaphore()
-{
-    return m_ImageAvailableSemaphores[m_ImageIndex];
-}
+//vk::Semaphore SwapchainRenderer::GetImageAvailableSemaphore()
+//{
+//    return m_ImageAvailableSemaphores[m_ImageIndex];
+//}
 
 //vk::Fence SwapchainRenderer::GetFence()
 //{
@@ -169,19 +169,12 @@ const uint32_t SwapchainRenderer::GetUseImageIndex()
 
 void SwapchainRenderer::AcquireSwapchainNextImage(vk::Semaphore imageAvailableSemaphore)
 {
-    //// 次のインデックス
-    //m_LogicalDevice.waitForFences(
-    //    { m_Fences[m_ImageIndex] },							// 利用するフェンス達
-    //    VK_TRUE,								// フェンスが全てシグナル状態になるまで待つ
-    //    UINT64_MAX);							// 最大待機時間
-
-    //m_LogicalDevice.resetFences(m_Fences[m_ImageIndex]);	// フェンスを非シグナル状態にする
     vk::Device logicalDevice = m_AllocatorInfo.device;
 
     // スワップチェーンから次に描画するイメージ（フレームバッファのようなもの）のインデックスを取得します。
     vk::Result result = logicalDevice.acquireNextImageKHR(
         m_Swapchain,                            // スワップチェーン
-        std::numeric_limits<uint64_t>::max(),   // タイムアウトの設定(ここでは無限待機)
+        MAX_WAIT_TIME,                          // タイムアウトの設定
         imageAvailableSemaphore,                // イメージが使用可能になるのを通知するセマフォ
         nullptr,                                // フェンス(ここでは使用しないのでnullptr)
         &m_ImageIndex                           // イメージのインデックスが格納される
@@ -336,7 +329,7 @@ void SwapchainRenderer::CreateSwapchainImage()
     }
 }
 
-void SwapchainRenderer::Presentation(vk::SurfaceKHR surface, vk::Semaphore imageAvailableSemaphore)
+void SwapchainRenderer::Presentation(vk::SurfaceKHR surface, std::vector<vk::Semaphore>* imageAvailableSemaphore)
 {
     vk::Result result;
 
@@ -346,8 +339,12 @@ void SwapchainRenderer::Presentation(vk::SurfaceKHR surface, vk::Semaphore image
     presentInfo.pSwapchains = &m_Swapchain;
     presentInfo.pImageIndices = &m_ImageIndex;
     presentInfo.pResults = &result;
-    presentInfo.pWaitSemaphores = &imageAvailableSemaphore;
-    presentInfo.waitSemaphoreCount = 1;
+
+    if (imageAvailableSemaphore->empty() != true)
+    {
+        presentInfo.pWaitSemaphores = imageAvailableSemaphore->data();
+        presentInfo.waitSemaphoreCount = imageAvailableSemaphore->size();
+    }
 
     // 使用するキュー(グラフィックキューやプレゼントキューなど)のインデックスを取得
     vk::Device logicalDevice = m_AllocatorInfo.device;
@@ -359,16 +356,23 @@ void SwapchainRenderer::Presentation(vk::SurfaceKHR surface, vk::Semaphore image
     }
 }
 
-void SwapchainRenderer::UpdateFrame()
+void SwapchainRenderer::PresentFrame(std::vector<vk::Semaphore>* imageAvailableSemaphore)
 {
-    uint32_t index = m_ImageIndex;
+    //uint32_t index = m_ImageIndex;
     //m_PresentationCommand.RunningCommand(index, m_Surface, m_ImageAvailableSemaphores[index]);
-    Presentation(m_Surface, m_ImageAvailableSemaphores[index]);
+    //Presentation(m_Surface, m_ImageAvailableSemaphores[index]);
+    Presentation(m_Surface, imageAvailableSemaphore);
 
     // 次のインデックスに切り替え
-    index = (index + 1) % m_SwapchainInfo.minImageCount;
+    //index = (index + 1) % m_SwapchainInfo.minImageCount;
+    //m_ImageIndex = (m_ImageIndex + 1) % m_SwapchainInfo.minImageCount;
 
-    AcquireSwapchainNextImage(m_ImageAvailableSemaphores[index]);
+    //AcquireSwapchainNextImage(m_ImageAvailableSemaphores[index]);
+}
+
+void SwapchainRenderer::UpdateSwapchainNextFrame(vk::Semaphore imageAvailableSemaphore)
+{
+    AcquireSwapchainNextImage(imageAvailableSemaphore);
 }
 
 /// <summary>

@@ -22,11 +22,14 @@ public:
 	RenderingImageSet			GetRenderingImageSet();
 	vk::Format					GetColorFormat();
 	vk::Format					GetDepthFormat();
-	vk::Semaphore				GetImageAvailableSemaphore();
+	//vk::Semaphore				GetImageAvailableSemaphore();
 
 	const uint32_t				GetUseImageIndex();
 
-	void						UpdateFrame();
+
+	void						PresentFrame(std::vector<vk::Semaphore>* imageAvailableSemaphore);
+
+	void						UpdateSwapchainNextFrame(vk::Semaphore imageAvailableSemaphore);
 
 private:
 	VmaAllocator*				m_pAllocator;
@@ -52,7 +55,7 @@ private:
 	vk::CommandPool					m_PresentCommandPool;		// 表示コマンドプール
 	std::vector<vk::CommandBuffer>	m_PresentCommandBuffers;	// 表示コマンドバッファ
 	QueueFamilySelector			m_QueueFamily;					// キューの選択用オブジェクト
-	std::vector<vk::Semaphore>	m_ImageAvailableSemaphores;		// 表示コマンド用セマフォ
+	//std::vector<vk::Semaphore>	m_ImageAvailableSemaphores;		// 表示コマンド用セマフォ
 	uint32_t					m_ImageIndex;					// 表示するフレームを示すためのインデックス
 #pragma endregion
 
@@ -77,7 +80,7 @@ private:
 
 	// フレームの描画関連の関数
 	void CreatePresentationCommands();
-	void Presentation(vk::SurfaceKHR surface, vk::Semaphore imageAvailableSemaphore);
+	void Presentation(vk::SurfaceKHR surface, std::vector<vk::Semaphore>* imageAvailableSemaphore);
 
 
 

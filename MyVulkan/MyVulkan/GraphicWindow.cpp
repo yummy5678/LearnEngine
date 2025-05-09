@@ -9,6 +9,7 @@ GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 	m_AllocatorInfo(),
 	m_Surface(initializer),
 	m_Swapchain(initializer),
+	m_ImageAvailableSemaphores(),
 	m_Fences(),
 	m_DrawCommands(),
 	m_CurrentImageSet(),
@@ -26,6 +27,7 @@ GraphicWindow::GraphicWindow(VulkanInitializer& initializer) :
 
 GraphicWindow::~GraphicWindow()
 {
+	Cleanup();
 }
 
 void GraphicWindow::init(VulkanInitializer* initializer, const std::string wName, const int width, const int height)
@@ -82,6 +84,16 @@ void GraphicWindow::init(VulkanInitializer* initializer, const std::string wName
 	{
 		m_Fences[i] = logicalDevice.createFence(fenceInfo);
 	}
+
+	// セマフォを画像の数だけ作成
+	vk::SemaphoreCreateInfo semaphoreInfo;
+	semaphoreInfo.pNext;
+	semaphoreInfo.flags;
+	m_ImageAvailableSemaphores.resize(m_SwapcheinFrameCount);
+	for (uint32_t i = 0; i < m_SwapcheinFrameCount; i++)
+	{
+		m_ImageAvailableSemaphores[i] = logicalDevice.createSemaphore(semaphoreInfo);
+	}
 }
 
 void GraphicWindow::Cleanup()
@@ -103,6 +115,13 @@ void GraphicWindow::Cleanup()
 		logicalDevice.destroyFence(fence);
 	}
 	m_Fences.clear();
+
+	// セマフォの解放
+	for (auto& semaphore : m_ImageAvailableSemaphores)
+	{
+		logicalDevice.destroySemaphore(semaphore);
+	}
+	m_ImageAvailableSemaphores.clear();
 
 	// スワップチェインの解放
 	m_Swapchain.Cleanup();
@@ -139,45 +158,62 @@ void GraphicWindow::ExecuteDrawTask()
 {
 	vk::Device logicalDevice = m_AllocatorInfo.device;
 
-	//vk::Fence fence = m_Fences[m_CurrentIndex];
-	vk::Fence fence = m_Fences[0];
+	// 1. スワップチェーン画像の取得（描画対象のインデックスを取得）
+	
+
+	// 2. 前フレームの描画完了を待機
+	vk::Fence currentFence = m_Fences[m_CurrentIndex];
+
 
 	// 次のインデックス
 	logicalDevice.waitForFences(
-	    //{ m_Fences[m_CurrentIndex] },	// 利用するフェンス達
-	    { fence },	// 利用するフェンス達
+	    { currentFence },	// 利用するフェンス
 	    VK_TRUE,						// フェンスが全てシグナル状態になるまで待つ
 		MAX_WAIT_TIME);					// 最大待機時間
-	logicalDevice.resetFences(fence);	// フェンスを非シグナル状態にする
+	logicalDevice.resetFences(currentFence);	// フェンスを非シグナル状態にする
 
-	auto imageSet = m_Swapchain.GetRenderingImageSet();
+	// AcquireNextImageを使いたい
+	m_Swapchain.UpdateSwapchainNextFrame(m_ImageAvailableSemaphores[m_CurrentIndex]);
+	const uint32_t frameIndex = m_Swapchain.GetUseImageIndex();	// 更新したインデックス番号を取得
+
+	// 3. 描画コマンドの記録開始
+	RenderingImageSet imageSet = m_Swapchain.GetRenderingImageSet();
+	DrawCommand& useCommand = m_DrawCommands[frameIndex];
 
 	// 描画コマンドの記録開始
-	m_DrawCommands[m_CurrentIndex].BeginRendering(
+	useCommand.BeginRendering(
 		&imageSet,
-		m_Swapchain.GetImageAvailableSemaphore(),
 		{{0, 0}, m_Swapchain.GetExtent()});
 
+	// 4. 登録された描画処理を実行
 	// オブジェクトをパイプラインを通して描画
 	for (auto& function : m_RenderFunctions)
 	{
-		(*function)(m_DrawCommands[m_CurrentIndex].GetBuffer(), &(*function));
+		(*function)(useCommand.GetBuffer(), &(*function));
+
+		// ここでユニフォームバッファを更新
 	}
 	m_RenderFunctions.clear();
 	
+	// 5. 描画コマンドの終了と送信（フェンスを設定）
 	// コマンドの記録の終了とキューへの送信
-	m_DrawCommands[m_CurrentIndex].EndRendering(fence, vk::ImageLayout::ePresentSrcKHR);
+	std::vector<vk::Semaphore> waitSemaphores(1);
+	waitSemaphores[0] = m_ImageAvailableSemaphores[m_CurrentIndex];
+	std::vector<vk::Semaphore> signalSemaphores(1); 
+	signalSemaphores[0] = m_DrawCommands[m_CurrentIndex].GetRenderFinishedSemaphore();
+	useCommand.EndRendering(
+		currentFence,
+		&waitSemaphores,
+		&signalSemaphores,
+		vk::ImageLayout::ePresentSrcKHR);
 
+	// 6. ウィンドウにプレゼンテーション（内部で vkQueuePresentKHR を呼ぶ設計に）
 	// 描画した画像をウィンドウに表示
-	Presentation();
+	//Presentation();
+	m_Swapchain.PresentFrame(&signalSemaphores);
 
-	// カウントを進める
+	// 7. インデックスの更新（AcquireNextImageKHRで次回取得されるので省略可）
 	m_CurrentIndex = (m_CurrentIndex + 1) % m_SwapcheinFrameCount;
-}
-
-void GraphicWindow::Presentation()
-{
-	m_Swapchain.UpdateFrame();
 }
 
 vk::Device GraphicWindow::GetLogicalDevice()

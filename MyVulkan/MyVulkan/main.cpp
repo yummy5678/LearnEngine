@@ -72,9 +72,9 @@ int main()
 	renderConfig.Initialize(logicalDevice, physicalDevice, &mainWindow);	
 	triangleRenderer.Initialize(&renderTarget);
 
-	renderTarget.AddDrawTask(triangleRenderer.GetRenderFunction());
-	renderTarget.ExecuteDrawTask();
-	renderTarget.WriteImage("writeImage.bmp");
+	//renderTarget.AddDrawTask(triangleRenderer.GetRenderFunction());
+	//renderTarget.ExecuteDrawTask();
+	//renderTarget.WriteImage("writeImage.bmp");
 
 	//無限ループ(ウィンドウの終了フラグが立つまで)
 	while (!mainWindow.checkCloseWindow())
@@ -98,9 +98,9 @@ int main()
 		mainWindow.ExecuteDrawTask();
 	}
 
-	renderTarget.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
-	renderTarget.ExecuteDrawTask();
-	renderTarget.WriteImage("endImage.bmp");
+	//renderTarget.AddDrawTask(renderConfig.GetRenderFunction(&objContainer, &camera));
+	//renderTarget.ExecuteDrawTask();
+	//renderTarget.WriteImage("endImage.bmp");
 
 	//ToDo グラフィクスパイプラインの解放処理を作成する
 	// 作成したオブジェクトは作成したのと逆の順番で解放する

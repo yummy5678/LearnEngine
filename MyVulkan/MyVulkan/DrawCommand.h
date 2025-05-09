@@ -26,10 +26,14 @@ public:
 
 	vk::CommandBuffer GetBuffer();
 
-	void BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imageAvableSemaphore, vk::Rect2D renderArea);
-	void EndRendering(vk::Fence fence, vk::ImageLayout newImageLayout);
+	void BeginRendering(RenderingImageSet* imageSet, vk::Rect2D renderArea);
+	void EndRendering(
+		vk::Fence submitFence,
+		std::vector<vk::Semaphore>* waitSemaphores,
+		std::vector<vk::Semaphore>* signalSemaphores,
+		vk::ImageLayout newImageLayout);
 
-	vk::Semaphore GetSignalSemaphore();
+	vk::Semaphore GetRenderFinishedSemaphore();
 
 
 private:
@@ -45,10 +49,10 @@ private:
 	vk::CommandBuffer				m_CommandBuffer;	//コマンドバッファ
 
 	// 同期オブジェクト
-	vk::Semaphore					m_RenderFinishedSemaphores;
+	vk::Semaphore					m_RenderFinishedSemaphore;
 
 	// 描画処理の完了を知らせるためのセマフォ
-	vk::Semaphore					m_ImageAvailableSemaphores;
+	//vk::Semaphore					m_ImageAvailableSemaphores;
 	//vk::Fence						m_Fences;
 
 	void CreateSemaphore(vk::Semaphore& semaphore);
@@ -60,7 +64,10 @@ private:
 	//コマンドバッファの作成(コマンドプールの割り当て)
 	void CreateCommandBuffers(uint32_t commandSize, vk::CommandPool commandPool);
 
-	vk::SubmitInfo CreateSubmitInfo(std::vector<vk::PipelineStageFlags>* waitStages);
+	vk::SubmitInfo CreateSubmitInfo(
+		std::vector<vk::PipelineStageFlags>* waitStages,
+		std::vector<vk::Semaphore>* imageAvailableSemaphore,
+		std::vector<vk::Semaphore>* WaitSemaphore);
 
 	void ImageMemoryBarrier(vk::Image& image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 

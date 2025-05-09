@@ -9,7 +9,7 @@ DrawCommand::DrawCommand() :
     m_ImageSet(nullptr),
     m_CommandBuffer(),
     m_CommandPool(VK_NULL_HANDLE),
-    m_RenderFinishedSemaphores(),
+    //m_RenderFinishedSemaphores(),
     //m_Fences(),
     m_QueueSelector()
 {
@@ -33,7 +33,7 @@ void DrawCommand::Create(vk::Device logicalDevice, vk::PhysicalDevice physicalDe
     CreateCommandBuffers(1, m_CommandPool);
 
     // セマフォの作成
-    CreateSemaphore(m_RenderFinishedSemaphores);
+    CreateSemaphore(m_RenderFinishedSemaphore);
     //フェンスの作成
     //CreateFence(m_Fences);
 
@@ -57,16 +57,16 @@ vk::CommandBuffer DrawCommand::GetBuffer()
     return m_CommandBuffer;
 }
 
-void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imageAvableSemaphore, vk::Rect2D renderArea)
+void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Rect2D renderArea)
 {
     m_ImageSet = imageSet;
-    m_ImageAvailableSemaphores = imageAvableSemaphore;
+    //m_ImageAvailableSemaphores = imageAvableSemaphore;
 
     // カラーバッファアタッチメント
     vk::RenderingAttachmentInfo colorAttachment;
     colorAttachment.pNext;
     colorAttachment.imageView = m_ImageSet->color.view;
-    colorAttachment.imageLayout = vk::ImageLayout::eAttachmentOptimal;
+    colorAttachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachment.clearValue = vk::ClearValue(vk::ClearColorValue(0.0f, 0.0f, 1.0f, 1.0f));
@@ -125,7 +125,11 @@ void DrawCommand::BeginRendering(RenderingImageSet* imageSet, vk::Semaphore imag
     commandBuffer.beginRendering(renderingInfo);
 }
 
-void DrawCommand::EndRendering(vk::Fence fence, vk::ImageLayout newImageLayout)
+void DrawCommand::EndRendering(
+    vk::Fence submitFence, 
+    std::vector<vk::Semaphore>* waitSemaphores,
+    std::vector<vk::Semaphore>* signalSemaphores,
+    vk::ImageLayout newImageLayout)
 {
     // 描画コマンドの記録を終了する
     m_CommandBuffer.endRendering();
@@ -138,16 +142,16 @@ void DrawCommand::EndRendering(vk::Fence fence, vk::ImageLayout newImageLayout)
 
     // 送信情報の作成
     std::vector<vk::PipelineStageFlags> waitStages = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
-    vk::SubmitInfo submitInfo = CreateSubmitInfo(&waitStages);
+    vk::SubmitInfo submitInfo = CreateSubmitInfo(&waitStages, waitSemaphores, signalSemaphores);
 
     // キューにコマンドを送信
     vk::Queue queue = m_LogicalDevice.getQueue(m_QueueSelector.GetGraphicIndex(), 0);
-    queue.submit(submitInfo, fence);
+    queue.submit(submitInfo, submitFence);
 }
 
-vk::Semaphore DrawCommand::GetSignalSemaphore()
+vk::Semaphore DrawCommand::GetRenderFinishedSemaphore()
 {
-    return m_RenderFinishedSemaphores;
+    return m_RenderFinishedSemaphore;
 }
 
 void DrawCommand::CreateSemaphore(vk::Semaphore& semaphore)
@@ -203,21 +207,30 @@ void DrawCommand::CreateCommandBuffers(uint32_t commandSize, vk::CommandPool com
 }
 
 vk::SubmitInfo DrawCommand::CreateSubmitInfo(
-    std::vector<vk::PipelineStageFlags>* waitStages)
+    std::vector<vk::PipelineStageFlags>* waitStages,
+    std::vector<vk::Semaphore>* waitSemaphore,
+    std::vector<vk::Semaphore>* signalSemaphore)
 {
     vk::SubmitInfo submitInfo;
     submitInfo.pNext;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &m_CommandBuffer;
 
-    // 画像の枚数が複数ある場合は同期処理を行う
-    if (m_Swapchain != VK_NULL_HANDLE)
+    if (waitStages != nullptr && waitStages->empty() != true)
     {
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &m_RenderFinishedSemaphores;
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphores;
-        submitInfo.pWaitDstStageMask = waitStages->data();   
+        submitInfo.pWaitDstStageMask = waitStages->data();
+    }
+
+    if (waitSemaphore != nullptr &&  waitSemaphore->empty() != true)
+    {
+        submitInfo.waitSemaphoreCount = waitSemaphore->size();
+        submitInfo.pWaitSemaphores = waitSemaphore->data();
+    }
+
+    if (signalSemaphore != nullptr && signalSemaphore->empty() != true)
+    {
+        submitInfo.signalSemaphoreCount = signalSemaphore->size();
+        submitInfo.pSignalSemaphores = signalSemaphore->data();
     }
 
     return submitInfo;

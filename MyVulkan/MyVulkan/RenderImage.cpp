@@ -103,7 +103,6 @@ void RenderImage::ExecuteDrawTask()
 	// 描画コマンドの記録開始
 	m_DrawCommand.BeginRendering(
 		&m_ImageSet,
-		VK_NULL_HANDLE,							// フェンス
 		{ {0, 0}, m_ImageExtent });
 
 	// オブジェクトをパイプラインを通して描画
@@ -114,7 +113,7 @@ void RenderImage::ExecuteDrawTask()
 	m_RenderFunctions.clear();
 
 	// コマンドの記録の終了とキューへの送信
-	m_DrawCommand.EndRendering(m_Fence, vk::ImageLayout::eTransferSrcOptimal);
+	m_DrawCommand.EndRendering(m_Fence, VK_NULL_HANDLE, VK_NULL_HANDLE, vk::ImageLayout::eTransferSrcOptimal);
 
 
 }
